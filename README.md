@@ -79,7 +79,7 @@ Every lesson has the same three steps, and only counts as mastered when all thre
 - **TypeScript playground** — a real editor with live type checking.
 - **Dart + Flutter playground** — the official DartPad embedded, loaded with each lesson's runnable sample.
 - **CSS + Tailwind playground** — live preview you can resize to test breakpoints.
-- **Flashcard review** — 265 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
+- **Flashcard review** — 266 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
 - **Mock exam** — ten random questions by track and level.
 - **Capstone projects** — one full-stack project per level.
 - **Search** — press `/` anywhere.
