@@ -1,21 +1,20 @@
 // Verifies the C# in this project with the real .NET SDK:
 //   1. every C# interview solution runs against the same test cases as the TypeScript judge,
 //   2. every C# pattern template compiles,
-//   3. every C# track lesson snippet compiles as a Program.cs.
-// Usage: node tools/verify.mjs        (requires the .NET SDK on PATH)
-import { createRequire } from 'node:module';
+//   3. every C# track lesson snippet compiles as a Program.cs and runs without an unhandled exception.
+// Usage: node tools/verify.mjs [--show]   (requires the .NET SDK on PATH; --show prints each lesson's output)
 import { execSync } from 'node:child_process';
-import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const require = createRequire(import.meta.url);
 globalThis.window = globalThis;
-for (const f of ['src/scripts/util.js', 'data/csharp.js', 'data/fundamentals.js', 'data/interview.js', 'data/interview-cs.js']) {
-  try { require(join(root, f)); } catch (e) { if (e.code !== 'MODULE_NOT_FOUND') throw e; }
-}
+globalThis.TRACKS = [];
+// The data files are plain scripts that fill in globals, so evaluate them as scripts.
+for (const f of ['data/csharp.js', 'data/fundamentals.js', 'data/interview.js', 'data/interview-cs.js'])
+  (0, eval)(readFileSync(join(root, f), 'utf8'));
 
 const out = join(tmpdir(), 'stackmastery-verify');
 rmSync(out, { recursive: true, force: true });
@@ -131,8 +130,11 @@ for (const t of tracks) for (const l of t.lessons) {
   n++;
   writeFileSync(join(les, 'Program.cs'), l.code);
   const b = run('dotnet build -nologo -clp:ErrorsOnly', les);
-  if (b.ok && t.id === 'cs') console.log(`--- output of ${t.id}/${l.id} ---\n` + run('dotnet run --no-build', les).text.trim());
-  if (b.ok) ok++; else { failures++; console.log(`\nLESSON ${t.id}/${l.id} does not compile:\n  ` + errorsOf(b.text).slice(0, 6).join('\n  ')); }
+  if (!b.ok) { failures++; console.log(`\nLESSON ${t.id}/${l.id} does not compile:\n  ` + errorsOf(b.text).slice(0, 6).join('\n  ')); continue; }
+  // Run it too: a sample a learner copies must not crash.
+  const r = run('dotnet run --no-build', les);
+  if (process.argv.includes('--show')) console.log(`--- output of ${t.id}/${l.id} ---\n` + r.text.trim());
+  if (r.ok) ok++; else { failures++; console.log(`\nLESSON ${t.id}/${l.id} crashes when run:\n  ` + r.text.trim().split('\n').slice(0, 4).join('\n  ')); }
 }
-console.log(`${ok} / ${n} C# lesson snippets compile`);
+console.log(`${ok} / ${n} C# lesson snippets compile and run without errors`);
 process.exit(failures ? 1 : 0);

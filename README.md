@@ -54,11 +54,11 @@ What this means in practice:
 
 ## What is inside
 
-### Seven tracks, 87 lessons, four levels each
+### Seven tracks, 88 lessons, four levels each
 
 | Track | Lessons | From → to |
 | --- | --- | --- |
-| **C#** | 13 | Variables and classes → async, memory, concurrency, internals |
+| **C#** | 14 | Variables and classes → exceptions, async, memory, concurrency, internals |
 | **CS Fundamentals** | 7 | Git and Big-O → data structures, graphs, dynamic programming |
 | **SQL** | 12 | SELECT and joins → indexes, transactions, query plans, scaling |
 | **ASP.NET Core** | 14 | HTTP and routing → auth, EF Core, performance, architecture, production |
@@ -79,7 +79,7 @@ Every lesson has the same three steps, and only counts as mastered when all thre
 - **TypeScript playground** — a real editor with live type checking.
 - **Dart + Flutter playground** — the official DartPad embedded, loaded with each lesson's runnable sample.
 - **CSS + Tailwind playground** — live preview you can resize to test breakpoints.
-- **Flashcard review** — 261 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
+- **Flashcard review** — 265 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
 - **Mock exam** — ten random questions by track and level.
 - **Capstone projects** — one full-stack project per level.
 - **Search** — press `/` anywhere.
@@ -117,7 +117,7 @@ The percentages in the sidebar show your progress per track; the dashboard shows
 
 ## Languages
 
-The whole program — interface, all 87 lessons, quizzes, visualizations, playgrounds and interview preparation — is available in English and Bahasa Indonesia.
+The whole program — interface, all 88 lessons, quizzes, visualizations, playgrounds and interview preparation — is available in English and Bahasa Indonesia.
 
 - Use the **ID / EN** button at the top-right of the screen. The choice is remembered in your browser.
 - On a first visit, a browser set to Indonesian starts in Indonesian; every other browser starts in English.
@@ -274,7 +274,7 @@ Requires Node.js and the .NET SDK. It:
 
 1. runs every C# interview solution against the same test cases the in-browser TypeScript judge uses;
 2. compiles every C# pattern template;
-3. compiles every lesson snippet in the C# and CS Fundamentals tracks as a `Program.cs`.
+3. compiles every lesson snippet in the C# and CS Fundamentals tracks as a `Program.cs` and runs it, failing on any unhandled exception (add `--show` to print each lesson's output).
 
 Run it after changing any C# content. ASP.NET Core snippets that depend on NuGet packages (EF Core, JWT bearer, OpenTelemetry) are not covered by this script.
 
