@@ -1,0 +1,126 @@
+// Bahasa Indonesia — teks visualisasi di js/viz.js.
+I18N.add({
+  '← Back': '← Kembali', 'Next →': 'Lanjut →',
+  'Step {i} of {n}': 'Langkah {i} dari {n}',
+  'Full stack': 'Full stack',
+
+  // stack & heap
+  'Stack and heap': 'Stack dan heap',
+  'Step through six lines and watch what is copied: a value, or a reference to a shared object.': 'Telusuri enam baris kode dan perhatikan apa yang disalin: sebuah value, atau reference ke object yang sama.',
+  'a is a value type: the variable’s slot holds the number 5 itself.': 'a adalah value type: slot variabelnya langsung menyimpan angka 5 itu sendiri.',
+  'Assignment copies the VALUE. b gets its own independent 5.': 'Assignment menyalin VALUE-nya. b mendapat angka 5 miliknya sendiri, terpisah dari a.',
+  'Changing b does not touch a. Two separate boxes.': 'Mengubah b tidak menyentuh a. Dua kotak yang terpisah.',
+  'new Person(...) creates an object on the heap. p1 holds a reference (an address) to it, not the object.': 'new Person(...) membuat object di heap. p1 menyimpan reference (alamat) ke object itu, bukan object-nya.',
+  'Assignment copies the REFERENCE. p1 and p2 now point to the same single object.': 'Assignment menyalin REFERENCE-nya. Sekarang p1 dan p2 menunjuk ke satu object yang sama.',
+  'Changing the object through p2 is visible through p1 — there is only one Person. p1.Name is now "Budi".': 'Perubahan object lewat p2 juga terlihat lewat p1 — karena Person-nya memang cuma satu. p1.Name sekarang "Budi".',
+  'empty': 'kosong',
+  'Stack (local variables)': 'Stack (variabel lokal)',
+  'Heap (objects)': 'Heap (object)',
+
+  // async
+  'Async timeline': 'Timeline async',
+  'Three I/O calls take 1.0 s, 1.5 s and 0.8 s. Compare blocking, awaiting one by one, and awaiting all together.': 'Tiga pemanggilan I/O butuh 1,0 detik, 1,5 detik, dan 0,8 detik. Bandingkan antara blocking, await satu per satu, dan await semuanya sekaligus.',
+  '.Result (blocking)': '.Result (blocking)',
+  'await one by one': 'await satu per satu',
+  'Total 3.3 s, and the thread is BLOCKED for all 3.3 s — it can serve nobody else. Under load this starves the thread pool.': 'Total 3,3 detik, dan thread-nya TER-BLOCK selama 3,3 detik penuh — tidak bisa melayani siapa pun. Saat beban tinggi, thread pool bisa kehabisan thread.',
+  'Total still 3.3 s, but the thread is free while each call is in flight. It only works for an instant between calls — it can serve other requests meanwhile.': 'Total tetap 3,3 detik, tapi thread-nya bebas selama tiap pemanggilan berlangsung. Ia hanya bekerja sekejap di antara pemanggilan — sisanya bisa dipakai melayani request lain.',
+  'All three calls start at once. Total = the slowest call, 1.5 s — and the thread is still free while waiting.': 'Ketiga pemanggilan dimulai bersamaan. Total = pemanggilan paling lambat, 1,5 detik — dan thread tetap bebas selama menunggu.',
+  'Red = thread blocked · solid = thread working · green = I/O in flight, no thread used · full width = 3.3 s': 'Merah = thread ter-block · solid = thread bekerja · hijau = I/O sedang berjalan, tanpa memakai thread · lebar penuh = 3,3 detik',
+
+  // linq
+  'LINQ pipeline': 'Pipeline LINQ',
+  'Toggle operators and follow each item through the chain. Struck-out items were dropped at that stage.': 'Nyalakan atau matikan operator, lalu ikuti perjalanan tiap item di sepanjang chain. Item yang dicoret berarti dibuang di tahap itu.',
+  '.ToList()  ← runs here': '.ToList()  ← dieksekusi di sini',
+  'Deferred execution: the chain is only a description. No item moves until something enumerates it — here, ToList().': 'Deferred execution: chain-nya hanyalah deskripsi. Tidak ada item yang bergerak sampai ada yang meng-enumerate — di sini, ToList().',
+
+  // middleware
+  'Middleware pipeline': 'Pipeline middleware',
+  'Send a request and watch it travel in through each middleware and back out in reverse. Try it without a token, or with a failing endpoint.': 'Kirim sebuah request dan lihat ia masuk melewati tiap middleware lalu keluar lagi dengan urutan terbalik. Coba juga tanpa token, atau dengan endpoint yang gagal.',
+  'catches errors': 'menangkap error', 'forces HTTPS': 'memaksa HTTPS', 'picks endpoint': 'memilih endpoint',
+  'who are you?': 'kamu siapa?', 'allowed?': 'boleh akses?', 'your code': 'kodemu',
+  'Press “Send request”.': 'Tekan “Kirim request”.',
+  'Request has a valid token': 'Request membawa token yang valid',
+  'Endpoint throws an exception': 'Endpoint melempar exception',
+  'Request travelling…': 'Request sedang berjalan…',
+  '→ Authentication: token valid, user = ana': '→ Authentication: token valid, user = ana',
+  '→ Authentication: no token, user = anonymous': '→ Authentication: tanpa token, user = anonymous',
+  '✗ Authorization: not authenticated → 401. SHORT-CIRCUIT: next() is never called': '✗ Authorization: belum terautentikasi → 401. SHORT-CIRCUIT: next() tidak pernah dipanggil',
+  '✗ Endpoint throws InvalidOperationException': '✗ Endpoint melempar InvalidOperationException',
+  '✓ Endpoint runs → 200 OK': '✓ Endpoint dijalankan → 200 OK',
+  '  exception passes up through {name}': '  exception naik melewati {name}',
+  '← ExceptionHandler catches it → 500 ProblemDetails': '← ExceptionHandler menangkapnya → 500 ProblemDetails',
+  '← {name} (code after next())': '← {name} (kode setelah next())',
+  'The endpoint never ran — authorization short-circuited the pipeline.': 'Endpoint-nya tidak pernah dijalankan — authorization melakukan short-circuit pada pipeline.',
+  'Only the outermost middleware could catch the exception, which is why it must be registered first.': 'Hanya middleware terluar yang bisa menangkap exception itu, makanya ia harus didaftarkan paling awal.',
+  'In through six stages, back out through the same stages in reverse.': 'Masuk lewat enam tahap, keluar lewat tahap yang sama dengan urutan terbalik.',
+  'Send request': 'Kirim request',
+
+  // DI
+  'Service lifetimes': 'Service lifetime',
+  'Each request resolves every service twice — once in the endpoint, once in a dependency. Compare the instance IDs.': 'Tiap request me-resolve setiap service dua kali — sekali di endpoint, sekali di sebuah dependency. Bandingkan ID instance-nya.',
+  'Send a few requests. Same colour = same object instance.': 'Kirim beberapa request. Warna sama = instance object yang sama.',
+  'Request': 'Request',
+  'Singleton: one instance forever. Scoped: one per request, shared within it. Transient: a new one every single time it is asked for.': 'Singleton: satu instance selamanya. Scoped: satu per request, dipakai bersama di dalam request itu. Transient: instance baru setiap kali diminta.',
+  'Restart app': 'Restart aplikasi',
+  'App restarted — in a real app the singleton would be recreated too.': 'Aplikasi di-restart — di aplikasi sungguhan, singleton-nya juga akan dibuat ulang.',
+
+  // joins
+  'JOIN explorer': 'JOIN explorer',
+  'Dewi has no orders, and order 105 has no customer. Switch join types and see which rows survive.': 'Dewi tidak punya order, dan order 105 tidak punya customer. Ganti jenis join dan lihat baris mana yang bertahan.',
+  'Only pairs that match on both sides. Dewi and order 105 disappear.': 'Hanya pasangan yang cocok di kedua sisi. Dewi dan order 105 hilang.',
+  'Every customer is kept. Dewi appears once with NULL order columns.': 'Semua customer dipertahankan. Dewi muncul sekali dengan kolom order berisi NULL.',
+  'Every order is kept. Order 105 appears with NULL customer columns.': 'Semua order dipertahankan. Order 105 muncul dengan kolom customer berisi NULL.',
+  'Everything from both sides; unmatched rows are padded with NULL.': 'Semua baris dari kedua sisi; baris yang tidak punya pasangan diisi NULL.',
+  'No condition: every customer paired with every order — 4 × 5 = 20 rows.': 'Tanpa kondisi: setiap customer dipasangkan dengan setiap order — 4 × 5 = 20 baris.',
+  'Result — {n} rows': 'Hasil — {n} baris',
+
+  // sql order
+  'Query execution order': 'Urutan eksekusi query',
+  'A query is written SELECT-first but evaluated FROM-first. Step through the logical order and watch the rows change.': 'Query ditulis mulai dari SELECT, tapi dievaluasi mulai dari FROM. Telusuri urutan logisnya dan perhatikan baris-barisnya berubah.',
+  'rows in group (amount)': 'baris dalam group (amount)',
+  '1. FROM — start with every row of the source table: 7 rows.': '1. FROM — mulai dari semua baris di tabel sumber: 7 baris.',
+  '2. WHERE — filter individual rows. The cancelled order is removed before any grouping happens.': '2. WHERE — memfilter baris satu per satu. Order yang cancelled dibuang sebelum ada grouping apa pun.',
+  '3. GROUP BY — the remaining 6 rows collapse into 4 groups, one per customer.': '3. GROUP BY — 6 baris yang tersisa dilebur jadi 4 group, satu per customer.',
+  '4. HAVING — filter whole groups using aggregates. Budi (20) and Dewi (40) are removed.': '4. HAVING — memfilter group secara utuh memakai aggregate. Budi (20) dan Dewi (40) dibuang.',
+  '5. SELECT — only now are the output columns computed and the alias “total” created. That is why WHERE cannot see it.': '5. SELECT — baru di sini kolom output dihitung dan alias “total” dibuat. Itulah kenapa WHERE tidak bisa melihatnya.',
+  '6. ORDER BY — sorting runs after SELECT, so it CAN use the alias.': '6. ORDER BY — sorting dijalankan setelah SELECT, jadi BISA memakai alias.',
+  '7. LIMIT — finally, cut the result to the first row.': '7. LIMIT — terakhir, hasilnya dipotong jadi baris pertama saja.',
+
+  // index
+  'Scan vs index seek': 'Scan vs index seek',
+  'Find one id among 24 rows: reading every row in storage order, or halving a sorted index each step.': 'Cari satu id di antara 24 baris: dengan membaca tiap baris sesuai urutan penyimpanan, atau dengan membagi dua index yang terurut di tiap langkah.',
+  'Target id': 'Id yang dicari',
+  'Pick a target and press Find.': 'Pilih id yang dicari lalu tekan Cari.',
+  'Find': 'Cari',
+  'Scan read {a} rows; the index needed {b} comparisons. With 1,000,000 rows a scan reads up to 1,000,000 — a seek needs about 20. That is O(n) versus O(log n).': 'Scan membaca {a} baris; index hanya butuh {b} perbandingan. Dengan 1.000.000 baris, scan bisa membaca sampai 1.000.000 — seek hanya butuh sekitar 20. Itulah O(n) versus O(log n).',
+  'Table scan — rows in storage order · rows read: ': 'Table scan — baris sesuai urutan penyimpanan · baris dibaca: ',
+  'Index seek — sorted keys · comparisons: ': 'Index seek — key terurut · perbandingan: ',
+
+  // rerender
+  'Re-render explorer': 'Re-render explorer',
+  'Click a component to change its state. Everything that flashes re-rendered. Then switch on memo and try again.': 'Klik sebuah komponen untuk mengubah state-nya. Semua yang berkedip berarti di-render ulang. Lalu nyalakan memo dan coba lagi.',
+  'Click any component.': 'Klik komponen mana saja.',
+  'Wrap child components in memo (props unchanged)': 'Bungkus komponen child dengan memo (props tidak berubah)',
+  'renders:': 'render:',
+  'setState in {name} → {n} components re-rendered': 'setState di {name} → {n} komponen di-render ulang',
+  'setState in {name} → {n} component re-rendered': 'setState di {name} → {n} komponen di-render ulang',
+  '; {n} skipped by memo because their props did not change.': '; {n} dilewati oleh memo karena props-nya tidak berubah.',
+  ' — the component and its whole subtree, even though the children’s props are identical.': ' — komponen itu beserta seluruh subtree-nya, padahal props child-nya sama persis.',
+  '. Parents and siblings are never affected.': '. Parent dan sibling tidak pernah terpengaruh.',
+  'Reset counts': 'Reset hitungan',
+  'App contains Header, TodoList and Footer. TodoList contains the three TodoItems.': 'App berisi Header, TodoList, dan Footer. TodoList berisi tiga TodoItem.',
+
+  // journey
+  'One click through the whole stack': 'Satu klik melewati seluruh stack',
+  'Follow “Add product” from the button in React to a row in SQL and back. Every lesson in this program lives at one of these hops.': 'Ikuti “Add product” dari tombol di React sampai jadi satu baris di SQL, lalu kembali lagi. Setiap materi di program ini berada di salah satu perhentian ini.',
+  'The user clicks Add. The onClick handler runs and calls the mutation with { name, price }.': 'User mengklik Add. Handler onClick berjalan dan memanggil mutation dengan { name, price }.',
+  'fetch() sends POST /api/products with a JSON body and the auth cookie or token in the headers.': 'fetch() mengirim POST /api/products dengan body JSON serta cookie atau token auth di header.',
+  'The web server accepts the connection, parses the HTTP request and creates an HttpContext.': 'Web server menerima koneksi, mem-parsing HTTP request, dan membuat HttpContext.',
+  'The request passes exception handling, routing, authentication and authorization — in that order.': 'Request melewati exception handling, routing, authentication, dan authorization — dengan urutan itu.',
+  'Model binding turns the JSON into a CreateProductRequest; validation runs; an invalid body returns 400 here.': 'Model binding mengubah JSON menjadi CreateProductRequest; validasi dijalankan; body yang tidak valid langsung dibalas 400 di sini.',
+  'The container supplies a scoped DbContext and services. Your async handler awaits each step, freeing the thread during I/O.': 'Container menyediakan DbContext yang scoped beserta service lainnya. Handler async-mu meng-await tiap langkah, sehingga thread bebas selama I/O.',
+  'db.Products.Add(entity) is tracked; SaveChangesAsync translates the change into a parameterized INSERT.': 'db.Products.Add(entity) di-track; SaveChangesAsync menerjemahkan perubahan itu menjadi INSERT yang parameterized.',
+  'The database checks constraints, writes the row, updates indexes and commits the transaction. The new id is returned.': 'Database mengecek constraint, menulis barisnya, meng-update index, lalu meng-commit transaction. Id yang baru dikembalikan.',
+  '201 Created with the JSON body travels back out through the middleware in reverse order.': '201 Created beserta body JSON berjalan keluar melewati middleware dengan urutan terbalik.',
+  'The mutation succeeds and invalidates the products query; it refetches; state changes; React re-renders and patches the DOM.': 'Mutation berhasil dan meng-invalidate query products; data di-fetch ulang; state berubah; React me-render ulang dan mem-patch DOM.'
+});

@@ -1,6 +1,6 @@
 // CSS visualizations: specificity, box model, flexbox, grid.
 (() => {
-  const VIZ = window.VIZ;
+  const VIZ = window.VIZ, T = window.t;
   const meta = { track: 'css', trackName: 'CSS + Tailwind' };
   const select = (label, opts, onchange) => { const s = h('select', { onchange }, opts.map(o => h('option', {}, o))); return [h('label', {}, label, s), s]; };
   const range = (label, min, max, step, val, oninput) => {
@@ -38,11 +38,11 @@
             h('span', { class: 'id' }, r.inline ? 'inline' : `(${r.spec.join(',')})`));
         }));
         sample.style.color = win ? win.r.color : '#1b2030';
-        note.textContent = !win ? 'No rule applies: the link keeps its default colour.'
-          : win.r.important ? '!important outranks everything else — including inline styles. That is exactly why it is a last resort.'
-          : win.r.inline ? 'Inline styles beat every selector, whatever its specificity.'
-          : second && !second.r.inline && cmp(win.r.spec, second.r.spec) === 0 ? `“${win.r.sel}” and “${second.r.sel}” have equal specificity (${win.r.spec.join(',')}), so the one declared later wins.`
-          : `“${win.r.sel}” wins with specificity (${win.r.spec.join(',')}) — compare column by column: ids first, then classes, then elements.`;
+        note.textContent = !win ? T('No rule applies: the link keeps its default colour.')
+          : win.r.important ? T('!important outranks everything else — including inline styles. That is exactly why it is a last resort.')
+          : win.r.inline ? T('Inline styles beat every selector, whatever its specificity.')
+          : second && !second.r.inline && cmp(win.r.spec, second.r.spec) === 0 ? T('“{a}” and “{b}” have equal specificity ({s}), so the one declared later wins.', { a: win.r.sel, b: second.r.sel, s: win.r.spec.join(',') })
+          : T('“{a}” wins with specificity ({s}) — compare column by column: ids first, then classes, then elements.', { a: win.r.sel, s: win.r.spec.join(',') });
       };
       el.append(h('p', { class: 'muted' }, 'Target element: ', h('code', {}, '<nav><a id="buy" class="btn primary">Buy now</a></nav>'), ' — rules are listed in source order.'),
         h('div', { class: 'viz-cols' }, list, h('div', { class: 'viz-box spec-stage' }, h('h4', {}, 'Result'), sample)), note);
@@ -60,9 +60,9 @@
         const rendered = bb ? w : w + 2 * p + 2 * b, total = rendered + 2 * m;
         Object.assign(box.style, { width: w + 'px', padding: p + 'px', borderWidth: b + 'px', margin: m + 'px', boxSizing: bb ? 'border-box' : 'content-box' });
         content.textContent = `content ${Math.max(bb ? w - 2 * p - 2 * b : w, 0)}px`;
-        note.textContent = (bb ? `border-box: rendered width = width = ${w}px (padding and border fit inside).`
-          : `content-box: rendered width = ${w} + 2×${p} padding + 2×${b} border = ${rendered}px.`) +
-          ` With margins it occupies ${total}px` + (total > 320 ? ' — wider than the 320px parent, so it OVERFLOWS.' : ', which fits in the 320px parent.');
+        note.textContent = (bb ? T('border-box: rendered width = width = {w}px (padding and border fit inside).', { w })
+          : T('content-box: rendered width = {w} + 2×{p} padding + 2×{b} border = {r}px.', { w, p, b, r: rendered })) +
+          T(' With margins it occupies {total}px', { total }) + T(total > 320 ? ' — wider than the 320px parent, so it OVERFLOWS.' : ', which fits in the 320px parent.');
         out.set(`.box {\n  box-sizing: ${bb ? 'border-box' : 'content-box'};\n  width: ${w}px;\n  padding: ${p}px;\n  border: ${b}px solid;\n  margin: ${m}px;\n}`, `${bb ? 'box-border' : 'box-content'} w-[${w}px] p-[${p}px] border-[${b}px] m-[${m}px]`);
       };
       const [wL, wR] = range('width', 100, 300, 10, 280, draw), [pL, pR] = range('padding', 0, 40, 4, 16, draw), [bL, bR] = range('border', 0, 20, 2, 4, draw), [mL, mR] = range('margin', 0, 40, 4, 8, draw);
@@ -87,8 +87,8 @@
         items[1].style.flex = gC.checked ? '1' : '';
         out.set(`.container {\n  display: flex;\n  flex-direction: ${d};\n  justify-content: ${j};\n  align-items: ${a};\n  flex-wrap: ${wr};\n  gap: ${g}px;\n}` + (gC.checked ? '\n.item-2 { flex: 1; }' : ''),
           `flex ${d === 'row' ? 'flex-row' : 'flex-col'} justify-${tw[j]} items-${tw[a]} flex-${wr} gap-${g / 4}` + (gC.checked ? '   ·   item 2: flex-1' : ''));
-        note.textContent = d === 'row' ? 'Main axis is horizontal: justify-content moves items left/right, align-items moves them up/down.'
-          : 'Main axis is now vertical: justify-content moves items up/down, and align-items moves them left/right.';
+        note.textContent = T(d === 'row' ? 'Main axis is horizontal: justify-content moves items left/right, align-items moves them up/down.'
+          : 'Main axis is now vertical: justify-content moves items up/down, and align-items moves them left/right.');
       };
       const [dL, dS] = select('direction ', ['row', 'column'], draw), [jL, jS] = select('justify-content ', ['flex-start', 'center', 'flex-end', 'space-between', 'space-around', 'space-evenly'], draw),
         [aL, aS] = select('align-items ', ['stretch', 'flex-start', 'center', 'flex-end'], draw), [wL, wS] = select('wrap ', ['nowrap', 'wrap'], draw),
@@ -123,7 +123,7 @@
         items[0].style.gridColumn = sC.checked ? 'span 2' : ''; items[3].style.gridColumn = fC.checked ? '1 / -1' : '';
         out.set(`.container {\n  display: grid;\n  grid-template-columns: ${t};\n  gap: ${g}px;\n}` + (sC.checked ? '\n.item-1 { grid-column: span 2; }' : '') + (fC.checked ? '\n.item-4 { grid-column: 1 / -1; }' : ''),
           `grid ${templates[t]} gap-${g / 4}` + (sC.checked ? '   ·   item 1: col-span-2' : '') + (fC.checked ? '   ·   item 4: col-span-full' : ''));
-        note.textContent = notes[t];
+        note.textContent = T(notes[t]);
       };
       const [tL, tS] = select('columns ', Object.keys(templates), draw), [gL, gR] = range('gap', 0, 32, 4, 12, draw),
         [sL, sC] = check('item 1 spans 2 columns', false, draw), [fL, fC] = check('item 4 full width', false, draw);

@@ -1,5 +1,6 @@
 // Interview preparation section: hub, coding arena with an in-browser judge, system design, behavioral, rapid-fire, mocks.
 (() => {
+  const T = window.t;   // `t` is used as a local name throughout this file
   const KEY = 'stackmastery.interview';
   const fresh = () => ({ solved: {}, code: {}, design: {}, stories: [], rapid: {}, mocks: [], plan: {} });
   let D;
@@ -36,10 +37,10 @@
     let left = minutes * 60, id = null;
     const face = h('b', { class: 'timer-face' });
     const draw = () => { face.textContent = String(Math.floor(left / 60)).padStart(2, '0') + ':' + String(left % 60).padStart(2, '0'); face.classList.toggle('low', left <= 60); };
-    const stop = () => { clearInterval(id); id = null; go.textContent = 'Start'; };
+    const stop = () => { clearInterval(id); id = null; go.textContent = T('Start'); };
     const go = h('button', { type: 'button', class: 'btn sm', onclick: () => {
       if (id) return stop();
-      go.textContent = 'Pause';
+      go.textContent = T('Pause');
       id = setInterval(() => { if (!face.isConnected) return stop(); if (left > 0) left--; draw(); if (!left) stop(); }, 1000);
     } }, 'Start');
     draw();
@@ -60,7 +61,7 @@
     await PLAY.loadTS();
     const res = window.ts.transpileModule(code, { reportDiagnostics: true, compilerOptions: { target: 'ES2022', module: 'ESNext' } });
     const diag = (res.diagnostics || []).map(d => window.ts.flattenDiagnosticMessageText(d.messageText, '\n'));
-    if (diag.length) return { fatal: 'Syntax error: ' + diag.join('; ') };
+    if (diag.length) return { fatal: T('Syntax error: ') + diag.join('; ') };
     const src = `const __logs = []; console.log = (...a) => __logs.push(a.map(x => typeof x === 'string' ? x : JSON.stringify(x)).join(' '));
 ${res.outputText}
 ;const __f = ${p.call || p.fn};
@@ -72,9 +73,9 @@ self.onmessage = e => {
     const w = new Worker(url);
     return new Promise(resolve => {
       const done = r => { clearTimeout(t); w.terminate(); URL.revokeObjectURL(url); resolve(r); };
-      const t = setTimeout(() => done({ fatal: 'Time limit exceeded (4 s) — check for an infinite loop or an exponential algorithm.' }), 4000);
+      const t = setTimeout(() => done({ fatal: T('Time limit exceeded (4 s) — check for an infinite loop or an exponential algorithm.') }), 4000);
       w.onmessage = e => done(e.data);
-      w.onerror = e => { e.preventDefault(); done({ fatal: (e.message || 'Runtime error').replace(/^Uncaught /, '') }); };
+      w.onerror = e => { e.preventDefault(); done({ fatal: (e.message || T('Runtime error')).replace(/^Uncaught /, '') }); };
       w.postMessage(p.tests.map(t => t[0]));
     });
   }
@@ -96,7 +97,7 @@ self.onmessage = e => {
       if (all) { D.solved[p.id] = true; save(); }
       out.replaceChildren(
         PLAY.typeNote(ta) || '',
-        h('p', { class: all ? 'ok' : 'err' }, all ? `✓ All ${rows.length} tests passed. Now state the time and space complexity out loud.` : `${passed} of ${rows.length} tests passed.`),
+        h('p', { class: all ? 'ok' : 'err' }, all ? T('✓ All {n} tests passed. Now state the time and space complexity out loud.', { n: rows.length }) : T('{passed} of {n} tests passed.', { passed, n: rows.length })),
         h('ul', { class: 'tests' }, rows.map(x => x.el)),
         r.logs.length ? h('div', {}, h('p', { class: 'muted' }, 'console.log output'), h('pre', {}, r.logs.join('\n'))) : null);
     };
@@ -121,7 +122,7 @@ self.onmessage = e => {
         mock ? h('details', {}, h('summary', {}, 'After the interview: hints, solution, follow-ups'), help) : help),
       h('div', {}, ta,
         h('div', { class: 'actions' }, h('button', { type: 'button', class: 'btn', onclick: run }, 'Run tests (Ctrl+Enter)'),
-          h('button', { type: 'button', class: 'btn ghost', onclick: () => { if (confirm('Replace your code with the starter?')) { ta.value = p.starter; ta.oninput(); } } }, 'Reset code')),
+          h('button', { type: 'button', class: 'btn ghost', onclick: () => { if (confirm(T('Replace your code with the starter?'))) { ta.value = p.starter; ta.oninput(); } } }, 'Reset code')),
         out));
   }
 
@@ -138,10 +139,10 @@ self.onmessage = e => {
   function codingView() {
     const solved = Object.keys(D.solved).length;
     return h('div', { class: 'page iv' },
-      head(crumb('Coding'), 'Coding interview', `${IV.problems.length} classic problems across 12 patterns, judged in your browser against real test cases. Write TypeScript here; the same patterns are shown in C# on the patterns page.`, bar(Math.round(solved / IV.problems.length * 100))),
+      head(crumb('Coding'), 'Coding interview', T('{n} classic problems across 12 patterns, judged in your browser against real test cases. Write TypeScript here; the same patterns are shown in C# on the patterns page.', { n: IV.problems.length }), bar(Math.round(solved / IV.problems.length * 100))),
       sec('How to run every problem', h('p', {}, 'Interviewers grade the process as much as the answer. Follow the same seven steps each time until they are automatic.'),
         h('ol', { class: 'steps' }, IV.method.map(([n, t]) => h('li', {}, h('b', {}, n + '. '), t)))),
-      sec(h('span', {}, 'Problems ', h('small', {}, `${solved} / ${IV.problems.length} solved`)),
+      sec(h('span', {}, 'Problems ', h('small', {}, `${solved} / ${IV.problems.length} ${T('solved')}`)),
         h('div', { class: 'rows' }, IV.problems.map(p => h('a', { class: 'row', href: '#/interview/problem/' + p.id },
           h('span', { class: 'tick' + (D.solved[p.id] ? ' on' : '') }, D.solved[p.id] ? '✓' : ''), h('span', { class: 'row-t' }, p.title), h('small', {}, patternName(p.pattern)), diffChip(p.diff)))),
         h('p', { style: { marginTop: '1rem' } }, h('a', { class: 'btn ghost', href: '#/interview/patterns' }, 'Study the 12 patterns →'))),
@@ -154,7 +155,7 @@ self.onmessage = e => {
       IV.patterns.map(p => h('section', { class: 'sec', id: 'p-' + p.id },
         h('h2', {}, p.name),
         h('p', {}, h('b', {}, 'Reach for it when: '), p.signal),
-        h('p', { class: 'muted' }, 'Typical cost: ' + p.cost),
+        h('p', { class: 'muted' }, T('Typical cost: ') + p.cost),
         codeBlock(p.code, 'cs'),
         h('div', { class: 'chips', style: { marginTop: '.6rem' } }, IV.problems.filter(x => x.pattern === p.id).map(x => h('a', { class: 'chip-link' + (D.solved[x.id] ? ' solved' : ''), href: '#/interview/problem/' + x.id }, x.title))))));
   }
@@ -226,7 +227,7 @@ self.onmessage = e => {
         save(); draw();
       };
       const drillQ = h('p', { class: 'fc-q' }), drillL = h('p', { class: 'muted' });
-      const next = () => { const t = pick(IV.behavioral); drillQ.textContent = pick(t.qs); const mine = D.stories.filter(s => s.tags.includes(t.id)); drillL.textContent = `Theme: ${t.name}. ` + (mine.length ? 'Your stories: ' + mine.map(s => s.title).join(', ') + '.' : 'You have no story for this theme yet.'); };
+      const next = () => { const t = pick(IV.behavioral); drillQ.textContent = pick(t.qs); const mine = D.stories.filter(s => s.tags.includes(t.id)); drillL.textContent = `${T('Theme:')} ${t.name}. ` + (mine.length ? T('Your stories: ') + mine.map(s => s.title).join(', ') + '.' : T('You have no story for this theme yet.')); };
       next();
       page.replaceChildren(
         head(crumb('Behavioral'), 'Behavioral interview', 'Interviewers predict future behavior from past behavior. They want specific stories with you as the actor — not opinions, and not “we”.', bar(Math.round(covered() / IV.behavioral.length * 100))),
@@ -241,8 +242,8 @@ self.onmessage = e => {
         sec('Your story bank',
           h('div', { class: 'cover' }, IV.behavioral.map(t => { const n = D.stories.filter(s => s.tags.includes(t.id)).length; return h('span', { class: 'chip ' + (n ? 'diff-0' : '') }, `${t.name}: ${n}`); })),
           D.stories.length ? h('div', { class: 'stories' }, D.stories.map((s, i) => h('details', { class: 'story' }, h('summary', {}, s.title, ' ', h('small', {}, s.tags.map(id => IV.behavioral.find(t => t.id === id).name).join(' · '))),
-            [['Situation', s.s], ['Task', s.t], ['Action', s.a], ['Result', s.r]].map(([k, v]) => h('p', {}, h('b', {}, k + ': '), v || '—')),
-            h('button', { type: 'button', class: 'btn sm ghost', onclick: () => { if (confirm('Delete this story?')) { D.stories.splice(i, 1); save(); draw(); } } }, 'Delete')))) : h('p', { class: 'muted' }, 'No stories yet. Add your first below.'),
+            [['Situation', s.s], ['Task', s.t], ['Action', s.a], ['Result', s.r]].map(([k, v]) => h('p', {}, h('b', {}, T(k) + ': '), v || '—')),
+            h('button', { type: 'button', class: 'btn sm ghost', onclick: () => { if (confirm(T('Delete this story?'))) { D.stories.splice(i, 1); save(); draw(); } } }, 'Delete')))) : h('p', { class: 'muted' }, 'No stories yet. Add your first below.'),
           h('div', { class: 'story-form' },
             h('label', {}, 'Title', form.title), h('label', {}, 'Situation', form.s), h('label', {}, 'Task', form.t), h('label', {}, 'Action — what you did', form.a), h('label', {}, 'Result — with numbers', form.r),
             h('div', { class: 'tagbox' }, h('span', { class: 'muted' }, 'Themes this story can answer:'), tags.map(([, l]) => l)),
@@ -255,9 +256,9 @@ self.onmessage = e => {
 
   // ---------- rapid-fire ----------
   function qa(area, i, onRate) {
-    const [q, a] = area.qs[i], k = area.area + '#' + i;
+    const [q, a] = area.qs[i], k = (area.key || area.area) + '#' + i;   // area.key keeps saved ratings stable across languages
     const state = h('small', {});
-    const drawState = () => { state.textContent = D.rapid[k] === 2 ? '✓ solid' : D.rapid[k] === 1 ? 'shaky' : ''; state.className = D.rapid[k] === 2 ? 'ok' : 'muted'; };
+    const drawState = () => { state.textContent = D.rapid[k] === 2 ? T('✓ solid') : D.rapid[k] === 1 ? T('shaky') : ''; state.className = D.rapid[k] === 2 ? 'ok' : 'muted'; };
     const rate = v => () => { D.rapid[k] = v; save(); drawState(); onRate && onRate(); };
     drawState();
     return h('details', { class: 'qa' }, h('summary', {}, q, ' ', state), h('p', {}, a),
@@ -293,10 +294,10 @@ self.onmessage = e => {
       h('div', { class: 'score-grid' }, RUBRICS[type].flatMap((r, i) => [h('span', {}, r), sels[i]])), notes,
       h('div', { class: 'actions' }, h('button', { type: 'button', class: 'btn', onclick: () => {
         const scores = sels.map(s => +s.value);
-        if (scores.some(s => !s)) return msg.textContent = 'Rate all four dimensions first.';
+        if (scores.some(s => !s)) return msg.textContent = T('Rate all four dimensions first.');
         const avg = scores.reduce((a, b) => a + b, 0) / 4;
         D.mocks.push({ date: new Date().toLocaleDateString('sv'), type, title, scores, avg, notes: notes.value }); save();
-        msg.textContent = `Saved. Overall: ${verdict(avg)} (${avg.toFixed(2)} / 4).`; msg.className = 'ok'; onSaved && onSaved();
+        msg.textContent = `${T('Saved. Overall:')} ${T(verdict(avg))} (${avg.toFixed(2)} / 4).`; msg.className = 'ok'; onSaved && onSaved();
       } }, 'Save result'), msg));
   }
 
@@ -361,14 +362,14 @@ self.onmessage = e => {
       h('header', { class: 'hero' },
         h('div', {}, h('p', { class: 'eyebrow' }, 'Get hired'), h('h1', {}, 'Interview preparation'),
           h('p', { class: 'lede' }, 'Top companies hire through a structured loop, and the loop can be trained for. Everything here is practice under the same conditions: timed, out loud, and graded against a rubric.')),
-        h('div', { class: 'ring', html: `<svg viewBox="0 0 120 120" role="img" aria-label="Interview readiness ${r}%"><circle cx="60" cy="60" r="52" class="ring-bg"/><circle cx="60" cy="60" r="52" class="ring-fg" stroke-dasharray="${2 * Math.PI * 52}" stroke-dashoffset="${2 * Math.PI * 52 * (1 - r / 100)}" transform="rotate(-90 60 60)"/><text x="60" y="58" text-anchor="middle" class="ring-n">${r}%</text><text x="60" y="76" text-anchor="middle" class="ring-l">ready</text></svg>` })),
+        h('div', { class: 'ring', html: `<svg viewBox="0 0 120 120" role="img" aria-label="${T('Interview readiness')} ${r}%"><circle cx="60" cy="60" r="52" class="ring-bg"/><circle cx="60" cy="60" r="52" class="ring-fg" stroke-dasharray="${2 * Math.PI * 52}" stroke-dashoffset="${2 * Math.PI * 52 * (1 - r / 100)}" transform="rotate(-90 60 60)"/><text x="60" y="58" text-anchor="middle" class="ring-n">${r}%</text><text x="60" y="76" text-anchor="middle" class="ring-l">${T('ready')}</text></svg>` })),
       sec('Readiness', h('div', { class: 'meters' }, p.map(([label, n, t, href]) => h('a', { class: 'meter', href }, h('span', {}, label), bar(Math.round(n / t * 100)), h('small', {}, `${n} / ${t}`)))),
         h('p', { class: 'muted' }, 'Self-reported progress, not a guarantee. The honest test is a mock interview graded by another person.')),
       sec('The interview loop', h('div', { class: 'grid' }, loop.map(([t, href, d]) => h('a', { class: 'card go', href }, h('strong', {}, t), h('p', {}, d))))),
       sec('Two more rounds for full-stack roles',
         h('details', {}, h('summary', {}, 'SQL round'), h('p', {}, 'Many backend and full-stack loops include live SQL: joins, grouping, a window function, and reading a slow query. The 11 graded challenges in the ', h('a', { href: '#/play/sql' }, 'SQL playground'), ' cover exactly that range — do them timed, explaining each clause out loud. Then review ', h('a', { href: '#/lesson/sql/indexes' }, 'indexes'), ' and ', h('a', { href: '#/lesson/sql/plans' }, 'execution plans'), ' for the follow-up questions.')),
         h('details', {}, h('summary', {}, 'Frontend “build a component” round'), h('p', {}, 'Forty-five minutes to build a working UI component in React and TypeScript while explaining your decisions. Practise each prompt in a fresh Vite project against the clock.'),
-          h('div', { class: 'rows' }, IV.ui.map(([t, build, checks]) => h('div', { class: 'row static' }, h('span', { class: 'row-t' }, h('b', {}, t), h('br'), build, h('br'), h('span', { class: 'muted', html: 'Interviewers check: ' + md(checks) })))))),
+          h('div', { class: 'rows' }, IV.ui.map(([t, build, checks]) => h('div', { class: 'row static' }, h('span', { class: 'row-t' }, h('b', {}, t), h('br'), build, h('br'), h('span', { class: 'muted', html: T('Interviewers check: ') + md(checks) })))))),
         h('p', { class: 'muted' }, 'Before any coding round, make sure the ', h('a', { href: '#/track/cs' }, 'CS Fundamentals'), ' track is solid — every pattern here assumes it.')),
       sec('Eight-week plan', IV.plan.map(([week, items], wi) => {
         const done = D.plan[wi] || [];

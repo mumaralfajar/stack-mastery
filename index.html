@@ -22,6 +22,12 @@
 <script src="data/projects.js"></script>
 <script src="data/interview.js"></script>
 <script src="data/interview-cs.js"></script>
+<script>
+  // Indonesian text is loaded only when that language is selected.
+  if (LANG === 'id') document.write(['ui-app', 'ui-interview', 'ui-play', 'ui-viz', 'ui-viz2', 'csharp', 'aspnet', 'sql', 'css', 'react', 'fundamentals', 'projects', 'interview']
+    .map(function (f) { return '<script src="data/id/' + f + '.js"><\/script>'; }).join(''));
+</script>
+<script src="js/i18n.js"></script>
 <script src="js/viz.js"></script>
 <script src="js/vizcss.js"></script>
 <script src="js/vizmore.js"></script>

@@ -1,5 +1,6 @@
 // Interactive visualizations. Each entry: { title, desc, track, trackName, mount(el) }.
 (() => {
+  const T = window.t;   // `t` is used as a local name in this file
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const btn = (label, onclick, cls) => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
   const check = (label, checked, onchange) => { const cb = h('input', { type: 'checkbox', onchange }); cb.checked = checked; return [h('label', {}, cb, label), cb]; };
@@ -12,7 +13,7 @@
     let i = 0;
     const label = h('span', { class: 'muted' });
     const back = btn('← Back', () => { i--; upd(); }, 'ghost'), next = btn('Next →', () => { i++; upd(); });
-    const upd = () => { label.textContent = `Step ${i + 1} of ${n}`; back.disabled = i === 0; next.disabled = i === n - 1; draw(i); };
+    const upd = () => { label.textContent = T('Step {i} of {n}', { i: i + 1, n }); back.disabled = i === 0; next.disabled = i === n - 1; draw(i); };
     return { el: h('div', { class: 'viz-ctl' }, back, next, btn('Reset', () => { i = 0; upd(); }, 'ghost'), label), start: upd };
   }
   const codeLines = lines => { const lis = lines.map(l => h('li', {}, l)); return { el: h('ol', { class: 'lines' }, lis), set: (cur, done) => lis.forEach((li, j) => li.className = j === cur ? 'cur' : done(j) ? 'done' : '') }; };
@@ -39,7 +40,7 @@
         code.set(i, j => j < i);
         stack.replaceChildren(...st.stack.map(([n, v]) => h('div', { class: 'slot' + (n === st.hot ? ' hot' : '') }, h('span', {}, n), h('b', {}, v))));
         heap.replaceChildren(st.heap ? h('div', { class: 'slot' + (st.heapHot ? ' hot' : '') }, h('span', {}, '#1 Person'), h('b', {}, `Name = "${st.heap}"`)) : h('p', { class: 'muted' }, 'empty'));
-        note.textContent = st.note;
+        note.textContent = T(st.note);
       });
       el.append(s.el, code.el, h('div', { class: 'viz-cols' }, h('div', { class: 'viz-box' }, h('h4', {}, 'Stack (local variables)'), stack), h('div', { class: 'viz-box' }, h('h4', {}, 'Heap (objects)'), heap)), note);
       s.start();
@@ -72,7 +73,7 @@
             seg.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: Math.max(d * K, 80), delay: s * K, fill: 'backwards', easing: 'linear' });
           return seg;
         })))));
-        note.textContent = modes[mode].note;
+        note.textContent = T(modes[mode].note);
       };
       Object.entries(modes).forEach(([m, x]) => chips.append(h('button', { type: 'button', 'data-m': m, onclick: () => draw(m) }, x.label)));
       el.append(chips, gantt, h('p', { class: 'muted' }, 'Red = thread blocked · solid = thread working · green = I/O in flight, no thread used · full width = 3.3 s'), note);
@@ -126,24 +127,24 @@
       const send = async () => {
         const me = ++run, D = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 420;
         const mark = async (i, cls, text, lc) => { if (me !== run) throw 0; boxes[i].className = 'mw ' + cls; say(text, lc); await sleep(D); };
-        boxes.forEach(b => b.className = 'mw'); log.replaceChildren(); note.textContent = 'Request travelling…';
+        boxes.forEach(b => b.className = 'mw'); log.replaceChildren(); note.textContent = T('Request travelling…');
         try {
           say('GET /secret');
           let last = 5, status = '200 OK';
           for (let i = 0; i < 6; i++) {
-            if (i === 3) await mark(i, 'in', `→ Authentication: ${tok.checked ? 'token valid, user = ana' : 'no token, user = anonymous'}`);
-            else if (i === 4 && !tok.checked) { await mark(i, 'stop', '✗ Authorization: not authenticated → 401. SHORT-CIRCUIT: next() is never called', 'x'); last = 3; status = '401 Unauthorized'; break; }
-            else if (i === 5 && err.checked) { await mark(i, 'stop', '✗ Endpoint throws InvalidOperationException', 'x'); status = '500'; last = 4; break; }
-            else if (i === 5) await mark(i, 'outb', '✓ Endpoint runs → 200 OK', 'b');
+            if (i === 3) await mark(i, 'in', T(tok.checked ? '→ Authentication: token valid, user = ana' : '→ Authentication: no token, user = anonymous'));
+            else if (i === 4 && !tok.checked) { await mark(i, 'stop', T('✗ Authorization: not authenticated → 401. SHORT-CIRCUIT: next() is never called'), 'x'); last = 3; status = '401 Unauthorized'; break; }
+            else if (i === 5 && err.checked) { await mark(i, 'stop', T('✗ Endpoint throws InvalidOperationException'), 'x'); status = '500'; last = 4; break; }
+            else if (i === 5) await mark(i, 'outb', T('✓ Endpoint runs → 200 OK'), 'b');
             else await mark(i, 'in', `→ ${names[i][0]}`);
           }
           if (status === '200 OK') last = 4;
           for (let i = last; i >= 0; i--) {
-            if (status === '500' && i > 0) await mark(i, 'stop', `  exception passes up through ${names[i][0]}`, 'x');
-            else if (status === '500') { await mark(0, 'outb', '← ExceptionHandler catches it → 500 ProblemDetails', 'b'); status = '500 Internal Server Error'; }
-            else await mark(i, 'outb', `← ${names[i][0]} (code after next())`, 'b');
+            if (status === '500' && i > 0) await mark(i, 'stop', T('  exception passes up through {name}', { name: names[i][0] }), 'x');
+            else if (status === '500') { await mark(0, 'outb', T('← ExceptionHandler catches it → 500 ProblemDetails'), 'b'); status = '500 Internal Server Error'; }
+            else await mark(i, 'outb', T('← {name} (code after next())', { name: names[i][0] }), 'b');
           }
-          note.textContent = `Response: ${status}. ` + (status.startsWith('401') ? 'The endpoint never ran — authorization short-circuited the pipeline.' : status.startsWith('500') ? 'Only the outermost middleware could catch the exception, which is why it must be registered first.' : 'In through six stages, back out through the same stages in reverse.');
+          note.textContent = `Response: ${status}. ` + T(status.startsWith('401') ? 'The endpoint never ran — authorization short-circuited the pipeline.' : status.startsWith('500') ? 'Only the outermost middleware could catch the exception, which is why it must be registered first.' : 'In through six stages, back out through the same stages in reverse.');
         } catch { /* superseded by a newer run */ }
       };
       el.append(h('div', { class: 'viz-ctl' }, btn('Send request', send), tokLab, errLab), h('div', { class: 'pipe' }, boxes), log, note);
@@ -165,9 +166,9 @@
         const pair = (a, b) => h('span', {}, id(a), ' ', id(b));
         rows.push([req, pair(singleton, singleton), pair(scoped, scoped), pair(t1, t2)]);
         draw();
-        if (req >= 2) note.textContent = 'Singleton: one instance forever. Scoped: one per request, shared within it. Transient: a new one every single time it is asked for.';
+        if (req >= 2) note.textContent = T('Singleton: one instance forever. Scoped: one per request, shared within it. Transient: a new one every single time it is asked for.');
       };
-      el.append(h('div', { class: 'viz-ctl' }, btn('Send request', send), btn('Restart app', () => { rows.length = 0; req = 0; draw(); note.textContent = 'App restarted — in a real app the singleton would be recreated too.'; }, 'ghost')), body, note);
+      el.append(h('div', { class: 'viz-ctl' }, btn('Send request', send), btn('Restart app', () => { rows.length = 0; req = 0; draw(); note.textContent = T('App restarted — in a real app the singleton would be recreated too.'); }, 'ghost')), body, note);
       send();
     }
   };
@@ -203,8 +204,8 @@
             h('div', { class: 'viz-box' }, h('h4', {}, 'customers c'), table(['id', 'name'], C, r => keptC.has(r[0]) ? '' : 'dim')),
             h('div', { class: 'viz-box' }, h('h4', {}, 'orders o'), table(['id', 'customer_id', 'item'], O, r => keptO.has(r[0]) ? '' : 'dim'))),
           codeBlock(`SELECT c.id, c.name, o.id AS order_id, o.item\nFROM customers AS c\n${type} JOIN orders AS o${on};`, 'sql'),
-          h('div', { class: 'viz-box', style: { marginTop: '.8rem' } }, h('h4', {}, `Result — ${rows.length} rows`), table(['c.id', 'c.name', 'order_id', 'item'], rows)));
-        note.textContent = notes[type];
+          h('div', { class: 'viz-box', style: { marginTop: '.8rem' } }, h('h4', {}, T('Result — {n} rows', { n: rows.length })), table(['c.id', 'c.name', 'order_id', 'item'], rows)));
+        note.textContent = T(notes[type]);
       };
       types.forEach(t => chips.append(h('button', { type: 'button', onclick: () => draw(t) }, t)));
       el.append(chips, out, note);
@@ -235,7 +236,7 @@
         const st = steps[i]; seen.length = 0; steps.slice(0, i).forEach(x => seen.push(x.line));
         code.set(st.line, j => seen.includes(j));
         out.replaceChildren(table(st.cols, st.rows, st.dim ? r => st.dim(r) ? 'dim' : '' : null));
-        note.textContent = st.note;
+        note.textContent = T(st.note);
       });
       el.append(s.el, code.el, out, note);
       s.start();
@@ -268,7 +269,7 @@
           }
         })();
         const [a, b] = await Promise.all([scan, seek]);
-        if (me === run) note.textContent = `Scan read ${a} rows; the index needed ${b} comparisons. With 1,000,000 rows a scan reads up to 1,000,000 — a seek needs about 20. That is O(n) versus O(log n).`;
+        if (me === run) note.textContent = T('Scan read {a} rows; the index needed {b} comparisons. With 1,000,000 rows a scan reads up to 1,000,000 — a seek needs about 20. That is O(n) versus O(log n).', { a, b });
       };
       el.append(h('div', { class: 'viz-ctl' }, sel, btn('Find', find)),
         h('div', { class: 'viz-box' }, h('h4', {}, 'Table scan — rows in storage order · rows read: ', n1), h('div', { class: 'cells' }, hc)),
@@ -285,7 +286,7 @@
       const count = {}, nodes = {};
       const note = h('p', { class: 'viz-note' }, 'Click any component.');
       const [memoLab, memo] = check('Wrap child components in memo (props unchanged)', false, () => reset());
-      const label = name => { nodes[name].lastChild.textContent = `renders: ${count[name]}`; };
+      const label = name => { nodes[name].lastChild.textContent = `${T('renders:')} ${count[name]}`; };
       const render = (name, isRoot, hit, skipped) => {
         if (!isRoot && memo.checked) { skipped.push(name); nodes[name].classList.add('skip'); return; }
         count[name]++; label(name); hit.push(name);
@@ -296,11 +297,11 @@
         Object.values(nodes).forEach(n => n.classList.remove('skip'));
         const hit = [], skipped = [];
         render(name, true, hit, skipped);
-        note.textContent = `setState in ${name} → ${hit.length} component${hit.length > 1 ? 's' : ''} re-rendered` +
-          (skipped.length ? `; ${skipped.length} skipped by memo because their props did not change.` : hit.length > 1 ? ' — the component and its whole subtree, even though the children’s props are identical.' : '. Parents and siblings are never affected.');
+        note.textContent = T(hit.length > 1 ? 'setState in {name} → {n} components re-rendered' : 'setState in {name} → {n} component re-rendered', { name, n: hit.length }) +
+          (skipped.length ? T('; {n} skipped by memo because their props did not change.', { n: skipped.length }) : T(hit.length > 1 ? ' — the component and its whole subtree, even though the children’s props are identical.' : '. Parents and siblings are never affected.'));
       };
-      const mk = name => { count[name] = 1; return nodes[name] = h('button', { type: 'button', class: 'comp', onclick: () => click(name) }, `<${name.split(' ')[0]}>`, h('small', {}, 'renders: 1')); };
-      const reset = () => { Object.keys(nodes).forEach(n => { count[n] = 1; label(n); nodes[n].classList.remove('skip'); }); note.textContent = 'Click any component.'; };
+      const mk = name => { count[name] = 1; return nodes[name] = h('button', { type: 'button', class: 'comp', onclick: () => click(name) }, `<${name.split(' ')[0]}>`, h('small', {}, T('renders:') + ' 1')); };
+      const reset = () => { Object.keys(nodes).forEach(n => { count[n] = 1; label(n); nodes[n].classList.remove('skip'); }); note.textContent = T('Click any component.'); };
       el.append(h('div', { class: 'viz-ctl' }, memoLab, btn('Reset counts', reset, 'ghost')),
         h('div', { class: 'tree' }, h('div', { class: 'tree-r' }, mk('App')), h('div', { class: 'tree-r' }, tree.App.map(mk)), h('div', { class: 'tree-r' }, tree.TodoList.map(mk))),
         h('p', { class: 'muted' }, 'App contains Header, TodoList and Footer. TodoList contains the three TodoItems.'), note);

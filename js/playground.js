@@ -1,10 +1,11 @@
 // Live playgrounds. SQL runs on SQLite compiled to WebAssembly (sql.js); TypeScript is transpiled in the browser.
 (() => {
+  const T = window.t;   // `t` is used as a local name in this file
   const CDN = 'https://cdnjs.cloudflare.com/ajax/libs/';
   const loaded = {};
   const loadScript = src => loaded[src] || (loaded[src] = new Promise((ok, fail) => {
     const s = document.createElement('script'); s.src = src; s.onload = ok;
-    s.onerror = () => { delete loaded[src]; fail(new Error('Could not load ' + src + ' — the playground needs an internet connection the first time.')); };
+    s.onerror = () => { delete loaded[src]; fail(new Error(T('Could not load {src} — the playground needs an internet connection the first time.', { src }))); };
     document.head.append(s);
   }));
   const store = { get: k => { try { return JSON.parse(localStorage.getItem(k)) || []; } catch { return []; } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* ignore */ } } };
@@ -37,12 +38,12 @@
       const ext = { typescript: 'ts', sql: 'sql', css: 'css', html: 'html' }[lang];
       const model = monaco.editor.createModel(ta.value, lang, monaco.Uri.parse(`file:///snippet${++seq}.${ext}`));
       const ed = monaco.editor.create(host, { model, theme: 'vs-dark', minimap: { enabled: false }, automaticLayout: true, fontSize: 13.5,
-        scrollBeyondLastLine: false, tabSize: 2, lineNumbersMinChars: 3, padding: { top: 10 }, fixedOverflowWidgets: true, ariaLabel: 'Code editor' });
+        scrollBeyondLastLine: false, tabSize: 2, lineNumbersMinChars: 3, padding: { top: 10 }, fixedOverflowWidgets: true, ariaLabel: T('Code editor') });
       // The textarea stays the single interface for the rest of the app: reads and writes go to the model.
       Object.defineProperty(ta, 'value', { configurable: true, get: () => model.getValue(), set: v => { if (v !== model.getValue()) model.setValue(v); } });
       ta.focus = () => ed.focus();
       ta.typeErrors = () => monaco.editor.getModelMarkers({ resource: model.uri }).filter(m => m.severity === monaco.MarkerSeverity.Error)
-        .map(m => `line ${m.startLineNumber}: ${m.message}`);
+        .map(m => `${T('line')} ${m.startLineNumber}: ${m.message}`);
       model.onDidChangeContent(() => ta.oninput && ta.oninput());
       ed.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, run);
       live.push({ host, ed, model });
@@ -63,7 +64,7 @@
   const typeNote = ta => {
     const errs = ta.typeErrors ? ta.typeErrors() : [];
     return errs.length ? h('div', { class: 'type-errs' },
-      h('p', { class: 'err' }, `${errs.length} type error${errs.length > 1 ? 's' : ''} — the code still ran, because types are erased at build time:`),
+      h('p', { class: 'err' }, T(errs.length > 1 ? '{n} type errors — the code still ran, because types are erased at build time:' : '{n} type error — the code still ran, because types are erased at build time:', { n: errs.length })),
       h('ul', {}, errs.slice(0, 6).map(e => h('li', {}, e)))) : null;
   };
 
@@ -76,9 +77,9 @@ console.log = console.info = console.warn = console.error = (...a) => { if (__lo
     const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' })), w = new Worker(url);
     return new Promise(resolve => {
       const done = r => { clearTimeout(t); w.terminate(); URL.revokeObjectURL(url); resolve(r); };
-      const t = setTimeout(() => done({ logs: [], err: `Stopped after ${ms / 1000} s — probably an infinite loop.` }), ms);
+      const t = setTimeout(() => done({ logs: [], err: T('Stopped after {s} s — probably an infinite loop.', { s: ms / 1000 }) }), ms);
       w.onmessage = e => done(e.data);
-      w.onerror = e => { e.preventDefault(); done({ logs: [], err: (e.message || 'Runtime error').replace(/^Uncaught /, '') }); };
+      w.onerror = e => { e.preventDefault(); done({ logs: [], err: (e.message || T('Runtime error')).replace(/^Uncaught /, '') }); };
     });
   }
 
@@ -123,8 +124,8 @@ PRAGMA foreign_keys = ON;`;
       return JSON.stringify(ordered ? rows : rows.map(r => JSON.stringify(r)).sort());
     };
     const show = res => {
-      if (!res.length) return out.replaceChildren(h('p', { class: 'ok' }, `OK — ${db.getRowsModified()} row(s) changed.`));
-      out.replaceChildren(...res.map(r => h('div', {}, h('p', { class: 'muted' }, r.values.length + ' row(s)'),
+      if (!res.length) return out.replaceChildren(h('p', { class: 'ok' }, T('OK — {n} row(s) changed.', { n: db.getRowsModified() })));
+      out.replaceChildren(...res.map(r => h('div', {}, h('p', { class: 'muted' }, r.values.length + ' ' + T('row(s)')),
         h('table', { class: 't' }, h('thead', {}, h('tr', {}, r.columns.map(c => h('th', {}, c)))),
           h('tbody', {}, r.values.map(row => h('tr', {}, row.map(v => v === null ? h('td', { class: 'null' }, 'NULL') : h('td', {}, v)))))))));
     };
@@ -139,11 +140,11 @@ PRAGMA foreign_keys = ON;`;
       const mine = run(); if (!mine) return;
       const c = CHALLENGES[cur], good = norm(mine, c.ordered) === norm(db.exec(c.sol), c.ordered);
       if (good) { solved.add(cur); store.set('stackmastery.sql', [...solved]); drawChips(); }
-      out.prepend(h('p', { class: good ? 'ok' : 'err' }, good ? '✓ Correct — now explain out loud why it works.' : '✗ Not the expected rows yet. Compare your output with the task' + (c.ordered ? ' — row order matters here.' : '.')));
+      out.prepend(h('p', { class: good ? 'ok' : 'err' }, T(good ? '✓ Correct — now explain out loud why it works.' : c.ordered ? '✗ Not the expected rows yet. Compare your output with the task — row order matters here.' : '✗ Not the expected rows yet. Compare your output with the task.')));
     };
     const reset = () => { if (!SQL) return; db = new SQL.Database(); db.run(SEED); out.replaceChildren(h('p', { class: 'ok' }, 'Database reset to its original contents.')); };
     const drawChips = () => chips.replaceChildren(...CHALLENGES.map((c, i) => h('button', { type: 'button', class: (i === cur ? 'on ' : '') + (solved.has(i) ? 'solved' : ''), title: LEVELS[c.lvl], onclick: () => {
-      cur = i; task.textContent = `Challenge ${i + 1} (${LEVELS[c.lvl]}): ${c.task}`; ta.value = '-- ' + c.t + '\n'; ta.focus(); drawChips();
+      cur = i; task.textContent = `${T('Challenge')} ${i + 1} (${LEVELS[c.lvl]}): ${T(c.task)}`; ta.value = '-- ' + T(c.t) + '\n'; ta.focus(); drawChips();
     } }, c.t)));
     let SQL = null;
     drawChips();
@@ -259,9 +260,9 @@ console.log("concurrent:", both, Date.now() - start, "ms");`
         await loadScript(CDN + 'typescript/5.4.5/typescript.min.js');
         const res = window.ts.transpileModule(ta.value, { reportDiagnostics: true, compilerOptions: { target: 'ES2022', module: 'ESNext' } });
         const diag = (res.diagnostics || []).map(d => window.ts.flattenDiagnosticMessageText(d.messageText, '\n'));
-        if (diag.length) throw new Error('Syntax error: ' + diag.join('\n'));
+        if (diag.length) throw new Error(T('Syntax error: ') + diag.join('\n'));
         const r = await runIsolated(res.outputText);
-        out.replaceChildren(...[typeNote(ta), h('pre', {}, r.logs.join('\n') || (r.err ? '' : '(no output — use console.log)')), r.err ? h('p', { class: 'err' }, r.err) : null].filter(Boolean));
+        out.replaceChildren(...[typeNote(ta), h('pre', {}, r.logs.join('\n') || (r.err ? '' : T('(no output — use console.log)'))), r.err ? h('p', { class: 'err' }, r.err) : null].filter(Boolean));
       } catch (e) {
         out.replaceChildren(h('p', { class: 'err' }, String(e.message || e)));
       }
@@ -361,7 +362,7 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
     const load = name => { const x = CSS_EXAMPLES[name]; htmlTa.value = x.html; cssTa.value = x.css; twBox.checked = !!x.tw; [...chips.children].forEach(c => c.classList.toggle('on', c.textContent === name)); render(); };
     const chips = h('div', { class: 'chips' }, Object.keys(CSS_EXAMPLES).map(n => h('button', { type: 'button', onclick: () => load(n) }, n)));
     const wrap = h('div', { class: 'preview-wrap' }, frame);
-    if (window.ResizeObserver) new ResizeObserver(() => size.textContent = `Preview width: ${Math.round(frame.clientWidth)}px — drag the right edge to test breakpoints`).observe(frame);
+    if (window.ResizeObserver) new ResizeObserver(() => size.textContent = T('Preview width: {w}px — drag the right edge to test breakpoints', { w: Math.round(frame.clientWidth) })).observe(frame);
     el.style.setProperty('--tc', 'var(--css)');
     el.append(
       h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Practice'), h('h1', {}, 'CSS + Tailwind playground'),

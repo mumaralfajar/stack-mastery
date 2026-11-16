@@ -8,6 +8,8 @@ A free, self-paced program that takes you from beginner to expert in a complete 
 
 No account, no installation, no cost. It is plain HTML, CSS and JavaScript that runs entirely in your browser.
 
+Available in **English** and **Bahasa Indonesia** — switch with the language button at the bottom of the sidebar.
+
 ---
 
 ## Contents
@@ -15,6 +17,7 @@ No account, no installation, no cost. It is plain HTML, CSS and JavaScript that 
 - [Your progress is private](#your-progress-is-private)
 - [What is inside](#what-is-inside)
 - [How to use it](#how-to-use-it)
+- [Languages](#languages)
 - [Saving and moving your progress](#saving-and-moving-your-progress)
 - [Run it on your own computer](#run-it-on-your-own-computer)
 - [Host your own copy](#host-your-own-copy)
@@ -109,6 +112,17 @@ The percentages in the sidebar show your progress per track; the dashboard shows
 
 ---
 
+## Languages
+
+The whole program — interface, all 73 lessons, quizzes, visualizations, playgrounds and interview preparation — is available in English and Bahasa Indonesia.
+
+- Use the **Bahasa Indonesia / English** button at the bottom of the sidebar. The choice is remembered in your browser.
+- On a first visit, a browser set to Indonesian starts in Indonesian; every other browser starts in English.
+- Progress is shared between the two languages: switching does not reset anything.
+- The Indonesian text is written the way Indonesian developers actually talk. Technical terms that are normally used in English — *middleware*, *index*, *state*, *deadlock*, *hook*, *query* — are deliberately left in English. Code samples, problem titles and the names of playground examples are also left as they are.
+
+---
+
 ## Saving and moving your progress
 
 Because progress lives only in your browser, back it up now and then.
@@ -187,8 +201,13 @@ These are downloaded from public CDNs (cdnjs and jsDelivr). Loading them sends a
 | `js/interview.js` | Interview section: code judge, design, story bank, mocks |
 | `js/playground.js` | SQL, TypeScript and CSS playgrounds; editor integration |
 | `js/viz.js`, `vizcss.js`, `vizmore.js` | Interactive visualizations |
-| `js/util.js` | Small shared helpers and syntax highlighting |
+| `js/util.js` | Small shared helpers, syntax highlighting, language selection and the `t()` translate helper |
+| `js/i18n.js` | Lays the selected language's content over the English data |
+| `data/id/ui-*.js` | Indonesian interface text (English string → Indonesian string) |
+| `data/id/<track>.js`, `projects.js`, `interview.js` | Indonesian lesson, capstone and interview content |
 | `tools/verify.mjs` | Compiles and tests the C# content |
+| `tools/check-i18n.mjs` | Checks that the Indonesian content matches the English structure |
+| `tools/extract-text.mjs` | Prints the translatable text of a track, for translators |
 
 ---
 
@@ -224,6 +243,16 @@ Answer order is shuffled when shown, so the position of the correct answer does 
 **Add a coding problem** by adding an object to `problems` in `data/interview.js` (see the existing ones for the shape) and its C# solution to `data/interview-cs.js`. Tests are `[arguments, expected]` pairs.
 
 **Add a track** by creating a new file in `data/` that calls `TRACKS.push({ id, name, lang, tagline, lessons })`, adding a `<script>` tag for it in `index.html`, and defining a colour variable `--<id>` in `css/style.css`.
+
+**Keep the translation in step.** English is the source. When you add or change a lesson, add the same lesson id to the matching file in `data/id/` with `title`, `why`, `points`, `practice`, `teach`, `analogy`, `pitfalls` and `quiz` (each quiz entry is `[question, [answers…], explanation]`, in the same order as the English one). New interface text is translated by adding an `'English string': 'Indonesian string'` pair to a `data/id/ui-*.js` file; text that is not found simply stays in English. Then run:
+
+```bash
+node tools/check-i18n.mjs
+```
+
+It reports any lesson, question, answer list, problem or Q&A whose translation is missing or has a different shape.
+
+**Add another language** by copying `data/id/` to a new folder, translating it, and extending the language list in `js/util.js` and the loader in `index.html`.
 
 ---
 
@@ -261,7 +290,7 @@ Run it after changing any C# content. ASP.NET Core snippets that depend on NuGet
 Corrections and improvements are welcome — technology moves, and content goes stale.
 
 1. Fork the repository and create a branch.
-2. Make your change. For C# content, run `node tools/verify.mjs`.
+2. Make your change. For C# content, run `node tools/verify.mjs`; for any content change, run `node tools/check-i18n.mjs`.
 3. Open the site locally and check the page you changed.
 4. Open a pull request describing what changed and why.
 

@@ -1,6 +1,6 @@
 // Visualizations for fundamentals: Big-O growth, sorting, the JavaScript event loop.
 (() => {
-  const VIZ = window.VIZ;
+  const VIZ = window.VIZ, T = window.t;
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
   const btn = (label, onclick, cls) => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
@@ -15,8 +15,8 @@
         ['O(1)', 'hash lookup', () => 1], ['O(log n)', 'binary search', n => Math.log2(n)], ['O(n)', 'one loop', n => n],
         ['O(n log n)', 'sorting', n => n * Math.log2(n)], ['O(n²)', 'nested loops', n => n * n], ['O(2ⁿ)', 'all subsets', n => Math.pow(2, n)]
       ];
-      const num = x => !isFinite(x) || x > 1e30 ? 'more than 10³⁰' : x >= 1e15 ? x.toExponential(1).replace('e+', ' × 10^') : Math.round(x).toLocaleString('en');
-      const time = ops => { const s = ops / 1e8; return !isFinite(s) || s > 3.2e16 ? 'longer than the age of the universe' : s < 1e-3 ? 'instant' : s < 1 ? Math.round(s * 1000) + ' ms' : s < 120 ? s.toFixed(1) + ' s' : s < 7200 ? Math.round(s / 60) + ' min' : s < 172800 ? Math.round(s / 3600) + ' hours' : s < 6.3e7 ? Math.round(s / 86400) + ' days' : Math.round(s / 3.15e7).toLocaleString('en') + ' years'; };
+      const num = x => !isFinite(x) || x > 1e30 ? T('more than 10³⁰') : x >= 1e15 ? x.toExponential(1).replace('e+', ' × 10^') : Math.round(x).toLocaleString('en');
+      const time = ops => { const s = ops / 1e8; return !isFinite(s) || s > 3.2e16 ? T('longer than the age of the universe') : s < 1e-3 ? T('instant') : s < 1 ? Math.round(s * 1000) + ' ms' : s < 120 ? s.toFixed(1) + ' s' : s < 7200 ? Math.round(s / 60) + ' ' + T('min') : s < 172800 ? Math.round(s / 3600) + ' ' + T('hours') : s < 6.3e7 ? Math.round(s / 86400) + ' ' + T('days') : Math.round(s / 3.15e7).toLocaleString('en') + ' ' + T('years'); };
       const chips = h('div', { class: 'chips' }), body = h('div', {});
       const draw = n => {
         [...chips.children].forEach(c => c.classList.toggle('on', +c.dataset.n === n));
@@ -80,7 +80,7 @@
           if (delay) await sleep(delay);
         }
         paint();
-        note.textContent = `${sel.value.split(' — ')[0]} used ${c} comparisons for ${N} values. n² is ${N * N}; n·log₂n is about ${Math.round(N * Math.log2(N))}.`;
+        note.textContent = T('{algo} used {c} comparisons for {n} values. n² is {sq}; n·log₂n is about {nlog}.', { algo: sel.value.split(' — ')[0], c, n: N, sq: N * N, nlog: Math.round(N * Math.log2(N)) });
       };
       el.append(h('div', { class: 'viz-ctl' }, sel, btn('Sort', sort), btn('Shuffle', shuffle, 'ghost'), h('span', {}, 'Comparisons: ', count)), bars, note);
       shuffle();
@@ -114,7 +114,7 @@
         const s = steps[i];
         lis.forEach((li, j) => li.className = j === s.line ? 'cur' : 'done');
         fill(stack, s.stack.slice().reverse()); fill(micro, s.micro); fill(task, s.task); fill(out, s.out);
-        note.textContent = s.note; label.textContent = `Step ${i + 1} of ${steps.length}`;
+        note.textContent = T(s.note); label.textContent = T('Step {i} of {n}', { i: i + 1, n: steps.length });
         back.disabled = i === 0; next.disabled = i === steps.length - 1;
       };
       el.append(h('div', { class: 'viz-ctl' }, back, next, btn('Reset', () => { i = 0; draw(); }, 'ghost'), label), h('ol', { class: 'lines' }, lis),

@@ -1,4 +1,5 @@
 (() => {
+  const T = window.t;   // `t` is used for tracks in this file
   // ---------- state ----------
   const KEY = 'stackmastery.v1';
   const fresh = () => ({ lessons: {}, cards: {}, projects: {}, streak: { last: '', count: 0 }, theme: '' });
@@ -37,11 +38,11 @@
   // ---------- small components ----------
   const chip = (text, cls) => h('span', { class: 'chip ' + (cls || '') }, text);
   const dots = k => { const s = peek(k); return h('span', { class: 'dots', title: 'Learn · Check · Teach' }, ['read', 'quiz', 'teach'].map(f => h('i', { class: s[f] ? 'on' : '' }))); };
-  const bar = (p, label) => h('div', { class: 'bar', role: 'img', 'aria-label': (label || 'Progress') + ' ' + p + '%' }, h('i', { style: { width: p + '%' } }));
+  const bar = (p, label) => h('div', { class: 'bar', role: 'img', 'aria-label': T(label || 'Progress') + ' ' + p + '%' }, h('i', { style: { width: p + '%' } }));
   function ring(p) {
     const r = 52, c = 2 * Math.PI * r;
     return h('div', { class: 'ring', html:
-      `<svg viewBox="0 0 120 120" role="img" aria-label="Overall mastery ${p}%"><circle cx="60" cy="60" r="${r}" class="ring-bg"/><circle cx="60" cy="60" r="${r}" class="ring-fg" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - p / 100)}" transform="rotate(-90 60 60)"/><text x="60" y="58" text-anchor="middle" class="ring-n">${p}%</text><text x="60" y="76" text-anchor="middle" class="ring-l">mastery</text></svg>` });
+      `<svg viewBox="0 0 120 120" role="img" aria-label="${T('Overall mastery')} ${p}%"><circle cx="60" cy="60" r="${r}" class="ring-bg"/><circle cx="60" cy="60" r="${r}" class="ring-fg" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - p / 100)}" transform="rotate(-90 60 60)"/><text x="60" y="58" text-anchor="middle" class="ring-n">${p}%</text><text x="60" y="76" text-anchor="middle" class="ring-l">${T('mastery')}</text></svg>` });
   }
   const section = (title, ...kids) => h('section', { class: 'sec' }, h('h2', {}, title), ...kids);
   const lessonHref = (t, l) => `#/lesson/${t.id}/${l.id}`;
@@ -56,11 +57,11 @@
       const b = e.currentTarget;
       if (o.ok) {
         done = true; b.classList.add('right'); fb.className = 'fb good';
-        fb.innerHTML = '<strong>Correct.</strong> ' + md(q.why);
+        fb.innerHTML = '<strong>' + T('Correct.') + '</strong> ' + md(q.why);
       } else {
         b.classList.add('wrong');
-        if (once) { done = true; btns[order.findIndex(x => x.ok)].classList.add('right'); fb.className = 'fb bad'; fb.innerHTML = '<strong>Not quite.</strong> ' + md(q.why); }
-        else { fb.className = 'fb bad'; fb.textContent = 'Not quite — think about why, then try another.'; }
+        if (once) { done = true; btns[order.findIndex(x => x.ok)].classList.add('right'); fb.className = 'fb bad'; fb.innerHTML = '<strong>' + T('Not quite.') + '</strong> ' + md(q.why); }
+        else { fb.className = 'fb bad'; fb.textContent = T('Not quite — think about why, then try another.'); }
       }
       if (done || once) { btns.forEach(x => x.disabled = done); onResult && onResult(o.ok && first); }
       first = false;
@@ -106,10 +107,11 @@
           const dark = S.theme ? S.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
           S.theme = dark ? 'light' : 'dark'; save(); applyTheme();
         } }, 'Toggle theme'),
+        h('button', { type: 'button', class: 'ghost', lang: LANG === 'id' ? 'en' : 'id', onclick: () => setLang(LANG === 'id' ? 'en' : 'id') }, LANG === 'id' ? 'English' : 'Bahasa Indonesia'),
         h('button', { type: 'button', class: 'ghost', onclick: exportBackup }, 'Export backup'),
         h('button', { type: 'button', class: 'ghost', onclick: importBackup }, 'Import backup'),
         h('button', { type: 'button', class: 'ghost', onclick: () => {
-          if (confirm('Erase all progress, notes, flashcard history and interview prep data? This cannot be undone.')) {
+          if (confirm(T('Erase all progress, notes, flashcard history and interview prep data? This cannot be undone.'))) {
             try { ['stackmastery.v1', 'stackmastery.sql', 'stackmastery.interview'].forEach(k => localStorage.removeItem(k)); } catch { /* ignore */ }
             location.hash = '#/'; location.reload();
           }
@@ -141,7 +143,7 @@
           h('div', { class: 'lvls' }, LEVELS.map((n, i) => h('div', {}, h('span', {}, n), bar(pct(t, i), n)))))))),
       section('Get hired',
         h('a', { class: 'card go', href: '#/interview' },
-          h('span', { class: 'card-k' }, `Interview readiness ${INTERVIEW.readiness()}%`), h('strong', {}, 'Interview preparation'),
+          h('span', { class: 'card-k' }, `${T('Interview readiness')} ${INTERVIEW.readiness()}%`), h('strong', {}, 'Interview preparation'),
           h('p', {}, 'Auto-judged coding problems, system design cases, a behavioral story bank, rapid-fire stack questions and timed mock interviews with a hiring rubric.'), bar(INTERVIEW.readiness(), 'Interview readiness'))),
       section('How a lesson works',
         h('ol', { class: 'steps' },
@@ -168,7 +170,7 @@
         return section(h('span', {}, name, ' ', h('small', {}, pct(t, lvl) + '%')),
           h('div', { class: 'rows' }, ls.map(l => h('a', { class: 'row', href: lessonHref(t, l) },
             dots(key(t, l)), h('span', { class: 'row-t' }, l.title),
-            l.viz ? chip('interactive', 'viz-chip') : null, h('small', {}, l.mins + ' min')))));
+            l.viz ? chip('interactive', 'viz-chip') : null, h('small', {}, l.mins + ' ' + T('min'))))));
       }));
   }
 
@@ -196,7 +198,7 @@
 
     // Learn
     const readBtn = h('button', { type: 'button', class: 'btn', onclick: () => { set('read', !peek(k).read); drawRead(); } });
-    const drawRead = () => { readBtn.textContent = peek(k).read ? '✓ Learned — click to undo' : 'Mark as learned'; readBtn.classList.toggle('done', !!peek(k).read); };
+    const drawRead = () => { readBtn.textContent = T(peek(k).read ? '✓ Learned — click to undo' : 'Mark as learned'); readBtn.classList.toggle('done', !!peek(k).read); };
     drawRead();
 
     // Check
@@ -222,12 +224,12 @@
 
     const page = h('div', { class: 'page lesson', style: { '--tc': `var(--${t.id})` } },
       h('header', { class: 'head' },
-        h('p', { class: 'eyebrow' }, h('a', { href: `#/track/${t.id}` }, t.name), ' · ', LEVELS[l.level], ' · ', l.mins + ' min'),
+        h('p', { class: 'eyebrow' }, h('a', { href: `#/track/${t.id}` }, t.name), ' · ', LEVELS[l.level], ' · ', l.mins + ' ' + T('min')),
         h('h1', {}, l.title), tracker),
       section('Why this matters', h('p', { class: 'why', html: md(l.why) })),
       section('Key ideas', h('ul', { class: 'points' }, l.points.map(p => h('li', { html: md(p) })))),
       l.code ? section('See it in code', codeBlock(l.code, l.lang || t.lang)) : null,
-      vizEl ? section('Play with it: ' + VIZ[l.viz].title, h('p', { class: 'muted' }, VIZ[l.viz].desc), vizEl) : null,
+      vizEl ? section(T('Play with it: ') + T(VIZ[l.viz].title), h('p', { class: 'muted' }, VIZ[l.viz].desc), vizEl) : null,
       section('Your turn', h('p', { html: md(l.practice) }), h('div', { class: 'actions' }, readBtn, playLink)),
       section('Check yourself', quiz),
       h('section', { class: 'sec teach' },
@@ -262,7 +264,7 @@
       block('10 min', 'Explain — one idea at a time', h('ul', { class: 'points' }, l.points.map(p => h('li', { html: md(p) })))),
       l.code ? block('10 min', 'Live demo — type it, have students predict each line before you run it', codeBlock(l.code, l.lang || t.lang)) : null,
       block('15 min', 'Guided practice — students type, you watch', h('p', { html: md(l.practice) })),
-      block('5 min', 'Check for understanding', h('ol', {}, l.quiz.map(q => h('li', {}, h('span', { html: md(q.q) }), h('br'), h('small', { html: 'Answer: ' + md(q.a[q.c]) + ' — ' + md(q.why) }))))),
+      block('5 min', 'Check for understanding', h('ol', {}, l.quiz.map(q => h('li', {}, h('span', { html: md(q.q) }), h('br'), h('small', { html: T('Answer: ') + md(q.a[q.c]) + ' — ' + md(q.why) }))))),
       block('', 'Watch for these misconceptions', h('ul', { class: 'points' }, l.pitfalls.map(p => h('li', { html: md(p) })))),
       block('2 min', 'Exit ticket — the student explains back', h('p', { html: md(l.teach) })));
   }
@@ -276,7 +278,7 @@
     const queue = shuffle(dueCards()).slice(0, 20); let n = 0, got = 0;
     const show = () => {
       if (!queue.length) return stage.replaceChildren(h('div', { class: 'empty' }, h('strong', {}, 'Nothing due.'), h('p', {}, allLessons().some(e => peek(e.k).read) ? 'You are caught up — come back tomorrow, or take a mock exam.' : 'Mark a lesson as learned and its questions will appear here.')));
-      if (n >= queue.length) { renderNav(); return stage.replaceChildren(h('div', { class: 'empty' }, h('strong', {}, `Session complete — ${got} of ${queue.length} recalled.`), h('p', {}, 'Missed cards return tomorrow.'), h('a', { class: 'btn', href: '#/' }, 'Back to dashboard'))); }
+      if (n >= queue.length) { renderNav(); return stage.replaceChildren(h('div', { class: 'empty' }, h('strong', {}, T('Session complete — {got} of {n} recalled.', { got, n: queue.length })), h('p', {}, 'Missed cards return tomorrow.'), h('a', { class: 'btn', href: '#/' }, 'Back to dashboard'))); }
       const c = queue[n], back = h('div', { class: 'fc-back', hidden: true },
         h('p', { class: 'fc-a', html: md(c.q.a[c.q.c]) }), h('p', { html: md(c.q.why) }),
         h('div', { class: 'actions' },
@@ -308,12 +310,12 @@
       let answered = 0, right = 0; const missed = new Map();
       const result = h('div', { class: 'empty', hidden: true });
       stage.replaceChildren(...pool.map((c, i) => h('div', { class: 'exam-q', style: { '--tc': `var(--${c.t.id})` } },
-        h('p', { class: 'eyebrow' }, `Question ${i + 1} · ${c.t.name} · ${LEVELS[c.l.level]}`),
+        h('p', { class: 'eyebrow' }, `${T('Question')} ${i + 1} · ${c.t.name} · ${LEVELS[c.l.level]}`),
         quizItem(c.q, { once: true, onResult: ok => {
           answered++; if (ok) right++; else missed.set(c.t.id + c.l.id, c);
           if (answered === pool.length) {
             result.hidden = false;
-            result.replaceChildren(h('strong', {}, `Score: ${right} / ${pool.length}`),
+            result.replaceChildren(h('strong', {}, `${T('Score:')} ${right} / ${pool.length}`),
               missed.size ? h('p', {}, 'Revisit: ', [...missed.values()].map((m, j) => [j ? ', ' : '', h('a', { href: lessonHref(m.t, m.l) }, m.l.title)])) : h('p', {}, 'Clean sweep. Raise the level.'));
             result.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
@@ -424,14 +426,14 @@
     const input = h('input', { type: 'file', accept: 'application/json,.json', onchange: async () => {
       try {
         const data = JSON.parse(await input.files[0].text());
-        if (data.app !== 'stack-mastery' || !data.keys) throw new Error('not a Stack Mastery backup file');
+        if (data.app !== 'stack-mastery' || !data.keys) throw new Error(T('not a Stack Mastery backup file'));
         const entries = Object.entries(data.keys).filter(([k, v]) => KEYS.includes(k) && typeof v === 'string');
         entries.forEach(([, v]) => JSON.parse(v));   // every value must itself be valid JSON
-        if (!confirm(`Replace the progress in this browser with the backup from ${String(data.exported).slice(0, 10)}?`)) return;
+        if (!confirm(T('Replace the progress in this browser with the backup from {date}?', { date: String(data.exported).slice(0, 10) }))) return;
         KEYS.forEach(k => localStorage.removeItem(k));
         entries.forEach(([k, v]) => localStorage.setItem(k, v));
         location.reload();
-      } catch (e) { alert('Could not import: ' + e.message); }
+      } catch (e) { alert(T('Could not import: ') + e.message); }
     } });
     input.click();
   }
@@ -443,14 +445,14 @@
       ...IV.problems.map(p => ({ kind: 'Coding problem', title: p.title, href: '#/interview/problem/' + p.id, text: p.prompt + ' ' + p.pattern })),
       ...IV.patterns.map(p => ({ kind: 'Coding pattern', title: p.name, href: '#/interview/patterns', text: p.signal })),
       ...IV.design.cases.map(c => ({ kind: 'System design', title: c.title, href: '#/interview/design/' + c.id, text: c.prompt + ' ' + c.deep.map(d => d.join(' ')).join(' ') })),
-      ...IV.rapid.flatMap(r => r.qs.map(([q, ans]) => ({ kind: 'Interview Q&A · ' + r.area, title: q, href: '#/interview/rapid', text: ans }))),
-      ...Object.entries(VIZ).map(([id, v]) => ({ kind: 'Visualization', title: v.title, href: '#/lab/' + id, text: v.desc }))
+      ...IV.rapid.flatMap(r => r.qs.map(([q, ans]) => ({ kind: T('Interview Q&A') + ' · ' + r.area, title: q, href: '#/interview/rapid', text: ans }))),
+      ...Object.entries(VIZ).map(([id, v]) => ({ kind: 'Visualization', title: T(v.title), href: '#/lab/' + id, text: T(v.desc) }))
     ];
     const plain = s => s.replace(/[`*]/g, '');
     const results = h('div', { class: 'rows', 'aria-live': 'polite' });
     const draw = () => {
       const terms = input.value.toLowerCase().split(/\s+/).filter(Boolean);
-      if (!terms.length) return results.replaceChildren(h('p', { class: 'muted' }, `${index.length} lessons, problems, questions and visualizations indexed. Try “index”, “async”, “flexbox” or “deadlock”.`));
+      if (!terms.length) return results.replaceChildren(h('p', { class: 'muted' }, T('{n} lessons, problems, questions and visualizations indexed. Try “index”, “async”, “flexbox” or “deadlock”.', { n: index.length })));
       const hits = index.map(it => {
         const title = it.title.toLowerCase(), text = it.text.toLowerCase();
         if (!terms.every(t => title.includes(t) || text.includes(t))) return null;

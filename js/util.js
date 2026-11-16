@@ -2,6 +2,31 @@
 window.TRACKS = [];
 window.LEVELS = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
 
+// ---------- language ----------
+// 'en' or 'id'. Indonesian text lives in data/id/*.js and is only loaded when selected.
+window.LANG = (() => {
+  let saved = null;
+  try { saved = localStorage.getItem('stackmastery.lang'); } catch { /* private mode */ }
+  if (saved === 'en' || saved === 'id') return saved;
+  return typeof navigator !== 'undefined' && /^id(-|$)/i.test(navigator.language || '') ? 'id' : 'en';
+})();
+if (typeof document !== 'undefined') document.documentElement.lang = LANG;
+window.setLang = lang => { try { localStorage.setItem('stackmastery.lang', lang); } catch { /* ignore */ } location.reload(); };
+window.I18N = {
+  ui: new Map(), tracks: {},
+  add(dict) { for (const k in dict) this.ui.set(k, dict[k]); },
+  // Translated lesson text for one track; may be called several times per track.
+  lessons(id, lessons, meta) { const t = this.tracks[id] || (this.tracks[id] = { lessons: {} }); Object.assign(t, meta); Object.assign(t.lessons, lessons); }
+};
+// Translate an interface string. Unknown strings pass through unchanged; {name} is filled from vars.
+window.t = (s, vars) => {
+  if (typeof s !== 'string') return s;
+  let out = I18N.ui.get(s) ?? s;
+  if (vars) out = out.replace(/\{(\w+)\}/g, (m, k) => k in vars ? vars[k] : m);
+  return out;
+};
+const T_ATTR = new Set(['placeholder', 'title', 'aria-label']);
+
 window.h = function (tag, attrs, ...kids) {
   const el = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs || {})) {
@@ -10,11 +35,11 @@ window.h = function (tag, attrs, ...kids) {
     else if (k === 'html') el.innerHTML = v;
     else if (k === 'style' && typeof v === 'object') { for (const [p, x] of Object.entries(v)) p.startsWith('--') ? el.style.setProperty(p, x) : el.style[p] = x; }
     else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
-    else el.setAttribute(k, v === true ? '' : v);
+    else el.setAttribute(k, v === true ? '' : T_ATTR.has(k) ? t(v) : v);
   }
   for (const kid of kids.flat(Infinity)) {
     if (kid == null || kid === false) continue;
-    el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+    el.append(kid.nodeType ? kid : document.createTextNode(typeof kid === 'string' ? t(kid) : String(kid)));
   }
   return el;
 };
@@ -22,7 +47,7 @@ window.h = function (tag, attrs, ...kids) {
 window.esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 // `code` and **bold** only.
-window.md = s => esc(s)
+window.md = s => esc(t(s))
   .replace(/`([^`]+)`/g, '<code>$1</code>')
   .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
@@ -64,7 +89,7 @@ window.codeBlock = function (code, lang) {
   const label = { cs: 'C#', sql: 'SQL', ts: 'TypeScript', tsx: 'TSX', sh: 'Shell', css: 'CSS', html: 'HTML' }[lang] || lang;
   const btn = h('button', { class: 'copy', type: 'button', onclick: () => {
     navigator.clipboard && navigator.clipboard.writeText(code).then(() => {
-      btn.textContent = 'Copied'; setTimeout(() => btn.textContent = 'Copy', 1200);
+      btn.textContent = t('Copied'); setTimeout(() => btn.textContent = t('Copy'), 1200);
     });
   } }, 'Copy');
   return h('div', { class: 'code' },
