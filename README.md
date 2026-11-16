@@ -271,4 +271,6 @@ Found a mistake but do not want to fix it yourself? Open an issue with the lesso
 
 ## Licence
 
-No licence has been chosen for this project yet. Until one is added, you are welcome to use the hosted site freely; reusing or redistributing the source is not formally granted. The third-party libraries listed above keep their own licences.
+Released under the [MIT Licence](LICENSE). You may use, copy, modify and redistribute this project — including for your own classes or a hosted copy — as long as the copyright notice and licence text are kept.
+
+The third-party libraries listed above are loaded from CDNs, are not included in this repository, and keep their own licences.
