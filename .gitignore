@@ -1,0 +1,16 @@
+# Personal progress backups exported from the app — never commit these
+stack-mastery-backup-*.json
+
+# Local tooling and editor settings
+.claude/
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build output from tools/verify.mjs or local experiments
+bin/
+obj/
+node_modules/
