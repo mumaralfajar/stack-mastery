@@ -355,7 +355,7 @@ self.onmessage = e => {
       ['Coding', '#/interview/coding', 'Two rounds in most loops. Data structures and algorithms, solved out loud in 35–45 minutes.'],
       ['System design', '#/interview/design', 'From mid-level up. Design a large system on a whiteboard and defend the trade-offs.'],
       ['Behavioral', '#/interview/behavioral', 'Evidence of ownership, collaboration and judgement, told as specific stories.'],
-      ['Stack knowledge', '#/interview/rapid', 'Depth in your own technologies: C#, ASP.NET Core, SQL, TypeScript, React, CSS, the web.'],
+      ['Stack knowledge', '#/interview/rapid', 'Depth in your own technologies: C#, ASP.NET Core, SQL, TypeScript, React, CSS, Flutter, the web.'],
       ['Mock interviews', '#/interview/mock', 'Timed, scored simulations of each round — the fastest way to improve.']
     ];
     return h('div', { class: 'page iv' },

@@ -2,7 +2,7 @@
 
 **Learn it. Prove it. Teach it.**
 
-A free, self-paced program that takes you from beginner to expert in a complete web stack — **C#, ASP.NET Core, SQL, CSS + Tailwind, TypeScript + React** and **computer-science fundamentals** — and then prepares you for technical interviews at large tech companies.
+A free, self-paced program that takes you from beginner to expert in a complete web stack — **C#, ASP.NET Core, SQL, CSS + Tailwind, TypeScript + React, Dart + Flutter** and **computer-science fundamentals** — and then prepares you for technical interviews at large tech companies.
 
 **Use it now:** <https://mumaralfajar.github.io/stack-mastery/>
 
@@ -25,6 +25,7 @@ Available in **English** and **Bahasa Indonesia** — switch with the language b
 - [Project layout](#project-layout)
 - [Adding or editing content](#adding-or-editing-content)
 - [Verifying the C# content](#verifying-the-c-content)
+- [Verifying the Dart + Flutter content](#verifying-the-dart--flutter-content)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 - [Licence](#licence)
@@ -53,7 +54,7 @@ What this means in practice:
 
 ## What is inside
 
-### Six tracks, 73 lessons, four levels each
+### Seven tracks, 87 lessons, four levels each
 
 | Track | Lessons | From → to |
 | --- | --- | --- |
@@ -62,6 +63,7 @@ What this means in practice:
 | **SQL** | 12 | SELECT and joins → indexes, transactions, query plans, scaling |
 | **CSS + Tailwind** | 13 | HTML, the cascade, layout → Tailwind in React, architecture, rendering |
 | **TypeScript + React** | 14 | JavaScript and types → hooks, performance, advanced types, internals |
+| **Dart + Flutter** | 14 | Dart and widgets → layout, async, state with Bloc/Cubit, testing, rendering, release |
 | **CS Fundamentals** | 7 | Git and Big-O → data structures, graphs, dynamic programming |
 
 Every lesson has the same three steps, and only counts as mastered when all three are done:
@@ -72,11 +74,12 @@ Every lesson has the same three steps, and only counts as mastered when all thre
 
 ### Practice tools
 
-- **17 interactive visualizations** — stack vs heap, async timeline, middleware pipeline, service lifetimes, JOIN explorer, index seek vs scan, flexbox and grid playgrounds, React re-renders, the event loop, sorting algorithms, Big-O growth, and more.
+- **20 interactive visualizations** — stack vs heap, async timeline, middleware pipeline, service lifetimes, JOIN explorer, index seek vs scan, flexbox and grid playgrounds, React re-renders, Flutter layout constraints and its three trees, the event loop, sorting algorithms, Big-O growth, and more.
 - **SQL playground** — a real SQLite database in the browser with 11 auto-checked challenges.
 - **TypeScript playground** — a real editor with live type checking.
+- **Dart + Flutter playground** — the official DartPad embedded, loaded with each lesson's runnable sample.
 - **CSS + Tailwind playground** — live preview you can resize to test breakpoints.
-- **Flashcard review** — 219 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
+- **Flashcard review** — 261 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
 - **Mock exam** — ten random questions by track and level.
 - **Capstone projects** — one full-stack project per level.
 - **Search** — press `/` anywhere.
@@ -86,8 +89,8 @@ Every lesson has the same three steps, and only counts as mastered when all thre
 - **Coding** — 21 classic problems across 12 patterns, judged in the browser against test cases, with hints, solutions in TypeScript and C#, complexity and follow-up questions.
 - **System design** — a 45-minute framework, 5 worked cases, a capacity estimator and a glossary of building blocks.
 - **Behavioral** — the STAR method, 32 questions in 8 themes, and a personal story bank.
-- **Rapid-fire** — 42 stack questions with model answers.
-- **SQL and frontend rounds** — graded SQL challenges and six "build a component" prompts.
+- **Rapid-fire** — 48 stack questions with model answers.
+- **SQL and frontend rounds** — graded SQL challenges and eight "build a component" prompts, two of them in Flutter.
 - **Mock interviews** — timed rounds with help locked until the end and a hire / no-hire scorecard.
 - **Eight-week plan** and a readiness meter.
 
@@ -99,7 +102,7 @@ Rules for teaching programmers, a question ladder for any topic, a session templ
 
 ## How to use it
 
-1. Open the site and read **Start here: setup** — it lists the four free tools to install (.NET SDK, Node.js, Git, VS Code) and the first commands for each track.
+1. Open the site and read **Start here: setup** — it lists the free tools to install (.NET SDK, Node.js, Flutter SDK, Git, VS Code) and the first commands for each track.
 2. Work **level by level across the tracks** rather than finishing one track first. The dashboard suggests the order.
 3. Follow a daily routine:
    - 10 minutes of flashcard review, first;
@@ -114,7 +117,7 @@ The percentages in the sidebar show your progress per track; the dashboard shows
 
 ## Languages
 
-The whole program — interface, all 73 lessons, quizzes, visualizations, playgrounds and interview preparation — is available in English and Bahasa Indonesia.
+The whole program — interface, all 87 lessons, quizzes, visualizations, playgrounds and interview preparation — is available in English and Bahasa Indonesia.
 
 - Use the **Bahasa Indonesia / English** button at the bottom of the sidebar. The choice is remembered in your browser.
 - On a first visit, a browser set to Indonesian starts in Indonesian; every other browser starts in English.
@@ -182,6 +185,7 @@ The lessons, quizzes, flashcards, visualizations and interview content work offl
 | TypeScript playground and coding-problem judge | [TypeScript](https://github.com/microsoft/TypeScript) | Apache-2.0 |
 | SQL playground | [sql.js](https://github.com/sql-js/sql.js) (SQLite as WebAssembly) | MIT |
 | Tailwind toggle in the CSS playground | [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss) browser build | MIT |
+| Dart + Flutter playground | [DartPad](https://github.com/dart-lang/dart-pad), embedded from dartpad.dev | BSD-3-Clause |
 
 These are downloaded from public CDNs (cdnjs and jsDelivr). Loading them sends an ordinary web request to the CDN, as with any website; none of your progress or code is sent. If the editor library cannot load, the editors fall back to plain text boxes.
 
@@ -193,19 +197,20 @@ These are downloaded from public CDNs (cdnjs and jsDelivr). Loading them sends a
 | --- | --- |
 | `index.html` | The single page that loads everything |
 | `css/style.css` | All styling, light and dark themes |
-| `data/csharp.js`, `aspnet.js`, `sql.js`, `css.js`, `react.js`, `fundamentals.js` | Lesson content, one file per track |
+| `data/csharp.js`, `aspnet.js`, `sql.js`, `css.js`, `react.js`, `flutter.js`, `fundamentals.js` | Lesson content, one file per track |
 | `data/projects.js` | Capstone projects |
 | `data/interview.js` | Coding problems, patterns, system design, behavioral, rapid-fire, plan |
 | `data/interview-cs.js` | C# solutions and the frontend-round prompts |
 | `js/app.js` | Router, dashboard, lessons, flashcards, exam, search, backup, setup guide |
 | `js/interview.js` | Interview section: code judge, design, story bank, mocks |
 | `js/playground.js` | SQL, TypeScript and CSS playgrounds; editor integration |
-| `js/viz.js`, `vizcss.js`, `vizmore.js` | Interactive visualizations |
+| `js/viz.js`, `vizcss.js`, `vizmore.js`, `vizflutter.js` | Interactive visualizations |
 | `js/util.js` | Small shared helpers, syntax highlighting, language selection and the `t()` translate helper |
 | `js/i18n.js` | Lays the selected language's content over the English data |
 | `data/id/ui-*.js` | Indonesian interface text (English string → Indonesian string) |
 | `data/id/<track>.js`, `projects.js`, `interview.js` | Indonesian lesson, capstone and interview content |
 | `tools/verify.mjs` | Compiles and tests the C# content |
+| `tools/verify-dart.mjs` | Analyzes, runs and tests the Dart + Flutter samples |
 | `tools/check-i18n.mjs` | Checks that the Indonesian content matches the English structure |
 | `tools/extract-text.mjs` | Prints the translatable text of a track, for translators |
 
@@ -269,6 +274,22 @@ Requires Node.js and the .NET SDK. It:
 3. compiles every lesson snippet in the C# and CS Fundamentals tracks as a `Program.cs`.
 
 Run it after changing any C# content. ASP.NET Core snippets that depend on NuGet packages (EF Core, JWT bearer, OpenTelemetry) are not covered by this script.
+
+---
+
+## Verifying the Dart + Flutter content
+
+```bash
+node tools/verify-dart.mjs
+```
+
+Requires Node.js and the Flutter SDK. On first run it creates a scratch Flutter project in your temp folder with the packages the lessons use (`flutter_bloc`, `go_router`, `http`, `shared_preferences`). Then it:
+
+1. writes every Dart + Flutter lesson sample into that project and runs `flutter analyze` — any error or warning fails;
+2. runs the samples that are plain Dart programs and prints their output;
+3. runs the samples that are tests with `flutter test`.
+
+Every sample is a complete file, so what a learner copies into a fresh `flutter create` project compiles as shown. Inside the lesson data, a Dart `${` must be written `\${` because the samples live in JavaScript template strings.
 
 ---
 

@@ -8,7 +8,8 @@ window.PROJECTS = [
       "**ASP.NET Core**: a minimal API with `GET /api/products` and `GET /api/products/{id}` over an in-memory list, returning 404 correctly.",
       "**React + TypeScript**: a typed `ProductList` component rendering hard-coded products with an empty-state message.",
       "**CSS**: style the product list with a responsive grid and a card component — no framework yet, and no horizontal scroll at 360px.",
-      "Explain out loud what a request, a row, an object, a component and a CSS rule each are — one sentence each."
+      "Explain out loud what a request, a row, an object, a component and a CSS rule each are — one sentence each.",
+      "**Dart + Flutter**: the same hard-coded product list as a Flutter screen built from `StatelessWidget`s, run on the web target."
     ],
     stretch: ["Add `POST` to the API and call it with `curl`.", "Add a search box to the React list that filters as you type."],
     teach: "Teaching angle: run this as a first-day workshop. Which of the four parts would you show first, and what would you deliberately hide?"
@@ -24,7 +25,8 @@ window.PROJECTS = [
       "React app: task list, create form with controlled inputs, toggle done, delete — with loading and error states.",
       "TypeScript types for every API response; no `any`.",
       "Styled with Tailwind: a responsive layout, reusable `Button` and `Input` components with typed variants, visible focus states.",
-      "A JOIN query endpoint: projects with their open-task counts, written so it produces exactly one SQL statement."
+      "A JOIN query endpoint: projects with their open-task counts, written so it produces exactly one SQL statement.",
+      "A Flutter client for the same API: task list, create form with validation, toggle done — with loading, empty and error states."
     ],
     stretch: ["Filter and sort tasks via query-string parameters reflected in the URL.", "Replace hand-written fetching with TanStack Query."],
     teach: "Teaching angle: trace one 'add task' click through all four layers on a whiteboard, naming the exact line of code at each hop."
@@ -41,7 +43,8 @@ window.PROJECTS = [
       "A sales report endpoint using a window function (running total or top-N per category).",
       "Integration tests with `WebApplicationFactory` against a real database for every endpoint; React Testing Library tests for the checkout flow.",
       "Cart implemented with a reducer and context; server state via a query library with invalidation.",
-      "A small design system: tokens through `@theme`, dark mode, and components that own no outer margin."
+      "A small design system: tokens through `@theme`, dark mode, and components that own no outer margin.",
+      "The Flutter app signs in, stores its token in secure storage, and manages cart and orders with Bloc/Cubit, covered by cubit and widget tests."
     ],
     stretch: ["Options pattern with startup validation for all settings.", "Structured logging with a correlation ID visible in every log line of a request."],
     teach: "Teaching angle: pick one bug this project prevents — overselling, IDOR, lost update — and design a 15-minute demo that first shows the bug, then the fix."
@@ -57,7 +60,8 @@ window.PROJECTS = [
       "A background worker with the outbox pattern sending order confirmations exactly-once from the user's point of view.",
       "A zero-downtime schema change executed with expand → migrate → contract while the app runs.",
       "Frontend: route-based code splitting, virtualized long list, Core Web Vitals within budget, fully keyboard accessible.",
-      "Containerized, deployed through CI with tests, migrations and a rollback plan you have actually exercised."
+      "Containerized, deployed through CI with tests, migrations and a rollback plan you have actually exercised.",
+      "The Flutter app built in CI as a signed release with dev and prod flavors, crash reporting, and a tested upgrade path from the previous version."
     ],
     stretch: ["Write an architecture decision record for your three most consequential choices.", "Run a game day: break the database, a dependency and a deploy, and document what the system and the dashboards did."],
     teach: "Teaching angle: present this system as a 30-minute architecture review to a senior audience. They will ask 'why not the alternative?' for every choice — prepare the answers."

@@ -375,5 +375,41 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
     load(Object.keys(CSS_EXAMPLES)[0]);
   }
 
-  window.PLAY = { sql, ts, css, editor, typeNote, loadTS: () => loadScript(CDN + 'typescript/5.4.5/typescript.min.js') };
+  // ---------------- Dart + Flutter (embedded DartPad) ----------------
+  // DartPad (dartpad.dev, the official open-source Dart playground) compiles and runs Dart and Flutter in the browser.
+  // When the embedded editor reports that it is ready, the selected lesson sample is posted into it.
+  const DARTPAD = 'https://dartpad.dev';
+  function dart(el, sample) {
+    const track = TRACKS.find(t => t.id === 'flutter');
+    // Samples DartPad can run as they are: a main() and no third-party packages.
+    const samples = track.lessons.filter(l => /\bmain\(\)/.test(l.code) && !/package:(?!flutter\/)/.test(l.code));
+    let cur = samples.find(l => l.id === sample) || samples[0], ready = false;
+    const code = l => l.code.replace(/^\n+|\s+$/g, '');
+    const frame = h('iframe', { class: 'dartpad', title: 'DartPad', src: DARTPAD + '/?embed=true&theme=dark', allow: 'clipboard-write' });
+    const codeBox = h('div', {});
+    const send = () => { if (ready && frame.contentWindow) frame.contentWindow.postMessage({ sourceCode: code(cur), type: 'sourceCode' }, DARTPAD); };
+    const onMsg = e => {
+      if (!frame.isConnected) return removeEventListener('message', onMsg);
+      if (e.origin === DARTPAD && e.data && e.data.type === 'ready') { ready = true; send(); }
+    };
+    addEventListener('message', onMsg);
+    const chips = h('div', { class: 'chips' });
+    const draw = () => {
+      chips.replaceChildren(...samples.map(l => h('button', { type: 'button', class: l === cur ? 'on' : '', onclick: () => { cur = l; draw(); send(); } }, l.title)));
+      codeBox.replaceChildren(codeBlock(code(cur), 'dart'));
+    };
+    draw();
+    el.style.setProperty('--tc', 'var(--flutter)');
+    el.append(
+      h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Practice'), h('h1', {}, 'Dart + Flutter playground'),
+        h('p', { class: 'lede' }, 'DartPad, the official Dart playground, embedded here: it compiles and runs real Dart and Flutter in your browser. Pick a lesson sample, press Run in DartPad, then change the code and run it again.')),
+      chips,
+      h('div', { class: 'play' },
+        h('div', {}, h('p', { class: 'ed-label' }, 'Lesson sample'), codeBox,
+          h('p', { class: 'muted' }, 'The sample is sent to DartPad automatically. If the editor on the right does not show it, press Copy and paste it in.')),
+        h('div', {}, frame,
+          h('p', { class: 'muted' }, 'DartPad needs an internet connection. Samples that use packages such as flutter_bloc or go_router are meant for a local project: ', h('code', {}, 'flutter create'), '.'))));
+  }
+
+  window.PLAY = { sql, ts, css, dart, editor, typeNote, loadTS: () => loadScript(CDN + 'typescript/5.4.5/typescript.min.js') };
 })();

@@ -466,7 +466,14 @@ return dp[amount] > amount ? -1 : dp[amount];` }
       ['Cookies vs tokens in localStorage for auth?', 'HttpOnly, Secure, SameSite cookies cannot be read by scripts, which limits XSS damage, but need CSRF protection. Tokens in localStorage are easy to use but exposed to any XSS.'],
       ['Explain XSS and CSRF.', 'XSS: an attacker’s script runs in your page — prevent by escaping output and using a Content Security Policy. CSRF: another site triggers an authenticated request — prevent with SameSite cookies and anti-forgery tokens.'],
       ['What makes an API RESTful?', 'Resources identified by URLs, HTTP methods as verbs, correct status codes, stateless requests, and representations such as JSON. Idempotency of GET, PUT and DELETE matters for retries and caching.'],
-      ['How does HTTP caching work?', 'Cache-Control sets freshness; ETag or Last-Modified allow revalidation with a 304. CDNs and browsers reuse fresh responses, which removes load from the origin entirely.']] }
+      ['How does HTTP caching work?', 'Cache-Control sets freshness; ETag or Last-Modified allow revalidation with a 304. CDNs and browsers reuse fresh responses, which removes load from the origin entirely.']] },
+    { area: 'Dart + Flutter', track: 'flutter', qs: [
+      ['StatelessWidget vs StatefulWidget?', 'Both are immutable configuration. A StatelessWidget only has build. A StatefulWidget creates a separate State object that survives rebuilds and holds mutable data; setState marks it dirty so build runs again.'],
+      ['Explain the widget, element and render object trees.', 'Widgets are cheap immutable descriptions rebuilt often. Elements are long-lived instances that match old widgets to new ones by type and key and hold State. Render objects do layout and painting and are updated only when something really changed.'],
+      ['What are keys for?', 'They tell Flutter which widget is which when siblings of the same type are reordered, inserted or removed, so each State stays with the right item. Without keys, state is matched by position.'],
+      ['Cubit vs Bloc, and how do they compare to Provider and Riverpod?', 'A Cubit exposes methods that emit states; a Bloc maps events to states, giving a traceable, transformable event log at the cost of more code. Provider is dependency injection plus ChangeNotifier — simple but mutable. Riverpod is compile-safe and context-free with fine-grained dependencies.'],
+      ['How does layout work in Flutter?', 'Constraints go down, sizes go up, the parent sets the position. A parent passes min and max sizes, the child chooses a size within them, and the parent places it. Overflow and unbounded-height errors come from this rule.'],
+      ['How do you keep a Flutter app at 60 fps?', 'Rebuild less with const widgets, state pushed down and selectors; build lists lazily; move CPU-heavy work to another isolate; and measure in profile mode with DevTools rather than guessing.']]}
   ];
 
   const plan = [

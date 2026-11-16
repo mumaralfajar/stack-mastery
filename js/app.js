@@ -90,6 +90,7 @@
         link('#/play/sql', 'SQL playground', a === 'play' && b === 'sql'),
         link('#/play/ts', 'TypeScript playground', a === 'play' && b === 'ts'),
         link('#/play/css', 'CSS + Tailwind playground', a === 'play' && b === 'css'),
+        link('#/play/dart', 'Dart + Flutter playground', a === 'play' && b === 'dart'),
         link('#/lab', 'Visual lab', a === 'lab'),
         h('p', { class: 'nav-h' }, 'Get hired'),
         link('#/interview', 'Interview hub', a === 'interview' && !b, h('small', {}, INTERVIEW.readiness() + '%')),
@@ -130,7 +131,7 @@
         h('div', {},
           h('p', { class: 'eyebrow' }, 'Beginner → Expert → Teacher'),
           h('h1', {}, 'Learn it. Prove it. Teach it.'),
-          h('p', { class: 'lede' }, 'Five stack tracks — C#, ASP.NET Core, SQL, CSS with Tailwind, and TypeScript with React — plus computer-science fundamentals, each from first principles to expert level. A lesson only counts as mastered once you can explain it to someone else.'),
+          h('p', { class: 'lede' }, 'Six stack tracks — C#, ASP.NET Core, SQL, CSS with Tailwind, TypeScript with React, and Dart with Flutter — plus computer-science fundamentals, each from first principles to expert level. A lesson only counts as mastered once you can explain it to someone else.'),
           overall() === 0 ? h('p', {}, h('a', { class: 'btn', href: '#/start' }, 'New here? Set up your machine first →')) : null),
         ring(overall())),
       h('div', { class: 'stats' }, stat(streak(), 'day streak'), stat(dueCards().length, 'cards due'), stat(mastered, 'lessons mastered'), stat(all.length, 'lessons total')),
@@ -153,7 +154,7 @@
       section('Suggested order',
         h('p', {}, 'Work level by level across the tracks rather than finishing one track first — the stack only makes sense together.'),
         h('ol', { class: 'steps' },
-          h('li', {}, h('b', {}, 'Beginner: '), 'C# → CS Fundamentals (Git, Big-O) → SQL → ASP.NET Core → CSS → TypeScript + React, then build Capstone 1.'),
+          h('li', {}, h('b', {}, 'Beginner: '), 'C# → CS Fundamentals (Git, Big-O) → SQL → ASP.NET Core → CSS → TypeScript + React → Dart + Flutter, then build Capstone 1.'),
           h('li', {}, h('b', {}, 'Intermediate: '), 'same order, then Capstone 2 — your first real full-stack app.'),
           h('li', {}, h('b', {}, 'Advanced and Expert: '), 'follow whichever capstone requirement you cannot yet explain.'),
           h('li', {}, h('b', {}, 'Alongside, from Intermediate on: '), 'the eight-week interview plan — a few coding problems every week beats cramming.')),
@@ -220,7 +221,8 @@
     if (l.viz && VIZ[l.viz]) { vizEl = h('div', { class: 'viz' }); VIZ[l.viz].mount(vizEl); }
     const playLink = t.id === 'sql' ? h('a', { class: 'btn ghost', href: '#/play/sql' }, 'Open SQL playground')
       : t.id === 'css' ? h('a', { class: 'btn ghost', href: '#/play/css' }, 'Open CSS playground')
-      : t.id === 'react' ? h('a', { class: 'btn ghost', href: '#/play/ts' }, 'Open TypeScript playground') : null;
+      : t.id === 'react' ? h('a', { class: 'btn ghost', href: '#/play/ts' }, 'Open TypeScript playground')
+      : t.id === 'flutter' ? h('a', { class: 'btn ghost', href: '#/play/dart/' + l.id }, 'Open Dart + Flutter playground') : null;
 
     const page = h('div', { class: 'page lesson', style: { '--tc': `var(--${t.id})` } },
       h('header', { class: 'head' },
@@ -340,9 +342,9 @@
       used.length ? h('p', { class: 'muted' }, 'Used in: ', used.map((e, i) => [i ? ', ' : '', h('a', { href: lessonHref(e.t, e.l) }, e.l.title)])) : null);
   }
 
-  function playView(which) {
+  function playView(which, sample) {
     const el = h('div', { class: 'page wide' });
-    ({ ts: PLAY.ts, css: PLAY.css }[which] || PLAY.sql)(el);
+    ({ ts: PLAY.ts, css: PLAY.css, dart: PLAY.dart }[which] || PLAY.sql)(el, sample);
     return el;
   }
 
@@ -475,7 +477,7 @@
     const step = (title, text, code) => h('section', { class: 'sec' }, h('h2', {}, title), h('p', { html: md(text) }), code ? codeBlock(code, 'sh') : null);
     return h('div', { class: 'page' },
       h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Before lesson one'), h('h1', {}, 'Start here: set up your machine'),
-        h('p', { class: 'lede' }, 'Reading is not learning. Every lesson ends with something to build, and that needs four free tools. This takes about twenty minutes, once.')),
+        h('p', { class: 'lede' }, 'Reading is not learning. Every lesson ends with something to build, and that needs a handful of free tools. This takes about twenty minutes, once.')),
       step('1. Install the tools', 'Install the **.NET SDK** (current LTS) from dotnet.microsoft.com, **Node.js LTS** from nodejs.org, **Git** from git-scm.com, and **Visual Studio Code** with the *C# Dev Kit* extension. Then confirm each one answers in a new terminal:', `
 dotnet --version
 node --version
@@ -495,16 +497,21 @@ cd shop-web
 npm install
 npm install tailwindcss @tailwindcss/vite
 npm run dev`),
-      step('5. A database', 'Start with **SQLite**: no server to install, and the SQL playground in this program already uses it. Add it to an API project with EF Core. Move to SQL Server or PostgreSQL (both free, easiest through Docker) when you reach the Advanced SQL lessons.', `
+      step('5. Your first Flutter app', 'Install the **Flutter SDK** from flutter.dev — it includes Dart. `flutter doctor` tells you what is still missing for each platform; the web target needs only Chrome, so you can start before setting up Android Studio or Xcode.', `
+flutter doctor
+flutter create shop_app
+cd shop_app
+flutter run -d chrome`),
+      step('6. A database', 'Start with **SQLite**: no server to install, and the SQL playground in this program already uses it. Add it to an API project with EF Core. Move to SQL Server or PostgreSQL (both free, easiest through Docker) when you reach the Advanced SQL lessons.', `
 dotnet add package Microsoft.EntityFrameworkCore.Sqlite
 dotnet tool install --global dotnet-ef
 dotnet ef migrations add Init
 dotnet ef database update`),
-      step('6. Put everything in Git from day one', 'A commit history is both your safety net and, later, your portfolio. The first lesson of the CS Fundamentals track covers the workflow.', `
+      step('7. Put everything in Git from day one', 'A commit history is both your safety net and, later, your portfolio. The first lesson of the CS Fundamentals track covers the workflow.', `
 git init
 git add .
 git commit -m "First commit"`),
-      h('section', { class: 'sec' }, h('h2', {}, '7. A routine that works'),
+      h('section', { class: 'sec' }, h('h2', {}, '8. A routine that works'),
         h('ol', { class: 'steps' },
           h('li', {}, h('b', {}, '10 minutes: '), 'flashcard review. Do this first, every day — it is what makes knowledge stay.'),
           h('li', {}, h('b', {}, '30 minutes: '), 'one lesson — learn it, check yourself, then write the teach-back.'),
@@ -521,7 +528,7 @@ git commit -m "First commit"`),
   });
   function route() {
     const [a, b, c] = location.hash.replace(/^#\/?/, '').split('/');
-    const r = { track: () => trackView(b), lesson: () => lessonView(b, c), plan: () => planView(b, c), review, exam, lab: () => labView(b), play: () => playView(b), projects, teach, interview: () => INTERVIEW.view(b, c), search: searchView, start: startView }[a] || dashboard;
+    const r = { track: () => trackView(b), lesson: () => lessonView(b, c), plan: () => planView(b, c), review, exam, lab: () => labView(b), play: () => playView(b, c), projects, teach, interview: () => INTERVIEW.view(b, c), search: searchView, start: startView }[a] || dashboard;
     view.replaceChildren(r());
     renderNav();
     const h1 = view.querySelector('h1');

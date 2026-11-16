@@ -1,7 +1,7 @@
 :root {
   --bg: #f6f5f1; --surface: #ffffff; --sunken: #efede7; --text: #1b2030; --muted: #5d6677; --border: #e0ddd4;
   --accent: #3b47d6; --good: #0f7b4f; --bad: #c0362c; --good-bg: #e3f4ea; --bad-bg: #fbe9e6;
-  --csharp: #7c3aed; --aspnet: #2563eb; --sql: #b45309; --react: #0e8a6a; --css: #c02672; --cs: #0e7490;
+  --csharp: #7c3aed; --aspnet: #2563eb; --sql: #b45309; --react: #0e8a6a; --css: #c02672; --cs: #0e7490; --flutter: #c2410c;
   --code-bg: #14171f; --code-text: #e4e7ee;
   --tc: var(--accent);
   --mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, Menlo, monospace;
@@ -11,13 +11,13 @@
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0e1117; --surface: #161a23; --sunken: #1d222d; --text: #e7eaf0; --muted: #9aa3b4; --border: #272d3a;
   --accent: #8b95ff; --good: #4fd19a; --bad: #ff8b7e; --good-bg: #12301f; --bad-bg: #3a1a17;
-  --csharp: #b79cff; --aspnet: #76aefc; --sql: #f5b955; --react: #4fd6ae; --css: #f68fc0; --cs: #5fd0e6;
+  --csharp: #b79cff; --aspnet: #76aefc; --sql: #f5b955; --react: #4fd6ae; --css: #f68fc0; --cs: #5fd0e6; --flutter: #ff9d6c;
   --code-bg: #0a0c11; color-scheme: dark;
 } }
 :root[data-theme="dark"] {
   --bg: #0e1117; --surface: #161a23; --sunken: #1d222d; --text: #e7eaf0; --muted: #9aa3b4; --border: #272d3a;
   --accent: #8b95ff; --good: #4fd19a; --bad: #ff8b7e; --good-bg: #12301f; --bad-bg: #3a1a17;
-  --csharp: #b79cff; --aspnet: #76aefc; --sql: #f5b955; --react: #4fd6ae; --css: #f68fc0; --cs: #5fd0e6;
+  --csharp: #b79cff; --aspnet: #76aefc; --sql: #f5b955; --react: #4fd6ae; --css: #f68fc0; --cs: #5fd0e6; --flutter: #ff9d6c;
   --code-bg: #0a0c11; color-scheme: dark;
 }
 
@@ -336,3 +336,19 @@ table.t tr.hl td { background: color-mix(in srgb, var(--tc) 14%, transparent); }
   .code, pre { background: #f4f4f4 !important; color: #000 !important; } pre span { color: #000 !important; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* Flutter visualizations and the Dart playground */
+table.t tr.cx-cur td { background: color-mix(in srgb, var(--tc) 14%, transparent); }
+table.t td code { white-space: pre; }
+.cx-bar { display: flex; gap: 2px; margin: .8rem 0 .2rem; padding: 4px; min-height: 2.2rem; align-items: center; border: 1.5px dashed var(--border); border-radius: 8px; overflow: hidden; }
+.cx-bar i { font: 600 .78rem var(--mono); font-style: normal; text-align: center; padding: .3rem 0; border-radius: 5px; background: var(--sunken); white-space: nowrap; }
+.cx-bar i.flex { background: color-mix(in srgb, var(--good) 30%, var(--surface)); }
+.cx-bar i.free { border: 1.5px dashed var(--border); background: none; color: var(--muted); }
+.cx-bar i.over { background: color-mix(in srgb, var(--bad) 35%, var(--surface)); }
+.viz-cols.three { grid-template-columns: repeat(3, 1fr); }
+.slot.tt-new { border-color: var(--good); } .slot.tt-new b { color: var(--good); }
+.slot.tt-upd { border-color: var(--tc); }
+.slot.tt-gone { border-color: var(--bad); } .slot.tt-gone b { color: var(--bad); }
+.slot.tt-kept b { color: var(--muted); font-weight: 400; }
+.dartpad { display: block; width: 100%; height: 34rem; border: 1px solid var(--border); border-radius: 10px; background: #0f1218; }
+@media (max-width: 760px) { .viz-cols.three { grid-template-columns: 1fr; } }

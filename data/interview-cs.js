@@ -5,7 +5,9 @@ IV.ui = [
   ['Data table', 'Render rows from an API with sortable columns, pagination and a filter box.', 'State kept minimal and derived; sort and page reflected in the URL; stable keys; loading and empty states; no re-fetch on every keystroke.'],
   ['Todo list with filters', 'Add, toggle, edit and delete items; filter by all / active / done; persist across reloads.', 'Immutable updates; derived filtered list; controlled inputs; a reducer or clean handlers; keyboard-friendly editing.'],
   ['Star rating', 'A five-star rating component usable as a form input.', 'Controlled and uncontrolled use; hover preview; keyboard support with arrow keys; radio-group semantics; typed props.'],
-  ['Infinite scroll feed', 'Load pages of items as the user nears the bottom.', 'IntersectionObserver rather than scroll events; cursor pagination; no duplicate requests; virtualization discussed for long lists.']
+  ['Infinite scroll feed', 'Load pages of items as the user nears the bottom.', 'IntersectionObserver rather than scroll events; cursor pagination; no duplicate requests; virtualization discussed for long lists.'],
+  ['Flutter: searchable product list', 'A screen that loads products from an API, filters them as the user types, and supports pull-to-refresh.', 'Loading, empty and error states; debounced search; logic in a cubit or bloc, not in the widget; `ListView.builder` with keys; no work started inside `build`.'],
+  ['Flutter: cart with quantity steppers', 'A cart screen where each line has plus and minus buttons, a running total and a swipe-to-remove action.', 'Immutable state with `copyWith`; narrow rebuilds (`BlocSelector` or small widgets); keys on dismissible rows; a disabled minus at zero; semantics labels on icon buttons.']
 ];
 
 // C# solutions for the interview problems. Every one is compiled and run against the same

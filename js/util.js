@@ -54,6 +54,7 @@ window.md = s => esc(t(s))
 const KW = {
   cs: 'abstract as async await base bool break byte case catch char class const continue decimal default delegate do double else enum event false finally float for foreach get if in init int interface internal is lock long namespace new null object out override params private protected public readonly record ref required return sealed set static string struct switch this throw true try using var virtual void when where while with yield',
   sql: 'select from where group by having order limit offset insert into values update set delete create table index primary key foreign references join inner left right full outer cross on as and or not null is in exists between like distinct union all case when then else end with over partition rows begin commit rollback transaction unique check default asc desc top view constraint alter add drop include integer int text real varchar nvarchar decimal date datetime2 bit',
+  dart: 'abstract as assert async await base bool break case catch class const continue default do double dynamic else enum extends extension external factory false final finally for get if implements import in int interface is late library mixin new null num on operator part required return sealed set show static super switch sync this throw true try typedef var void when while with yield',
   ts: 'any as async await boolean break case catch class const continue default do else enum export extends false finally for from function if implements import in infer interface is keyof let never new null number of readonly return satisfies string switch this throw true try type typeof undefined unknown var void while'
 };
 const RX = {};
@@ -86,7 +87,7 @@ window.highlight = function (code, lang) {
 
 window.codeBlock = function (code, lang) {
   code = code.replace(/^\n+|\s+$/g, '');
-  const label = { cs: 'C#', sql: 'SQL', ts: 'TypeScript', tsx: 'TSX', sh: 'Shell', css: 'CSS', html: 'HTML' }[lang] || lang;
+  const label = { cs: 'C#', sql: 'SQL', ts: 'TypeScript', tsx: 'TSX', dart: 'Dart', sh: 'Shell', css: 'CSS', html: 'HTML' }[lang] || lang;
   const btn = h('button', { class: 'copy', type: 'button', onclick: () => {
     navigator.clipboard && navigator.clipboard.writeText(code).then(() => {
       btn.textContent = t('Copied'); setTimeout(() => btn.textContent = t('Copy'), 1200);

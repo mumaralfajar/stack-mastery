@@ -9,7 +9,8 @@ I18N.projects = [
       "**ASP.NET Core**: minimal API dengan `GET /api/products` dan `GET /api/products/{id}` di atas list in-memory, yang mengembalikan 404 dengan benar.",
       "**React + TypeScript**: komponen `ProductList` ber-type yang me-render produk hard-code, lengkap dengan pesan empty state.",
       "**CSS**: beri style daftar produknya dengan grid responsif dan komponen card — belum pakai framework, dan tanpa scroll horizontal di 360px.",
-      "Jelaskan dengan lantang apa itu request, row, object, komponen, dan rule CSS — masing-masing satu kalimat."
+      "Jelaskan dengan lantang apa itu request, row, object, komponen, dan rule CSS — masing-masing satu kalimat.",
+      "**Dart + Flutter**: daftar produk hard-code yang sama sebagai satu layar Flutter yang disusun dari `StatelessWidget`, dijalankan di target web."
     ],
     stretch: [
       "Tambahkan `POST` ke API dan panggil dengan `curl`.",
@@ -28,7 +29,8 @@ I18N.projects = [
       "Aplikasi React: daftar task, form create dengan controlled input, toggle done, delete — lengkap dengan state loading dan error.",
       "Type TypeScript untuk setiap response API; tanpa `any`.",
       "Di-style dengan Tailwind: layout responsif, komponen `Button` dan `Input` reusable dengan variant ber-type, focus state yang terlihat.",
-      "Endpoint dengan query JOIN: projects beserta jumlah task yang masih open, ditulis sedemikian rupa sehingga menghasilkan tepat satu statement SQL."
+      "Endpoint dengan query JOIN: projects beserta jumlah task yang masih open, ditulis sedemikian rupa sehingga menghasilkan tepat satu statement SQL.",
+      "Client Flutter untuk API yang sama: daftar task, form create dengan validasi, toggle done — lengkap dengan state loading, kosong, dan error."
     ],
     stretch: [
       "Filter dan sort task lewat parameter query string yang tercermin di URL.",
@@ -48,7 +50,8 @@ I18N.projects = [
       "Endpoint laporan penjualan yang memakai window function (running total atau top-N per kategori).",
       "Integration test dengan `WebApplicationFactory` terhadap database sungguhan untuk setiap endpoint; test React Testing Library untuk alur checkout.",
       "Cart diimplementasikan dengan reducer dan context; server state lewat query library dengan invalidation.",
-      "Design system kecil: token lewat `@theme`, dark mode, dan komponen yang tidak memiliki margin luar."
+      "Design system kecil: token lewat `@theme`, dark mode, dan komponen yang tidak memiliki margin luar.",
+      "Aplikasi Flutter-nya bisa sign in, menyimpan token di secure storage, dan mengelola cart serta order dengan Bloc/Cubit, dilengkapi test untuk cubit dan widget."
     ],
     stretch: [
       "Options pattern dengan validasi saat startup untuk semua setting.",
@@ -67,7 +70,8 @@ I18N.projects = [
       "Background worker dengan outbox pattern yang mengirim konfirmasi order exactly-once dari sudut pandang user.",
       "Perubahan schema tanpa downtime yang dieksekusi dengan expand → migrate → contract selagi aplikasinya berjalan.",
       "Frontend: code splitting berbasis route, list panjang yang di-virtualize, Core Web Vitals sesuai budget, sepenuhnya bisa diakses lewat keyboard.",
-      "Di-containerize, di-deploy lewat CI dengan test, migration, dan rencana rollback yang benar-benar pernah kamu jalankan."
+      "Di-containerize, di-deploy lewat CI dengan test, migration, dan rencana rollback yang benar-benar pernah kamu jalankan.",
+      "Aplikasi Flutter di-build di CI sebagai release yang di-sign, dengan flavor dev dan prod, crash reporting, dan jalur upgrade dari versi sebelumnya yang sudah diuji."
     ],
     stretch: [
       "Tulis architecture decision record untuk tiga pilihanmu yang paling berdampak.",

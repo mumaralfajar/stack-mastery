@@ -82,7 +82,9 @@ I18N.iv = {
     ['Data table', 'Render baris dari API dengan kolom yang bisa di-sort, pagination, dan kotak filter.', 'State dijaga minimal dan diturunkan; sort dan halaman tercermin di URL; key yang stabil; ada state loading dan kosong; tidak fetch ulang di setiap ketukan tombol.'],
     ['Todo list dengan filter', 'Tambah, toggle, edit, dan hapus item; filter berdasarkan all / active / done; tetap tersimpan setelah reload.', 'Update yang immutable; list hasil filter diturunkan; controlled input; reducer atau handler yang rapi; proses edit yang ramah keyboard.'],
     ['Star rating', 'Komponen rating lima bintang yang bisa dipakai sebagai input form.', 'Bisa dipakai controlled maupun uncontrolled; preview saat hover; dukungan keyboard dengan tombol panah; semantik radio group; props ber-type.'],
-    ['Infinite scroll feed', 'Muat halaman item berikutnya saat user mendekati bagian bawah.', 'IntersectionObserver, bukan scroll event; cursor pagination; tidak ada request duplikat; virtualization dibahas untuk list panjang.']
+    ['Infinite scroll feed', 'Muat halaman item berikutnya saat user mendekati bagian bawah.', 'IntersectionObserver, bukan scroll event; cursor pagination; tidak ada request duplikat; virtualization dibahas untuk list panjang.'],
+    ['Flutter: daftar produk dengan pencarian', 'Layar yang memuat produk dari API, memfilternya saat user mengetik, dan mendukung pull-to-refresh.', 'Ada state loading, kosong, dan error; pencarian di-debounce; logic ada di cubit atau bloc, bukan di widget; `ListView.builder` dengan key; tidak ada pekerjaan yang dimulai di dalam `build`.'],
+    ['Flutter: cart dengan tombol quantity', 'Layar cart yang tiap barisnya punya tombol plus dan minus, total yang terus ter-update, dan aksi swipe untuk menghapus.', 'State immutable dengan `copyWith`; rebuild yang sempit (`BlocSelector` atau widget kecil); key pada baris yang dismissible; tombol minus nonaktif di angka nol; semantics label pada icon button.']
   ],
   patterns: {
     hashing: { signal: 'Kamu perlu tahu “apakah ini sudah pernah muncul?” atau perlu menghitung sesuatu, dan nested loop akan jadi O(n²).', cost: 'Time O(n), space O(n)' },
@@ -454,5 +456,13 @@ I18N.iv.rapid = [
     ['Jelaskan XSS dan CSRF.', 'XSS: script milik penyerang berjalan di halamanmu — cegah dengan meng-escape output dan memakai Content Security Policy. CSRF: site lain memicu request yang terautentikasi — cegah dengan cookie SameSite dan anti-forgery token.'],
     ['Apa yang membuat sebuah API RESTful?', 'Resource yang diidentifikasi lewat URL, HTTP method sebagai kata kerja, status code yang benar, request yang stateless, dan representasi seperti JSON. Idempotency pada GET, PUT, dan DELETE penting untuk retry dan caching.'],
     ['Bagaimana HTTP caching bekerja?', 'Cache-Control mengatur freshness; ETag atau Last-Modified memungkinkan revalidation dengan 304. CDN dan browser memakai ulang response yang masih fresh, sehingga beban di origin hilang sama sekali.']
+  ] },
+  { qs: [
+    ['StatelessWidget vs StatefulWidget?', 'Dua-duanya konfigurasi yang immutable. StatelessWidget hanya punya build. StatefulWidget membuat object State terpisah yang bertahan melewati rebuild dan menyimpan data mutable; setState menandainya dirty supaya build jalan lagi.'],
+    ['Jelaskan widget tree, element tree, dan render object tree.', 'Widget adalah deskripsi immutable yang murah dan sering di-rebuild. Element adalah instance berumur panjang yang mencocokkan widget lama dengan widget baru berdasarkan type dan key, sekaligus memegang State. Render object mengerjakan layout dan painting, dan hanya di-update kalau memang ada yang berubah.'],
+    ['Untuk apa key?', 'Key memberi tahu Flutter widget mana yang mana ketika sibling ber-type sama diurutkan ulang, disisipkan, atau dihapus, supaya tiap State tetap bersama item yang benar. Tanpa key, state dicocokkan berdasarkan posisi.'],
+    ['Cubit vs Bloc, dan bagaimana perbandingannya dengan Provider dan Riverpod?', 'Cubit menyediakan method yang meng-emit state; Bloc memetakan event ke state, sehingga ada log event yang bisa dilacak dan ditransformasi, dengan harga kode yang lebih banyak. Provider adalah dependency injection plus ChangeNotifier — sederhana tapi mutable. Riverpod itu compile-safe dan tidak butuh context, dengan dependency yang lebih halus.'],
+    ['Bagaimana layout bekerja di Flutter?', 'Constraint turun, size naik, parent menentukan posisi. Parent meneruskan ukuran minimum dan maksimum, child memilih ukuran di dalam rentang itu, lalu parent menempatkannya. Error overflow dan unbounded height berasal dari aturan ini.'],
+    ['Bagaimana menjaga aplikasi Flutter tetap 60 fps?', 'Kurangi rebuild dengan widget const, state yang dipindah ke bawah, dan selector; build list secara lazy; pindahkan pekerjaan berat CPU ke isolate lain; dan ukur di profile mode dengan DevTools, jangan menebak.']
   ] }
 ];
