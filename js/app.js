@@ -36,6 +36,17 @@
   applyTheme();
 
   // ---------- small components ----------
+  const ICONS = {
+    csharp: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3.5 7v10L12 22l8.5-5V7L12 2Z"/><path d="M10.5 9.2a3.2 3.2 0 1 0 0 5.6M14 9.5v5M16.8 9.5v5M13 11h4.8M13 13h4.8"/></svg>',
+    aspnet: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3.5 9h17M3.5 15h17"/></svg>',
+    sql: '<svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/></svg>',
+    css: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-3Z"/><path d="M8 9.5c1-2 2.5-2.5 4-1s3 1 4-1M8 14c1-2 2.5-2.5 4-1s3 1 4-1"/></svg>',
+    react: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1.6" fill="currentColor"/><ellipse cx="12" cy="12" rx="9.5" ry="4"/><ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(120 12 12)"/></svg>',
+    flutter: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 2 4.5 12l3.1 3.1L20.7 2h-6.2ZM14.5 11.2 9.2 16.5l5.3 5.5h6.2l-5.3-5.5 5.3-5.3h-6.2Z"/></svg>',
+    cs: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.5" r="2.5"/><circle cx="6" cy="13" r="2.5"/><circle cx="18" cy="13" r="2.5"/><circle cx="3.5" cy="20" r="2"/><circle cx="9.5" cy="20" r="2"/><path d="M10.3 6.4 7.5 11M13.7 6.4 16.5 11M5 15.2 4 18M7.2 15.2 8.8 18"/></svg>',
+    interview: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></svg>'
+  };
+  const ico = (id, cls = 'nav-ico') => ICONS[id] ? h('span', { class: cls, html: ICONS[id] }) : null;
   const chip = (text, cls) => h('span', { class: 'chip ' + (cls || '') }, text);
   const dots = k => { const s = peek(k); return h('span', { class: 'dots', title: 'Learn · Check · Teach' }, ['read', 'quiz', 'teach'].map(f => h('i', { class: s[f] ? 'on' : '' }))); };
   const bar = (p, label) => h('div', { class: 'bar', role: 'img', 'aria-label': T(label || 'Progress') + ' ' + p + '%' }, h('i', { style: { width: p + '%' } }));
@@ -92,11 +103,13 @@
     const link = (href, label, on, extra) => h('a', { href, class: 'nav-link' + (on ? ' on' : ''), 'aria-current': on ? 'page' : null, onclick: () => setMenu(false) }, label, extra);
     const due = dueCards().length;
     const brand = () => h('a', { href: '#/', class: 'brand', onclick: () => setMenu(false) }, h('span', { class: 'logo' }, '◆'), 'Stack Mastery');
+    const nextLang = LANG === 'id' ? 'en' : 'id', nextLangName = LANG === 'id' ? 'English' : 'Bahasa Indonesia';
     nav.replaceChildren(
       h('div', { class: 'nav-top' },
         brand(),
         h('div', { class: 'nav-actions' },
-          h('a', { href: '#/search', class: 'icon-btn', 'aria-label': 'Search', title: 'Search', html: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' }),
+          h('a', { href: '#/search', class: 'icon-btn mob-only', 'aria-label': 'Search', title: 'Search', html: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' }),
+          h('button', { type: 'button', class: 'icon-btn', lang: nextLang, 'aria-label': nextLangName, title: nextLangName, onclick: () => setLang(nextLang) }, nextLang.toUpperCase()),
           h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Toggle theme', title: 'Toggle theme', onclick: toggleTheme, html: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>' }),
           h('button', { type: 'button', class: 'nav-toggle', 'aria-label': 'Menu', 'aria-expanded': String(menuOpen), 'aria-controls': 'nav-drawer', onclick: () => setMenu(!menuOpen) },
             h('span', { html: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>' }),
@@ -111,7 +124,7 @@
           link('#/start', 'Start here: setup', a === 'start'),
           link('#/search', 'Search', a === 'search', h('small', { class: 'kbd' }, '/')),
           h('p', { class: 'nav-h' }, 'Tracks'),
-          TRACKS.map(t => link(`#/track/${t.id}`, h('span', {}, h('i', { class: 'dot', style: { background: `var(--${t.id})` } }), t.name),
+          TRACKS.map(t => link(`#/track/${t.id}`, h('span', { class: 'nav-track', style: { '--tc': `var(--${t.id})` } }, ico(t.id, 'nav-ico'), t.name),
             (a === 'track' || a === 'lesson' || a === 'plan') && b === t.id, h('small', {}, pct(t) + '%'))),
           h('p', { class: 'nav-h' }, 'Practice'),
           link('#/review', 'Flashcard review', a === 'review', due ? h('small', { class: 'badge' }, due) : null),
@@ -133,8 +146,6 @@
           link('#/projects', 'Capstone projects', a === 'projects')),
         h('div', { class: 'nav-foot' },
           h('p', { class: 'private-note' }, 'Your progress is saved only in this browser. Nothing is uploaded or shared.'),
-          h('button', { type: 'button', class: 'ghost', onclick: toggleTheme }, 'Toggle theme'),
-          h('button', { type: 'button', class: 'ghost', lang: LANG === 'id' ? 'en' : 'id', onclick: () => setLang(LANG === 'id' ? 'en' : 'id') }, LANG === 'id' ? 'English' : 'Bahasa Indonesia'),
           h('button', { type: 'button', class: 'ghost', onclick: exportBackup }, 'Export backup'),
           h('button', { type: 'button', class: 'ghost', onclick: importBackup }, 'Import backup'),
           h('button', { type: 'button', class: 'ghost', onclick: () => {
@@ -164,13 +175,16 @@
       h('div', { class: 'stats' }, stat(streak(), 'day streak'), stat(dueCards().length, 'cards due'), stat(mastered, 'lessons mastered'), stat(all.length, 'lessons total')),
       next.length ? section('Continue where you left off', h('div', { class: 'grid' }, next.map(({ t, l }) =>
         h('a', { class: 'card go', href: lessonHref(t, l), style: { '--tc': `var(--${t.id})` } },
+          ico(t.id, 'card-ico'),
           h('span', { class: 'card-k' }, t.name + ' · ' + LEVELS[l.level]), h('strong', {}, l.title), dots(key(t, l)))))) : null,
       section('Tracks', h('div', { class: 'grid' }, TRACKS.map(t =>
         h('a', { class: 'card track-card', href: `#/track/${t.id}`, style: { '--tc': `var(--${t.id})` } },
+          ico(t.id, 'card-ico'),
           h('strong', {}, t.name), h('p', {}, t.tagline),
           h('div', { class: 'lvls' }, LEVELS.map((n, i) => h('div', {}, h('span', {}, n), bar(pct(t, i), n)))))))),
       section('Get hired',
         h('a', { class: 'card go', href: '#/interview' },
+          ico('interview', 'card-ico'),
           h('span', { class: 'card-k' }, `${T('Interview readiness')} ${INTERVIEW.readiness()}%`), h('strong', {}, 'Interview preparation'),
           h('p', {}, 'Auto-judged coding problems, system design cases, a behavioral story bank, rapid-fire stack questions and timed mock interviews with a hiring rubric.'), bar(INTERVIEW.readiness(), 'Interview readiness'))),
       section('How a lesson works',
@@ -360,6 +374,7 @@
     if (!v) return h('div', { class: 'page' },
       h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'See it move'), h('h1', {}, 'Visual lab'), h('p', { class: 'lede' }, 'Every hard idea in this stack has a mental picture. These are the pictures — use them yourself, then use them on your students.')),
       h('div', { class: 'grid' }, Object.entries(VIZ).map(([vid, x]) => h('a', { class: 'card go', href: '#/lab/' + vid, style: { '--tc': `var(--${x.track})` } },
+        ico(x.track, 'card-ico'),
         h('span', { class: 'card-k' }, x.trackName), h('strong', {}, x.title), h('p', {}, x.desc)))));
     const el = h('div', { class: 'viz' }); v.mount(el);
     const used = allLessons().filter(e => e.l.viz === id);

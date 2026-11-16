@@ -2,13 +2,13 @@
 
 **Learn it. Prove it. Teach it.**
 
-A free, self-paced program that takes you from beginner to expert in a complete web stack — **C#, ASP.NET Core, SQL, CSS + Tailwind, TypeScript + React, Dart + Flutter** and **computer-science fundamentals** — and then prepares you for technical interviews at large tech companies.
+A free, self-paced program that takes you from beginner to expert in a complete stack — **C#, ASP.NET Core, SQL, CSS + Tailwind, TypeScript + React, Dart + Flutter** and **computer-science fundamentals** — and then prepares you for technical interviews at large tech companies.
 
 **Use it now:** <https://mumaralfajar.github.io/stack-mastery/>
 
 No account, no installation, no cost. It is plain HTML, CSS and JavaScript that runs entirely in your browser.
 
-Available in **English** and **Bahasa Indonesia** — switch with the language button at the bottom of the sidebar.
+Available in **English** and **Bahasa Indonesia** — switch with the **ID / EN** language button at the top-right of the screen.
 
 ---
 
@@ -119,7 +119,7 @@ The percentages in the sidebar show your progress per track; the dashboard shows
 
 The whole program — interface, all 87 lessons, quizzes, visualizations, playgrounds and interview preparation — is available in English and Bahasa Indonesia.
 
-- Use the **Bahasa Indonesia / English** button at the bottom of the sidebar. The choice is remembered in your browser.
+- Use the **ID / EN** button at the top-right of the screen. The choice is remembered in your browser.
 - On a first visit, a browser set to Indonesian starts in Indonesian; every other browser starts in English.
 - Progress is shared between the two languages: switching does not reset anything.
 - The Indonesian text is written the way Indonesian developers actually talk. Technical terms that are normally used in English — *middleware*, *index*, *state*, *deadlock*, *hook*, *query* — are deliberately left in English. Code samples, problem titles and the names of playground examples are also left as they are.
