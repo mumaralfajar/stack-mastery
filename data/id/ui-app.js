@@ -54,7 +54,7 @@ I18N.add({
   'cards due': 'kartu jatuh tempo',
   'lessons mastered': 'materi dikuasai',
   'lessons total': 'total materi',
-  'Continue where you left off': 'Lanjutkan dari yang terakhir',
+  'Continue where you left off': 'Lanjutkan dari yang terakhir kamu pelajari',
   'Interview readiness': 'Kesiapan interview',
   'Interview preparation': 'Persiapan interview',
   'Auto-judged coding problems, system design cases, a behavioral story bank, rapid-fire stack questions and timed mock interviews with a hiring rubric.': 'Soal coding yang dinilai otomatis, studi kasus system design, bank cerita behavioral, tanya jawab kilat seputar stack, dan mock interview berbatas waktu lengkap dengan rubrik penilaian hiring.',
