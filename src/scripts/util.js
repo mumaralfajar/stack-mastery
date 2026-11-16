@@ -1,33 +1,34 @@
 // Shared helpers: DOM builder, escaping, mini-markdown, syntax highlighting.
-window.TRACKS = [];
-window.LEVELS = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
+const W = typeof window !== 'undefined' ? window : globalThis;
+W.TRACKS = W.TRACKS || [];
+W.LEVELS = W.LEVELS || ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
 
 // ---------- language ----------
-// 'en' or 'id'. Indonesian text lives in data/id/*.js and is only loaded when selected.
-window.LANG = (() => {
+// 'en' or 'id'. Indonesian text lives in data/id/*.js and is applied when selected.
+W.LANG = (() => {
   let saved = null;
   try { saved = localStorage.getItem('stackmastery.lang'); } catch { /* private mode */ }
   if (saved === 'en' || saved === 'id') return saved;
   return typeof navigator !== 'undefined' && /^id(-|$)/i.test(navigator.language || '') ? 'id' : 'en';
 })();
-if (typeof document !== 'undefined') document.documentElement.lang = LANG;
-window.setLang = lang => { try { localStorage.setItem('stackmastery.lang', lang); } catch { /* ignore */ } location.reload(); };
-window.I18N = {
+if (typeof document !== 'undefined') document.documentElement.lang = W.LANG;
+W.setLang = lang => { try { localStorage.setItem('stackmastery.lang', lang); } catch { /* ignore */ } location.reload(); };
+W.I18N = {
   ui: new Map(), tracks: {},
   add(dict) { for (const k in dict) this.ui.set(k, dict[k]); },
   // Translated lesson text for one track; may be called several times per track.
   lessons(id, lessons, meta) { const t = this.tracks[id] || (this.tracks[id] = { lessons: {} }); Object.assign(t, meta); Object.assign(t.lessons, lessons); }
 };
 // Translate an interface string. Unknown strings pass through unchanged; {name} is filled from vars.
-window.t = (s, vars) => {
+W.t = (s, vars) => {
   if (typeof s !== 'string') return s;
-  let out = I18N.ui.get(s) ?? s;
+  let out = W.I18N.ui.get(s) ?? s;
   if (vars) out = out.replace(/\{(\w+)\}/g, (m, k) => k in vars ? vars[k] : m);
   return out;
 };
 const T_ATTR = new Set(['placeholder', 'title', 'aria-label']);
 
-window.h = function (tag, attrs, ...kids) {
+W.h = function (tag, attrs, ...kids) {
   const el = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs || {})) {
     if (v == null || v === false) continue;
@@ -35,19 +36,19 @@ window.h = function (tag, attrs, ...kids) {
     else if (k === 'html') el.innerHTML = v;
     else if (k === 'style' && typeof v === 'object') { for (const [p, x] of Object.entries(v)) p.startsWith('--') ? el.style.setProperty(p, x) : el.style[p] = x; }
     else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
-    else el.setAttribute(k, v === true ? '' : T_ATTR.has(k) ? t(v) : v);
+    else el.setAttribute(k, v === true ? '' : T_ATTR.has(k) ? W.t(v) : v);
   }
   for (const kid of kids.flat(Infinity)) {
     if (kid == null || kid === false) continue;
-    el.append(kid.nodeType ? kid : document.createTextNode(typeof kid === 'string' ? t(kid) : String(kid)));
+    el.append(kid.nodeType ? kid : document.createTextNode(typeof kid === 'string' ? W.t(kid) : String(kid)));
   }
   return el;
 };
 
-window.esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+W.esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 // `code` and **bold** only.
-window.md = s => esc(t(s))
+W.md = s => W.esc(W.t(s))
   .replace(/`([^`]+)`/g, '<code>$1</code>')
   .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
@@ -73,27 +74,27 @@ function rx(lang) {
   const kw = (KW[lang] || KW.cs).split(' ').join('|');
   return RX[lang] = new RegExp(`(${comment})|(${str})|\\b(${kw})\\b|\\b(\\d+(?:\\.\\d+)?)\\b|\\b([A-Z][A-Za-z0-9]*)\\b`, sql ? 'gi' : 'g');
 }
-window.highlight = function (code, lang) {
+W.highlight = function (code, lang) {
   let out = '', last = 0;
   code.replace(rx(lang), (m, c, s, k, n, t, i) => {
-    out += esc(code.slice(last, i));
+    out += W.esc(code.slice(last, i));
     const cls = c ? 'c' : s ? 's' : k ? 'k' : n ? 'n' : (lang === 'sql' ? '' : 't');
-    out += cls ? `<span class="tk-${cls}">${esc(m)}</span>` : esc(m);
+    out += cls ? `<span class="tk-${cls}">${W.esc(m)}</span>` : W.esc(m);
     last = i + m.length;
     return m;
   });
-  return out + esc(code.slice(last));
+  return out + W.esc(code.slice(last));
 };
 
-window.codeBlock = function (code, lang) {
+W.codeBlock = function (code, lang) {
   code = code.replace(/^\n+|\s+$/g, '');
   const label = { cs: 'C#', sql: 'SQL', ts: 'TypeScript', tsx: 'TSX', dart: 'Dart', sh: 'Shell', css: 'CSS', html: 'HTML' }[lang] || lang;
-  const btn = h('button', { class: 'copy', type: 'button', onclick: () => {
+  const btn = W.h('button', { class: 'copy', type: 'button', onclick: () => {
     navigator.clipboard && navigator.clipboard.writeText(code).then(() => {
-      btn.textContent = t('Copied'); setTimeout(() => btn.textContent = t('Copy'), 1200);
+      btn.textContent = W.t('Copied'); setTimeout(() => btn.textContent = W.t('Copy'), 1200);
     });
   } }, 'Copy');
-  return h('div', { class: 'code' },
-    h('div', { class: 'code-bar' }, h('span', {}, label), btn),
-    h('pre', {}, h('code', { html: highlight(code, lang === 'tsx' ? 'ts' : lang) })));
+  return W.h('div', { class: 'code' },
+    W.h('div', { class: 'code-bar' }, W.h('span', {}, label), btn),
+    W.h('pre', {}, W.h('code', { html: W.highlight(code, lang === 'tsx' ? 'ts' : lang) })));
 };

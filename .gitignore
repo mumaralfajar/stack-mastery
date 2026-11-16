@@ -10,7 +10,10 @@ stack-mastery-backup-*.json
 .DS_Store
 Thumbs.db
 
-# Build output from tools/verify.mjs or local experiments
+# Build output from Astro, tools/verify.mjs or local experiments
+dist/
+.astro/
+*.tsbuildinfo
 bin/
 obj/
 node_modules/

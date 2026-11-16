@@ -1,0 +1,47 @@
+import { peek, shuffle } from './state.js';
+
+export const ICONS = {
+  csharp: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3.5 7v10L12 22l8.5-5V7L12 2Z"/><path d="M10.5 9.2a3.2 3.2 0 1 0 0 5.6M14 9.5v5M16.8 9.5v5M13 11h4.8M13 13h4.8"/></svg>',
+  aspnet: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3.5 9h17M3.5 15h17"/></svg>',
+  sql: '<svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/></svg>',
+  css: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-3Z"/><path d="M8 9.5c1-2 2.5-2.5 4-1s3 1 4-1M8 14c1-2 2.5-2.5 4-1s3 1 4-1"/></svg>',
+  react: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1.6" fill="currentColor"/><ellipse cx="12" cy="12" rx="9.5" ry="4"/><ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(120 12 12)"/></svg>',
+  flutter: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 2 4.5 12l3.1 3.1L20.7 2h-6.2ZM14.5 11.2 9.2 16.5l5.3 5.5h6.2l-5.3-5.5 5.3-5.3h-6.2Z"/></svg>',
+  cs: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.5" r="2.5"/><circle cx="6" cy="13" r="2.5"/><circle cx="18" cy="13" r="2.5"/><circle cx="3.5" cy="20" r="2"/><circle cx="9.5" cy="20" r="2"/><path d="M10.3 6.4 7.5 11M13.7 6.4 16.5 11M5 15.2 4 18M7.2 15.2 8.8 18"/></svg>',
+  interview: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></svg>'
+};
+
+export const ico = (id, cls = 'nav-ico') => ICONS[id] ? window.h('span', { class: cls, html: ICONS[id] }) : null;
+export const chip = (text, cls) => window.h('span', { class: 'chip ' + (cls || '') }, text);
+export const dots = k => { const s = peek(k); return window.h('span', { class: 'dots', title: 'Learn · Check · Teach' }, ['read', 'quiz', 'teach'].map(f => window.h('i', { class: s[f] ? 'on' : '' }))); };
+export const bar = (p, label) => window.h('div', { class: 'bar', role: 'img', 'aria-label': window.t(label || 'Progress') + ' ' + p + '%' }, window.h('i', { style: { width: p + '%' } }));
+export function ring(p) {
+  const T = window.t, r = 52, c = 2 * Math.PI * r;
+  return window.h('div', { class: 'ring', html:
+    `<svg viewBox="0 0 120 120" role="img" aria-label="${T('Overall mastery')} ${p}%"><circle cx="60" cy="60" r="${r}" class="ring-bg"/><circle cx="60" cy="60" r="${r}" class="ring-fg" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - p / 100)}" transform="rotate(-90 60 60)"/><text x="60" y="58" text-anchor="middle" class="ring-n">${p}%</text><text x="60" y="76" text-anchor="middle" class="ring-l">${T('mastery')}</text></svg>` });
+}
+export const section = (title, ...kids) => window.h('section', { class: 'sec' }, window.h('h2', {}, title), ...kids);
+export const lessonHref = (t, l) => `#/lesson/${t.id}/${l.id}`;
+
+// One multiple-choice question. once=true locks after the first answer (exam mode).
+export function quizItem(q, { once, onResult }) {
+  const { h, md, t: T } = window;
+  const order = shuffle(q.a.map((text, i) => ({ text, ok: i === q.c })));
+  const fb = h('p', { class: 'fb', 'aria-live': 'polite' });
+  let done = false, first = true;
+  const btns = order.map(o => h('button', { type: 'button', class: 'opt', html: md(o.text), onclick: e => {
+    if (done) return;
+    const b = e.currentTarget;
+    if (o.ok) {
+      done = true; b.classList.add('right'); fb.className = 'fb good';
+      fb.innerHTML = '<strong>' + T('Correct.') + '</strong> ' + md(q.why);
+    } else {
+      b.classList.add('wrong');
+      if (once) { done = true; btns[order.findIndex(x => x.ok)].classList.add('right'); fb.className = 'fb bad'; fb.innerHTML = '<strong>' + T('Not quite.') + '</strong> ' + md(q.why); }
+      else { fb.className = 'fb bad'; fb.textContent = T('Not quite — think about why, then try another.'); }
+    }
+    if (done || once) { btns.forEach(x => x.disabled = done); onResult && onResult(o.ok && first); }
+    first = false;
+  } }));
+  return h('div', { class: 'q' }, h('p', { class: 'q-text', html: md(q.q) }), h('div', { class: 'opts' }, btns), fb);
+}

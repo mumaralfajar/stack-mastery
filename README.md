@@ -6,7 +6,7 @@ A free, self-paced program that takes you from beginner to expert in a complete 
 
 **Use it now:** <https://mumaralfajar.github.io/stack-mastery/>
 
-No account, no installation, no cost. It is plain HTML, CSS and JavaScript that runs entirely in your browser.
+No account, no installation, no cost. It is a static site built with Astro that runs entirely in your browser.
 
 Available in **English** and **Bahasa Indonesia** — switch with the **ID / EN** language button at the top-right of the screen.
 
@@ -140,36 +140,25 @@ A backup file contains only your own progress. Keep it for yourself; do not add 
 
 ## Run it on your own computer
 
-You do not need to, but you can.
+You do not need to, but you can. The project is built with **Astro 7.4** and **Bun** (or Node.js):
 
 ```bash
 git clone https://github.com/mumaralfajar/stack-mastery.git
 cd stack-mastery
+bun install
+bun run dev
 ```
 
-Then pick whichever option you prefer:
+*(Or with npm: `npm install && npm run dev`.)*
 
-1. **Open directly (no tools needed)** — double-click `index.html` or drag and drop it into your browser.
-2. **Serve on `localhost:5173` (recommended)** — gives the site its own dedicated `localStorage` origin, enables secure-context features like one-click code copy, and lets you test on a phone over Wi-Fi:
+Then visit <http://localhost:4321/stack-mastery/>. To build the production static bundle with Astro 7.4 build timing metrics:
 
-   - **Node.js** (installed in *Start here: setup*):
-     ```bash
-     npx serve -l 5173
-     ```
-   - **.NET SDK** (with `dotnet-serve`):
-     ```bash
-     dotnet tool install --global dotnet-serve
-     dotnet serve -p 5173
-     ```
-   - **Python**:
-     ```bash
-     python -m http.server 5173
-     ```
-   - **VS Code / Antigravity IDE**: use the *Live Preview* or *Live Server* extension on port `5173`.
+```bash
+bun run build:timings
+bun run preview
+```
 
-   Then visit <http://localhost:5173>.
-
-Progress is stored per address, so the hosted site, `http://localhost:5173` and a `file://` page opened from disk each keep separate progress. Stick to the same port when serving locally, or use **Export backup** → **Import backup** to move progress between them.
+Progress is stored per address, so the hosted site and `localhost` each keep separate progress. Use **Export backup** → **Import backup** to move progress between them.
 
 ---
 
@@ -179,10 +168,10 @@ For a class, a team or yourself:
 
 1. **Fork** this repository on GitHub.
 2. In your fork, open **Settings → Pages**.
-3. Under **Build and deployment**, choose **Deploy from a branch**, branch `main`, folder `/ (root)`, and save.
+3. Under **Build and deployment**, set **Source** to **GitHub Actions** (the included `.github/workflows/deploy.yml` workflow builds and deploys the Astro site automatically on every push to `main`).
 4. After a minute your copy is live at `https://<your-username>.github.io/stack-mastery/`.
 
-There is no build step and nothing to configure. Every visitor to your copy also gets their own private progress.
+Every visitor to your copy also gets their own private progress.
 
 ---
 
@@ -206,18 +195,21 @@ These are downloaded from public CDNs (cdnjs and jsDelivr). Loading them sends a
 
 | Path | Contents |
 | --- | --- |
-| `index.html` | The single page that loads everything |
-| `css/style.css` | All styling, light and dark themes |
+| `astro.config.mjs`, `package.json` | Astro 7.4 configuration and scripts |
+| `src/pages/index.astro` | Main application page |
+| `src/layouts/Layout.astro`, `src/components/Sidebar.astro` | Document layout shell and navigation container |
+| `src/styles/style.css` | All styling, light and dark themes |
+| `src/scripts/main.js` | Bundled client entrypoint and hash router |
+| `src/scripts/state.js`, `nav.js`, `icons.js`, `util.js` | State management, navigation drawer, SVG tech icons and shared helpers |
+| `src/scripts/views/` | Modular views (`dashboard.js`, `track.js`, `practice.js`, `teach.js`) |
+| `src/scripts/interview.js` | Interview section: code judge, design, story bank, mocks |
+| `src/scripts/playground.js` | SQL, TypeScript, CSS and DartPad playgrounds; editor integration |
+| `src/scripts/viz/` | Interactive visualizations (`viz.js`, `vizcss.js`, `vizmore.js`, `vizflutter.js`) |
+| `src/scripts/i18n.js`, `load-id.js` | Lazy-loads and overlays the selected language's content |
 | `data/csharp.js`, `aspnet.js`, `sql.js`, `css.js`, `react.js`, `flutter.js`, `fundamentals.js` | Lesson content, one file per track |
 | `data/projects.js` | Capstone projects |
 | `data/interview.js` | Coding problems, patterns, system design, behavioral, rapid-fire, plan |
 | `data/interview-cs.js` | C# solutions and the frontend-round prompts |
-| `js/app.js` | Router, dashboard, lessons, flashcards, exam, search, backup, setup guide |
-| `js/interview.js` | Interview section: code judge, design, story bank, mocks |
-| `js/playground.js` | SQL, TypeScript and CSS playgrounds; editor integration |
-| `js/viz.js`, `vizcss.js`, `vizmore.js`, `vizflutter.js` | Interactive visualizations |
-| `js/util.js` | Small shared helpers, syntax highlighting, language selection and the `t()` translate helper |
-| `js/i18n.js` | Lays the selected language's content over the English data |
 | `data/id/ui-*.js` | Indonesian interface text (English string → Indonesian string) |
 | `data/id/<track>.js`, `projects.js`, `interview.js` | Indonesian lesson, capstone and interview content |
 | `tools/verify.mjs` | Compiles and tests the C# content |
@@ -258,17 +250,17 @@ Answer order is shuffled when shown, so the position of the correct answer does 
 
 **Add a coding problem** by adding an object to `problems` in `data/interview.js` (see the existing ones for the shape) and its C# solution to `data/interview-cs.js`. Tests are `[arguments, expected]` pairs.
 
-**Add a track** by creating a new file in `data/` that calls `TRACKS.push({ id, name, lang, tagline, lessons })`, adding a `<script>` tag for it in `index.html`, and defining a colour variable `--<id>` in `css/style.css`.
+**Add a track** by creating a new file in `data/` that calls `TRACKS.push({ id, name, lang, tagline, lessons })`, importing it in `src/scripts/main.js`, and defining a colour variable `--<id>` in `src/styles/style.css`.
 
 **Keep the translation in step.** English is the source. When you add or change a lesson, add the same lesson id to the matching file in `data/id/` with `title`, `why`, `points`, `practice`, `teach`, `analogy`, `pitfalls` and `quiz` (each quiz entry is `[question, [answers…], explanation]`, in the same order as the English one). New interface text is translated by adding an `'English string': 'Indonesian string'` pair to a `data/id/ui-*.js` file; text that is not found simply stays in English. Then run:
 
 ```bash
-node tools/check-i18n.mjs
+bun tools/check-i18n.mjs
 ```
 
 It reports any lesson, question, answer list, problem or Q&A whose translation is missing or has a different shape.
 
-**Add another language** by copying `data/id/` to a new folder, translating it, and extending the language list in `js/util.js` and the loader in `index.html`.
+**Add another language** by copying `data/id/` to a new folder, translating it, and extending the language list in `src/scripts/util.js` and the loader in `src/scripts/main.js`.
 
 ---
 

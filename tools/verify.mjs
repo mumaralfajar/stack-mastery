@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(import.meta.url);
 globalThis.window = globalThis;
-for (const f of ['js/util.js', 'data/csharp.js', 'data/fundamentals.js', 'data/interview.js', 'data/interview-cs.js']) {
+for (const f of ['src/scripts/util.js', 'data/csharp.js', 'data/fundamentals.js', 'data/interview.js', 'data/interview-cs.js']) {
   try { require(join(root, f)); } catch (e) { if (e.code !== 'MODULE_NOT_FOUND') throw e; }
 }
 

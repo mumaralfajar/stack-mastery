@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(import.meta.url);
 globalThis.window = globalThis;
-require(join(root, 'js/util.js'));
+require(join(root, 'src/scripts/util.js'));
 require(join(root, 'data/flutter.js'));
 const track = TRACKS.find(t => t.id === 'flutter');
 
