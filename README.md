@@ -144,21 +144,32 @@ You do not need to, but you can.
 
 ```bash
 git clone https://github.com/mumaralfajar/stack-mastery.git
-```
-
-```bash
 cd stack-mastery
 ```
 
-Then either open `index.html` directly in a browser, or serve the folder:
+Then pick whichever option you prefer:
 
-```bash
-python -m http.server 5173
-```
+1. **Open directly (no tools needed)** — double-click `index.html` or drag and drop it into your browser.
+2. **Serve on `localhost:5173` (recommended)** — gives the site its own dedicated `localStorage` origin, enables secure-context features like one-click code copy, and lets you test on a phone over Wi-Fi:
 
-and visit <http://localhost:5173>.
+   - **Node.js** (installed in *Start here: setup*):
+     ```bash
+     npx serve -l 5173
+     ```
+   - **.NET SDK** (with `dotnet-serve`):
+     ```bash
+     dotnet tool install --global dotnet-serve
+     dotnet serve -p 5173
+     ```
+   - **Python**:
+     ```bash
+     python -m http.server 5173
+     ```
+   - **VS Code / Antigravity IDE**: use the *Live Preview* or *Live Server* extension on port `5173`.
 
-Progress is stored per address, so the hosted site, `localhost` and a file opened from disk each keep separate progress. Use Export / Import backup to move between them.
+   Then visit <http://localhost:5173>.
+
+Progress is stored per address, so the hosted site, `http://localhost:5173` and a `file://` page opened from disk each keep separate progress. Stick to the same port when serving locally, or use **Export backup** → **Import backup** to move progress between them.
 
 ---
 

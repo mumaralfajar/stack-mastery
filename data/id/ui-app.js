@@ -7,6 +7,8 @@ I18N.add({
 
   // nav
   'Main': 'Utama',
+  'Menu': 'Menu',
+  'Close menu': 'Tutup menu',
   'Dashboard': 'Dashboard',
   'Start here: setup': 'Mulai di sini: setup',
   'Search': 'Cari',
