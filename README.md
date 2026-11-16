@@ -59,12 +59,12 @@ What this means in practice:
 | Track | Lessons | From → to |
 | --- | --- | --- |
 | **C#** | 13 | Variables and classes → async, memory, concurrency, internals |
-| **ASP.NET Core** | 14 | HTTP and routing → auth, EF Core, performance, architecture, production |
+| **CS Fundamentals** | 7 | Git and Big-O → data structures, graphs, dynamic programming |
 | **SQL** | 12 | SELECT and joins → indexes, transactions, query plans, scaling |
+| **ASP.NET Core** | 14 | HTTP and routing → auth, EF Core, performance, architecture, production |
 | **CSS + Tailwind** | 13 | HTML, the cascade, layout → Tailwind in React, architecture, rendering |
 | **TypeScript + React** | 14 | JavaScript and types → hooks, performance, advanced types, internals |
 | **Dart + Flutter** | 14 | Dart and widgets → layout, async, state with Bloc/Cubit, testing, rendering, release |
-| **CS Fundamentals** | 7 | Git and Big-O → data structures, graphs, dynamic programming |
 
 Every lesson has the same three steps, and only counts as mastered when all three are done:
 
