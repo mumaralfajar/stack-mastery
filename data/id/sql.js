@@ -1,6 +1,11 @@
 // Bahasa Indonesia — track SQL. Contoh kode tetap memakai versi aslinya.
 I18N.lessons('sql', {
   select: {
+    terms: [
+      ['Primary key (`id`)', 'Kolom (atau pasangan kolom) yang mengidentifikasi tiap baris secara unik; dirujuk oleh foreign key di tabel lain.'],
+      ['Proyeksi vs Filter (`SELECT` vs `WHERE`)', '`WHERE` memilih *baris* mana yang bertahan; `SELECT` memilih *kolom* mana yang tampil pada hasil query.'],
+      ['Urutan eksekusi klausa', 'SQL mengeksekusi secara logis `FROM → WHERE → ORDER BY → SELECT → TOP/LIMIT`, walaupun `SELECT` ditulis paling depan.']
+    ],
     title: 'Tabel, baris, dan SELECT',
     why: "Kebanyakan aplikasi adalah antarmuka di atas sebuah database, dan `SELECT` adalah cara mengambil datanya kembali. Bacaannya hampir seperti bahasa Inggris biasa, jadi cocok sebagai cara pertama untuk 'berbicara' dengan data. Contoh di track ini memakai SQL Server, pasangan yang umum untuk ASP.NET Core.",
     points: [
@@ -30,6 +35,11 @@ I18N.lessons('sql', {
     ]
   },
   dml: {
+    terms: [
+      ['`NULL` tiga-nilai', '`NULL` berarti *tidak diketahui*, bukan nol atau `""` — jadi `city = NULL` bernilai unknown (gagal di `WHERE`); selalu tulis `IS NULL`.'],
+      ['`DECIMAL(p, s)` vs `FLOAT`', 'Tipe numerik berbasis 10 (`DECIMAL(10,2)`) mencegah pergeseran pembulatan pada angka uang dibanding binary float.'],
+      ['DML berparameter', 'Mengirim input user lewat parameter (`@price`) pada `INSERT`, `UPDATE`, dan `DELETE` menutup celah SQL injection sepenuhnya.']
+    ],
     title: 'Mengubah data, type, dan NULL',
     why: "Membaca data tidak bisa merugikan siapa pun; menulisnya bisa. Materi ini tentang kebiasaan yang mencegah `UPDATE` yang keliru sampai mengenai semua baris, dan tentang `NULL`, yang aturannya berbeda dari semua value lain.",
     points: [
@@ -57,6 +67,16 @@ I18N.lessons('sql', {
     ]
   },
   aggregate: {
+    terms: [
+      ['Aggregate (`COUNT`, `SUM`, `AVG`)', 'Meringkas beberapa baris dalam satu grup menjadi satu nilai (`COUNT(*)` menghitung `NULL`; `COUNT(col)` melewatkan `NULL`).'],
+      ['`WHERE` vs `HAVING`', '`WHERE` menyaring baris individu *sebelum* `GROUP BY` membentuk grup; `HAVING` menyaring grup *setelah* agregasi selesai.'],
+      ['Pipeline logis SQL', 'Karena `SELECT` berjalan setelah `WHERE`, alias kolom (`AS total`) tidak boleh dirujuk di `WHERE` pada SQL Server atau PostgreSQL.']
+    ],
+    predict: {
+      prompt: 'Tabel `customers` punya 5 baris, dan 1 customer memiliki `city = NULL`. Apa yang dikembalikan `COUNT(*)` dan `COUNT(city)`?',
+      options: ['Keduanya mengembalikan `5`', '`COUNT(*)` mengembalikan `5`, sedangkan `COUNT(city)` mengembalikan `4`', '`COUNT(*)` mengembalikan `5`, sedangkan `COUNT(city)` mengembalikan `NULL`'],
+      explain: '`COUNT(*)` menghitung semua baris tanpa peduli null (`5`); `COUNT(col)` hanya menghitung baris yang kolom tersebut tidak `NULL` (`4`).'
+    },
     title: 'GROUP BY, aggregate, dan urutan query',
     why: "Laporan dan dashboard sebagian besar isinya aggregation: total, jumlah, dan rata-rata per sesuatu. Di sini juga kamu pertama kali bertemu pertanyaan 'kenapa alias-ku tidak bisa dipakai di `WHERE`?', dan jawabannya, urutan SQL yang sebenarnya, menjelaskan banyak kejutan berikutnya.",
     points: [
@@ -84,6 +104,16 @@ I18N.lessons('sql', {
     ]
   },
   joins: {
+    terms: [
+      ['`INNER JOIN` vs `LEFT JOIN`', '`INNER JOIN` hanya menjaga pasangan yang cocok; `LEFT JOIN` menjaga semua baris kiri sambil mengisi kolom kanan yang kosong dengan `NULL`.'],
+      ['Foreign key (`customer_id`)', 'Kolom yang menautkan baris child (`orders`) ke primary key parent (`customers.id`) agar baris yatim mustahil tercipta.'],
+      ['Anti-join (`IS NULL`)', '`LEFT JOIN ... WHERE o.id IS NULL` menemukan setiap baris parent yang tidak punya satu pun child (misalnya customer tanpa order).']
+    ],
+    predict: {
+      prompt: 'Kamu menjalankan `customers c LEFT JOIN orders o ON o.customer_id = c.id WHERE o.status = \'paid\'`. Apa nasib Dewi yang punya 0 order?',
+      options: ['Dewi tetap muncul dengan kolom order berisi `NULL`', 'Dewi hilang diam-diam (`LEFT JOIN` berubah rasa menjadi `INNER JOIN`)', 'SQL mengembalikan error sintaks'],
+      explain: 'Untuk Dewi, `o.status` adalah `NULL`, dan `NULL = \'paid\'` bernilai unknown (tidak true), sehingga `WHERE` membuang baris Dewi setelah join. Pindahkan `o.status = \'paid\'` ke dalam klausa `ON` untuk tetap mempertahankan Dewi.'
+    },
     title: 'JOIN: menggabungkan tabel',
     why: "Data relasional sengaja dipecah ke beberapa tabel, dan join menyatukannya kembali. Salah memilih jenis join tidak menimbulkan error: baris diam-diam hilang atau terduplikasi, dan angkanya jadi salah begitu saja.",
     points: [
@@ -109,6 +139,11 @@ I18N.lessons('sql', {
     ]
   },
   subqueries: {
+    terms: [
+      ['CTE (`WITH ... AS`)', 'Hasil sementara bernama di puncak query supaya laporan bertingkat terbaca bersih dari atas ke bawah.'],
+      ['Correlated subquery / `EXISTS`', 'Merujuk baris luar di dalam subquery; `EXISTS` langsung berhenti di kecocokan pertama tanpa menggandakan baris akibat join.'],
+      ['Scalar subquery', 'Mengembalikan tepat satu nilai (1 baris, 1 kolom) untuk perbandingan seperti `WHERE price > (SELECT AVG(price) FROM products)`.']
+    ],
     title: 'Subquery dan CTE',
     why: "Pertanyaan sungguhan datang bertahap: 'dari customer yang belanjanya di atas rata-rata, mana yang…'. Subquery dan CTE membuatmu bisa membangun jawabannya lapis demi lapis, dan tiap lapisnya bisa dibaca dan dicek satu per satu.",
     points: [
@@ -135,6 +170,11 @@ I18N.lessons('sql', {
     ]
   },
   design: {
+    terms: [
+      ['Constraint (`CHECK`, `UNIQUE`, `NOT NULL`)', 'Aturan yang dipaksakan database agar data cacat tidak bisa masuk bahkan dari script atau worker di luar API.'],
+      ['Normalisasi (1NF–3NF)', 'Menyimpan tiap fakta di satu tempat (menghindari nama/alamat ganda di setiap order) agar update tidak menyisakan salinan bertentangan.'],
+      ['Surrogate vs Natural key', 'Surrogate key integer/GUID tidak berubah saat email customer atau SKU produk diganti, menjaga foreign key tetap stabil.']
+    ],
     title: 'Desain schema: key, constraint, dan normalisasi',
     why: "Schema yang buruk tidak bisa diperbaiki dengan kode yang bagus: setiap query harus mengakalinya, selamanya. Kebiasaan yang membantu adalah bertanya, untuk setiap tabel dan kolom, 'apa yang bisa salah kalau kita menyimpannya dengan cara ini?'",
     points: [
@@ -166,6 +206,11 @@ I18N.lessons('sql', {
     ]
   },
   indexes: {
+    terms: [
+      ['B-Tree seek vs Table scan', 'Index membuat SQL Server mencari key terurut via binary search O(log n) alih-alih memindai seluruh halaman tabel O(n).'],
+      ['Clustered vs Covering index (`INCLUDE`)', 'Clustered menyimpan baris data fisik berurutan; `INCLUDE (col)` menyertakan kolom baca tambahan di index agar bebas key lookup.'],
+      ['Predikat sargable', 'Filter polos di kolom terindeks (`created_at >= ...`) bisa memakai seek; membungkus kolom dengan fungsi (`YEAR(created_at)`) memaksa full scan.']
+    ],
     title: 'Index: cara database menemukan baris dengan cepat',
     why: "Query yang sama bisa butuh 5 ms atau 50 detik, dan bedanya sering cuma satu index. Index adalah hal pertama yang perlu dicek saat sebuah halaman makin lambat seiring bertambahnya data.",
     points: [
@@ -193,6 +238,11 @@ I18N.lessons('sql', {
     ]
   },
   transactions: {
+    terms: [
+      ['ACID', 'Atomicity (semua berhasil atau batal), Consistency (constraint terjaga), Isolation (aman paralel), Durability (tetap awet sesudah `COMMIT`).'],
+      ['Isolation level', 'Kompromi antara antrean lock dan anomali bacaan (`Read Committed`, `Repeatable Read`, `Serializable`, serta snapshot RCSI).'],
+      ['`UPDATE` bersyarat atomik', '`UPDATE Products SET Stock = Stock - @qty WHERE Id = @id AND Stock >= @qty` mengecek dan mengurangi stok dalam satu langkah tak terpecah.']
+    ],
     title: 'Transaction, ACID, dan isolation',
     why: "Transfer uang, pengurangan stok, dan pembuatan order harus terjadi semua atau tidak sama sekali, dan tetap benar saat banyak user beraksi bersamaan. Kalau kodemu menulis ke database, kamu butuh model ini.",
     points: [
@@ -220,6 +270,11 @@ I18N.lessons('sql', {
     ]
   },
   window: {
+    terms: [
+      ['`OVER (PARTITION BY ...)`', 'Membagi baris ke jendela perhitungan tanpa menciutkan jumlah baris — tiap baris detail tetap utuh di hasil akhir.'],
+      ['`ROW_NUMBER()` vs `DENSE_RANK()`', '`ROW_NUMBER` memberi nomor urut unik (1, 2, 3); `DENSE_RANK` memberi peringkat sama untuk nilai seri tanpa melompati angka (1, 1, 2).'],
+      ['Frame / Total berjalan (`ORDER BY`)', 'Menambahkan `ORDER BY` di dalam `OVER (...)` mengubah total grup menjadi jumlah kumulatif baris demi baris.']
+    ],
     title: 'Window function',
     why: "Peringkat, running total, 'dibandingkan bulan lalu', dan top-N per kelompok muncul di hampir setiap laporan. Tanpa window function, semuanya butuh self-join dan subquery; dengan window function, cukup satu ekspresi.",
     points: [
@@ -247,6 +302,11 @@ I18N.lessons('sql', {
     ]
   },
   plans: {
+    terms: [
+      ['Seek vs Scan & Key Lookup', 'Operator execution plan yang memperlihatkan apakah query langsung menyasar index atau harus melompat mengambil kolom ke heap berulang kali.'],
+      ['Logical reads (`STATISTICS IO`)', 'Jumlah persis halaman 8 KB yang dibaca — jauh lebih stabil untuk tolok ukur tuning daripada milidetik yang berubah-ubah.'],
+      ['Keyset pagination (`WHERE id > @last`)', 'Langsung seek ke halaman berikutnya dalam O(log n) tanpa membuang jutaan baris lewat `OFFSET` besar.']
+    ],
     title: 'Execution plan dan query tuning',
     why: "Tuning itu bukan menebak. Execution plan menunjukkan apa yang sebenarnya dilakukan engine dan kenapa, jadi kamu bisa mengubah satu hal berdasarkan bukti lalu mengukur lagi.",
     points: [
@@ -274,6 +334,11 @@ I18N.lessons('sql', {
     ]
   },
   locking: {
+    terms: [
+      ['Shared (S) vs Exclusive (X) lock', 'Pembaca berbagi S lock dengan pembaca lain; penulis memegang X lock yang menahan pembaca pada mode `Read Committed` klasik.'],
+      ['Deadlock (`Error 1205`)', 'Siklus saat Tx A menunggu Tx B sementara Tx B menunggu Tx A — dicegah permanen dengan mengunci tabel/baris dalam urutan baku yang sama.'],
+      ['MVCC / RCSI', 'Menyimpan versi baris ter-commit sebelumnya di `tempdb` agar pembaca tidak memblokir penulis dan penulis tidak memblokir pembaca.']
+    ],
     title: 'Locking, deadlock, dan MVCC',
     why: "Saat aplikasi 'tiba-tiba' timeout ketika beban tinggi, penyebabnya biasanya blocking: satu transaction menunggu transaction lain. Keahliannya adalah mencari tahu siapa menunggu siapa, lalu mengubah pola aksesnya supaya mereka tidak saling menunggu.",
     points: [
@@ -303,6 +368,11 @@ I18N.lessons('sql', {
     ]
   },
   scale: {
+    terms: [
+      ['Migrasi expand-and-contract', 'Perubahan skema multi-rilis: tambah kolom nullable → rilis kode dual-write → isi data bertahap → pasang `NOT NULL` → hapus kolom lama.'],
+      ['Read replica & lag', 'Menampung query baca `GET` dan analitik secara asinkron; ingat replika tertinggal beberapa milidetik, jadi baca-setelah-tulis tetap ke primary.'],
+      ['Connection pooling', 'Menjaga sesi TCP + autentikasi tetap hangat untuk dipakai ulang alih-alih membuka koneksi DB baru di setiap request.']
+    ],
     title: 'Scaling dan mengembangkan database',
     why: "Schema berubah dan data bertambah sementara sistem tetap online. Tugasnya adalah merencanakan migration yang tidak mungkin menyebabkan downtime, dan tahu biaya tiap opsi scaling sebelum memakainya.",
     points: [

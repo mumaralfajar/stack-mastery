@@ -1,6 +1,11 @@
 // Bahasa Indonesia — track CSS + Tailwind. Contoh kode tetap memakai versi aslinya.
 I18N.lessons('css', {
   html: {
+    terms: [
+      ['Landmark semantik', 'Elemen seperti `<header>`, `<nav>`, `<main>`, dan `<article>` yang memberi screen reader struktur halaman secara langsung.'],
+      ['`<button>` vs `<a>`', 'Pakai `<a>` dengan `href` untuk berpindah URL; pakai `<button type="button">` untuk memicu aksi di halaman.'],
+      ['`<label for="id">`', 'Mengikat keterangan teks ke input sehingga pembaca layar membacakannya dan mengetuk label langsung memfokuskan input.']
+    ],
     title: 'Dasar HTML: struktur dan makna',
     why: "CSS memberi gaya pada HTML, dan React me-render HTML. Memilih elemen yang tepat memberimu dukungan keyboard, aksesibilitas, dan makna untuk mesin pencari secara gratis; `div` dengan click handler tidak memberi satu pun dari itu.",
     points: [
@@ -27,6 +32,11 @@ I18N.lessons('css', {
     ]
   },
   cascade: {
+    terms: [
+      ['Specificity (`id`, `class`, `tag`)', 'Skor tiga kolom penentu rule mana yang menang saat beberapa selector menyasar elemen sama (`#id` mengalahkan `.class`, lalu `a`).'],
+      ['Source order (urutan kode)', 'Penentu seri saat dua rule memiliki specificity sama — rule yang ditulis lebih belakangan di CSS yang menang.'],
+      ['Inheritance (pewarisan)', 'Properti teks (`color`, `font`) menurun ke child kecuali ditimpa; properti layout (`border`, `padding`) tidak ikut menurun.']
+    ],
     title: 'Selector, cascade, dan specificity',
     why: "'Kenapa style-ku tidak berlaku?' hampir selalu punya jawaban yang sama: ada rule lain yang menang. Cascade adalah seperangkat aturan tetap yang menentukan rule mana, dan begitu kamu memahaminya, CSS tidak lagi terasa acak.",
     points: [
@@ -54,6 +64,11 @@ I18N.lessons('css', {
     ]
   },
   box: {
+    terms: [
+      ['`box-sizing: border-box`', 'Membuat `width` sudah mencakup padding dan border alih-alih menambahkannya di luar lalu menyebabkan overflow.'],
+      ['Padding vs Margin', 'Padding mendorong ruang ke dalam di balik border/latar elemen; margin mendorong jarak ke luar antar elemen tetangga.'],
+      ['Margin collapsing', 'Margin vertikal berdekatan pada block saling melebur mengambil yang terbesar bukan dijumlahkan (tidak pernah terjadi di flex/grid).']
+    ],
     title: 'Box model',
     why: "Setiap elemen adalah sebuah persegi panjang. Kebanyakan bug ukuran, seperti elemen selebar 100% yang meluber dari parent-nya atau celah yang tidak bisa dijelaskan, berasal dari box model, dan hilang begitu kamu bisa melihat keempat lapisannya.",
     points: [
@@ -79,6 +94,11 @@ I18N.lessons('css', {
     ]
   },
   units: {
+    terms: [
+      ['`rem` vs `em` vs `px`', '`rem` mengikuti ukuran font root pilihan user (aksesibel); `em` mengikuti elemen lokal; `px` ukurannya tetap.'],
+      ['Lebar bacaan (`ch`)', 'Lebar baris diukur berdasar lebar karakter — membatasi paragraf sekitar `60ch–70ch` mencegah mata lelah saat membaca.'],
+      ['Rasio kontras (`4.5:1`)', 'Batas terang minimum WCAG AA antara teks isi dan latar agar mudah dibaca di bawah terik matahari maupun oleh low-vision.']
+    ],
     title: 'Unit, warna, dan tipografi',
     why: "Teks yang mudah dibaca dan jarak yang konsisten sudah mengerjakan sebagian besar tugas membuat antarmuka terlihat profesional. Pilihan unit juga menentukan apakah desainnya menghormati setting ukuran font dan zoom milik user.",
     points: [
@@ -105,6 +125,11 @@ I18N.lessons('css', {
     ]
   },
   flexbox: {
+    terms: [
+      ['Main axis vs Cross axis', '`flex-direction: row` berjalan mendatar sebagai sumbu utama (`justify-content`) dan tegak lurus sebagai sumbu silang (`align-items`).'],
+      ['`min-width: 0` / `min-inline-size: 0`', 'Menimpa nilai bawaan `min-width: auto` pada item flex supaya teks panjang atau blok kode bisa membungkus alih-alih menjebol baris.'],
+      ['`gap` & `flex: 1`', '`gap` hanya memberi spasi *antar* elemen anak (lebih bersih daripada margin), sedangkan `flex: 1` membagi sisa ruang kosong secara rata.']
+    ],
     title: 'Flexbox: layout satu dimensi',
     why: "Navbar, toolbar, card, konten yang di-center, dan baris form: kebanyakan layout sehari-hari adalah satu baris atau satu kolom berisi beberapa hal, dan flexbox menangani semuanya.",
     points: [
@@ -130,6 +155,11 @@ I18N.lessons('css', {
     ]
   },
   grid: {
+    terms: [
+      ['Satuan `fr`', 'Pecahan ruang kosong tersisa di container grid sesudah kolom berukuran tetap dan berbasis konten diletakkan.'],
+      ['`repeat(auto-fit, minmax(min(260px, 100%), 1fr))`', 'Grid responsif tanpa media query yang otomatis menumpuk card di layar sempit tanpa horizontal overflow.'],
+      ['Track implisit vs eksplisit', 'Kolom/baris yang kamu definisikan (`grid-template-columns`) vs baris tambahan otomatis saat item turun ke bawah.']
+    ],
     title: 'CSS Grid: layout dua dimensi',
     why: "Kerangka halaman, dashboard, galeri, dan desain apa pun yang baris dan kolomnya harus sejajar adalah wilayah Grid. Bersama flexbox, ia menangani hampir semua layout tanpa trik.",
     points: [
@@ -156,6 +186,11 @@ I18N.lessons('css', {
     ]
   },
   responsive: {
+    terms: [
+      ['`@media` mobile-first', 'Mulai dengan tata letak satu kolom ponsel sebagai default lalu tambahkan rule `min-width` saat layar makin lebar.'],
+      ['Tipografi cair `clamp(min, pref, max)`', 'Menskalakan ukuran font dengan mulus di antara batas viewport lewat satu baris tanpa lompatan breakpoint kaku.'],
+      ['Container query (`@container`)', 'Membuat komponen beradaptasi terhadap lebar wadah induknya sendiri daripada lebar viewport browser penuh.']
+    ],
     title: 'Responsive design',
     why: "Sebagian besar traffic web datang dari ponsel. Layout yang hanya berfungsi di lebar layar milik desainernya berarti rusak untuk sebagian besar user-mu.",
     points: [
@@ -182,6 +217,11 @@ I18N.lessons('css', {
     ]
   },
   position: {
+    terms: [
+      ['`relative` vs `absolute`', '`position: absolute` menempel relatif terhadap leluhur terdekat yang non-`static` (biasanya `relative`).'],
+      ['`position: sticky`', 'Mengalir normal sampai menyentuh ambang `top` — diam-diam gagal bila ada parent dengan `overflow: hidden`.'],
+      ['Stacking context', 'Lapisan lukis terisolasi ciptaan `transform`, `opacity < 1`, atau `isolation: isolate` yang mengurung seluruh `z-index` anaknya di dalamnya.']
+    ],
     title: 'Positioning dan stacking context',
     why: "Modal, dropdown, header yang sticky, tooltip, dan badge semuanya bergantung pada positioning. 'Kenapa `z-index: 9999` tidak berpengaruh?' punya jawaban yang pasti, dan mengetahuinya menghemat berjam-jam.",
     points: [
@@ -209,6 +249,11 @@ I18N.lessons('css', {
     ]
   },
   modern: {
+    terms: [
+      ['CSS custom property (`--bg`)', 'Variabel pewarisan langsung di browser waktu run time — ubah `data-theme="dark"` dan seluruh permukaan ikut berubah.'],
+      ['Selector induk `:has()`', 'Mewarnai parent berdasar kondisi elemen turunannya (`label:has(input:invalid)`) tanpa bantuan JavaScript.'],
+      ['Kontrol cascade `@layer`', 'Mengelompokkan stylesheet ke lapisan prioritas eksplisit agar gaya pihak ketiga tidak pernah mengalahkan override komponenmu.']
+    ],
     title: 'Custom property, theming, dan CSS modern',
     why: "Design token, dark mode, dan variant komponen dibangun di atas custom property. CSS modern juga sudah bisa melakukan sebagian besar hal yang dulu membutuhkan preprocessor, jadi menguasainya membuat toolchain-mu tetap ramping.",
     points: [
@@ -237,6 +282,11 @@ I18N.lessons('css', {
     ]
   },
   tailwind: {
+    terms: [
+      ['Class utilitas (`px-4`, `gap-3`)', 'Class atomik satu fungsi yang langsung terikat ke design token alih-alih file CSS `.card-wrapper` terpisah.'],
+      ['Token `@theme`', 'Definisi token berbasis CSS di Tailwind v4 yang membentuk utility class langsung dari CSS custom properties.'],
+      ['Prefiks responsif / state (`md:`, `hover:`)', 'Modifier tersusun sebaris langsung pada elemen tempat kamu membaca dan mengubah markup.']
+    ],
     title: 'Tailwind CSS: dasar utility-first',
     why: "Tailwind adalah salah satu cara paling umum untuk memberi style pada aplikasi React saat ini. Ia mengganti urusan memberi nama dan merawat stylesheet dengan class kecil yang bisa dirangkai, dan setiap class-nya adalah CSS biasa yang sudah kamu pahami.",
     points: [
@@ -263,6 +313,11 @@ I18N.lessons('css', {
     ]
   },
   twreact: {
+    terms: [
+      ['Abstraksi komponen', 'Memakai ulang `<Button variant="danger">` di React daripada `@apply` menjaga ukuran CSS kecil dan bertipe aman.'],
+      ['Peta variant eksplisit', 'Memetakan key (`primary: "bg-indigo-600..."`) ketimbang merakit string dinamis supaya pemindai Tailwind menemukan semua class.'],
+      ['`twMerge(...)`', 'Menyelesaikan bentrokan utilitas yang saling menimpa (`twMerge("px-4", "px-8")` menghasilkan tepat `px-8`).']
+    ],
     title: 'Tailwind di React: komponen, variant, dan theming',
     why: "Utility di markup hanya bisa berkembang kalau pengulangan dihilangkan dengan cara yang benar. Di codebase React, satuan untuk dipakai ulang adalah komponen, bukan class CSS, dan variant yang ber-type mengubah design system menjadi API yang dicek oleh compiler.",
     points: [
@@ -291,6 +346,11 @@ I18N.lessons('css', {
     ]
   },
   arch: {
+    terms: [
+      ['Token semantik vs primitif', 'Komponen memakai `--surface` / `--accent` (semantik), bukan `--blue-500` mentah (primitif), supaya ganti tema aman tanpa ubah komponen.'],
+      ['Pembatasan cakupan gaya (CSS Modules / Layers)', 'Mencegah rule CSS antar halaman saling tabrakan seiring tim dan komponen bertambah besar.'],
+      ['Skala spasi modular', 'Membatasi margin dan padding ke tangga kelipatan tetap (`4, 8, 12, 16, 24, 32px`) agar antarmuka terasa rapi konsisten.']
+    ],
     title: 'Arsitektur CSS dan design system',
     why: "CSS bersifat global secara default, jadi ia lebih cepat membusuk dibanding kode lain seiring tim bertambah besar. Tugasnya adalah memilih cara membatasi cakupannya dengan sengaja, dan bisa menjelaskan kenapa alternatifnya ditolak.",
     points: [
@@ -319,6 +379,11 @@ I18N.lessons('css', {
     ]
   },
   render: {
+    terms: [
+      ['CLS (Cumulative Layout Shift)', 'Lompatan tata letak mendadak akibat gambar/font terlambat dimuat tanpa ukuran pasti — kunci aspek rasio lebih dulu.'],
+      ['Animasi compositor-only (`transform`, `opacity`)', 'Berjalan langsung di GPU tanpa mengulang layout atau paint (animasi `width`/`top` tersendat di ponsel).'],
+      ['`:focus-visible` & `prefers-reduced-motion`', 'Menjaga indikator fokus keyboard tetap tajam sekaligus menonaktifkan gerak berat bagi pengguna sensitif gerakan.']
+    ],
     title: 'Rendering performance dan aksesibilitas',
     why: "CSS menentukan seberapa cepat halaman muncul dan apakah semua orang bisa memakainya. Artinya memahami rendering pipeline dengan cukup baik untuk menemukan jank dan layout shift, serta menganggap aksesibilitas sebagai bagian dari kebenaran kode.",
     points: [

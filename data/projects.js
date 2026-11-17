@@ -1,6 +1,6 @@
 window.PROJECTS = [
   {
-    level: 0, title: 'Capstone 1 — Product catalogue, four ways',
+    level: 0, title: 'Capstone 1 — Product catalogue across the stack',
     brief: "Meet each technology on its own with the same tiny domain: a list of products. Nothing is connected yet; the goal is to feel what each layer does.",
     build: [
       "**C#**: a console app with a `Product` class and a `List<Product>`; add, list and total products from a menu loop.",
@@ -13,11 +13,11 @@ window.PROJECTS = [
       "**Dart + Flutter**: the same hard-coded product list as a Flutter screen built from `StatelessWidget`s, run on the web target."
     ],
     stretch: ["Add `POST` to the API and call it with `curl`.", "Add a search box to the React list that filters as you type."],
-    teach: "Teaching angle: run this as a first-day workshop. Which of the four parts would you show first, and what would you deliberately hide?"
+    teach: "Teaching angle: run this as a first-day workshop. Which part of the stack would you show first, and what would you deliberately hide?"
   },
   {
     level: 1, title: 'Capstone 2 — Full-stack task manager',
-    brief: "Your first real application: React talks to ASP.NET Core, which talks to a database through EF Core. Every layer of the stack carries one user action from click to row.",
+    brief: "Your first real application: a frontend talks to ASP.NET Core, which talks to a database through EF Core. Every layer of the stack carries one user action from click or tap to row.",
     build: [
       "Schema with `projects` and `tasks` (one-to-many), foreign key, `NOT NULL` and `CHECK` constraints, created through an EF Core migration.",
       "REST API: list, get, create, update and delete tasks, with request/response DTOs and correct status codes.",
@@ -31,7 +31,7 @@ window.PROJECTS = [
       "A Flutter client for the same API: task list, create form with validation, toggle done — with loading, empty and error states."
     ],
     stretch: ["Filter and sort tasks via query-string parameters reflected in the URL.", "Replace hand-written fetching with TanStack Query."],
-    teach: "Teaching angle: trace one 'add task' click through all four layers on a whiteboard, naming the exact line of code at each hop."
+    teach: "Teaching angle: trace one 'add task' click through every layer on a whiteboard, naming the exact line of code at each hop."
   },
   {
     level: 2, title: 'Capstone 3 — Multi-user shop with auth and tests',

@@ -1,6 +1,11 @@
 // Bahasa Indonesia — track TypeScript + React. Contoh kode tetap memakai versi aslinya.
 I18N.lessons('react', {
   js: {
+    terms: [
+      ['`const` vs `let`', '`const` mencegah pengikatan ulang nama variabel (pilihan default); isi object tetap disalin secara immutable (`{ ...x }`).'],
+      ['`===` vs `==`', '`===` membandingkan nilai dan type secara ketat tanpa konversi tersembunyi (`0 == ""` adalah jebakan klasik `==`).'],
+      ['Array `.map()` / `.filter()`', 'Menghasilkan array baru yang ditransformasi atau disaring tanpa memutasi daftar asli — dasar update React.']
+    ],
     title: 'Dasar JavaScript untuk TypeScript',
     why: "TypeScript adalah JavaScript plus type. Kebanyakan bug React yang membingungkan pemula — value yang basi, array yang termutasi, `undefined` — adalah masalah JavaScript, bukan masalah React.",
     points: [
@@ -27,6 +32,11 @@ I18N.lessons('react', {
     ]
   },
   ts: {
+    terms: [
+      ['Discriminated union', 'Gabungan bentuk object dengan tag literal (`{ ok: true; data: T } | { ok: false; error: string }`) yang menyempit otomatis di blok `if`.'],
+      ['Type narrowing', 'Compiler melacak alur kontrol (`typeof x === "string"`, `in`, `switch`) untuk mengetahui sub-type persisnya di tiap cabang.'],
+      ['`unknown` vs `any`', '`unknown` mewajibkanmu mengecek bentuk data saat runtime sebelum membaca properti; `any` mematikan pemeriksa type sepenuhnya.']
+    ],
     title: 'TypeScript: type yang menangkap bug',
     why: "TypeScript memindahkan satu kelompok bug dari 'ditemukan user' menjadi 'digarisbawahi editor'. Ia juga menjadi kontrak antara frontend React-mu dan backend C#-mu.",
     points: [
@@ -52,6 +62,11 @@ I18N.lessons('react', {
     ]
   },
   components: {
+    terms: [
+      ['Ekspresi JSX', 'Sintaks ekspresi JavaScript (`<Card price={p.price} />`) yang dikompilasi menjadi pemanggilan fungsi `jsx(...)` — bukan parser template terpisah.'],
+      ['Props (satu arah ke bawah)', 'Input read-only dari parent ke child; perubahan di child tidak pernah memutasi props parent secara langsung.'],
+      ['Prop `key` yang stabil', 'Membuat React mengenali item berdasarkan ID database saat diurutkan atau ditambah — memakai indeks array sering memicu bug state saat urutan bergeser.']
+    ],
     title: 'React: komponen, JSX, dan props',
     why: "Ide utama React muat dalam satu kalimat: UI adalah function dari data. Begitu kamu melihat komponen sebagai function yang mengembalikan deskripsi layar, sisanya tinggal mengikuti. Track ini memakai React 19, versi yang di-install project Vite baru.",
     points: [
@@ -77,6 +92,16 @@ I18N.lessons('react', {
     ]
   },
   jsdeep: {
+    terms: [
+      ['Lexical closure', 'Fungsi yang membawa serta variabel dari lingkup tempatnya dibuat — menjelaskan bagaimana hook React mengingat state antar render.'],
+      ['Microtask queue (`Promise.then`)', 'Dikosongkan tuntas segera setelah call stack kosong dan *sebelum* browser menjalankan timer `setTimeout` atau menggambar frame berikutnya.'],
+      ['Kesetaraan Nilai vs Referensi (`===`)', 'Dua object dengan isi sama `{ a: 1 } === { a: 1 }` bernilai `false` kecuali keduanya menunjuk satu object memori yang sama.']
+    ],
+    predict: {
+      prompt: 'Dengan urutan apa konsol mencetak ini? `console.log(1); setTimeout(() => console.log(2), 0); Promise.resolve().then(() => console.log(3)); console.log(4);`',
+      options: ['`1, 2, 3, 4`', '`1, 4, 3, 2` (microtask diselesaikan sebelum timer)', '`1, 4, 2, 3` (timer berjalan lebih dulu dari promise)'],
+      explain: 'Panggilan sinkron (`1`, `4`) berjalan lebih dulu di call stack, lalu seluruh antrean microtask dikuras (`3`), dan barulah antrean macrotask (`setTimeout` `2`) dieksekusi.'
+    },
     title: 'JavaScript lebih dalam: closure, this, dan event loop',
     why: "Ketiga ide ini menjelaskan kebanyakan perilaku JavaScript yang 'aneh': value basi di hook React, `this` yang hilang, dan kode yang berjalan dengan urutan tak terduga.",
     points: [
@@ -103,6 +128,11 @@ I18N.lessons('react', {
     ]
   },
   state: {
+    terms: [
+      ['Snapshot render', 'State (`count`) bersifat tetap sepanjang satu giliran render; `setCount(c => c + 1)` membaca antrean state terbaru dengan aman.'],
+      ['Update state immutable', 'Membuat array/object baru (`setItems([...items, x])`) agar `Object.is(prev, next)` melihat referensi berubah lalu memicu re-render.'],
+      ['Derived state', 'Menghitung total terfilter langsung saat render alih-alih menyalin nilai ke `useState` tambahan yang rawan tidak sinkron.']
+    ],
     title: 'State dan re-rendering',
     why: "State adalah cara komponen mengingat sesuatu, dan cara React tahu bahwa layar harus berubah. 'Kenapa layarnya tidak ter-update?' dan 'kenapa render-nya sering sekali?' sama-sama berasal dari cara kerja ini.",
     points: [
@@ -129,6 +159,16 @@ I18N.lessons('react', {
     ]
   },
   effects: {
+    terms: [
+      ['Array dependensi (`[userId]`)', 'Semua nilai reaktif yang dibaca di dalam `useEffect` harus dicantumkan di sini supaya React menjalankan ulang effect saat input berubah.'],
+      ['Fungsi cleanup (`return () => ...`)', 'Berjalan sebelum effect berikutnya dan saat unmount — wajib untuk `AbortController`, timer, dan mengabaikan respons async usang.'],
+      ['Sinkronisasi, bukan handler event', '`useEffect` menyinkronkan React dengan sistem luar (jaringan, WebSocket, DOM API); aksi simpan saat klik tombol cukup di event handler.']
+    ],
+    predict: {
+      prompt: 'Pengguna berpindah cepat dari `userId = 1` (request lambat 700 ms) ke `userId = 2` (cepat 100 ms) di `useEffect` polos tanpa cleanup. Apa yang tampil di layar pada t = 700 ms?',
+      options: ['User #2 tetap tampil rapi', 'User #1 menimpa User #2 (race condition)', 'React otomatis membatalkan `fetch` tanpa perlu `AbortController`'],
+      explain: 'React tidak otomatis membatalkan promise `fetch()`. Saat request #1 selesai belakangan pada 700 ms tanpa cleanup pengecek abort/ignore, `setState` usangnya menimpa layar User #2.'
+    },
     title: 'Effect dan data fetching',
     why: "`useEffect` membuat lebih banyak orang bingung daripada hook lain mana pun. Memahami untuk apa ia dipakai (menjaga agar tetap selaras dengan sesuatu di luar React) dan untuk apa ia tidak dipakai mencegah infinite loop, race, dan banyak bug yang susah dilacak.",
     points: [
@@ -154,6 +194,11 @@ I18N.lessons('react', {
     ]
   },
   forms: {
+    terms: [
+      ['Controlled input', 'Elemen `<input value={val} onChange={...} />` yang sumber kebenarannya berada di state React bukan baru dibaca saat submit.'],
+      ['Lifting state up', 'Memindahkan state bersama ke parent terdekat yang sama agar dua komponen bersaudara tetap sinkron lewat props.'],
+      ['Komposisi (`children`)', 'Mengirim slot JSX (`<Modal>{content}</Modal>`) daripada menumpuk boolean/konfigurasi props menjaga parent tetap longgar.']
+    ],
     title: 'Form, lifting state, dan komposisi',
     why: "Antarmuka sungguhan berisi form dan list yang berbagi data. Tahu di mana state seharusnya tinggal, dan bagaimana komponen yang bersebelahan saling bicara, membuat aplikasi tetap rapi alih-alih kusut.",
     points: [
@@ -181,6 +226,11 @@ I18N.lessons('react', {
     ]
   },
   generics: {
+    terms: [
+      ['Batasan generik (`<T extends { id: number }>`)', 'Mengharuskan parameter type generik minimal memiliki struktur tertentu sembari mempertahankan tipe lengkap aslinya saat kembali.'],
+      ['`Pick` / `Omit` / `Partial`', 'Utility type bawaan yang menurunkan `CreateProduct` (`Omit<Product, "id">`) atau `UpdateProduct` dari satu interface sumber.'],
+      ['`keyof T` & Akses terindeks (`T[K]`)', 'Memastikan helper (`groupBy(items, key)`) menolak nama properti fiktif dan tahu persis type properti yang dikembalikan.']
+    ],
     title: 'Generics dan utility type di TypeScript',
     why: "Generics membuatmu bisa menulis satu function, hook, atau komponen yang reusable dan tetap ber-type penuh. Utility type membuatmu bisa menurunkan type alih-alih menyalinnya, yang menjaga frontend tetap selaras dengan API.",
     points: [
@@ -206,6 +256,11 @@ I18N.lessons('react', {
     ]
   },
   hooks: {
+    terms: [
+      ['Custom hook (`useX`)', 'Fungsi TypeScript biasa pengekstrak logika + hook agar beberapa komponen berbagi perilaku tanpa pembungkus DOM tambahan.'],
+      ['`useReducer`', 'Menggabungkan transisi state kompleks di balik state machine `switch (action.type)` terpisah dari JSX komponen.'],
+      ['Context (`createContext`)', 'Menyalurkan tema atau auth ke pohon komponen dalam tanpa harus mengoper props manual melewati lapisan tengah.']
+    ],
     title: 'Custom hook, context, dan reducer',
     why: "Seiring aplikasi bertambah besar, logika harus bisa dibagi tanpa copy-paste, dan data harus bisa sampai ke komponen yang dalam tanpa mengoper props melewati sepuluh lapis. Ketiga alat ini adalah jawaban React.",
     points: [
@@ -232,6 +287,11 @@ I18N.lessons('react', {
     ]
   },
   perf: {
+    terms: [
+      ['`React.memo`', 'Melewati re-render child saat semua props sama secara dangkal (`Object.is`) — mudah rusak oleh objek/callback inline baru kecuali distabilkan.'],
+      ['`useCallback` & `useMemo`', 'Menjaga referensi fungsi/objek antar render — baru dipakai jika profiling membuktikan child memo atau komputasi berat membutuhkannya.'],
+      ['`useTransition` / kolokasi state', 'Menurunkan state cepat-berubah sedekat mungkin ke daun yang butuh serta menandai filter berat non-mendesak agar ketikan tetap mulus.']
+    ],
     title: 'Performance rendering',
     why: "React sudah cepat secara default, dan kebanyakan 'optimasi' buatan tangan membuat kode lebih susah dibaca tanpa membuatnya lebih cepat. Ukur dulu, lalu terapkan perbaikan yang tepat pada komponen yang tepat.",
     points: [
@@ -259,6 +319,12 @@ I18N.lessons('react', {
     ]
   },
   server: {
+    splits: ['1 · Helper ApiError & api()', '2 · Query & Mutasi ProductsPage'],
+    terms: [
+      ['Server state vs Client state', 'Data backend bersifat asinkron, bersama, dan bisa kedaluwarsa; mengelolanya lewat TanStack Query menghapus salinan lokal yang usang.'],
+      ['`useQuery` & `invalidateQueries`', '`useQuery` menyimpan cache per `queryKey`; sesudah `useMutation` menulis, invalidation langsung menyegarkan semua layar terkait.'],
+      ['Peta error per field `ProblemDetails`', 'Menerjemahkan JSON validasi ASP.NET Core `400` (`errors.Name[0]`) langsung ke error form aksesibel lewat `aria-describedby`.']
+    ],
     title: 'Server state, routing, dan berkomunikasi dengan API-mu',
     why: "Di sinilah track-track bertemu: layar React memanggil endpoint ASP.NET Core yang menjalankan SQL. Menangani caching, error, auth, dan type dengan benar di sini adalah inti pekerjaan full-stack.",
     points: [
@@ -288,6 +354,11 @@ I18N.lessons('react', {
     ]
   },
   tsadv: {
+    terms: [
+      ['Conditional type (`T extends U ? X : Y`)', 'Menghitung tipe hasil secara dinamis berdasar bentuk input — dasar dari `Awaited<T>` dan `ReturnType<F>` bawaan TypeScript.'],
+      ['Mapped type (`{ [K in keyof T]: ... }`)', 'Mengubah setiap properti pada sebuah interface secara sistematis (misalnya membentuk kamus error per field).'],
+      ['`infer` & Template literal type', 'Mengekstrak sub-type di dalam pencocokan (`infer R`) dan memaksa pola string jalur API (`\`/api/${string}\``) di waktu kompilasi.']
+    ],
     title: 'Type tingkat lanjut: conditional, mapped, dan inferred',
     why: "Type system TypeScript adalah bahasa pemrograman kecil. Kalau dipakai dengan baik, ia membuat kode yang salah mustahil ditulis; kalau terlalu pintar, ia membuat kode yang tidak bisa diubah orang lain. Keahliannya adalah membedakan keduanya.",
     points: [
@@ -314,6 +385,11 @@ I18N.lessons('react', {
     ]
   },
   internals: {
+    terms: [
+      ['Pohon Fiber (unit kerja)', 'Pohon tautan internal React penyimpan state dan hook komponen agar rendering bisa dijeda, dilanjutkan, atau dibatalkan per prioritas.'],
+      ['Rekonsiliasi (render vs commit)', 'Render menghitung selisih UI di JS murni; Commit menuliskan mutasi DOM minimal secara sinkron agar layar tak pernah tampil setengah jadi.'],
+      ['Pemanggilan ganda `StrictMode`', 'Pemeriksaan mode dev yang memanggil render/effect dua kali untuk langsung mengungkap mutasi tak murni atau cleanup yang lupa ditulis.']
+    ],
     title: 'Internal React: reconciliation dan concurrency',
     why: "Memahami bagaimana React memutuskan apa yang diubah, dan kapan, mengubah perilaku yang membingungkan — state yang hilang, effect yang jalan dua kali, jank — menjadi akibat yang bisa ditebak dari segelintir aturan.",
     points: [
@@ -339,6 +415,11 @@ I18N.lessons('react', {
     ]
   },
   arch: {
+    terms: [
+      ['Test berorientasi pengguna (`render` + `userEvent`)', 'Menguji komponen lewat role dan label aksesibel (`getByRole("button")`) alih-alih membaca state internal komponen.'],
+      ['Mocking API (`MSW`)', 'Mencegat `fetch` di batas jaringan supaya test komponen menjalankan serialisasi, validasi, dan status error sungguhan.'],
+      ['Gerbang aksesibilitas inti (`axe-core`)', 'Landmark semantik, navigasi keyboard, kontrol berlabel, dan wilayah error `role="alert"` yang dicek otomatis di tiap fitur.']
+    ],
     title: 'Arsitektur frontend, testing, dan aksesibilitas',
     why: "Frontend yang baik adalah frontend yang bisa diubah tim dengan aman selama bertahun-tahun dan bisa dioperasikan setiap user. Itu butuh struktur, test yang bertahan saat refactor, dan aksesibilitas yang diperlakukan sebagai kebutuhan, bukan fitur tambahan.",
     points: [

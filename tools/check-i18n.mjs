@@ -2,6 +2,8 @@
 // every lesson, quiz question, answer list, problem, design case and Q&A has a translation of the same shape.
 // Usage: node tools/check-i18n.mjs
 import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 globalThis.window = globalThis;
 globalThis.TRACKS = [];
 globalThis.I18N = {
@@ -38,6 +40,11 @@ for (const t of TRACKS) {
         }
       });
     }
+    if (l.splits) same(`${w}.splits`, l.splits, x.splits);
+    if (l.predict) {
+      if (!x.predict || !x.predict.prompt || !x.predict.explain) errors.push(`${w}: missing predict translation`);
+      else { same(`${w}.predict.options`, l.predict.options, x.predict.options); ticks(`${w}.predict.prompt`, l.predict.prompt, x.predict.prompt); ticks(`${w}.predict.explain`, l.predict.explain, x.predict.explain); }
+    }
     (x.points || []).forEach((p, i) => l.points[i] && ticks(`${w}.points[${i}]`, l.points[i], p));
     (x.quiz || []).forEach((q, i) => { if (l.quiz[i]) { same(`${w}.quiz[${i}].answers`, l.quiz[i].a, q[1]); ticks(`${w}.quiz[${i}].q`, l.quiz[i].q, q[0]); } });
   }
@@ -56,6 +63,36 @@ same('design.framework', IV.design.framework, (iv.design || {}).framework); same
 for (const c of IV.design.cases) { const x = ((iv.design || {}).cases || {})[c.id]; if (!x) errors.push(`design case ${c.id}: not translated`); else for (const f of ['req', 'est', 'deep', 'follow']) same(`design ${c.id}.${f}`, c[f], x[f]); }
 same('rapid', IV.rapid, iv.rapid);
 IV.rapid.forEach((r, i) => same(`rapid[${i}] ${r.area}`, r.qs, ((iv.rapid || [])[i] || {}).qs));
+
+// Guard against Object.assign(I18N.ui, ...) bypassing Map.set() (which leaves own properties on the Map).
+const strayOwnKeys = Object.keys(I18N.ui);
+if (strayOwnKeys.length) errors.push(`I18N.ui has ${strayOwnKeys.length} own object property key(s) instead of Map entries (use I18N.add(...)): ${strayOwnKeys.slice(0, 5).join(', ')}`);
+
+// Check T(), W.t(), section(), and viz title/desc literals in src/scripts/ exist in I18N.ui.
+const scanScripts = dir => {
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, e.name);
+    if (e.isDirectory()) scanScripts(p);
+    else if (e.name.endsWith('.js')) {
+      const s = readFileSync(p, 'utf8');
+      for (const m of s.matchAll(/\b(?:W\.t|T)\(\s*(['"])((?:\\.|(?!\1).)+)\1/g)) {
+        const key = m[2].replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\n/g, '\n');
+        if (/[A-Za-z]{2,}/.test(key) && !I18N.ui.has(key)) errors.push(`missing ui translation (${e.name}): ${key}`);
+      }
+      for (const m of s.matchAll(/\bsection\(\s*['"][^'"]+['"]\s*,\s*(['"])((?:\\.|(?!\1).)+)\1/g)) {
+        const key = m[2].replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\n/g, '\n');
+        if (/[A-Za-z]{2,}/.test(key) && !I18N.ui.has(key)) errors.push(`missing section translation (${e.name}): ${key}`);
+      }
+      if (p.includes('viz')) {
+        for (const m of s.matchAll(/\b(?:title|desc)\s*:\s*(['"])((?:\\.|(?!\1).)+)\1/g)) {
+          const key = m[2].replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\n/g, '\n');
+          if (!I18N.ui.has(key)) errors.push(`missing viz metadata translation (${e.name}): ${key}`);
+        }
+      }
+    }
+  }
+};
+scanScripts(fileURLToPath(new URL('../src/scripts', import.meta.url)));
 
 console.log(`${lessons} lessons, ${I18N.ui.size} interface strings checked.`);
 if (errors.length) { console.log(errors.length + ' problem(s):\n' + errors.join('\n')); process.exit(1); }

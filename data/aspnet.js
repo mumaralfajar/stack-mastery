@@ -4,7 +4,12 @@ TRACKS.push({
   lessons: [
     // ---------------- Beginner ----------------
     {
-      id: 'http', title: 'How the web works: HTTP in 20 minutes', level: 0, mins: 25,
+      id: 'http', title: 'How the web works: HTTP in 20 minutes', level: 0, mins: 25, viz: 'journey',
+      terms: [
+        ['Method & URL', 'Verb (`GET`, `POST`, `PUT`, `DELETE`) plus resource path (`/api/products/7`) telling the server what action to take.'],
+        ['Status code', 'Three-digit verdict (`200 OK`, `201 Created`, `400 Bad Request`, `404 Not Found`, `500 Error`) telling clients if the request succeeded.'],
+        ['Headers & JSON body', 'Key/value metadata (`Authorization`, `Content-Type`) wrapped around the actual JSON payload traveling over HTTP.']
+      ],
       why: "ASP.NET Core is a machine that turns HTTP requests into HTTP responses. Once you can read a raw request and response, you can debug web problems in any framework. Every sample in this track is a complete `Program.cs` for .NET 10. Start from `dotnet new web`, run the `dotnet add package` lines at the top of the sample if it has any, and paste it in. Samples with a database expect SQL Server Express on your machine (`.\\SQLEXPRESS`) unless you set a `Shop` connection string.",
       points: [
         "The browser (client) sends a **request**: a method (`GET`, `POST`, `PUT`, `DELETE`), a URL, headers, and sometimes a body.",
@@ -52,6 +57,11 @@ app.Run();
     },
     {
       id: 'anatomy', title: 'Anatomy of an ASP.NET Core app', level: 0, mins: 25,
+      terms: [
+        ['`builder.Services` (DI container)', 'First half of `Program.cs`: registers services and database contexts *before* `builder.Build()`.'],
+        ['Middleware pipeline (`app.Use*`)', 'Second half of `Program.cs`: builds the ordered chain of steps that processes each HTTP request and response.'],
+        ['Minimal API endpoint', '`app.MapGet("/path", handler)` maps a route directly to a C# lambda without extra controller boilerplate.']
+      ],
       why: "`Program.cs` has two halves, and most 'why is my service not found?' or 'why isn't my middleware running?' questions are answered by knowing which half something belongs in.",
       points: [
         "**Half one, the builder**: register services (things the app needs) with `builder.Services.Add…`, and read configuration.",
@@ -111,6 +121,11 @@ public class Greeter : IGreeter
     },
     {
       id: 'routing', title: 'Routing, endpoints and model binding', level: 0, mins: 35,
+      terms: [
+        ['Route constraint (`{id:int}`)', 'Ensures `/products/abc` rejects immediately with 404 before entering your C# handler with a broken parameter.'],
+        ['Model binding', 'Automatically pulls typed values from route segments, query strings (`?page=2`), headers, and JSON request bodies.'],
+        ['`TypedResults` vs `Results`', '`TypedResults.Ok(x)` bakes concrete return types (`Results<Ok<T>, NotFound>`) into signatures so OpenAPI documents every status code.']
+      ],
       why: "An API is a list of endpoints. Mapping URLs to code, reading inputs safely and returning the right status codes is the daily work of a backend developer.",
       points: [
         "**Routing** matches method + URL pattern to a handler: `GET /api/products/{id}`.",
@@ -181,6 +196,11 @@ public record CreateProduct(string Name, decimal Price);
     // ---------------- Intermediate ----------------
     {
       id: 'middleware', title: 'The middleware pipeline', level: 1, mins: 30, viz: 'middleware',
+      terms: [
+        ['Middleware delegate (`next()`)', 'A component wrapping every HTTP request: code before `await next()` runs on the way in; code after runs on the way out.'],
+        ['Short-circuiting', 'Returning `401` or a cached response early without invoking `next()`, skipping downstream handlers safely.'],
+        ['Pipeline ordering', 'Running `ExceptionHandler` first and `UseAuthentication()` before `UseAuthorization()` ensures errors are caught and identity exists before rules check it.']
+      ],
       why: "Error handling, CORS, authentication and logging are all middleware. Getting their order wrong is one of the most common ASP.NET Core mistakes, and it's hard to see unless you have the pipeline pictured in your head.",
       points: [
         "A request passes through the middleware **in the order registered**, and the response travels back through them in **reverse**.",
@@ -241,6 +261,11 @@ app.Run();
     },
     {
       id: 'di', title: 'Dependency injection and service lifetimes', level: 1, mins: 35, viz: 'di',
+      terms: [
+        ['`Transient`', 'A brand-new instance created every time a constructor or endpoint asks for the service.'],
+        ['`Scoped`', 'One shared instance created per HTTP request (and disposed at request end) — mandatory for `DbContext` and unit-of-work state.'],
+        ['Captive dependency bug', 'Injecting a short-lived `Scoped` service inside a long-lived `Singleton`, accidentally pinning stale DB connections forever.']
+      ],
       why: "DI is the backbone of ASP.NET Core. Choosing the wrong lifetime gives you stale data, races on shared state, and the 'cannot consume scoped service from singleton' error.",
       points: [
         "Classes declare what they need in the constructor; the **container** creates and supplies it. Classes don't `new` their own dependencies.",
@@ -313,6 +338,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     },
     {
       id: 'efcore', title: 'EF Core: your database in C#', level: 1, mins: 40,
+      splits: [['1 · Setup & Program.cs', '// dotnet add package'], ['2 · Projection & updates', '// Read: projection'], ['3 · Entities & DbContext', 'public record ProductRow']],
+      terms: [
+        ['`DbContext`', 'Represents a session with the database, tracks fetched entities, and generates SQL transactions on `SaveChangesAsync()`.'],
+        ['Projection (`.Select(...)`)', 'Fetches only the DTO columns you need directly in SQL instead of loading entire entity graphs into memory.'],
+        ['Migration', 'Versioned C# code (`dotnet ef migrations add`) keeping database schema evolution synced in Git.']
+      ],
       why: "EF Core is where C#, LINQ and SQL meet. Used well, it removes boilerplate; used blindly, it generates slow queries you never see. The habit that matters most is reading the SQL it produces.",
       points: [
         "A `DbContext` is a session with the database; each `DbSet<T>` maps to a table, and each entity object to a row.",
@@ -405,6 +436,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     },
     {
       id: 'validation', title: 'DTOs, validation and error handling', level: 1, mins: 30,
+      terms: [
+        ['Input/Output DTOs', 'Separate `record` contracts (`CreateProductRequest`, `ProductResponse`) so clients cannot over-post hidden entity fields.'],
+        ['`AddValidation()`', 'Minimal API opt-in endpoint filter enforcing `[Required]`, `[Range]`, and `[MaxLength]` data annotations before your handler executes.'],
+        ['RFC 9457 `ProblemDetails`', 'Standard machine-readable JSON error payload (`title`, `status`, `errors`) returned on validation errors or unhandled exceptions.']
+      ],
       why: "An API is a contract with strangers. Validating every input and returning consistent, machine-readable errors is what makes it usable by anyone other than you.",
       points: [
         "**Never trust input.** Validate at the boundary and return `400 Bad Request` with details.",
@@ -494,6 +530,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     // ---------------- Advanced ----------------
     {
       id: 'auth', title: 'Authentication and authorization', level: 2, mins: 45,
+      splits: [['1 · Auth & CORS setup', '// dotnet add package'], ['2 · Endpoints & ownership', 'app.MapGet("/api/products"'], ['3 · Entity & settings', '// appsettings.json']],
+      terms: [
+        ['Authentication vs Authorization', 'Authentication verifies *who* you are (`ClaimsPrincipal`); authorization enforces *what* you are allowed to touch.'],
+        ['Resource-based auth', 'Checking ownership (`order.UserId == callerId`) per record, returning `404` rather than revealing another user’s order exists.'],
+        ['CORS policy', 'Server headers telling browsers which exact frontend origin (never `*` with credentials) may read responses cross-origin.']
+      ],
       why: "Security bugs are the expensive ones. You need to be able to say who the caller is, how the server knows, and how each endpoint decides what they may do.",
       points: [
         "**Authentication** = proving identity. **Authorization** = deciding permission. Two separate steps, two separate middleware.",
@@ -587,6 +629,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     },
     {
       id: 'config', title: 'Options, logging and environments', level: 2, mins: 30,
+      terms: [
+        ['Options pattern (`IOptions<T>`)', 'Binds configuration sections into strongly typed C# classes validated on startup (`ValidateDataAnnotations().ValidateOnStart()`).'],
+        ['Structured logging', 'Logging templates (`"Paid {OrderId} for {Total}"`) preserve searchable named fields in Seq/OpenTelemetry instead of plain text strings.'],
+        ['User Secrets / Key Vault', 'Keeps DB passwords and API keys out of Git and `appsettings.json` cleanly per environment.']
+      ],
       why: "The same build has to run on a laptop, in CI and in production with different settings. When something breaks in production, logs are often all you have to go on.",
       points: [
         "The **options pattern** binds a configuration section to a typed class: `IOptions<T>` (read once), `IOptionsSnapshot<T>` (per request), `IOptionsMonitor<T>` (live reload).",
@@ -653,6 +700,11 @@ public class Mailer(IOptions<SmtpOptions> options, ILogger<Mailer> log)
     },
     {
       id: 'testing', title: 'Testing APIs: unit and integration', level: 2, mins: 40,
+      terms: [
+        ['`WebApplicationFactory<T>`', 'Spins up your real ASP.NET Core pipeline (`routing`, `validation`, `middleware`) in memory for fast integration tests.'],
+        ['In-memory `HttpClient`', 'Sends real HTTP JSON requests from tests into your `TestServer` without touching a network port.'],
+        ['Test doubles & containers', 'Run integration tests against real SQL containers (Testcontainers) rather than EF’s InMemory provider whenever testing SQL semantics.']
+      ],
       why: "Tests let you change code without fear. A good test is also documentation that can't go stale: it states what the code should do, and fails the moment it doesn't.",
       points: [
         "**Unit tests** check one class with its dependencies faked. Fast, many, precise.",
@@ -726,6 +778,12 @@ public class PriceCalculator
     },
     {
       id: 'efadv', title: 'EF Core in depth: tracking, N+1 and concurrency', level: 2, mins: 40,
+      splits: [['1 · N+1 vs projection', '// dotnet add package'], ['2 · Optimistic concurrency', '// Optimistic concurrency'], ['3 · Entities & DbContext', 'public record OrderRow']],
+      terms: [
+        ['`AsNoTracking()`', 'Skips change-tracker snapshot bookkeeping on read-only queries, cutting CPU and RAM allocations.'],
+        ['N+1 query bug', 'Issuing 1 query for N rows plus N hidden extra queries inside a loop — solved via `.Select(...)` projection or eager `.Include(...)`.'],
+        ['Optimistic concurrency (`[Timestamp]`)', 'Detects two conflicting edits via a row-version check and returns `409 Conflict` instead of silently overwriting the first user’s change.']
+      ],
       why: "Most slow ASP.NET Core apps are slow because of a handful of EF Core mistakes. Each one has a recognisable shape in the SQL log, and a small fix.",
       points: [
         "**N+1 problem**: one query for the list, then one more per row for related data. Fix it with projection (`Select`) or `Include`.",
@@ -846,6 +904,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     // ---------------- Expert ----------------
     {
       id: 'perf', title: 'Performance: caching, rate limiting and async pitfalls', level: 3, mins: 40,
+      splits: [['1 · Setup & RateLimiter', '// dotnet add package'], ['2 · Cache endpoints', '// Whole response cached'], ['3 · Model & DbContext', 'public record ProductDto']],
+      terms: [
+        ['`OutputCache`', 'Caches the whole HTTP response bytes by route/query key so identical `GET` requests skip the endpoint completely.'],
+        ['`HybridCache` (stampede protection)', 'Combines fast L1 memory + distributed L2 cache and coalesces concurrent misses so 1,000 requests trigger only 1 DB read.'],
+        ['Cache invalidation', 'Evicting stale cache entries (`EvictByTagAsync` / `RemoveAsync`) on `POST`/`PUT`/`DELETE` writes.']
+      ],
       why: "Performance work is measurement plus a small set of well-understood levers. The skill is matching the lever to the symptom, and knowing what each one costs in correctness.",
       points: [
         "Measure first: load test (k6, bombardier, NBomber), then profile. Track p50, p95 and p99 latency, not the average.",
@@ -955,6 +1019,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     },
     {
       id: 'arch', title: 'Architecture: boundaries, slices and background work', level: 3, mins: 45,
+      splits: [['1 · App wiring', '// dotnet add package'], ['2 · PlaceOrder slice', '// ---------- Feature slice'], ['3 · Domain entities', '// ---------- Domain'], ['4 · Outbox & worker', '// ---------- Outbox']],
+      terms: [
+        ['Vertical slice', 'Organizes code by feature (`PlaceOrder.cs` holding command, validation, handler, endpoint) instead of spreading files across folders by layer.'],
+        ['Rich domain entity', 'Encapsulates invariants inside factory/behavior methods (`Order.Place(...)`) so invalid states cannot be constructed anywhere.'],
+        ['Transactional Outbox', 'Writes the business row and `OutboxMessage` in the *same* database transaction; a background `BackgroundService` reliably publishes them afterwards.']
+      ],
       why: "Architecture is deciding what can change without breaking what. A structure is worth defending only if you can name the forces behind it, and you should be just as ready to say when it's overkill.",
       points: [
         "**Layered / Clean Architecture**: domain at the centre, infrastructure at the edge, dependencies pointing inward. It protects business rules from framework churn.",
@@ -1115,6 +1185,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     },
     {
       id: 'prod', title: 'Production: observability, resilience and deployment', level: 3, mins: 45,
+      splits: [['1 · Telemetry & resilience', '// dotnet add package'], ['2 · Health & client', 'app.MapHealthChecks("/health/live"'], ['3 · Dockerfile & container', '// Dockerfile']],
+      terms: [
+        ['OpenTelemetry traces & metrics', 'Correlates logs, timings, and distributed SQL/HTTP spans across services using W3C Trace Context headers.'],
+        ['Liveness vs Readiness probes', '`/health/live` asks “is the process alive?”; `/health/ready` asks “can it reach SQL and serve traffic yet?”.'],
+        ['Circuit breaker + jittered retries', 'Protects failing downstream dependencies from cascading failure using standard HTTP resilience handlers and idempotency keys.']
+      ],
       why: "Code is finished when it runs reliably for users, not when it compiles. That means designing for the day something fails, and in production something eventually does.",
       points: [
         "**Observability** = logs, metrics and traces. **OpenTelemetry** is the standard; a trace follows one request across services.",

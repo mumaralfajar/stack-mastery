@@ -92,6 +92,11 @@ I18N.tracks.angular = {
     },
     signals: {
       title: 'State reaktif: signal, computed, linkedSignal, dan effect',
+      predict: {
+        prompt: 'Misalkan `qty` bernilai `0` dan `discount = computed(() => qty() > 0 && hasCoupon() ? 15 : 0)`. Jika kamu mengubah `hasCoupon.set(true)` sementara `qty()` tetap `0`, berapa kali `discount()` dihitung ulang?',
+        options: ['1 kali (dihitung ulang menjadi 0)', '0 kali (`hasCoupon` tidak dilacak saat kena short-circuit)', 'Melempar error karena bacaan tidak dilacak'],
+        explain: 'Pelacakan dependensi signal bersifat dinamis di tiap evaluasi: karena `qty() > 0` bernilai `false`, operator `&&` melakukan short-circuit sebelum membaca `hasCoupon()`, sehingga perubahan `hasCoupon` tidak memicu perhitungan ulang sampai `qty` positif.'
+      },
       why: 'UI nyata berubah setelah klik, ketikan, dan timer. **Signal** memberi Angular wadah kecil yang eksplisit di sekeliling setiap nilai yang bisa berubah sehingga Angular tahu *persis* teks atau atribut mana yang bergantung pada nilai itu—dan memperbaruinya otomatis tanpa memindai seisi halaman.',
       terms: [
         ['Signal (`signal(val)`)', 'Kotak reaktif berisi suatu nilai. Memanggilnya seperti fungsi (`qty()`) membaca nilainya sekaligus mendaftarkan pembaca untuk pembaruan berikutnya.'],
@@ -268,6 +273,7 @@ I18N.tracks.angular = {
     },
     forms: {
       title: 'Signal Forms, validasi, dan error yang aksesibel',
+      splits: ['1 · Template & ARIA', '2 · Skema & submit()'],
       why: 'Hampir setiap aplikasi mengumpulkan input pengguna—form daftar, editor produk, checkout—lengkap dengan aturan bersyarat dan umpan balik error yang jelas. **Signal Forms** Angular (`@angular/forms/signals`) membungkus satu model data `signal(...)` dalam skema validasi bertipe aman, menyinkronkan input DOM, error, dan atribut aksesibilitas otomatis.',
       terms: [
         ['Field vs FieldState (`f.name` vs `f.name()`)', '`productForm.name` adalah referensi pengikatan yang dikirim ke `[formField]`; memanggil `productForm.name()` mengembalikan signal status hidupnya (`touched()`, `invalid()`, `errors()`).'],
@@ -358,6 +364,7 @@ I18N.tracks.angular = {
     },
     http: {
       title: 'HTTP, httpResource, dan berkomunikasi dengan ASP.NET Core',
+      splits: ['1 · Mapper ApiError', '2 · Interceptor', '3 · Component + loader'],
       why: 'Di sinilah Angular terhubung ke backend ASP.NET Core dan database kamu. Angular memberi **`httpResource`** untuk pembacaan data `GET` reaktif serta **`HttpClient`** (beserta interceptor mirip middleware, keamanan XSRF bawaan, dan penanganan error `ProblemDetails` terstruktur) untuk mutasi `POST`/`PUT`/`DELETE`.',
       terms: [
         ['`httpResource()`', 'Loader data berbasis signal untuk request `GET`: melacak signal di fungsi URL-nya, membatalkan request usang, dan mengekspos `.isLoading()`, `.error()`, serta `.value()`.'],

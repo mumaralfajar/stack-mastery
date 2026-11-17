@@ -192,6 +192,12 @@ export class Catalog {
     },
     {
       id: 'signals', title: 'Reactive state: signal, computed, linkedSignal and effect', level: 0, mins: 40, viz: 'ngsignals',
+      predict: {
+        prompt: 'Suppose `qty` is `0` and `discount = computed(() => qty() > 0 && hasCoupon() ? 15 : 0)`. If you toggle `hasCoupon.set(true)` while `qty()` stays `0`, how many times does `discount()` re-run?',
+        options: ['1 time (recalculates to 0)', '0 times (`hasCoupon` is not tracked while short-circuited)', 'Throws an error on untracked read'],
+        answer: 1,
+        explain: 'Signal dependency tracking is dynamic on each evaluation: because `qty() > 0` was `false`, `&&` short-circuited before calling `hasCoupon()`, so changing `hasCoupon` triggers zero recomputations until `qty` becomes positive.'
+      },
       why: "Real UIs change after clicks, typing, and timers. **Signals** give Angular a tiny, explicit container around any changing value so Angular knows *precisely* which text or attributes depend on that value—and updates them automatically without searching the whole page.",
       terms: [
         ['Signal (`signal(val)`)', 'A reactive box around a value. Calling it like a function (`qty()`) reads the value and subscribes the reader to future updates.'],
@@ -536,6 +542,7 @@ export const routerProviders = [
     },
     {
       id: 'forms', title: 'Signal Forms, validation and accessible errors', level: 1, mins: 40,
+      splits: [['1 · Template & ARIA', '// product-form.ts'], ['2 · Schema & submit()', '// 1. Single source-of-truth']],
       why: "Nearly every app collects user input—sign-up forms, product editors, checkouts—with conditional rules and clear error feedback. Angular **Signal Forms** (`@angular/forms/signals`) wrap a single `signal(...)` data model in a type-safe validation schema, keeping DOM inputs, errors, and accessibility attributes automatically in sync.",
       terms: [
         ['Field vs FieldState (`f.name` vs `f.name()`)', '`productForm.name` is the binding reference passed to `[formField]`; calling `productForm.name()` returns its live status signals (`touched()`, `invalid()`, `errors()`).'],
@@ -636,7 +643,7 @@ export class ProductForm {
     },
     // ---------------- Advanced ----------------
     {
-      id: 'rxjs', title: 'Async event streams: RxJS and Signals interop', level: 2, mins: 40,
+      id: 'rxjs', title: 'Async event streams: RxJS and Signals interop', level: 2, mins: 40, viz: 'ngrxjs',
       why: "Signals excel at holding *current values right now* (quantity, total, open/closed). **RxJS** excels at coordinating **events over time**—waiting 300 ms after typing stops, cancelling outdated search requests, or ignoring an accidental double-click on Pay. Understanding `Observable` streams now makes Angular's `HttpClient` and router events crystal clear.",
       terms: [
         ['`Observable`', 'A lazy stream of values arriving over time (zero, one, or many). A **cold** Observable does nothing until `.subscribe()` (or `firstValueFrom`) listens to it.'],
@@ -732,6 +739,7 @@ export class SearchBar {
     },
     {
       id: 'http', title: 'HTTP, httpResource and talking to ASP.NET Core', level: 2, mins: 45,
+      splits: [['1 · ApiError mapper', '// api-error.ts'], ['2 · Interceptor', '// 2. Functional interceptor'], ['3 · Component + loaders', '@Component({']],
       why: "This is where Angular connects to your ASP.NET Core backend and database. Angular gives you **`httpResource`** for reactive `GET` data loading and **`HttpClient`** (with middleware-like interceptors and built-in XSRF safety) for `POST`/`PUT`/`DELETE` mutations and structured `ProblemDetails` error handling.",
       terms: [
         ['`httpResource()`', 'A signal-based data loader for `GET` requests: tracks signals inside its URL callback, cancels stale requests, and exposes `.isLoading()`, `.error()`, and `.value()`.'],

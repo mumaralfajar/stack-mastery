@@ -16,7 +16,7 @@
   const crumb = (label) => [h('a', { href: '#/interview' }, 'Interview prep'), ' · ', label];
   const diffChip = d => h('span', { class: 'chip diff-' + d }, DIFF[d]);
   const patternName = id => IV.patterns.find(p => p.id === id).name;
-  const bar = p => h('div', { class: 'bar' }, h('i', { style: { width: p + '%' } }));
+  const bar = (p, label) => h('div', { class: 'bar', role: 'img', 'aria-label': T(label || 'Progress') + ' ' + p + '%' }, h('i', { style: { width: p + '%' } }));
 
   // ---------- readiness ----------
   const covered = () => IV.behavioral.filter(t => D.stories.some(s => (s.tags || []).includes(t.id))).length;
@@ -58,7 +58,7 @@
   const show = v => { const s = v === undefined ? 'undefined' : JSON.stringify(v); return s.length > 110 ? s.slice(0, 110) + '…' : s; };
 
   async function judge(p, code) {
-    await PLAY.loadTS();
+    await window.PLAY.loadTS();
     const res = window.ts.transpileModule(code, { reportDiagnostics: true, compilerOptions: { target: 'ES2022', module: 'ESNext' } });
     const diag = (res.diagnostics || []).map(d => window.ts.flattenDiagnosticMessageText(d.messageText, '\n'));
     if (diag.length) return { fatal: T('Syntax error: ') + diag.join('; ') };
@@ -95,14 +95,14 @@ self.onmessage = e => {
       });
       const passed = rows.filter(x => x.ok).length, all = passed === rows.length;
       if (all) { D.solved[p.id] = true; save(); }
-      const note = await PLAY.typeNote(ta);
+      const note = await window.PLAY.typeNote(ta);
       out.replaceChildren(...[
         note,
         h('p', { class: all ? 'ok' : 'err' }, all ? T('✓ All {n} tests passed. Now state the time and space complexity out loud.', { n: rows.length }) : T('{passed} of {n} tests passed.', { passed, n: rows.length })),
         h('ul', { class: 'tests' }, rows.map(x => x.el)),
         r.logs.length ? h('div', {}, h('p', { class: 'muted' }, 'console.log output'), h('pre', {}, r.logs.join('\n'))) : null].filter(Boolean));   // null would print as text
     };
-    const ta = PLAY.editor(D.code[p.id] || p.starter, run, 'typescript');
+    const ta = window.PLAY.editor(D.code[p.id] || p.starter, run, 'typescript');
     ta.classList.add('tall');
     ta.oninput = () => { D.code[p.id] = ta.value; save(); };
     const help = [
@@ -123,7 +123,7 @@ self.onmessage = e => {
         mock ? h('details', {}, h('summary', {}, 'After the interview: hints, solution, follow-ups'), help) : help),
       h('div', {}, ta,
         h('div', { class: 'actions' }, h('button', { type: 'button', class: 'btn', onclick: run }, 'Run tests (Ctrl+Enter)'),
-          h('button', { type: 'button', class: 'btn ghost', onclick: () => { if (confirm(T('Replace your code with the starter?'))) { ta.value = p.starter; ta.oninput(); } } }, 'Reset code')),
+          h('button', { type: 'button', class: 'btn ghost', onclick: async () => { if (await window.confirmDialog(T('Replace your code with the starter?'), { title: 'Reset code', confirmText: 'Reset code', danger: true })) { ta.value = p.starter; ta.oninput(); } } }, 'Reset code')),
         out));
   }
 
@@ -140,14 +140,14 @@ self.onmessage = e => {
   function codingView() {
     const solved = Object.keys(D.solved).length;
     return h('div', { class: 'page iv' },
-      head(crumb('Coding'), 'Coding interview', T('{n} classic problems across 12 patterns, judged in your browser against real test cases. Write TypeScript here; the same patterns are shown in C# on the patterns page.', { n: IV.problems.length }), bar(Math.round(solved / IV.problems.length * 100))),
+      head(crumb('Coding'), 'Coding interview', T('{n} classic problems across 12 patterns, judged in your browser against real test cases. Write TypeScript here; the same patterns are shown in C# on the patterns page.', { n: IV.problems.length }), bar(Math.round(solved / IV.problems.length * 100), 'Coding interview')),
       sec('How to run every problem', h('p', {}, 'Interviewers grade the process as much as the answer. Follow the same seven steps each time until they are automatic.'),
         h('ol', { class: 'steps' }, IV.method.map(([n, t]) => h('li', {}, h('b', {}, n + '. '), t)))),
       sec(h('span', {}, 'Problems ', h('small', {}, `${solved} / ${IV.problems.length} ${T('solved')}`)),
         h('div', { class: 'rows' }, IV.problems.map(p => h('a', { class: 'row', href: '#/interview/problem/' + p.id },
           h('span', { class: 'tick' + (D.solved[p.id] ? ' on' : '') }, D.solved[p.id] ? '✓' : ''), h('span', { class: 'row-t' }, p.title), h('small', {}, patternName(p.pattern)), diffChip(p.diff)))),
         h('p', { style: { marginTop: '1rem' } }, h('a', { class: 'btn ghost', href: '#/interview/patterns' }, 'Study the 12 patterns →'))),
-      sec('Complexity you must know cold', h('table', { class: 't' }, h('tbody', {}, IV.bigO.map(([a, b]) => h('tr', {}, h('td', {}, a), h('td', {}, h('code', {}, b))))))));
+      sec('Complexity you must know cold', window.tableWrap('Complexity reference', h('table', { class: 't' }, h('tbody', {}, IV.bigO.map(([a, b]) => h('tr', {}, h('th', { scope: 'row' }, a), h('td', {}, h('code', {}, b)))))))));
   }
 
   function patternsView() {
@@ -170,10 +170,10 @@ self.onmessage = e => {
     const draw = () => {
       const v = Object.fromEntries(Object.entries(inputs).map(([k, el]) => [k, Math.max(+el.value || 0, 0)]));
       const wps = v.dau * v.w / 86400, rps = wps * v.r, day = v.dau * v.w * v.b;
-      out.replaceChildren(h('table', { class: 't' }, h('tbody', {}, [
+      out.replaceChildren(window.tableWrap('System estimates', h('table', { class: 't' }, h('tbody', {}, [
         ['Writes per second (average)', fmt(wps)], ['Reads per second (average)', fmt(rps)], ['Peak reads per second', fmt(rps * v.peak)],
         ['New storage per day', bytes(day)], ['New storage per year', bytes(day * 365)], ['Write bandwidth', bytes(wps * v.b) + '/s']
-      ].map(([a, b]) => h('tr', {}, h('td', {}, a), h('td', {}, h('b', {}, b)))))));
+      ].map(([a, b]) => h('tr', {}, h('th', { scope: 'row' }, a), h('td', {}, h('b', {}, b))))))));
     };
     const ctl = h('div', { class: 'est-grid' }, fields.map(([label, k, def]) => { inputs[k] = h('input', { type: 'number', min: 0, oninput: draw }); inputs[k].value = def; return h('label', {}, label, inputs[k]); }));
     draw();
@@ -231,7 +231,7 @@ self.onmessage = e => {
       const next = () => { const t = pick(IV.behavioral); drillQ.textContent = pick(t.qs); const mine = D.stories.filter(s => s.tags.includes(t.id)); drillL.textContent = `${T('Theme:')} ${t.name}. ` + (mine.length ? T('Your stories: ') + mine.map(s => s.title).join(', ') + '.' : T('You have no story for this theme yet.')); };
       next();
       page.replaceChildren(
-        head(crumb('Behavioral'), 'Behavioral interview', 'Interviewers predict future behavior from past behavior. They want specific stories with you as the actor — not opinions, and not “we”.', bar(Math.round(covered() / IV.behavioral.length * 100))),
+        head(crumb('Behavioral'), 'Behavioral interview', 'Interviewers predict future behavior from past behavior. They want specific stories with you as the actor — not opinions, and not “we”.', bar(Math.round(covered() / IV.behavioral.length * 100), 'Behavioral interview')),
         sec('STAR, with reflection', h('ol', { class: 'steps' },
           h('li', {}, h('b', {}, 'Situation '), '— one or two sentences of context. Keep it short.'),
           h('li', {}, h('b', {}, 'Task '), '— what you were responsible for, and what was at stake.'),
@@ -252,7 +252,7 @@ self.onmessage = e => {
           h('div', { class: 'cover' }, IV.behavioral.map(t => { const n = D.stories.filter(s => s.tags.includes(t.id)).length; return h('span', { class: 'chip ' + (n ? 'diff-0' : '') }, `${t.name}: ${n}`); })),
           D.stories.length ? h('div', { class: 'stories' }, D.stories.map((s, i) => h('details', { class: 'story' }, h('summary', {}, s.title, ' ', h('small', {}, s.tags.map(id => IV.behavioral.find(t => t.id === id).name).join(' · '))),
             [['Situation', s.s], ['Task', s.t], ['Action', s.a], ['Result', s.r]].map(([k, v]) => h('p', {}, h('b', {}, T(k) + ': '), v || '—')),
-            h('button', { type: 'button', class: 'btn sm ghost', onclick: () => { if (confirm(T('Delete this story?'))) { D.stories.splice(i, 1); save(); draw(); } } }, 'Delete')))) : h('p', { class: 'muted' }, 'No stories yet. Add your first below.'),
+            h('button', { type: 'button', class: 'btn sm ghost', onclick: async () => { if (await window.confirmDialog(T('Delete this story?'), { title: 'Delete', confirmText: 'Delete', danger: true })) { D.stories.splice(i, 1); save(); draw(); } } }, 'Delete')))) : h('p', { class: 'muted' }, 'No stories yet. Add your first below.'),
           h('div', { class: 'story-form' },
             h('label', {}, 'Title', form.title), h('label', {}, 'Situation', form.s), h('label', {}, 'Task', form.t), h('label', {}, 'Action — what you did', form.a), h('label', {}, 'Result — with numbers', form.r),
             h('div', { class: 'tagbox' }, h('span', { class: 'muted' }, 'Themes this story can answer:'), tags.map(([, l]) => l)),
@@ -277,7 +277,7 @@ self.onmessage = e => {
 
   function rapidView() {
     const progress = h('div', {});
-    const drawP = () => progress.replaceChildren(bar(Math.round(Object.values(D.rapid).filter(v => v === 2).length / rapidTotal * 100)));
+    const drawP = () => progress.replaceChildren(bar(Math.round(Object.values(D.rapid).filter(v => v === 2).length / rapidTotal * 100), 'Rapid-fire Q&A'));
     drawP();
     return h('div', { class: 'page iv' },
       head(crumb('Rapid-fire'), 'Rapid-fire stack questions', 'The knowledge round: short questions on your own stack. A good answer is two or three precise sentences plus one trade-off, said without hesitation.', progress),
@@ -295,12 +295,12 @@ self.onmessage = e => {
   const verdict = avg => avg >= 3.5 ? 'Strong hire' : avg >= 3 ? 'Hire' : avg >= 2.5 ? 'Borderline' : 'No hire';
 
   function scorecard(type, title, onSaved) {
-    const sels = RUBRICS[type].map(() => { const s = h('select', {}, LEVELS4.map((l, i) => h('option', { value: i }, l || 'Rate…'))); return s; });
-    const notes = h('textarea', { rows: 3, placeholder: 'What went well? What will you drill before the next one?' });
+    const sels = RUBRICS[type].map((_, i) => h('select', { id: `sc-${type}-${i}` }, LEVELS4.map((l, j) => h('option', { value: j }, l || 'Rate…'))));
+    const notes = h('textarea', { rows: 3, 'aria-label': 'Mock interview notes', placeholder: 'What went well? What will you drill before the next one?' });
     const msg = h('p', { class: 'muted' });
     return h('section', { class: 'sec teach' }, h('h2', {}, 'Interviewer scorecard'),
       h('p', { class: 'muted' }, 'Grade yourself as the interviewer would — or better, have a friend do it. Be strict: “hire” means you would want this person on your team.'),
-      h('div', { class: 'score-grid' }, RUBRICS[type].flatMap((r, i) => [h('span', {}, r), sels[i]])), notes,
+      h('div', { class: 'score-grid' }, RUBRICS[type].flatMap((r, i) => [h('label', { for: `sc-${type}-${i}` }, r), sels[i]])), notes,
       h('div', { class: 'actions' }, h('button', { type: 'button', class: 'btn', onclick: () => {
         const scores = sels.map(s => +s.value);
         if (scores.some(s => !s)) return msg.textContent = T('Rate all four dimensions first.');
@@ -312,8 +312,8 @@ self.onmessage = e => {
 
   function history() {
     if (!D.mocks.length) return h('p', { class: 'muted' }, 'No mock interviews recorded yet.');
-    return h('table', { class: 't' }, h('thead', {}, h('tr', {}, ['Date', 'Type', 'Session', 'Score', 'Verdict'].map(c => h('th', {}, c)))),
-      h('tbody', {}, D.mocks.toReversed().map(m => h('tr', {}, h('td', {}, m.date), h('td', {}, m.type), h('td', {}, m.title), h('td', {}, m.avg.toFixed(2)), h('td', {}, verdict(m.avg))))));
+    return window.tableWrap('Mock interview history', h('table', { class: 't' }, h('thead', {}, h('tr', {}, ['Date', 'Type', 'Session', 'Score', 'Verdict'].map(c => h('th', { scope: 'col' }, c)))),
+      h('tbody', {}, D.mocks.toReversed().map(m => h('tr', {}, h('td', {}, m.date), h('td', {}, m.type), h('td', {}, m.title), h('td', {}, m.avg.toFixed(2)), h('td', {}, verdict(m.avg)))))));
   }
 
   function mockView() {
@@ -372,7 +372,7 @@ self.onmessage = e => {
         h('div', {}, h('p', { class: 'eyebrow' }, 'Get hired'), h('h1', {}, 'Interview preparation'),
           h('p', { class: 'lede' }, 'Top companies hire through a structured loop, and the loop can be trained for. Everything here is practice under the same conditions: timed, out loud, and graded against a rubric.')),
         h('div', { class: 'ring', html: `<svg viewBox="0 0 120 120" role="img" aria-label="${T('Interview readiness')} ${r}%"><circle cx="60" cy="60" r="52" class="ring-bg"/><circle cx="60" cy="60" r="52" class="ring-fg" stroke-dasharray="${2 * Math.PI * 52}" stroke-dashoffset="${2 * Math.PI * 52 * (1 - r / 100)}" transform="rotate(-90 60 60)"/><text x="60" y="58" text-anchor="middle" class="ring-n">${r}%</text><text x="60" y="76" text-anchor="middle" class="ring-l">${T('ready')}</text></svg>` })),
-      sec('Readiness', h('div', { class: 'meters' }, p.map(([label, n, t, href]) => h('a', { class: 'meter', href }, h('span', {}, label), bar(Math.round(n / t * 100)), h('small', {}, `${n} / ${t}`)))),
+      sec('Readiness', h('div', { class: 'meters' }, p.map(([label, n, t, href]) => h('a', { class: 'meter', href }, h('span', {}, label), bar(Math.round(n / t * 100), label), h('small', {}, `${n} / ${t}`)))),
         h('p', { class: 'muted' }, 'Self-reported progress, not a guarantee. The honest test is a mock interview graded by another person.')),
       sec('The interview loop', h('div', { class: 'grid' }, loop.map(([t, href, d]) => h('a', { class: 'card go', href }, h('strong', {}, t), h('p', {}, d))))),
       sec('Two more rounds for full-stack roles',

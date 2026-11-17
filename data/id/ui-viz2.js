@@ -87,8 +87,13 @@ I18N.add({
   "none": "tidak ada",
   "Graph with nodes A to H": "Graph dengan node A sampai H",
   "Queue (front first)": "Queue (depan lebih dulu)",
-  "Recursion stack (bottom first)": "Recursion stack (bawah lebih dulu)",
+  "Recursion stack (top first)": "Recursion stack (atas lebih dulu)",
   "Visited, in order": "Sudah dikunjungi, berurutan",
   "BFS (queue)": "BFS (queue)",
-  "DFS (recursion)": "DFS (rekursi)"
+  "DFS (recursion)": "DFS (rekursi)",
+  "n = {n}": "n = {n}",
+  "Current node": "Node aktif",
+  "In frontier": "Di frontier",
+  "Visited": "Sudah dikunjungi",
+  "Found path": "Jalur ditemukan"
 });

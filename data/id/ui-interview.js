@@ -206,5 +206,10 @@ I18N.add({
   ' track is solid — every pattern here assumes it.': ' sudah kamu kuasai — semua pattern di sini mengasumsikannya.',
   'Eight-week plan': 'Rencana delapan minggu',
   'Getting the interview — and real credibility': 'Mendapatkan panggilan interview — dan kredibilitas yang nyata',
-  'Mock history': 'Riwayat mock'
+  'Mock history': 'Riwayat mock',
+  'Mock interview notes': 'Catatan simulasi wawancara',
+  'Mock interview history': 'Riwayat simulasi wawancara',
+  'Complexity reference': 'Referensi kompleksitas',
+  'System estimates': 'Estimasi kapasitas sistem',
+  'Readiness metrics': 'Metrik kesiapan'
 });

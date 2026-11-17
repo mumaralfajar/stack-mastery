@@ -55,6 +55,15 @@
 }
 declare module 'react/jsx-runtime' { export const jsx: any, jsxs: any, Fragment: any; }
 declare module 'react-dom/client' { export function createRoot(el: Element | DocumentFragment): { render(node: any): void; unmount(): void }; }
+declare module '@tanstack/react-query' {
+  export function useQuery<T = any>(opts: { queryKey: readonly unknown[]; queryFn: () => Promise<T> | T; enabled?: boolean }): { data: T | undefined; isLoading: boolean; isError: boolean; error: any; refetch: () => void };
+  export function useMutation<T = any, V = any>(opts: { mutationFn: (vars: V) => Promise<T> | T; onSuccess?: () => void }): { mutate: (vars: V) => void; isPending: boolean };
+  export function useQueryClient(): { invalidateQueries: (filter?: any) => void };
+  export class QueryClient { constructor(opts?: any) }
+  export const QueryClientProvider: any;
+}
+declare module 'clsx' { export function clsx(...inputs: any[]): string; export default clsx; }
+declare module 'tailwind-merge' { export function twMerge(...classLists: any[]): string; }
 interface ShimAttrs {
   onChange?: (e: { target: HTMLInputElement; currentTarget: HTMLInputElement }) => void;
   onInput?: (e: { target: HTMLInputElement; currentTarget: HTMLInputElement }) => void;
@@ -167,11 +176,21 @@ PRAGMA foreign_keys = ON;`;
   const getSQL = () => SQLp || (SQLp = loadScript(CDN + 'sql.js/1.8.0/sql-wasm.js')
     .then(() => window.initSqlJs({ locateFile: f => CDN + 'sql.js/1.8.0/' + f })).catch(e => { SQLp = null; throw e; }));
 
-  function sql(el) {
+  const SQL_PRESETS = { select: 0, dml: 2, aggregate: 3, joins: 4, subqueries: 8, window: 9, plans: 12, scale: 13 };
+  const SQL_DIALECT_HINTS = [
+    [/\bTOP\s*\(?\s*\d+/i, 'SQL Server TOP(n) → SQLite uses LIMIT n at the end of ORDER BY.'],
+    [/\b(?:YEAR|MONTH|DAY)\s*\(/i, "SQL Server YEAR()/MONTH() → SQLite uses strftime('%Y', col) or strftime('%m', col)."],
+    [/\bGETDATE\s*\(/i, "SQL Server GETDATE() → SQLite uses datetime('now') or CURRENT_TIMESTAMP."],
+    [/\bNVARCHAR\b/i, 'SQL Server NVARCHAR(n) → SQLite uses TEXT without length syntax.'],
+    [/\bOFFSET\s+\d+\s+ROWS?\s+FETCH\b/i, 'SQL Server OFFSET/FETCH → SQLite uses LIMIT n OFFSET m.']
+  ];
+
+  function sql(el, sample) {
     let db = null, cur = -1;
     const solved = new Set(store.get('stackmastery.sql'));
     const out = h('div', { class: 'out', 'aria-live': 'polite' }, h('p', { class: 'muted' }, 'Loading SQLite…'));
     const task = h('p', { class: 'prompt' }, 'Free play — or pick a challenge above.');
+    const dialectTip = h('p', { class: 'fb', hidden: true });
     const chips = h('div', { class: 'chips' });
     const norm = (res, ordered) => {
       const rows = (res.length ? res[res.length - 1].values : []).map(r => r.map(v => typeof v === 'number' ? Math.round(v * 100) / 100 : v));
@@ -180,15 +199,23 @@ PRAGMA foreign_keys = ON;`;
     const show = res => {
       if (!res.length) return out.replaceChildren(h('p', { class: 'ok' }, T('OK — {n} row(s) changed.', { n: db.getRowsModified() })));
       out.replaceChildren(...res.map(r => h('div', {}, h('p', { class: 'muted' }, r.values.length + ' ' + T('row(s)')),
-        h('table', { class: 't' }, h('thead', {}, h('tr', {}, r.columns.map(c => h('th', {}, c)))),
-          h('tbody', {}, r.values.map(row => h('tr', {}, row.map(v => v === null ? h('td', { class: 'null' }, 'NULL') : h('td', {}, v)))))))));
+        window.tableWrap('Query results', h('table', { class: 't' }, h('thead', {}, h('tr', {}, r.columns.map(c => h('th', { scope: 'col' }, c)))),
+          h('tbody', {}, r.values.map(row => h('tr', {}, row.map(v => v === null ? h('td', { class: 'null' }, 'NULL') : h('td', {}, v))))))))));
+    };
+    const updateDialectTip = () => {
+      const hit = SQL_DIALECT_HINTS.find(([rx]) => rx.test(ta.value));
+      dialectTip.hidden = !hit;
+      if (hit) dialectTip.textContent = T('SQLite dialect tip: ') + T(hit[1]);
     };
     const run = () => {
       if (!db) return;
+      updateDialectTip();
       try { const res = db.exec(ta.value); show(res); return res; }
       catch (e) { out.replaceChildren(h('p', { class: 'err' }, e.message)); return null; }
     };
     const ta = editor("SELECT name, category, price\nFROM products\nWHERE price > 100\nORDER BY price DESC;", run, 'sql');
+    const prevInput = ta.oninput;
+    ta.oninput = () => { prevInput && prevInput(); updateDialectTip(); };
     const checkAns = () => {
       if (cur < 0) return out.replaceChildren(h('p', { class: 'muted' }, 'Pick a challenge first.'));
       const mine = run(); if (!mine) return;
@@ -197,22 +224,50 @@ PRAGMA foreign_keys = ON;`;
       out.prepend(h('p', { class: good ? 'ok' : 'err' }, T(good ? '✓ Correct — now explain out loud why it works.' : c.ordered ? '✗ Not the expected rows yet. Compare your output with the task — row order matters here.' : '✗ Not the expected rows yet. Compare your output with the task.')));
     };
     const reset = () => { if (!SQL) return; db = new SQL.Database(); db.run(SEED); out.replaceChildren(h('p', { class: 'ok' }, 'Database reset to its original contents.')); };
-    const drawChips = () => chips.replaceChildren(...CHALLENGES.map((c, i) => h('button', { type: 'button', class: (i === cur ? 'on ' : '') + (solved.has(i) ? 'solved' : ''), title: LEVELS[c.lvl], onclick: () => {
-      cur = i; task.textContent = `${T('Challenge')} ${i + 1} (${LEVELS[c.lvl]}): ${T(c.task)}`; ta.value = '-- ' + T(c.t) + '\n'; ta.focus(); drawChips();
-    } }, c.t)));
+    const selectChallenge = (i, focusEd = true) => {
+      const c = CHALLENGES[i];
+      if (!c) return;
+      cur = i;
+      task.textContent = `${T('Challenge')} ${i + 1} (${LEVELS[c.lvl]}): ${T(c.task)}`;
+      ta.value = '-- ' + T(c.t) + '\n';
+      updateDialectTip();
+      if (focusEd) ta.focus();
+      drawChips();
+    };
+    const drawChips = () => chips.replaceChildren(...CHALLENGES.map((c, i) => h('button', { type: 'button', class: (i === cur ? 'on ' : '') + (solved.has(i) ? 'solved' : ''), title: LEVELS[c.lvl], onclick: () => selectChallenge(i, true) }, c.t)));
     let SQL = null;
     drawChips();
+    if (sample && Object.prototype.hasOwnProperty.call(SQL_PRESETS, sample)) selectChallenge(SQL_PRESETS[sample], false);
+    const schemaDrawer = h('details', { class: 'schema-drawer' },
+      h('summary', {}, 'Schema and foreign keys (5 tables)'),
+      window.tableWrap('Database schema', h('table', { class: 't' },
+        h('thead', {}, h('tr', {}, ['Table', 'Columns & keys', 'Rows'].map(c => h('th', { scope: 'col' }, c)))),
+        h('tbody', {}, [
+          ['customers', 'id (PK INTEGER), name (TEXT), city (TEXT nullable)', '5'],
+          ['products', 'id (PK INTEGER), name (TEXT), category (TEXT), price (REAL >= 0), stock (INTEGER >= 0)', '10'],
+          ['orders', 'id (PK INTEGER), customer_id (FK -> customers.id), order_date (TEXT YYYY-MM-DD), status (paid|pending)', '6'],
+          ['order_items', 'order_id (FK -> orders.id), product_id (FK -> products.id), quantity, unit_price', '9'],
+          ['accounts', 'id (PK INTEGER), owner (TEXT), balance (REAL >= 0)', '2']
+        ].map(([tb, cols, cnt]) => h('tr', {}, h('th', { scope: 'row' }, h('code', {}, tb)), h('td', {}, cols), h('td', {}, cnt)))))));
     el.style.setProperty('--tc', 'var(--sql)');
     el.append(
       h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Practice'), h('h1', {}, 'SQL playground'),
         h('p', { class: 'lede' }, 'A real SQLite database running in your browser. Queries and writes are live; reset whenever you like. The lessons use SQL Server, and most of it works here too. The differences to know: write LIMIT at the end instead of TOP, use strftime() instead of YEAR(), and expect money to show float rounding, because SQLite has no exact DECIMAL. SQLite is also more forgiving: it accepts an alias in WHERE, a bare column next to an aggregate and "double-quoted" text, all of which SQL Server rejects.')),
-      h('p', { class: 'schema', html: '<b>customers</b>(id, name, city) · <b>products</b>(id, name, category, price, stock) · <b>orders</b>(id, customer_id, order_date, status) · <b>order_items</b>(order_id, product_id, quantity, unit_price) · <b>accounts</b>(id, owner, balance)' }),
+      schemaDrawer,
       chips, task,
       h('div', { class: 'play' },
-        h('div', {}, ta, h('div', { class: 'actions' },
+        h('div', {}, ta, dialectTip, h('div', { class: 'actions' },
           h('button', { type: 'button', class: 'btn', onclick: run }, 'Run (Ctrl+Enter)'),
           h('button', { type: 'button', class: 'btn ghost', onclick: checkAns }, 'Check answer'),
-          h('button', { type: 'button', class: 'btn ghost', onclick: () => { if (cur >= 0) ta.value = CHALLENGES[cur].sol.replace(/ (FROM|WHERE|GROUP BY|HAVING|ORDER BY|JOIN|LEFT JOIN|SELECT) /g, '\n$1 '); } }, 'Show solution'),
+          h('button', { type: 'button', class: 'btn ghost', onclick: async () => {
+            if (cur < 0) return;
+            const c = CHALLENGES[cur];
+            const edited = ta.value.replace(/^--.*$/gm, '').trim().length > 0;
+            if (!edited || await window.confirmDialog(T('Replace your current SQL query with the challenge solution?'), { title: 'Show solution', confirmText: 'Show solution', danger: false })) {
+              ta.value = c.sol.replace(/ (FROM|WHERE|GROUP BY|HAVING|ORDER BY|JOIN|LEFT JOIN|SELECT) /g, '\n$1 ');
+              updateDialectTip();
+            }
+          } }, 'Show solution'),
           h('button', { type: 'button', class: 'btn ghost', onclick: reset }, 'Reset database'))),
         out));
     getSQL().then(S => { SQL = S; reset(); out.replaceChildren(h('p', { class: 'muted' }, 'Ready. Run a query to see results here.')); })
@@ -542,8 +597,21 @@ addEventListener('unhandledrejection', e => send('err', String(e.reason && e.rea
 ${js.replace(/<\/script/gi, '<\\/script')}
 <\/script></body></html>`;
 
-  function ts(el) {
+  const TS_PRESETS = {
+    'react-js': 'Array methods', 'react-ts': 'Unions & narrowing', 'react-components': 'React component', 'react-jsdeep': 'Array methods',
+    'react-state': 'Immutable state', 'react-effects': 'React effects', 'react-forms': 'React component', 'react-generics': 'Generics',
+    'react-hooks': 'Immutable state', 'react-perf': 'React component', 'react-server': 'React effects', 'react-tsadv': 'Generics',
+    'react-internals': 'Immutable state', 'react-arch': 'React component',
+    'angular-signals': 'Angular signals', 'angular-di': 'Angular signals', 'angular-architecture': 'Angular signals',
+    'angular-components': 'Angular signals', 'angular-forms': 'Angular linkedSignal', 'angular-rxjs': 'RxJS switchMap vs exhaustMap',
+    'angular-http': 'ASP.NET ProblemDetails mapper', 'angular-routing': 'Angular signals', 'angular-testing': 'ASP.NET ProblemDetails mapper',
+    'angular-perf': 'Angular signals', 'angular-interop': 'Angular signals', 'angular-ssr': 'Angular signals',
+    signals: 'Angular signals', rxjs: 'RxJS switchMap vs exhaustMap', http: 'ASP.NET ProblemDetails mapper'
+  };
+
+  function ts(el, sample) {
     const out = h('div', { class: 'out', 'aria-live': 'polite' }, h('p', { class: 'muted' }, 'Output appears here.'));
+    const ngNote = h('p', { class: 'muted', hidden: true }, 'Note: Signal, linkedSignal, and RxJS models run directly here in TypeScript. Full Angular HTML @Component templates require Angular CLI or StackBlitz.');
     let frame = null;
     const onMessage = e => {
       if (!out.isConnected) return removeEventListener('message', onMessage);   // the page was left
@@ -573,17 +641,20 @@ ${js.replace(/<\/script/gi, '<\\/script')}
         out.replaceChildren(h('p', { class: 'err' }, String(e.message || e)));
       }
     };
-    const first = Object.keys(TS_EXAMPLES)[0];
-    const ta = editor(TS_EXAMPLES[first], run, 'typescript', 'tsx');
-    const chips = h('div', { class: 'chips' }, Object.keys(TS_EXAMPLES).map(name => h('button', { type: 'button', onclick: e => {
-      ta.value = TS_EXAMPLES[name]; [...chips.children].forEach(c => c.classList.toggle('on', c === e.currentTarget));
-    } }, name)));
-    chips.firstChild.classList.add('on');
+    const initialName = (sample && TS_PRESETS[sample]) || (sample && TS_EXAMPLES[sample] && sample) || Object.keys(TS_EXAMPLES)[0];
+    const ta = editor(TS_EXAMPLES[initialName], run, 'typescript', 'tsx');
+    const select = name => {
+      ta.value = TS_EXAMPLES[name];
+      ngNote.hidden = !/Angular|RxJS|ProblemDetails/.test(name);
+      [...chips.children].forEach(c => c.classList.toggle('on', c.dataset.k === name));
+    };
+    const chips = h('div', { class: 'chips' }, Object.keys(TS_EXAMPLES).map(name => h('button', { type: 'button', 'data-k': name, onclick: () => select(name) }, name)));
+    select(initialName);
     el.style.setProperty('--tc', 'var(--react)');
     el.append(
       h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Practice'), h('h1', {}, 'TypeScript playground'),
         h('p', { class: 'lede' }, 'Write TypeScript and run it instantly. Type errors are underlined as you type and listed when you run — hover a red squiggle to read the message. Plain TypeScript runs in an isolated worker with a five-second limit. Code that imports react renders in a live preview instead, with React 19 loaded from esm.sh, so it needs an internet connection.')),
-      chips,
+      chips, ngNote,
       h('div', { class: 'play' },
         h('div', {}, ta, h('div', { class: 'actions' }, h('button', { type: 'button', class: 'btn', onclick: run }, 'Run (Ctrl+Enter)'))),
         out));
@@ -651,7 +722,18 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
 </div>`, css: '' }
   };
 
-  function css(el) {
+  const CSS_PRESETS = {
+    flexbox: 'Flexbox navbar',
+    grid: 'Responsive grid',
+    cascade: 'Theme tokens + :has()',
+    units: 'Theme tokens + :has()',
+    modern: 'Theme tokens + :has()',
+    tailwind: 'Tailwind card',
+    twreact: 'Tailwind card',
+    responsive: 'Tailwind responsive'
+  };
+
+  function css(el, sample) {
     let t = 0;
     const frame = h('iframe', { class: 'preview', sandbox: 'allow-scripts', title: 'Preview' });
     const size = h('span', { class: 'muted' });
@@ -665,8 +747,8 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
     const htmlTa = editor('', render, 'html'), cssTa = editor('', render, 'css');
     htmlTa.oninput = cssTa.oninput = later;
     const twBox = h('input', { type: 'checkbox', onchange: render });
-    const load = name => { const x = CSS_EXAMPLES[name]; htmlTa.value = x.html; cssTa.value = x.css; twBox.checked = !!x.tw; [...chips.children].forEach(c => c.classList.toggle('on', c.textContent === name)); render(); };
-    const chips = h('div', { class: 'chips' }, Object.keys(CSS_EXAMPLES).map(n => h('button', { type: 'button', onclick: () => load(n) }, n)));
+    const load = name => { const x = CSS_EXAMPLES[name]; htmlTa.value = x.html; cssTa.value = x.css; twBox.checked = !!x.tw; [...chips.children].forEach(c => c.classList.toggle('on', c.dataset.k === name)); render(); };
+    const chips = h('div', { class: 'chips' }, Object.keys(CSS_EXAMPLES).map(n => h('button', { type: 'button', 'data-k': n, onclick: () => load(n) }, n)));
     const wrap = h('div', { class: 'preview-wrap' }, frame);
     if (window.ResizeObserver) new ResizeObserver(() => size.textContent = T('Preview width: {w}px — drag the right edge to test breakpoints', { w: Math.round(frame.clientWidth) })).observe(frame);
     el.style.setProperty('--tc', 'var(--css)');
@@ -678,7 +760,7 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
         h('div', {}, h('p', { class: 'ed-label' }, 'HTML'), htmlTa, h('p', { class: 'ed-label' }, 'CSS'), cssTa,
           h('div', { class: 'actions' }, h('label', { class: 'tw-toggle' }, twBox, ' Use Tailwind CSS'))),
         h('div', {}, wrap, size)));
-    load(Object.keys(CSS_EXAMPLES)[0]);
+    load((sample && CSS_PRESETS[sample]) || (sample && CSS_EXAMPLES[sample] && sample) || Object.keys(CSS_EXAMPLES)[0]);
   }
 
   // ---------------- Dart + Flutter (embedded DartPad) ----------------

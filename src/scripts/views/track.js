@@ -26,7 +26,7 @@ export function trackView(id) {
 }
 
 export function lessonView(tid, lid) {
-  const { h, md, codeBlock, t: T, LEVELS, VIZ } = window;
+  const { h, md, codeFiles, t: T, LEVELS, VIZ } = window;
   const t = track(tid), l = t && t.lessons.find(x => x.id === lid);
   if (!l) return dashboard();
   const k = key(t, l), idx = t.lessons.indexOf(l), prev = t.lessons[idx - 1], nxt = t.lessons[idx + 1];
@@ -44,30 +44,92 @@ export function lessonView(tid, lid) {
   const drawRead = () => { readBtn.textContent = T(peek(k).read ? '✓ Learned — click to undo' : 'Mark as learned'); readBtn.classList.toggle('done', !!peek(k).read); };
   drawRead();
 
-  // Check
-  const results = l.quiz.map(() => false);
+  // Check (persist per-question completion across reloads)
+  const s0 = peek(k);
+  const qSaved = { ...(s0.q || {}) };
+  const results = l.quiz.map((_, i) => !!qSaved[i]);
   const quiz = h('div', {}, l.quiz.map((q, i) => quizItem(q, {
-    onResult: () => { results[i] = true; if (results.every(Boolean)) set('quiz', true); },
-    onMiss: () => { S.cards[k + '#' + i] = { box: 1, due: day() }; save(); }   // a missed question goes straight into today's review
+    solved: !!qSaved[i],
+    onResult: () => {
+      results[i] = true;
+      qSaved[i] = true;
+      st(k).q = qSaved;
+      save();
+      if (results.every(Boolean)) set('quiz', true);
+    },
+    onMiss: () => { S.cards[k + '#' + i] = { box: 1, due: day() }; save(); }
   })));
 
-  // Teach
-  const s0 = peek(k);
+  // Teach (require written explanation before ticking rubric completion)
   const rub = (s0.rubric || []).slice();
-  const notes = h('textarea', { rows: 7, placeholder: 'Write it the way you would say it out loud to a beginner…', 'aria-label': 'Your explanation', oninput: e => { st(k).notes = e.target.value; save(); } });
+  const teachWarn = h('p', { class: 'fb bad', role: 'alert', hidden: true }, 'Write at least a brief explanation above before checking off the rubric.');
+  const notes = h('textarea', { rows: 7, placeholder: 'Write it the way you would say it out loud to a beginner…', 'aria-label': 'Your explanation', oninput: e => {
+    st(k).notes = e.target.value;
+    save();
+    if (e.target.value.trim()) teachWarn.hidden = true;
+  } });
   notes.value = s0.notes || '';
   const rubric = h('div', { class: 'rubric' }, RUBRIC.map((text, i) => {
-    const cb = h('input', { type: 'checkbox', onchange: e => { rub[i] = e.target.checked; st(k).rubric = rub; set('teach', RUBRIC.every((_, j) => rub[j])); } });
+    const cb = h('input', { type: 'checkbox', onchange: e => {
+      if (e.target.checked && !notes.value.trim()) {
+        e.target.checked = false;
+        teachWarn.hidden = false;
+        notes.focus();
+        return;
+      }
+      teachWarn.hidden = true;
+      rub[i] = e.target.checked;
+      st(k).rubric = rub;
+      set('teach', RUBRIC.every((_, j) => rub[j]));
+    } });
     cb.checked = !!rub[i];
     return h('label', {}, cb, h('span', {}, text));
   }));
 
+  // Predict-first challenge (Try-First, Tell-Later)
+  let codeHost = null;
+  const codeOpts = l.predict ? { blurComments: !s0.pred, blurToggle: true } : {};
+  const renderCode = () => l.code ? codeFiles(l.code, l.lang || t.lang, l.splits, codeOpts) : null;
+  let predictSec = null;
+  if (l.predict) {
+    const p = l.predict;
+    const pfb = h('p', { class: 'fb', 'aria-live': 'polite' });
+    let picked = !!s0.pred;
+    const pBtns = p.options.map((opt, oi) => h('button', {
+      type: 'button', class: 'opt' + (picked && oi === p.answer ? ' right' : ''), disabled: picked, html: md(opt),
+      onclick: () => {
+        if (picked) return;
+        picked = true;
+        st(k).pred = true;
+        save();
+        pBtns.forEach((b, j) => { b.disabled = true; if (j === p.answer) b.classList.add('right'); });
+        if (oi !== p.answer) pBtns[oi].classList.add('wrong');
+        pfb.className = 'fb ' + (oi === p.answer ? 'good' : 'bad');
+        pfb.innerHTML = '<strong>' + T(oi === p.answer ? 'Correct.' : 'Not quite.') + '</strong> ' + md(p.explain);
+        codeOpts.blurComments = false;
+        if (codeHost) codeHost.replaceChildren(renderCode());
+      }
+    }));
+    if (picked) {
+      pfb.className = 'fb good';
+      pfb.innerHTML = '<strong>' + T('Predicted.') + '</strong> ' + md(p.explain);
+    }
+    predictSec = section('Predict first',
+      h('div', { class: 'predict-card' },
+        h('p', { class: 'muted' }, 'Commit to a prediction before inspecting the output or explanation below.'),
+        h('p', { class: 'q-text', html: md(p.prompt) }),
+        h('div', { class: 'opts' }, pBtns),
+        pfb));
+  }
+
   let vizEl = null;
   if (l.viz && VIZ[l.viz]) { vizEl = h('div', { class: 'viz' }); VIZ[l.viz].mount(vizEl); }
-  const playLink = t.id === 'sql' ? h('a', { class: 'btn ghost', href: '#/play/sql' }, 'Open SQL playground')
-    : t.id === 'css' ? h('a', { class: 'btn ghost', href: '#/play/css' }, 'Open CSS playground')
-    : t.id === 'react' || t.id === 'angular' ? h('a', { class: 'btn ghost', href: '#/play/ts' }, 'Open TypeScript playground')
+  const playLink = t.id === 'sql' ? h('a', { class: 'btn ghost', href: '#/play/sql/' + l.id }, 'Open SQL playground')
+    : t.id === 'css' ? h('a', { class: 'btn ghost', href: '#/play/css/' + l.id }, 'Open CSS playground')
+    : t.id === 'react' || t.id === 'angular' ? h('a', { class: 'btn ghost', href: '#/play/ts/' + t.id + '-' + l.id }, 'Open TypeScript playground')
     : t.id === 'flutter' ? h('a', { class: 'btn ghost', href: '#/play/dart/' + l.id }, 'Open Dart + Flutter playground') : null;
+
+  if (l.code) codeHost = h('div', {}, renderCode());
 
   const page = h('div', { class: 'page lesson', style: { '--tc': `var(--${t.id})` } },
     h('header', { class: 'head' },
@@ -77,7 +139,8 @@ export function lessonView(tid, lid) {
     l.terms?.length ? section('Key words', h('dl', { class: 'terms' }, l.terms.map(([term, def]) =>
       h('div', { class: 'term-item' }, h('dt', { html: md(term) }), h('dd', { html: md(def) }))))) : null,
     section('Key ideas', h('ul', { class: 'points' }, l.points.map(p => h('li', { html: md(p) })))),
-    l.code ? section('See it in code', codeBlock(l.code, l.lang || t.lang)) : null,
+    predictSec,
+    l.code ? section('See it in code', codeHost) : null,
     vizEl ? section(T('Play with it: ') + T(VIZ[l.viz].title), h('p', { class: 'muted' }, VIZ[l.viz].desc), vizEl) : null,
     section('Your turn', h('p', { html: md(l.practice) }), h('div', { class: 'actions' }, readBtn, playLink)),
     section('Check yourself', quiz),
@@ -85,6 +148,7 @@ export function lessonView(tid, lid) {
       h('h2', {}, 'Now teach it'),
       h('p', { class: 'prompt', html: md(l.teach) }),
       notes,
+      teachWarn,
       h('p', { class: 'muted' }, 'Grade your explanation honestly. All five ticks complete the Teach step.'),
       rubric,
       h('details', {}, h('summary', {}, 'Teacher notes: analogy and misconceptions'),

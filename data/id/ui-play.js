@@ -64,5 +64,18 @@ I18N.add({
   'Preview': 'Preview',
   'Preview width: {w}px — drag the right edge to test breakpoints': 'Lebar preview: {w}px — tarik tepi kanannya untuk mengetes breakpoint',
   'Write HTML and CSS and see the result as you type. Switch on Tailwind to use utility classes and @theme — it loads the Tailwind browser build, so it needs an internet connection.': 'Tulis HTML dan CSS, hasilnya langsung terlihat saat kamu mengetik. Nyalakan Tailwind untuk memakai utility class dan @theme — fitur ini memuat browser build Tailwind, jadi butuh koneksi internet.',
-  ' Use Tailwind CSS': ' Pakai Tailwind CSS'
+  ' Use Tailwind CSS': ' Pakai Tailwind CSS',
+  'Schema and foreign keys (5 tables)': 'Skema dan foreign key (5 tabel)',
+  'Database schema': 'Skema database',
+  'Table': 'Tabel',
+  'Columns & keys': 'Kolom & key',
+  'Rows': 'Baris',
+  'SQLite dialect tip: ': 'Tips dialek SQLite: ',
+  'SQL Server TOP(n) → SQLite uses LIMIT n at the end of ORDER BY.': 'TOP(n) di SQL Server → SQLite memakai LIMIT n di akhir setelah ORDER BY.',
+  "SQL Server YEAR()/MONTH() → SQLite uses strftime('%Y', col) or strftime('%m', col).": "YEAR()/MONTH() di SQL Server → SQLite memakai strftime('%Y', col) atau strftime('%m', col).",
+  "SQL Server GETDATE() → SQLite uses datetime('now') or CURRENT_TIMESTAMP.": "GETDATE() di SQL Server → SQLite memakai datetime('now') atau CURRENT_TIMESTAMP.",
+  'SQL Server NVARCHAR(n) → SQLite uses TEXT without length syntax.': 'NVARCHAR(n) di SQL Server → SQLite memakai TEXT tanpa panjang karakter.',
+  'SQL Server OFFSET/FETCH → SQLite uses LIMIT n OFFSET m.': 'OFFSET/FETCH di SQL Server → SQLite memakai LIMIT n OFFSET m.',
+  'Replace your current SQL query with the challenge solution?': 'Ganti query SQL-mu saat ini dengan solusi challenge?',
+  'Note: Signal, linkedSignal, and RxJS models run directly here in TypeScript. Full Angular HTML @Component templates require Angular CLI or StackBlitz.': 'Catatan: Model Signal, linkedSignal, dan RxJS berjalan langsung di sini sebagai TypeScript. Template HTML @Component Angular lengkap memerlukan Angular CLI atau StackBlitz.'
 });

@@ -5,6 +5,11 @@ TRACKS.push({
     // ---------------- Beginner ----------------
     {
       id: 'select', title: 'Tables, rows and SELECT', level: 0, mins: 25,
+      terms: [
+        ['Primary key (`id`)', 'Column (or pair of columns) uniquely identifying each row in a table; referenced by other tables’ foreign keys.'],
+        ['Projection vs Filter (`SELECT` vs `WHERE`)', '`WHERE` chooses which *rows* survive; `SELECT` chooses which *columns* appear in the result set.'],
+        ['Clause execution order', 'SQL executes `FROM → WHERE → ORDER BY → SELECT → TOP/LIMIT` logically, even though `SELECT` is written first.']
+      ],
       why: "Most applications are a user interface on top of a database, and `SELECT` is how you get data back out. It reads almost like English, which makes it a good first way of talking to data. The examples in this track use SQL Server, the usual partner of ASP.NET Core.",
       points: [
         "A relational database stores data in **tables**. Each **row** is one thing (a customer); each **column** is one attribute (their city).",
@@ -58,6 +63,11 @@ OFFSET 3 ROWS FETCH NEXT 3 ROWS ONLY;
     },
     {
       id: 'dml', title: 'Changing data, types and NULL', level: 0, mins: 25,
+      terms: [
+        ['Three-valued `NULL`', '`NULL` means *unknown*, not zero or `""` — so `city = NULL` evaluates to unknown (false in `WHERE`); always write `IS NULL`.'],
+        ['`DECIMAL(p, s)` vs `FLOAT`', 'Fixed base-10 numeric types (`DECIMAL(10,2)`) avoid rounding drift on money compared with binary floats.'],
+        ['Parameterized DML', 'Passing user values via parameters (`@price`) on `INSERT`, `UPDATE`, and `DELETE` prevents SQL injection permanently.']
+      ],
       why: "Reading data can't hurt anyone; writing it can. This lesson is about the habits that stop a bad `UPDATE` from reaching every row, and about `NULL`, which follows different rules from every other value.",
       points: [
         "`INSERT INTO t (cols) VALUES (…)` adds rows; `UPDATE t SET … WHERE …` changes rows; `DELETE FROM t WHERE …` removes rows.",
@@ -107,6 +117,17 @@ SELECT name, COALESCE(city, 'Unknown') AS city FROM customers;
     },
     {
       id: 'aggregate', title: 'GROUP BY, aggregates and query order', level: 0, mins: 35, viz: 'sqlorder',
+      terms: [
+        ['Aggregate (`COUNT`, `SUM`, `AVG`)', 'Collapses multiple input rows inside a group into a single summary value (`COUNT(*)` includes `NULL`; `COUNT(col)` skips `NULL`).'],
+        ['`WHERE` vs `HAVING`', '`WHERE` filters individual rows *before* `GROUP BY` forms buckets; `HAVING` filters groups *after* aggregation.'],
+        ['Logical SQL pipeline', 'Because `SELECT` runs after `WHERE`, column aliases (`AS total`) cannot be referenced inside `WHERE` in SQL Server or PostgreSQL.']
+      ],
+      predict: {
+        prompt: 'A `customers` table has 5 rows, and 1 customer has `city = NULL`. What do `COUNT(*)` and `COUNT(city)` return?',
+        options: ['Both return `5`', '`COUNT(*)` returns `5`, while `COUNT(city)` returns `4`', '`COUNT(*)` returns `5`, while `COUNT(city)` returns `NULL`'],
+        answer: 1,
+        explain: '`COUNT(*)` counts every row regardless of nulls (`5`); `COUNT(col)` counts only rows where that column is not `NULL` (`4`).'
+      },
       why: "Reports and dashboards are mostly aggregation: totals, counts and averages per something. It's also where you first hit 'why can't I use my alias in `WHERE`?', and the answer, the order SQL really runs in, explains a lot of later surprises.",
       points: [
         "Aggregates collapse many rows into one value: `COUNT(*)`, `SUM`, `AVG`, `MIN`, `MAX`.",
@@ -153,6 +174,17 @@ ORDER BY paid_orders DESC;     -- the alias works here: ORDER BY runs after SELE
     // ---------------- Intermediate ----------------
     {
       id: 'joins', title: 'JOINs: combining tables', level: 1, mins: 35, viz: 'joins',
+      terms: [
+        ['`INNER JOIN` vs `LEFT JOIN`', '`INNER JOIN` keeps only matched pairs; `LEFT JOIN` preserves all left-table rows, padding missing right-table columns with `NULL`.'],
+        ['Foreign key (`customer_id`)', 'A column linking child rows (`orders`) to the parent table’s primary key (`customers.id`) so orphans cannot exist.'],
+        ['Anti-join (`IS NULL`)', '`LEFT JOIN ... WHERE o.id IS NULL` finds every parent row with zero matching children (e.g., customers with no orders).']
+      ],
+      predict: {
+        prompt: 'You run `customers c LEFT JOIN orders o ON o.customer_id = c.id WHERE o.status = \'paid\'`. What happens to Dewi, who has 0 orders?',
+        options: ['Dewi stays in the output with `NULL` order columns', 'Dewi is silently dropped (`LEFT JOIN` effectively becomes `INNER JOIN`)', 'SQL returns a syntax error'],
+        answer: 1,
+        explain: 'For Dewi, `o.status` is `NULL`, and `NULL = \'paid\'` is unknown (not true), so the `WHERE` clause filters her row out after the join. Put `o.status = \'paid\'` inside the `ON` clause to keep Dewi.'
+      },
       why: "Relational data is split across tables on purpose, and joins put it back together. Picking the wrong join type doesn't raise an error: it silently drops or duplicates rows, and the numbers just come out wrong.",
       points: [
         "A join pairs rows from two tables where a condition holds, usually `foreign key = primary key`.",
@@ -205,6 +237,11 @@ ORDER BY revenue DESC;
     },
     {
       id: 'subqueries', title: 'Subqueries and CTEs', level: 1, mins: 30,
+      terms: [
+        ['CTE (`WITH ... AS`)', 'A named temporary result defined at the top of a query so complex multi-step reports read cleanly from top to bottom.'],
+        ['Correlated subquery / `EXISTS`', 'References the outer row inside an inner subquery; `EXISTS` short-circuits on the very first match without deduplicating joins.'],
+        ['Scalar subquery', 'Returns a single value (1 row, 1 column) suitable for comparisons like `WHERE price > (SELECT AVG(price) FROM products)`.']
+      ],
       why: "Real questions come in steps: 'of the customers who spent more than average, which ones…'. Subqueries and CTEs let you build the answer in layers that you can read and check one at a time.",
       points: [
         "A **subquery** is a query inside another: in `WHERE` (filter by a computed value or set), in `FROM` (a derived table), or in `SELECT` (a single value).",
@@ -273,6 +310,11 @@ SELECT REPLICATE('  ', depth) + name AS category, depth FROM tree ORDER BY depth
     },
     {
       id: 'design', title: 'Schema design: keys, constraints and normalization', level: 1, mins: 40,
+      terms: [
+        ['Constraint (`CHECK`, `UNIQUE`, `NOT NULL`)', 'Database-enforced invariants so bad data cannot enter even from scripts or background workers bypassing your API.'],
+        ['Normalization (1NF–3NF)', 'Storing each fact once (avoiding duplicated names/addresses across order rows) so updates cannot leave contradictory copies.'],
+        ['Surrogate vs Natural key', 'Surrogate integer/GUID keys never change when a customer renames an email or product SKU, keeping foreign keys stable.']
+      ],
       why: "A bad schema can't be fixed by good code: every query has to work around it, forever. The habit that helps is asking, for each table and column, 'what could go wrong if we store it this way?'",
       points: [
         "One table per **entity**; one row per instance; one fact stored in exactly **one place**.",
@@ -350,6 +392,11 @@ SELECT productId, quantity FROM OPENJSON(@lines) WITH (productId INT, quantity I
     // ---------------- Advanced ----------------
     {
       id: 'indexes', title: 'Indexes: how databases find rows fast', level: 2, mins: 40, viz: 'index',
+      terms: [
+        ['B-Tree seek vs Table scan', 'An index lets SQL Server binary-search sorted keys in O(log n) reads instead of scanning every heap/table page in O(n).'],
+        ['Clustered vs Covering index (`INCLUDE`)', 'Clustered stores the actual table rows in key order; `INCLUDE (col)` adds extra read columns to a non-clustered index to skip key lookups.'],
+        ['Sargable predicate', 'Filters written cleanly on raw indexed columns (`created_at >= ...`) so the engine can seek; wrapping columns in functions (`YEAR(created_at)`) forces a full scan.']
+      ],
       why: "The same query can take 5 ms or 50 seconds, and the difference is often one index. Indexes are the first thing to check when a page gets slower as the data grows.",
       points: [
         "Without an index the engine reads every row: a **scan**, O(n). With a B-tree index it walks a few levels: a **seek**, O(log n).",
@@ -397,6 +444,11 @@ SELECT order_date, status FROM orders WHERE customer_id = 2;
     },
     {
       id: 'transactions', title: 'Transactions, ACID and isolation', level: 2, mins: 40,
+      terms: [
+        ['ACID', 'Atomicity (all-or-nothing), Consistency (valid constraints), Isolation (concurrent safety), Durability (survives crash after `COMMIT`).'],
+        ['Isolation level', 'Trade-off between lock contention and anomalies (`Read Committed`, `Repeatable Read`, `Serializable`, and snapshot RCSI).'],
+        ['Atomic conditional `UPDATE`', '`UPDATE Products SET Stock = Stock - @qty WHERE Id = @id AND Stock >= @qty` checks and decrements in one unbreakable operation.']
+      ],
       why: "Money transfers, stock decrements and placing an order have to be all-or-nothing, and stay correct when many users act at once. If your code writes to a database, you need this model.",
       points: [
         "A **transaction** groups statements into one unit: `BEGIN TRANSACTION` … `COMMIT`, or `ROLLBACK` to undo everything.",
@@ -455,7 +507,12 @@ SELECT @@ROWCOUNT AS saved;   -- 1 here; 0 would mean someone changed the row af
       ]
     },
     {
-      id: 'window', title: 'Window functions', level: 2, mins: 35,
+      id: 'window', title: 'Window functions', level: 2, mins: 35, viz: 'sqlwindow',
+      terms: [
+        ['`OVER (PARTITION BY ...)`', 'Groups rows into calculation windows without collapsing them — every detail row remains in the output.'],
+        ['`ROW_NUMBER()` vs `DENSE_RANK()`', '`ROW_NUMBER` assigns unique numbers (1, 2, 3); `DENSE_RANK` gives ties the same rank without gaps (1, 1, 2).'],
+        ['Frame / Running total (`ORDER BY`)', 'Adding `ORDER BY` inside `OVER (...)` changes a bucket total into a cumulative running sum row by row.']
+      ],
       why: "Rankings, running totals, 'compared with last month' and top-N-per-group come up in almost every report. Without window functions they need self-joins and subqueries; with them, they're one expression.",
       points: [
         "A window function computes across related rows **without collapsing them**. Unlike `GROUP BY`, every input row stays.",
@@ -508,6 +565,11 @@ SELECT id, customer_id, order_date FROM ranked WHERE rn = 1;
     // ---------------- Expert ----------------
     {
       id: 'plans', title: 'Execution plans and query tuning', level: 3, mins: 45,
+      terms: [
+        ['Seek vs Scan & Key Lookup', 'Plan operators showing whether an index narrowed the rows or forced expensive random heap fetches per row.'],
+        ['Logical reads (`STATISTICS IO`)', 'Exact count of 8 KB pages read — far more stable than elapsed milliseconds when tuning queries repeatedly.'],
+        ['Keyset pagination (`WHERE id > @last`)', 'Seeks straight to the next page in O(log n) rather than discarding millions of rows with large `OFFSET`.']
+      ],
       why: "Tuning isn't guessing. The execution plan shows what the engine actually did and why, so you can change one thing based on evidence and measure again.",
       points: [
         "The **optimizer** picks a plan using **statistics** about how the data is distributed. Stale statistics produce bad row estimates and bad plans.",
@@ -561,7 +623,12 @@ ORDER BY order_date DESC, id DESC;
       ]
     },
     {
-      id: 'locking', title: 'Locking, deadlocks and MVCC', level: 3, mins: 40,
+      id: 'locking', title: 'Locking, deadlocks and MVCC', level: 3, mins: 40, viz: 'sqllock',
+      terms: [
+        ['Shared (S) vs Exclusive (X) lock', 'Readers share S locks with other readers; writers hold X locks that block readers under classic `Read Committed`.'],
+        ['Deadlock (`Error 1205`)', 'Cycle where Tx A waits for Tx B while Tx B waits for Tx A — solved permanently by acquiring tables/rows in one canonical order.'],
+        ['MVCC / RCSI', 'Stores previous committed row versions in `tempdb` so readers never block writers and writers never block readers.']
+      ],
       why: "When an app 'randomly' times out under load, the cause is usually blocking: one transaction waiting for another. The skill is working out who is waiting on whom, then changing the access pattern so they don't.",
       points: [
         "Under SQL Server's default Read Committed, statements take **locks**: shared (S) for reads, exclusive (X) for writes. Writers block readers and readers briefly block writers.",
@@ -641,6 +708,11 @@ SELECT quantity FROM cart_items WHERE customer_id = 1 AND product_id = 2;   -- 2
     },
     {
       id: 'scale', title: 'Scaling and evolving a database', level: 3, mins: 45,
+      terms: [
+        ['Expand-and-contract migration', 'Multi-deploy schema evolution: add nullable column → deploy dual-write code → backfill batches → enforce `NOT NULL` → drop old column.'],
+        ['Read replica & lag', 'Offloads analytics and `GET` reads asynchronously; remember replicas lag behind primary by milliseconds, so read-your-writes still needs primary.'],
+        ['Connection pooling', 'Keeps expensive TCP + auth sessions warm and reused instead of opening a fresh database handshake per HTTP request.']
+      ],
       why: "Schemas change and data grows while the system stays online. The job is planning migrations that can't cause downtime, and knowing what each scaling option costs before you reach for it.",
       points: [
         "Scale in order: fix queries and indexes → cache → scale up → **read replicas** → **partitioning** → **sharding**. Each step adds operational cost.",

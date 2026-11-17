@@ -1,6 +1,6 @@
 // Visualizations for fundamentals: Big-O growth, sorting, the JavaScript event loop, graph search.
 (() => {
-  const VIZ = window.VIZ, T = window.t;
+  const VIZ = window.VIZ = window.VIZ || {}, T = window.t;
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
   const btn = (label, onclick, cls) => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
@@ -20,13 +20,13 @@
       const chips = h('div', { class: 'chips' }), body = h('div', {});
       const draw = n => {
         [...chips.children].forEach(c => c.classList.toggle('on', +c.dataset.n === n));
-        body.replaceChildren(h('table', { class: 't' }, h('thead', {}, h('tr', {}, ['Class', 'Typical cause', 'Steps', '', 'At 100 M steps/s'].map(c => h('th', {}, c)))),
+        body.replaceChildren(window.tableWrap('Big-O comparison', h('table', { class: 't' }, h('thead', {}, h('tr', {}, ['Class', 'Typical cause', 'Steps', '', 'At 100 M steps/s'].map(c => h('th', { scope: 'col' }, c)))),
           h('tbody', {}, classes.map(([name, cause, f]) => {
             const ops = f(n), w = Math.min(Math.log10(Math.max(ops, 1)) / 14 * 100, 100);
-            return h('tr', {}, h('td', {}, h('code', {}, name)), h('td', {}, cause), h('td', {}, num(ops)), h('td', { style: { width: '32%' } }, h('div', { class: 'bar' }, h('i', { style: { width: Math.max(w, 1.5) + '%' } }))), h('td', {}, time(ops)));
-          }))));
+            return h('tr', {}, h('td', {}, h('code', {}, name)), h('td', {}, cause), h('td', {}, num(ops)), h('td', { style: { width: '32%' } }, h('div', { class: 'bar', role: 'img', 'aria-label': name }, h('i', { style: { width: Math.max(w, 1.5) + '%' } }))), h('td', {}, time(ops)));
+          })))));
       };
-      sizes.forEach(n => chips.append(h('button', { type: 'button', 'data-n': n, onclick: () => draw(n) }, 'n = ' + n.toLocaleString('en'))));
+      sizes.forEach(n => chips.append(h('button', { type: 'button', 'data-n': n, onclick: () => draw(n) }, T('n = {n}', { n: n.toLocaleString('en') }))));
       el.append(chips, body, h('p', { class: 'viz-note' }, 'Going from n = 1,000 to n = 1,000,000 multiplies O(n) work by a thousand — and O(n²) work by a million. Choosing the right algorithm matters far more than a faster computer.'));
       draw(1000);
     }
@@ -190,12 +190,18 @@
           edges.map(([a, b]) => `<line class="${onPath(a, b) ? 'path' : ''}" x1="${pos[a][0]}" y1="${pos[a][1]}" x2="${pos[b][0]}" y2="${pos[b][1]}"/>`).join('') +
           Object.entries(pos).map(([n, [x, y]]) => `<g class="${state(n)}"><circle cx="${x}" cy="${y}" r="19"/><text x="${x}" y="${y + 5}" text-anchor="middle">${n}</text>` +
             (s.dist && n in s.dist ? `<text class="d" x="${x + 22}" y="${y - 16}">${s.dist[n]}</text>` : '') + '</g>').join('') + '</svg>';
-        fTitle.textContent = T(mode === 'bfs' ? 'Queue (front first)' : 'Recursion stack (bottom first)');
-        fill(fBox, s.frontier); fill(oBox, s.order);
+        fTitle.textContent = T(mode === 'bfs' ? 'Queue (front first)' : 'Recursion stack (top first)');
+        fill(fBox, mode === 'bfs' ? s.frontier : s.frontier.toReversed()); fill(oBox, s.order);
         note.textContent = s.note; label.textContent = T('Step {i} of {n}', { i: i + 1, n: steps.length });
         back.disabled = i === 0; next.disabled = i === steps.length - 1;
       };
-      el.append(h('div', { class: 'viz-ctl' }, bfsB, dfsB), h('div', { class: 'viz-ctl' }, back, next, btn('Reset', () => { i = 0; draw(); }, 'ghost'), label), svg,
+      const legend = h('div', { class: 'gviz-legend', 'aria-hidden': 'true' },
+        h('span', { class: 'gl cur' }, h('i'), 'Current node'),
+        h('span', { class: 'gl front' }, h('i'), 'In frontier'),
+        h('span', { class: 'gl seen' }, h('i'), 'Visited'),
+        h('span', { class: 'gl path' }, h('i'), 'Found path')
+      );
+      el.append(h('div', { class: 'viz-ctl' }, bfsB, dfsB), h('div', { class: 'viz-ctl' }, back, next, btn('Reset', () => { i = 0; draw(); }, 'ghost'), label), svg, legend,
         h('div', { class: 'viz-cols' }, h('div', { class: 'viz-box' }, fTitle, fBox), h('div', { class: 'viz-box' }, h('h4', {}, 'Visited, in order'), oBox)), note);
       draw();
     }

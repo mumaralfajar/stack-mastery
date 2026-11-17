@@ -15,6 +15,8 @@ export function setMenu(open, { restoreFocus = false } = {}) {
   document.body.classList.toggle('nav-open', menuOpen);
   const view = document.getElementById('view');
   if (view) view.inert = menuOpen && isMobile;
+  const top = nav.querySelector('.nav-top');
+  if (top) top.inert = menuOpen && isMobile;
   const drawer = nav.querySelector('.nav-drawer');
   if (drawer) {
     if (menuOpen && isMobile) {
@@ -100,8 +102,8 @@ export function renderNav() {
         h('p', { class: 'private-note' }, 'Your progress is saved only in this browser. Nothing is uploaded or shared.'),
         h('button', { type: 'button', class: 'ghost', onclick: exportBackup }, 'Export backup'),
         h('button', { type: 'button', class: 'ghost', onclick: importBackup }, 'Import backup'),
-        h('button', { type: 'button', class: 'ghost', onclick: () => {
-          if (confirm(T('Erase all progress, notes, flashcard history and interview prep data? This cannot be undone.'))) {
+        h('button', { type: 'button', class: 'ghost', onclick: async () => {
+          if (await window.confirmDialog(T('Erase all progress, notes, flashcard history and interview prep data? This cannot be undone.'), { title: 'Reset progress', confirmText: 'Reset progress', danger: true })) {
             try { ['stackmastery.v1', 'stackmastery.sql', 'stackmastery.interview'].forEach(k => localStorage.removeItem(k)); } catch { /* ignore */ }
             location.hash = '#/'; location.reload();
           }

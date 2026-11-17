@@ -1,6 +1,11 @@
 // Bahasa Indonesia — track C#. Contoh kode tetap memakai versi aslinya.
 I18N.lessons('csharp', {
   types: {
+    terms: [
+      ['Static typing', 'Setiap variabel punya type tetap (`int`, `string`, `decimal`) yang diperiksa waktu build sebelum program berjalan.'],
+      ['`var` (type inference)', 'Membiarkan compiler menyimpulkan type variabel dari sisi kanan — bukan berarti type-nya bisa berubah-ubah (dynamic).'],
+      ['`decimal` vs `double`', '`decimal` (`0.1m`) memakai basis 10 untuk uang; `double` memakai binary floating point dan bisa membulatkan `0.1 + 0.2`.']
+    ],
     title: 'Program, variabel, dan type',
     why: "Setiap program C# pada dasarnya adalah value ber-type yang mengalir lewat statement. Begitu kamu paham bahwa compiler mengecek type itu **sebelum** program jalan, sebagian besar error pemula tidak lagi terasa misterius: itu cuma compiler yang memberi tahu lebih awal bahwa ada dua hal yang tidak cocok.",
     points: [
@@ -28,6 +33,11 @@ I18N.lessons('csharp', {
     ]
   },
   flow: {
+    terms: [
+      ['Guard clause (`return` dini)', 'Menangani kasus tidak valid di awal method supaya jalur utama tetap datar dan mudah dibaca.'],
+      ['Switch expression', 'Bentuk ringkas (`score switch { >= 90 => "A", _ => "B" }`) yang memastikan semua cabang mengembalikan nilai.'],
+      ['Signature method', 'Nama, return type, dan daftar parameter method — cara termudah mengenali breaking change pada API.']
+    ],
     title: 'Control flow dan method',
     why: "Keputusan, pengulangan, dan langkah bernama yang bisa dipakai ulang: itulah seluruh tata bahasa logika program. LINQ, async, dan web request nanti semuanya dirakit dari potongan-potongan ini.",
     points: [
@@ -53,6 +63,11 @@ I18N.lessons('csharp', {
     ]
   },
   classes: {
+    terms: [
+      ['Class vs Object', '`class` adalah cetak birunya (`Product`); object adalah satu instance nyata di memori yang dibuat dengan `new Product(...)`.'],
+      ['Constructor', 'Berjalan saat `new` membuat object agar state wajib langsung valid (parameter primary constructor atau `init`).'],
+      ['Invariant', 'Aturan yang tidak pernah boleh dilanggar object — misalnya menolak harga negatif di constructor atau setter.']
+    ],
     title: 'Class, object, dan property',
     why: "Inti C# adalah object-oriented. Controller ASP.NET Core, entity EF Core, dan DTO semuanya class, jadi lancar membaca class adalah syarat untuk bisa membaca codebase sungguhan.",
     points: [
@@ -78,6 +93,16 @@ I18N.lessons('csharp', {
     ]
   },
   memory: {
+    terms: [
+      ['Value type (`struct`, `int`)', 'Assignment menyalin seluruh nilainya (`b = a`), jadi mengubah `b` tidak menyentuh `a`.'],
+      ['Reference type (`class`)', 'Variabel menyimpan alamat memori menuju object di heap — menyalin variabel hanya menyalin alamatnya, bukan object-nya.'],
+      ['Immutability', 'Membuat property bertipe `init`-only atau mengembalikan instance baru (`with`) agar referensi bersama tidak menyebabkan mutasi tak sengaja.']
+    ],
+    predict: {
+      prompt: 'Misalkan `p1 = new Person("Ana")`, `p2 = p1`, lalu `p2.Name = "Budi"`. Apa yang dicetak `Console.WriteLine(p1.Name)`?',
+      options: ['`Ana` (`p2` menerima salinan terpisah)', '`Budi` (kedua variabel menunjuk object heap yang sama)', 'Error compiler saat re-assignment'],
+      explain: 'Karena `Person` adalah `class` (reference type), `p2 = p1` menyalin alamat referensinya, bukan object-nya. Mengubah `p2.Name` mengubah satu instance yang dipakai bersama.'
+    },
     title: 'Value type vs reference type',
     why: "'Kok mengubah satu variabel bikin variabel lain ikut berubah?' adalah salah satu bug membingungkan pertama yang akan kamu temui di C#. Jawabannya soal value semantics versus reference semantics, dan sekali paham, kamu tidak akan lupa.",
     points: [
@@ -103,6 +128,11 @@ I18N.lessons('csharp', {
     ]
   },
   interfaces: {
+    terms: [
+      ['Interface (`IPayment`)', 'Kontrak tentang *apa* yang bisa dilakukan sebuah type tanpa mendikte *bagaimana* — memungkinkan test mengganti Stripe asli dengan fake.'],
+      ['Polimorfisme', 'Memanggil `.Charge(...)` lewat variabel bertipe `IPayment` dan tiap class konkret menjalankan implementasinya sendiri.'],
+      ['Composition over inheritance', 'Menyimpan dependency sebagai field (`class OrderService(IPayment pay)`) alih-alih pohon inheritance `BaseOrderService` yang kaku.']
+    ],
     title: 'Interface, inheritance, dan polymorphism',
     why: "ASP.NET Core bersandar pada interface di mana-mana: kamu meminta `ILogger<T>`, mendaftarkan service di `IServiceCollection`, membaca setting lewat `IConfiguration`. Dependency injection dan unit testing baru masuk akal setelah interface dipahami.",
     points: [
@@ -127,6 +157,11 @@ I18N.lessons('csharp', {
     ]
   },
   generics: {
+    terms: [
+      ['`List<T>` vs `Dictionary<K,V>` vs `HashSet<T>`', '`List` diakses berdasar indeks; `Dictionary` dan `HashSet` memakai hash untuk pencarian key atau keunikan O(1) instan.'],
+      ['Parameter generik `<T>`', 'Placeholder type yang diisi saat compile time sehingga `Repository<Product>` aman terhadap type tanpa boxing.'],
+      ['`IEnumerable<T>`', 'Urutan data baca-saja maju satu arah untuk di-loop atau di-query dengan LINQ tanpa mewajibkan pemanggil mengirim `List`.']
+    ],
     title: 'Collection dan generics',
     why: "Sebagian besar isi program sungguhan adalah kumpulan data. Memilih antara `List`, `Dictionary`, dan `HashSet` biasanya jadi keputusan performance pertamamu, sering tanpa kamu sadari.",
     points: [
@@ -152,6 +187,11 @@ I18N.lessons('csharp', {
     ]
   },
   errors: {
+    terms: [
+      ['`using` / `IDisposable`', 'Menjamin handle eksternal (file, soket, koneksi DB) tertutup deterministik meski exception dilempar di tengah method.'],
+      ['Urutan filter / catch', 'Tangkap exception spesifik (`FileNotFoundException`) di batas tempat kamu bisa memulihkannya; jangan telan `Exception` diam-diam.'],
+      ['Pattern Result vs Exception', 'Kembalikan nilai hasil/error validasi (seperti 404/400 `Result`) untuk alur wajar; lempar exception hanya untuk kegagalan tak terduga.']
+    ],
     title: 'Exception dan cleanup',
     why: "Hal-hal bisa gagal: file hilang, jaringan putus, user mengetik asal. Cara kamu melempar, menangkap, dan membereskan sesudahnya menentukan apakah kegagalan itu jadi pesan yang jelas dan baris log yang berguna, atau crash yang meninggalkan file setengah tertulis.",
     points: [
@@ -179,6 +219,11 @@ I18N.lessons('csharp', {
     ]
   },
   linq: {
+    terms: [
+      ['Deferred execution', 'Operator query (`Where`, `Select`) baru menyusun resepnya; belum ada item yang diuji sampai `.ToList()`, `.First()`, atau `foreach` berjalan.'],
+      ['`IEnumerable<T>` vs `IQueryable<T>`', '`IEnumerable` menjalankan lambda di memori C#; `IQueryable` menyimpan expression tree supaya EF Core menerjemahkannya jadi SQL.'],
+      ['`Any()` vs `Count() > 0`', '`Any()` berhenti di item cocok pertama (`EXISTS` di SQL), sedangkan `Count()` bisa memindai seluruh baris secara percuma.']
+    ],
     title: 'LINQ: query untuk apa saja',
     why: "LINQ adalah cara kode C# memfilter, mengubah, dan merangkum data: di memory, dan lewat EF Core, di SQL. Inilah jembatan antara track ini dan track SQL.",
     points: [
@@ -204,6 +249,11 @@ I18N.lessons('csharp', {
     ]
   },
   delegates: {
+    terms: [
+      ['Delegate (`Func<>` / `Action<>`)', 'Referensi bertipe aman ke sebuah fungsi (`Func<int, bool>` menerima `int` dan mengembalikan `bool`; `Action` tanpa nilai balik).'],
+      ['Lambda (`x => x * 2`)', 'Fungsi anonim sebaris yang langsung diteruskan ke LINQ, middleware, atau event handler.'],
+      ['Closure capture', 'Lambda mengingat variabel luar — hati-hati menangkap variabel loop yang berubah atau menahan object besar tetap hidup di memori.']
+    ],
     title: 'Delegate, lambda, dan event',
     why: "Mengoper function sebagai value adalah bahan dasar LINQ, middleware, dan handler minimal API. Begitu kamu bisa membaca `Func<T, bool>`, banyak kode framework jadi bisa dibaca.",
     points: [
@@ -229,6 +279,16 @@ I18N.lessons('csharp', {
     ]
   },
   async: {
+    terms: [
+      ['I/O non-blocking (`await`)', 'Mengembalikan thread ke thread pool ASP.NET Core selagi menunggu SQL/HTTP agar satu server melayani ribuan request paralel.'],
+      ['`Task.WhenAll(...)`', 'Menunggu beberapa operasi async independen secara bersamaan alih-alih satu per satu berurutan.'],
+      ['`CancellationToken`', 'Meneruskan sinyal saat klien memutus koneksi atau timeout agar query database yang batal berhenti membuang beban.']
+    ],
+    predict: {
+      prompt: 'Sebuah endpoint memanggil dua query independen masing-masing 200 ms: `await db.GetUserAsync(); await db.GetOrdersAsync();` dibanding memulai keduanya dulu lalu `Task.WhenAll(u, o)`. Kira-kira berapa lama versi berurutan vs paralel?',
+      options: ['Keduanya ~200 ms karena sama-sama memakai `await`', 'Berurutan ~400 ms; `Task.WhenAll` ~200 ms', 'Paralel gagal kecuali membuka dua proses'],
+      explain: 'Menulis dua `await` berurutan menahan yang kedua sampai yang pertama selesai (~400 ms). Memulai kedua Task dulu lalu menunggu dengan `Task.WhenAll` menumpuk waktu tunggu I/O-nya (~200 ms).'
+    },
     title: 'async, await, dan Task',
     why: "Sebagian besar kerja web server adalah menunggu: menunggu database, API lain, atau disk. Kode async membuat thread bisa mengerjakan hal lain selama menunggu. Kalau salah, biasanya tidak kelihatan saat development; masalahnya muncul saat beban tinggi, berupa request yang mengantre lalu timeout.",
     points: [
@@ -258,6 +318,11 @@ I18N.lessons('csharp', {
     ]
   },
   modern: {
+    terms: [
+      ['Nullable reference type (`string?`)', 'Analisis aliran compiler memperingatkan sebelum kamu mengakses variabel yang berpotensi `null`.'],
+      ['`record`', 'Class data immutable ringkas dengan equality berdasar nilai (`a == b` membandingkan field) serta penyalinan `with`.'],
+      ['Pattern matching', 'Percabangan deklaratif berdasar type dan bentuk data (`is Order { Total: > 100 } o`) yang diperiksa kelengkapannya oleh compiler.']
+    ],
     title: 'Null safety, record, dan pattern',
     why: "C# modern membuat compiler bisa menangkap beberapa kategori bug sekaligus sebelum kamu menjalankan apa pun: null reference, bentuk data yang tidak ditangani, dan perubahan yang tidak disengaja. Kode yang memakai fitur-fitur ini dengan baik jadi lebih pendek dan lebih susah rusak.",
     points: [
@@ -282,6 +347,11 @@ I18N.lessons('csharp', {
     ]
   },
   gc: {
+    terms: [
+      ['Generasi GC (Gen 0 / 1 / 2)', 'Object berumur pendek dibersihkan murah di Gen 0; object yang bertahan lama naik ke koleksi Gen 2 / LOH yang lebih berat.'],
+      ['`Span<T>`', 'Tampilan stack-only atas potongan memori berurutan (array, slice, atau string) untuk mem-parsing tanpa alokasi heap baru.'],
+      ['Boxing', 'Membungkus value type (`int`) ke dalam `object` di heap — sumber alokasi diam-diam pada koleksi non-generik atau `string.Format`.']
+    ],
     title: 'Memory, GC, dan performance',
     why: "Dalam skala besar, allocation rate berubah jadi latency. Materi ini tentang membaca apa yang sedang dikerjakan garbage collector, menemukan alokasi yang penting di hot path, dan membuangnya tanpa membuat kode sulit dibaca.",
     points: [
@@ -309,6 +379,11 @@ I18N.lessons('csharp', {
     ]
   },
   concurrency: {
+    terms: [
+      ['Race condition', 'Dua thread membaca dan menulis state bersama tanpa koordinasi sehingga hasil akhirnya bergantung pada kecepatan acak.'],
+      ['`ConcurrentDictionary` vs `lock`', '`ConcurrentDictionary` mengoordinasikan bucket dengan aman; `SemaphoreSlim(1, 1)` mengoordinasikan bagian kritis async (jangan `lock` mengelilingi `await`).'],
+      ['`Channel<T>`', 'Antrean producer/consumer async bebas-lock untuk menyerahkan tugas latar belakang secara bersih dari request HTTP ke worker.']
+    ],
     title: 'Concurrency dan thread safety',
     why: "Web server menjalankan banyak request sekaligus. Shared state apa pun — static field, singleton service, cache in-memory — disentuh beberapa thread bersamaan, dan bug yang muncul jarang terjadi, susah direproduksi, dan mahal akibatnya.",
     points: [
@@ -334,6 +409,11 @@ I18N.lessons('csharp', {
     ]
   },
   internals: {
+    terms: [
+      ['Covariance / Contravariance (`out` / `in`)', 'Membuat `IEnumerable<Dog>` diterima sebagai `IEnumerable<Animal>` (`out`) dan `IComparer<Animal>` sebagai `IComparer<Dog>` (`in`).'],
+      ['Reflection vs Source Generator', 'Reflection membaca type saat run time (lebih lambat, sulit untuk AOT); Source Generator menghasilkan kode C# polos saat compile time.'],
+      ['Expression tree (`Expression<Func<>>`)', 'Menangkap kode sebagai pohon data AST bukan IL terkompilasi sehingga EF Core bisa membacanya menjadi SQL berparameter.']
+    ],
     title: 'Cara kerja framework: variance, reflection, dan kode hasil generate',
     why: "Inilah lapisan tempat framework ditulis. Di sini terjawab bagaimana DI container menemukan constructor, bagaimana JSON serializer menemukan property, dan bagaimana EF Core mengubah lambda jadi SQL.",
     points: [

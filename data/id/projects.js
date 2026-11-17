@@ -1,7 +1,7 @@
 // Bahasa Indonesia — capstone project.
 I18N.projects = [
   {
-    title: 'Capstone 1 — Katalog produk, empat cara',
+    title: 'Capstone 1 — Katalog produk lintas stack',
     brief: "Kenali tiap teknologi satu per satu dengan domain kecil yang sama: daftar produk. Belum ada yang saling terhubung; tujuannya merasakan apa yang dikerjakan tiap layer.",
     build: [
       "**C#**: console app dengan class `Product` dan `List<Product>`; tambah, tampilkan, dan jumlahkan produk lewat menu loop.",
@@ -17,11 +17,11 @@ I18N.projects = [
       "Tambahkan `POST` ke API dan panggil dengan `curl`.",
       "Tambahkan search box di list React yang memfilter saat kamu mengetik."
     ],
-    teach: "Sudut pandang mengajar: jadikan ini workshop hari pertama. Dari keempat bagian, mana yang kamu tunjukkan lebih dulu, dan apa yang sengaja kamu sembunyikan?"
+    teach: "Sudut pandang mengajar: jadikan ini workshop hari pertama. Bagian stack mana yang kamu tunjukkan lebih dulu, dan apa yang sengaja kamu sembunyikan?"
   },
   {
     title: 'Capstone 2 — Task manager full-stack',
-    brief: "Aplikasi sungguhan pertamamu: React bicara dengan ASP.NET Core, yang bicara dengan database lewat EF Core. Setiap layer di stack membawa satu aksi user dari klik sampai jadi row.",
+    brief: "Aplikasi sungguhan pertamamu: client frontend bicara dengan ASP.NET Core, yang bicara dengan database lewat EF Core. Setiap layer di stack membawa satu aksi user dari klik atau tap sampai jadi row.",
     build: [
       "Schema dengan `projects` dan `tasks` (one-to-many), foreign key, constraint `NOT NULL` dan `CHECK`, dibuat lewat migration EF Core.",
       "REST API: list, get, create, update, dan delete task, dengan DTO request/response dan status code yang benar.",
@@ -38,7 +38,7 @@ I18N.projects = [
       "Filter dan sort task lewat parameter query string yang tercermin di URL.",
       "Ganti fetching tulisan tangan dengan TanStack Query."
     ],
-    teach: "Sudut pandang mengajar: telusuri satu klik 'add task' melewati keempat layer di whiteboard, sambil menyebutkan baris kode persisnya di tiap perhentian."
+    teach: "Sudut pandang mengajar: telusuri satu klik 'add task' melewati setiap layer di whiteboard, sambil menyebutkan baris kode persisnya di tiap perhentian."
   },
   {
     title: 'Capstone 3 — Toko multi-user dengan auth dan test',

@@ -5,6 +5,11 @@ TRACKS.push({
     // ---------------- Beginner ----------------
     {
       id: 'git', title: 'Git and the developer workflow', level: 0, mins: 30, lang: 'sh',
+      terms: [
+        ['Staging area (`git add`)', 'Sandbox holding the exact snapshot changes you want inside your next commit — separate from working-directory edits.'],
+        ['Branch & PR merge', 'Isolated pointer letting features grow independently before code review and squash/merge back to `main`.'],
+        ['`.gitignore`', 'Prevents secrets, `node_modules/`, `bin/`, and `.env` files from ever leaving your machine cleanly.']
+      ],
       why: "Professional teams use Git every day. It is your undo button and your collaboration tool, and a public history of real work is one of the first things that gives a new developer credibility.",
       points: [
         "A **repository** is a project plus its full history. A **commit** is a snapshot with a message explaining why it changed.",
@@ -67,6 +72,11 @@ git log --oneline --graph       # read the history
     },
     {
       id: 'bigo', title: 'Big-O: how code scales', level: 0, mins: 30, viz: 'bigo',
+      terms: [
+        ['Time complexity (`O(n)`, `O(log n)`)', 'Measures how operations grow relative to input size `n` rather than wall-clock milliseconds on one laptop.'],
+        ['Nested loop `O(n²)` trap', 'Looking inside a whole array for every element scales quadratically (`1,000` items -> `1,000,000` steps) — a `HashSet` cuts it to `O(n)`.'],
+        ['Space–time trade-off', 'Spending `O(n)` extra RAM for a hash table or memo table to turn `O(n²)` or `O(2ⁿ)` work into fast linear time.']
+      ],
       why: "Interviews nearly always ask for the time and space complexity of your answer. The everyday reason to learn Big-O is bigger: it lets you predict whether code that works on 100 rows will survive 10 million.",
       points: [
         "Big-O describes how the **number of steps grows** as the input size n grows. It ignores constants and small terms: 3n + 10 is O(n).",
@@ -131,6 +141,17 @@ Console.WriteLine(HasDuplicateFast(data));         // False, in milliseconds; th
     },
     {
       id: 'numbers', title: "Numbers and text: binary, floating point and Unicode", level: 0, mins: 30,
+      terms: [
+        ['IEEE-754 binary float (`double`)', 'Stores base-2 fractions efficiently for graphics/physics, so exact base-10 decimals like `0.1` repeat infinitely and round slightly.'],
+        ['Integer overflow', 'Exceeding 32-bit `int` max (`~2.14B`) wraps silently unless checked or promoted to `long` / `Int64`.'],
+        ['UTF-8 code unit vs grapheme cluster', 'Emoji like `"👍🏽"` take multiple UTF-8 bytes and UTF-16 `char`s — measure characters safely with `StringInfo` / `Intl.Segmenter`.']
+      ],
+      predict: {
+        prompt: 'In C# (`double`), JavaScript (`number`), or Dart (`double`), what does `0.1 + 0.2 === 0.3` evaluate to?',
+        options: ['`true` (`0.3` exact)', '`false` (equals `0.30000000000000004` in binary IEEE-754)', 'Throws an overflow warning'],
+        answer: 1,
+        explain: '`1/10` and `1/5` cannot terminate cleanly in base-2 binary fractions (`0.000110011...`), so binary floating point rounds both inputs slightly; use `decimal` or integer cents for money.'
+      },
       why: "Money that ends up a cent off, a name that shows up as 'Ã©', an id that breaks past 2.1 billion: these bugs come from how computers store numbers and text, and they turn up in every track — `DECIMAL` in SQL, `decimal` in C#, `NVARCHAR`, and JavaScript's single number type.",
       points: [
         "Everything is stored in **binary**. An `int` is 32 bits, so it holds about ±2.1 billion; a `long` (64 bits) holds about ±9.2 × 10¹⁸. Go past the limit and the value **overflows**: in C# it silently wraps around unless the code runs in a `checked` context.",
@@ -184,6 +205,11 @@ Console.WriteLine(s.EnumerateRunes().Count());                 // 6: Unicode cod
     // ---------------- Intermediate ----------------
     {
       id: 'structures', title: 'Arrays, hash tables, stacks, queues and linked lists', level: 1, mins: 40,
+      terms: [
+        ['Array vs Linked List', 'Arrays sit contiguous in RAM (fast CPU cache + `O(1)` index); linked lists chase scattered pointers (`O(n)` scan) and rarely beat arrays.'],
+        ['Hash table (`Dictionary` / `Map`)', 'Hashes keys to array buckets for `O(1)` average lookup — core tool in 80% of coding interview optimizations.'],
+        ['Stack (LIFO) vs Queue (FIFO)', 'Stacks serve undo history and DFS recursion; Queues preserve arrival order for BFS and task workers.']
+      ],
       why: "Choosing the right data structure is often most of the solution. `Dictionary` behind a cache, a queue behind background jobs, a stack behind undo: the same few structures show up in the codebase and in interviews.",
       points: [
         "**Array / List**: contiguous memory. O(1) access by index, amortized O(1) append, O(n) insert or remove in the middle, O(n) search.",
@@ -258,6 +284,11 @@ class ListNode(int val, ListNode? next = null)
     },
     {
       id: 'sorting', title: 'Recursion and sorting', level: 1, mins: 40, viz: 'sort',
+      terms: [
+        ['Base case & call stack frame', 'Every recursive function needs a termination branch or local parameters stack up until a `StackOverflowException` crashes it.'],
+        ['Divide-and-conquer (`O(n log n)`)', 'Merge sort and Quick sort halve the array repeatedly (`log n` levels × `n` work per level) instead of `O(n²)` adjacent swaps.'],
+        ['Stable sort', 'Preserves original relative order when two items tie (`sort` in C#/JS `.toSorted()` by `key`).']
+      ],
       why: "Recursion is the thinking tool behind trees, graphs, backtracking and dynamic programming. Sorting is the most common first step in algorithm problems, and understanding why it costs O(n log n) teaches most of what you need for analysing algorithms.",
       points: [
         "A recursive function solves a problem by solving a **smaller version of the same problem**. It needs a **base case** that stops and a step that moves towards it.",
@@ -315,6 +346,11 @@ Console.WriteLine(string.Join(", ", byAge.Select(p => p.Item1)));   // Budi, Ana
     // ---------------- Advanced ----------------
     {
       id: 'trees', title: 'Trees, heaps and binary search', level: 2, mins: 40,
+      terms: [
+        ['Binary search invariant (`lo <= hi`)', 'Halves any monotonic sorted range in `O(log n)` steps — also applies to “search on answer” capacity problems.'],
+        ['Heap (`PriorityQueue`)', 'Partially ordered tree pulling minimum or maximum items in `O(log n)` — powers Top-K, timers, and Dijkstra.'],
+        ['Tree traversals (`DFS` pre/in/post vs `BFS`)', 'DFS drills root-to-leaf recursively; BFS processes level by level with a queue.']
+      ],
       why: "Trees show up all over the stack: the DOM, JSON, the file system, React's component tree, and the B-tree behind every SQL index. Heaps answer 'what's next?' questions such as top K and scheduling, and binary search reaches far beyond finding a number in an array.",
       points: [
         "A **tree** is nodes with children and no cycles. A **binary tree** has at most two children per node. A balanced tree with n nodes is about log₂ n levels deep.",
@@ -398,6 +434,11 @@ class Node(int value)
     },
     {
       id: 'graphs', title: 'Graphs: BFS, DFS and topological order', level: 2, mins: 40, viz: 'graphsearch',
+      terms: [
+        ['Visited set (`seen`)', 'Tracks already-explored vertices *as you enqueue* so cycles never loop infinitely or visit nodes twice.'],
+        ['BFS shortest path (unweighted)', 'Explores distance rings strictly in order `0, 1, 2...`, guaranteeing the first path to reach a target is shortest.'],
+        ['Topological sort (`in-degree`)', 'Orders directed acyclic dependency tasks (`DAG` — build pipelines, migrations, package installers) cleanly before dependents run.']
+      ],
       why: "Maps, social networks, build systems and grids are graphs, and so is your own code: a DI container resolving constructor dependencies and EF Core ordering migrations are both walking a graph. In problems, the hard part is noticing the graph at all.",
       points: [
         "A **graph** is nodes (vertices) connected by edges, directed or undirected, weighted or not. Trees and linked lists are special cases.",
@@ -485,7 +526,12 @@ static List<string> TopoOrder(Dictionary<string, string[]> g)
       ]
     },
     {
-      id: 'backtracking', title: "Backtracking: exploring every choice", level: 2, mins: 35,
+      id: 'backtracking', title: "Backtracking: exploring every choice", level: 2, mins: 35, viz: 'backtrack',
+      terms: [
+        ['Decision tree', 'Maps all partial candidates where each tree edge picks one valid choice (`include`, `skip`, or next valid digit).'],
+        ['Choose → Explore → Un-choose', 'Push one candidate onto `path`, recurse deeper, then `pop()` (`undo`) so sibling branches share zero leaked state.'],
+        ['Pruning', 'Dropping impossible branches immediately (`remaining < 0`) cuts exponential search work dramatically.']
+      ],
       why: "When a problem asks for 'all combinations', 'every arrangement' or 'any way to fill this', there is usually no clever formula: you try a choice, explore what follows, then undo it. Backtracking is that idea written carefully, and pruning is what keeps it fast enough to use.",
       points: [
         "Backtracking builds a solution **one choice at a time**. At each step: **choose** an option, **explore** recursively, then **un-choose** it, so the next option starts from the same state.",
@@ -566,7 +612,18 @@ static string Show(List<List<int>> lists) => string.Join(" ", lists.Select(l => 
     },
     // ---------------- Expert ----------------
     {
-      id: 'dp', title: 'Dynamic programming and problem-solving strategy', level: 3, mins: 45,
+      id: 'dp', title: 'Dynamic programming and problem-solving strategy', level: 3, mins: 45, viz: 'dptable',
+      terms: [
+        ['Overlapping subproblems', 'Subtrees computed repeatedly (`dp[3]` needed many times) cached by input key so each distinct state evaluates only once.'],
+        ['State & Transition recurrence', 'The exact parameters defining a subproblem (`dp[amount]`) plus the formula linking it to smaller solved answers.'],
+        ['Memoization (top-down) vs Tabulation (bottom-up)', 'Top-down caches recursive calls cleanly; bottom-up fills a flat array `0..n` without call-stack depth overhead.']
+      ],
+      predict: {
+        prompt: 'You want to make change for `amount = 6` using coins `[1, 3, 4]`. How many coins does Greedy (pick largest coin first) use vs optimal DP?',
+        options: ['Both use 2 coins', 'Greedy uses 3 coins (`4 + 1 + 1`), while DP finds 2 coins (`3 + 3`)', 'Greedy fails to make 6 cleanly'],
+        answer: 1,
+        explain: 'Picking the biggest coin (`4`) traps Greedy into `4 + 1 + 1` (3 coins). DP evaluates `min(dp[5], dp[3], dp[2]) + 1` and discovers `3 + 3 = 2` coins.'
+      },
       why: "Dynamic programming has a reputation for needing a flash of insight. It doesn't: it is a procedure you can learn. And the habits behind it — try a small case, spot repeated work, pick the right structure — work on any problem you haven't seen before.",
       points: [
         "DP applies when a problem has **overlapping subproblems** (the same smaller question is asked repeatedly) and **optimal substructure** (the best answer is built from best answers to subproblems).",
@@ -632,6 +689,11 @@ Console.WriteLine(Lcs("kitten", "sitting"));    // 4 ("ittn")
     },
     {
       id: 'concurrency', title: "Concurrency: threads, locks and event loops", level: 3, mins: 40,
+      terms: [
+        ['Concurrency vs Parallelism', 'Concurrency interleaves independent tasks logically (even on 1 core); parallelism executes instructions physically at once across cores.'],
+        ['Mutex / Mutual exclusion lock', 'Allows one thread into a critical section at a time — misordered locks create deadlocks across threads just like SQL.'],
+        ['Single-threaded event loop', 'Avoids lock contention on shared JS/Dart memory by running one JS/UI turn at a time while offloading I/O and CPU pools cleanly.']
+      ],
       why: "A lost update in SQL, thread-pool starvation in ASP.NET Core, a frozen Flutter screen and a React state update that 'didn't happen' are one subject seen from different tracks: more than one thing in progress at once, touching shared state. Seeing the common model makes each of them easier to reason about.",
       points: [
         "A **process** has its own memory; its **threads** share it. Sharing is what makes threads fast to coordinate, and easy to get wrong.",

@@ -1,6 +1,6 @@
 // Angular visualizations: Signal dependency graph & Change detection explorer (Eager vs OnPush vs Zoneless Signals).
 (() => {
-  const VIZ = window.VIZ, T = window.t;
+  const VIZ = window.VIZ = window.VIZ || {}, T = window.t;
   const meta = { track: 'angular', trackName: 'Angular' };
   const btn = (label, onclick, cls) => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
   const check = (label, on, onchange) => { const c = h('input', { type: 'checkbox', onchange }); c.checked = on; return [h('label', {}, c, label), c]; };
@@ -73,15 +73,17 @@
       const graph = h('div', { class: 'ng-graph' });
       const note = h('p', { class: 'viz-note', 'aria-live': 'polite' });
 
-      const slot = (name, val, badge, cls, extra) => h('div', { class: 'slot ' + (cls || '') },
-        h('span', {}, name, extra ? h('small', { class: 'muted' }, ' · ' + extra) : null),
-        h('b', {}, String(val), ' ', h('span', { class: 'ng-tag' }, T(badge))));
+      const slot = (name, val, badge, cls, extra, eq) => h('div', { class: 'slot ' + (cls || '') },
+        h('div', { class: 'slot-top' },
+          h('span', {}, name, extra ? h('small', { class: 'muted' }, ' · ' + extra) : null),
+          h('b', {}, String(val), ' ', h('span', { class: 'ng-tag' }, T(badge)))),
+        eq ? h('code', { class: 'viz-eq' }, eq) : null);
 
       const draw = () => {
         const couponTracked = qty > 0;
-        const p100 = h('button', { type: 'button', 'aria-pressed': String(price === 100), class: price === 100 ? 'on' : '', onclick: () => apply(100, qty, coupon, 'price') }, 'price = 100');
-        const p150 = h('button', { type: 'button', 'aria-pressed': String(price === 150), class: price === 150 ? 'on' : '', onclick: () => apply(150, qty, coupon, 'price') }, 'price = 150');
-        const qBtns = [0, 1, 2, 3].map(n => h('button', { type: 'button', 'aria-pressed': String(qty === n), class: qty === n ? 'on' : '', onclick: () => apply(price, n, coupon, 'qty') }, 'qty = ' + n));
+        const p100 = h('button', { type: 'button', 'aria-pressed': String(price === 100), class: price === 100 ? 'on' : '', onclick: () => apply(100, qty, coupon, 'price') }, T('price = {n}', { n: 100 }));
+        const p150 = h('button', { type: 'button', 'aria-pressed': String(price === 150), class: price === 150 ? 'on' : '', onclick: () => apply(150, qty, coupon, 'price') }, T('price = {n}', { n: 150 }));
+        const qBtns = [0, 1, 2, 3].map(n => h('button', { type: 'button', 'aria-pressed': String(qty === n), class: qty === n ? 'on' : '', onclick: () => apply(price, n, coupon, 'qty') }, T('qty = {n}', { n })));
         const [cpLab] = check('hasCoupon ($15 off when qty > 0)', coupon, e => apply(price, qty, e.target.checked, 'coupon'));
 
         ctl.replaceChildren(
@@ -105,12 +107,12 @@
             slot('hasCoupon()', coupon, couponTracked ? 'tracked' : 'untracked', couponTracked ? '' : 'tt-kept')),
           h('div', { class: 'viz-box' },
             h('h4', {}, '2 · Computed (lazy & memoized)'),
-            slot('subtotal()', subVal, states.subtotal, tagCls(states.subtotal), T('runs:') + ' ' + evals.subtotal),
-            slot('shipping()', shipVal, states.shipping, tagCls(states.shipping), T('runs:') + ' ' + evals.shipping),
-            slot('total()', totalVal, states.total, tagCls(states.total), T('runs:') + ' ' + evals.total)),
+            slot('subtotal()', subVal, states.subtotal, tagCls(states.subtotal), T('runs:') + ' ' + evals.subtotal, '() => price() * qty()'),
+            slot('shipping()', shipVal, states.shipping, tagCls(states.shipping), T('runs:') + ' ' + evals.shipping, '() => sub() === 0 || sub() >= 200 ? 0 : 20'),
+            slot('total()', totalVal, states.total, tagCls(states.total), T('runs:') + ' ' + evals.total, '() => sub() + ship() - (qty() > 0 && hasCoupon() ? 15 : 0)')),
           h('div', { class: 'viz-box' },
             h('h4', {}, '3 · Effect (side effect)'),
-            slot('effect()', `"total=${totalVal}"`, states.effect, tagCls(states.effect), T('runs:') + ' ' + evals.effect))
+            slot('effect()', `"total=${totalVal}"`, states.effect, tagCls(states.effect), T('runs:') + ' ' + evals.effect, 'effect(() => log(total()))'))
         );
         note.textContent = T(noteText);
       };
@@ -134,12 +136,14 @@
       ];
       let mode = 'zoneless';
       const checks = {}, status = {}, nodes = {};
+      const sharedSubs = new Set(['Card B', 'CartBadge']);
       const note = h('p', { class: 'viz-note', 'aria-live': 'polite' }, 'Click any component.');
-      const [sharedLab, shared] = check('Update shared CartSignal (read by clicked component & CartBadge)', false, () => {});
+      const [sharedLab, shared] = check('Show shared CartSignal subscribers (Card B & CartBadge)', true, () => reset());
       const modeBtns = {};
 
       const label = name => {
-        nodes[name].lastChild.textContent = `${T('checks:')} ${checks[name]}${status[name] ? ' · ' + T(status[name]) : ''}`;
+        const subTag = shared.checked && sharedSubs.has(name) ? ' [CartSignal]' : '';
+        nodes[name].lastChild.textContent = `${T('checks:')} ${checks[name]}${status[name] ? ' · ' + T(status[name]) : ''}${subTag}`;
       };
 
       const ancestors = name => {
@@ -149,16 +153,22 @@
         return path;
       };
 
-      const trigger = name => {
+      const trigger = (name, fromSignal = false) => {
         const checked = new Set();
         if (mode === 'eager') {
           all.forEach(n => checked.add(n));
         } else if (mode === 'onpush') {
-          ancestors(name).forEach(n => checked.add(n));
-          if (shared.checked) ancestors('CartBadge').forEach(n => checked.add(n));
+          if (fromSignal) sharedSubs.forEach(s => ancestors(s).forEach(n => checked.add(n)));
+          else {
+            ancestors(name).forEach(n => checked.add(n));
+            if (shared.checked && sharedSubs.has(name)) ancestors('CartBadge').forEach(n => checked.add(n));
+          }
         } else {
-          checked.add(name);
-          if (shared.checked) checked.add('CartBadge');
+          if (fromSignal) sharedSubs.forEach(s => checked.add(s));
+          else {
+            checked.add(name);
+            if (shared.checked && sharedSubs.has(name)) sharedSubs.forEach(s => checked.add(s));
+          }
         }
 
         all.forEach(n => {
@@ -218,12 +228,14 @@
         return modeBtns[k] = b;
       }));
 
+      const treeEl = h('div', { class: 'tree' },
+        h('div', { class: 'tree-r' }, mk('App')),
+        h('div', { class: 'tree-r' }, ['Header', 'ProductList', 'CartBadge'].map(mk)),
+        h('div', { class: 'tree-r' }, ['Card A', 'Card B', 'Card C'].map(mk)));
+      window.treeWire(treeEl, [[nodes.App, [nodes.Header, nodes.ProductList, nodes.CartBadge]], [nodes.ProductList, [nodes['Card A'], nodes['Card B'], nodes['Card C']]]]);
       el.append(
-        h('div', { class: 'viz-ctl' }, modeRow, sharedLab, btn('Reset counts', reset, 'ghost')),
-        h('div', { class: 'tree' },
-          h('div', { class: 'tree-r' }, mk('App')),
-          h('div', { class: 'tree-r' }, ['Header', 'ProductList', 'CartBadge'].map(mk)),
-          h('div', { class: 'tree-r' }, ['Card A', 'Card B', 'Card C'].map(mk))),
+        h('div', { class: 'viz-ctl' }, modeRow, sharedLab, btn('Update CartSignal', () => { shared.checked = true; trigger('CartBadge', true); }), btn('Reset counts', reset, 'ghost')),
+        treeEl,
         h('p', { class: 'muted' }, 'App contains Header, ProductList and CartBadge. ProductList contains the three product cards.'),
         note
       );

@@ -26,12 +26,12 @@ export const lessonHref = (t, l) => `#/lesson/${t.id}/${l.id}`;
 
 // One multiple-choice question. once=true locks after the first answer (exam mode).
 // onMiss runs on the first wrong answer to the question.
-export function quizItem(q, { once, onResult, onMiss }) {
+export function quizItem(q, { once, solved, onResult, onMiss }) {
   const { h, md, t: T } = window;
   const order = shuffle(q.a.map((text, i) => ({ text, ok: i === q.c })));
   const fb = h('p', { class: 'fb', 'aria-live': 'polite' });
-  let done = false, first = true;
-  const btns = order.map(o => h('button', { type: 'button', class: 'opt', html: md(o.text), onclick: e => {
+  let done = !!solved, first = true;
+  const btns = order.map(o => h('button', { type: 'button', class: 'opt' + (solved && o.ok ? ' right' : ''), disabled: !!solved, html: md(o.text), onclick: e => {
     if (done) return;
     const b = e.currentTarget;
     if (o.ok) {
@@ -46,5 +46,6 @@ export function quizItem(q, { once, onResult, onMiss }) {
     if (done || once) { btns.forEach(x => x.disabled = done); onResult && onResult(o.ok && first); }
     first = false;
   } }));
+  if (solved) { fb.className = 'fb good'; fb.innerHTML = '<strong>' + T('Correct.') + '</strong> ' + md(q.why); }
   return h('div', { class: 'q' }, h('p', { class: 'q-text', html: md(q.q) }), h('div', { class: 'opts' }, btns), fb);
 }

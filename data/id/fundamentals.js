@@ -1,6 +1,11 @@
 // Bahasa Indonesia — track CS Fundamentals. Contoh kode tetap memakai versi aslinya.
 I18N.lessons('cs', {
   git: {
+    terms: [
+      ['Staging area (`git add`)', 'Area transit penyimpan cuplikan perubahan persis yang akan ikut di commit berikutnya — terpisah dari suntingan bebas di working directory.'],
+      ['Branch & merge PR', 'Penunjuk terisolasi agar fitur berkembang mandiri sebelum direview lalu digabung rapi ke `main`.'],
+      ['`.gitignore`', 'Mencegah rahasia API, `node_modules/`, `bin/`, dan `.env` keluar dari mesinmu ke Git secara tidak sengaja.']
+    ],
     title: 'Git dan alur kerja developer',
     why: "Tim profesional memakai Git setiap hari. Git adalah tombol undo sekaligus alat kolaborasimu, dan riwayat kerja nyata yang bisa dilihat publik adalah salah satu hal pertama yang membuat developer baru dipercaya.",
     points: [
@@ -28,6 +33,11 @@ I18N.lessons('cs', {
     ]
   },
   bigo: {
+    terms: [
+      ['Kompleksitas waktu (`O(n)`, `O(log n)`)', 'Mengukur bagaimana jumlah langkah tumbuh terhadap ukuran input `n`, bukan angka milidetik mentah di satu laptop.'],
+      ['Jebakan loop bersarang `O(n²)`', 'Mencari di seluruh array untuk setiap item tumbuh kuadratis (`1.000` item -> `1.000.000` langkah) — `HashSet` memotongnya ke `O(n)`.'],
+      ['Trade-off memori vs waktu', 'Membayar RAM ekstra `O(n)` untuk hash table atau memo tabel demi mengubah kerja `O(n²)` atau `O(2ⁿ)` menjadi linear cepat.']
+    ],
     title: 'Big-O: bagaimana kode berkembang',
     why: "Interview hampir selalu menanyakan time complexity dan space complexity dari jawabanmu. Tapi alasan sehari-hari untuk belajar Big-O lebih besar: ia membuatmu bisa memperkirakan apakah kode yang jalan untuk 100 baris akan tetap selamat di 10 juta baris.",
     points: [
@@ -53,6 +63,16 @@ I18N.lessons('cs', {
     ]
   },
   numbers: {
+    terms: [
+      ['Binary float IEEE-754 (`double`)', 'Menyimpan pecahan berbasis 2 secara efisien untuk grafis/fisika, sehingga angka desimal `0.1` berulang tak terbatas dan membulat tipis.'],
+      ['Integer overflow', 'Melebihi batas maks `int` 32-bit (`~2,14M`) berputar diam-diam kecuali dicek atau memakai `long` / `Int64`.'],
+      ['Unit kode UTF-8 vs klaster grafem', 'Emoji seperti `"👍🏽"` memakan banyak byte UTF-8 dan unit `char` UTF-16 — hitung jumlah huruf nyata dengan `StringInfo` / `Intl.Segmenter`.']
+    ],
+    predict: {
+      prompt: 'Di C# (`double`), JavaScript (`number`), atau Dart (`double`), apa hasil evaluasi `0.1 + 0.2 === 0.3`?',
+      options: ['`true` (`0.3` persis)', '`false` (bernilai `0.30000000000000004` di binary IEEE-754)', 'Melempar peringatan overflow'],
+      explain: '`1/10` dan `1/5` tidak berhenti persis pada pecahan basis 2 (`0.000110011...`), sehingga binary floating point membulatkan kedua operandnya sedikit; pakai `decimal` atau sen bulat untuk uang.'
+    },
     title: "Angka dan teks: biner, floating point, dan Unicode",
     why: "Uang yang selisih satu sen, nama yang tampil sebagai 'Ã©', id yang rusak setelah 2,1 miliar: bug-bug ini berasal dari cara komputer menyimpan angka dan teks, dan muncul di setiap track — `DECIMAL` di SQL, `decimal` di C#, `NVARCHAR`, dan satu-satunya type angka di JavaScript.",
     points: [
@@ -80,6 +100,11 @@ I18N.lessons('cs', {
     ]
   },
   structures: {
+    terms: [
+      ['Array vs Linked List', 'Array tersimpan rapat berdampingan di RAM (cache CPU kencang + indeks `O(1)`); linked list mengejar pointer terpencar (`O(n)` scan) sehingga jarang lebih cepat.'],
+      ['Hash table (`Dictionary` / `Map`)', 'Mem-hash kunci ke slot ember array untuk pencarian rata-rata `O(1)` — senjata utama di 80% optimasi soal coding interview.'],
+      ['Stack (LIFO) vs Queue (FIFO)', 'Stack melayani undo dan rekursi DFS; Queue menjaga urutan kedatangan untuk BFS serta worker antrean tugas.']
+    ],
     title: 'Array, hash table, stack, queue, dan linked list',
     why: "Memilih data structure yang tepat sering kali sudah jadi sebagian besar solusinya. `Dictionary` di balik cache, queue di balik background job, stack di balik undo: beberapa structure yang sama muncul di codebase dan juga di interview.",
     points: [
@@ -107,6 +132,11 @@ I18N.lessons('cs', {
     ]
   },
   sorting: {
+    terms: [
+      ['Base case & stack frame', 'Setiap fungsi rekursif wajib memiliki cabang henti; tanpanya parameter menumpuk sampai `StackOverflowException` menjatuhkan program.'],
+      ['Divide-and-conquer (`O(n log n)`)', 'Merge sort dan Quick sort membelah input terus-menerus (`log n` level × kerja `n` per level) alih-alih pertukaran tetangga `O(n²)`.'],
+      ['Stable sort', 'Mempertahankan urutan asli di antara item yang nilainya seri (`sort` di C#/JS `.toSorted()` berdasar `key`).']
+    ],
     title: 'Recursion dan sorting',
     why: "Recursion adalah alat berpikir di balik tree, graph, backtracking, dan dynamic programming. Sorting adalah langkah pertama yang paling umum dalam soal algoritma, dan memahami kenapa biayanya O(n log n) mengajarkan sebagian besar yang kamu perlukan untuk menganalisis algoritma.",
     points: [
@@ -133,6 +163,11 @@ I18N.lessons('cs', {
     ]
   },
   trees: {
+    terms: [
+      ['Invariant binary search (`lo <= hi`)', 'Memangkas separuh rentang monoton terurut tiap langkah dalam `O(log n)` — juga berlaku untuk “binary search jawaban kapasitas”.'],
+      ['Heap (`PriorityQueue`)', 'Pohon terurut sebagian yang mengambil item terkecil atau terbesar dalam `O(log n)` — inti Top-K, penjadwalan timer, dan Dijkstra.'],
+      ['Penelusuran pohon (`DFS` pre/in/post vs `BFS`)', 'DFS menelusuri akar-ke-daun secara rekursif; BFS memproses tingkat demi tingkat dengan bantuan queue.']
+    ],
     title: 'Tree, heap, dan binary search',
     why: "Tree muncul di seluruh stack: DOM, JSON, file system, component tree milik React, dan B-tree di balik setiap index SQL. Heap menjawab pertanyaan 'apa berikutnya?' seperti top K dan penjadwalan, dan binary search jangkauannya jauh melampaui sekadar mencari angka di array.",
     points: [
@@ -160,6 +195,11 @@ I18N.lessons('cs', {
     ]
   },
   graphs: {
+    terms: [
+      ['Set `seen` (sudah dikunjungi)', 'Mencatat simpul *begitu dimasukkan ke queue* supaya siklus tidak berputar tanpa henti atau mengunjungi simpul dua kali.'],
+      ['Jalur terpendek BFS (tanpa bobot)', 'Menyapu lingkaran jarak `0, 1, 2...` berurutan, menjamin jalur pertama yang menyentuh tujuan adalah yang terpendek.'],
+      ['Topological sort (`in-degree`)', 'Mengurutkan grafik dependensi terarah bebas siklus (`DAG` — urutan build, migrasi, installer paket) agar prasyarat selalu jalan lebih dulu.']
+    ],
     title: 'Graph: BFS, DFS, dan topological order',
     why: "Peta, jejaring sosial, build system, dan grid adalah graph, begitu juga kodemu sendiri: DI container yang me-resolve dependency constructor dan EF Core yang mengurutkan migration sama-sama sedang menelusuri graph. Dalam soal, bagian tersulitnya adalah menyadari bahwa ada graph di sana.",
     points: [
@@ -189,6 +229,11 @@ I18N.lessons('cs', {
     ]
   },
   backtracking: {
+    terms: [
+      ['Pohon keputusan', 'Memetakan seluruh kandidat parsial di mana tiap cabang memilih satu opsi sah (`sertakan`, `lewati`, atau digit valid berikutnya).'],
+      ['Pilih → Telusuri → Batalkan pilihan', 'Masukkan kandidat ke `path`, rekursi ke dalam, lalu `pop()` (`undo`) agar cabang saudara tidak mewarisi sisa state.'],
+      ['Pruning (pemangkasan)', 'Membuang cabang mustahil lebih awal (`remaining < 0`) memangkas kerja pencarian eksponensial secara drastis.']
+    ],
     title: "Backtracking: menjelajahi setiap pilihan",
     why: "Saat soal meminta 'semua kombinasi', 'setiap susunan', atau 'cara apa pun untuk mengisi ini', biasanya tidak ada rumus pintar: kamu mencoba satu pilihan, menjelajahi kelanjutannya, lalu membatalkannya. Backtracking adalah ide itu yang ditulis dengan rapi, dan pruning-lah yang membuatnya cukup cepat untuk dipakai.",
     points: [
@@ -216,6 +261,16 @@ I18N.lessons('cs', {
     ]
   },
   dp: {
+    terms: [
+      ['Subproblem tumpang tindih', 'Submasalah yang dihitung berulang (`dp[3]` muncul berkali-kali) di-cache per kunci state agar tiap state unik dihitung sekali.'],
+      ['State & rumus transisi (recurrence)', 'Parameter tepat yang mendefinisikan submasalah (`dp[amount]`) serta rumus penghubungnya ke jawaban yang lebih kecil.'],
+      ['Memoization (top-down) vs Tabulasi (bottom-up)', 'Top-down meng-cache panggilan rekursif secara rapi; bottom-up mengisi array datar `0..n` bebas batas stack rekursi.']
+    ],
+    predict: {
+      prompt: 'Kamu ingin menukar uang `amount = 6` dengan koin `[1, 3, 4]`. Berapa koin yang dipakai Greedy (ambil koin terbesar dulu) dibanding DP optimal?',
+      options: ['Keduanya memakai 2 koin', 'Greedy memakai 3 koin (`4 + 1 + 1`), sedangkan DP menemukan 2 koin (`3 + 3`)', 'Greedy gagal menyusun angka 6'],
+      explain: 'Memilih koin terbesar dulu (`4`) menjebak Greedy menjadi `4 + 1 + 1` (3 koin). DP memeriksa `min(dp[5], dp[3], dp[2]) + 1` dan menemukan `3 + 3 = 2` koin.'
+    },
     title: 'Dynamic programming dan strategi problem solving',
     why: "Dynamic programming punya reputasi butuh ilham mendadak. Kenyataannya tidak: ia adalah prosedur yang bisa dipelajari. Dan kebiasaan di baliknya — coba kasus kecil, temukan pekerjaan yang berulang, pilih structure yang tepat — berguna untuk soal apa pun yang belum pernah kamu lihat.",
     points: [
@@ -243,6 +298,11 @@ I18N.lessons('cs', {
     ]
   },
   concurrency: {
+    terms: [
+      ['Konkurensi vs Paralelisme', 'Konkurensi menyelingi banyak tugas secara logis (bahkan di 1 inti CPU); paralelisme menjalankan beberapa instruksi fisik bersamaan di multi-core.'],
+      ['Mutex / Lock eksklusif', 'Mengizinkan tepat satu thread masuk ke area kritis — urutan pengambilan dua lock yang terbalik memicu deadlock seperti halnya di SQL.'],
+      ['Event loop single-thread', 'Menghindari bentrok lock memori bersama di JS/Dart dengan menjalankan satu giliran UI pada satu waktu sambil mendelegasikan I/O.']
+    ],
     title: "Concurrency: thread, lock, dan event loop",
     why: "Lost update di SQL, thread-pool starvation di ASP.NET Core, layar Flutter yang membeku, dan update state React yang 'tidak terjadi' adalah satu topik yang dilihat dari track berbeda: lebih dari satu pekerjaan berjalan bersamaan dan menyentuh state yang sama. Memahami model bersamanya membuat masing-masing lebih mudah dinalar.",
     points: [

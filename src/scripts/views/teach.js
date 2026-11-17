@@ -71,35 +71,61 @@ export function teach() {
 }
 
 export function searchView() {
-  const { h, t: T, LEVELS, IV, VIZ } = window;
+  const { h, esc, t: T, LEVELS, IV, VIZ } = window;
+  const iv = IV || { problems: [], patterns: [], design: { cases: [] }, rapid: [] };
+  const vizMap = VIZ || {};
   const index = [
-    ...allLessons().map(e => ({ kind: e.t.name + ' · ' + LEVELS[e.l.level], title: e.l.title, href: lessonHref(e.t, e.l), text: [e.l.why, ...e.l.points, e.l.practice, ...e.l.pitfalls].join(' ') })),
-    ...IV.problems.map(p => ({ kind: 'Coding problem', title: p.title, href: '#/interview/problem/' + p.id, text: p.prompt + ' ' + p.pattern })),
-    ...IV.patterns.map(p => ({ kind: 'Coding pattern', title: p.name, href: '#/interview/patterns', text: p.signal })),
-    ...IV.design.cases.map(c => ({ kind: 'System design', title: c.title, href: '#/interview/design/' + c.id, text: c.prompt + ' ' + c.deep.map(d => d.join(' ')).join(' ') })),
-    ...IV.rapid.flatMap(r => r.qs.map(([q, ans]) => ({ kind: T('Interview Q&A') + ' · ' + r.area, title: q, href: '#/interview/rapid', text: ans }))),
-    ...Object.entries(VIZ).map(([id, v]) => ({ kind: 'Visualization', title: T(v.title), href: '#/lab/' + id, text: T(v.desc) }))
+    ...allLessons().map(e => ({
+      cat: 'lesson', kind: e.t.name + ' · ' + LEVELS[e.l.level], title: e.l.title, href: lessonHref(e.t, e.l),
+      text: [e.l.why, ...(e.l.terms || []).flat(), ...e.l.points, e.l.practice, e.l.analogy || '', ...e.l.pitfalls].join(' ')
+    })),
+    ...iv.problems.map(p => ({ cat: 'interview', kind: 'Coding problem', title: p.title, href: '#/interview/problem/' + p.id, text: p.prompt + ' ' + p.pattern })),
+    ...iv.patterns.map(p => ({ cat: 'interview', kind: 'Coding pattern', title: p.name, href: '#/interview/patterns', text: p.signal })),
+    ...iv.design.cases.map(c => ({ cat: 'interview', kind: 'System design', title: c.title, href: '#/interview/design/' + c.id, text: c.prompt + ' ' + c.deep.map(d => d.join(' ')).join(' ') })),
+    ...iv.rapid.flatMap(r => r.qs.map(([q, ans]) => ({ cat: 'interview', kind: T('Interview Q&A') + ' · ' + r.area, title: q, href: '#/interview/rapid', text: ans }))),
+    ...Object.entries(vizMap).map(([id, v]) => ({ cat: 'viz', kind: 'Visualization', title: T(v.title), href: '#/lab/' + id, text: T(v.desc) }))
   ];
   const plain = s => s.replace(/[`*]/g, '');
+  const markText = (str, terms) => {
+    const clean = esc(str);
+    if (!terms.length) return clean;
+    const pat = new RegExp('(' + terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'gi');
+    return clean.replace(pat, '<mark>$1</mark>');
+  };
+  let cat = 'all';
   const results = h('div', { class: 'rows', 'aria-live': 'polite' });
+  const cats = [['all', 'All'], ['lesson', 'Lessons'], ['interview', 'Interview'], ['viz', 'Visualizations']];
+  const catBtns = {};
+  const catBar = h('div', { class: 'chips', style: { marginTop: '.6rem' } }, cats.map(([k, lbl]) => {
+    const b = h('button', { type: 'button', class: k === 'all' ? 'on' : '', 'aria-pressed': String(k === 'all'), onclick: () => {
+      cat = k;
+      Object.entries(catBtns).forEach(([x, btn]) => { btn.classList.toggle('on', x === k); btn.setAttribute('aria-pressed', String(x === k)); });
+      draw();
+    } }, lbl);
+    return catBtns[k] = b;
+  }));
   const draw = () => {
     const terms = input.value.toLowerCase().split(/\s+/).filter(Boolean);
-    if (!terms.length) return results.replaceChildren(h('p', { class: 'muted' }, T('{n} lessons, problems, questions and visualizations indexed. Try “index”, “async”, “flexbox” or “deadlock”.', { n: index.length })));
-    const hits = index.map(it => {
+    const pool = cat === 'all' ? index : index.filter(it => it.cat === cat);
+    if (!terms.length) return results.replaceChildren(h('p', { class: 'muted' }, T('{n} lessons, problems, questions and visualizations indexed. Try “index”, “async”, “flexbox” or “deadlock”.', { n: pool.length })));
+    const hits = pool.map(it => {
       const title = it.title.toLowerCase(), text = it.text.toLowerCase();
       if (!terms.every(t => title.includes(t) || text.includes(t))) return null;
       return { it, score: terms.reduce((s, t) => s + (title.includes(t) ? 5 : 0) + Math.min(text.split(t).length - 1, 3), 0) };
     }).filter(Boolean).sort((x, y) => y.score - x.score).slice(0, 40);
     results.replaceChildren(...(hits.length ? hits.map(({ it }) => {
-      const at = Math.max(it.text.toLowerCase().indexOf(terms[0]), 0), from = Math.max(at - 50, 0);
-      return h('a', { class: 'row hit', href: it.href }, h('span', { class: 'row-t' }, h('small', {}, it.kind), h('br'), h('b', {}, plain(it.title)), h('br'),
-        h('span', { class: 'muted' }, (from ? '…' : '') + plain(it.text.slice(from, from + 150)) + '…')));
+      const cleanTxt = plain(it.text), low = cleanTxt.toLowerCase();
+      const firstPos = terms.map(t => low.indexOf(t)).filter(p => p >= 0).sort((a, b) => a - b)[0] ?? -1;
+      const from = firstPos >= 0 ? Math.max(firstPos - 50, 0) : 0;
+      const snip = (from ? '…' : '') + cleanTxt.slice(from, from + 150) + (cleanTxt.length > from + 150 ? '…' : '');
+      return h('a', { class: 'row hit', href: it.href }, h('span', { class: 'row-t' }, h('small', {}, it.kind), h('br'), h('b', { html: markText(plain(it.title), terms) }), h('br'),
+        h('span', { class: 'muted', html: markText(snip, terms) })));
     }) : [h('p', { class: 'muted' }, 'Nothing found. Try a shorter or different word.')]));
   };
-  const input = h('input', { type: 'search', class: 'search', placeholder: 'Search lessons, problems, interview questions…', 'aria-label': 'Search', oninput: draw });
+  const input = h('input', { type: 'search', class: 'search', placeholder: 'Search lessons, problems, interview questions…', 'aria-label': 'Search', oninput: draw, onkeydown: e => { if (e.key === 'Escape' && input.value) { input.value = ''; draw(); } } });
   draw();
   setTimeout(() => input.focus());
-  return h('div', { class: 'page' }, h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Find anything'), h('h1', {}, 'Search'), input), results);
+  return h('div', { class: 'page' }, h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Find anything'), h('h1', {}, 'Search'), input, catBar), results);
 }
 
 export function startView() {

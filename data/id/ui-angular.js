@@ -1,6 +1,7 @@
 // Indonesian strings for Angular visualizations, TS playground sample, and setup step.
-window.I18N = window.I18N || { ui: {}, tracks: {}, viz: {}, projects: [], iv: {} };
-Object.assign(I18N.ui, {
+I18N.add({
+  'price = {n}': 'price = {n}',
+  'qty = {n}': 'qty = {n}',
   'Signal dependency graph': 'Graf ketergantungan Signal',
   'Change a source signal and watch which computed nodes recalculate, which stay cached, and why diamond graphs never glitch.': 'Ubah source signal dan amati node computed mana yang dihitung ulang, mana yang tetap di-cache, serta mengapa diamond graph tidak pernah glitch.',
   'Initial evaluation: subtotal = 200, shipping = 0 (free over 200), total = 200.': 'Evaluasi awal: subtotal = 200, shipping = 0 (gratis di atas 200), total = 200.',
@@ -27,7 +28,8 @@ Object.assign(I18N.ui, {
   'Change detection explorer': 'Penjelajah change detection',
   'Click a component to trigger an update. Compare legacy Eager (Zone.js), OnPush, and Zoneless + Signals.': 'Klik sebuah component untuk memicu pembaruan. Bandingkan mode lama Eager (Zone.js), OnPush, dan Zoneless + Signals.',
   'Click any component.': 'Klik component mana saja.',
-  'Update shared CartSignal (read by clicked component & CartBadge)': 'Perbarui CartSignal bersama (dibaca component yang diklik & CartBadge)',
+  'Show shared CartSignal subscribers (Card B & CartBadge)': 'Tampilkan pelanggan CartSignal bersama (Card B & CartBadge)',
+  'Update CartSignal': 'Perbarui CartSignal',
   'Eager (Zone.js)': 'Eager (Zone.js)',
   'OnPush': 'OnPush',
   'Zoneless + Signal': 'Zoneless + Signal',

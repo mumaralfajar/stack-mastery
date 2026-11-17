@@ -1,6 +1,11 @@
 // Bahasa Indonesia — track Dart + Flutter. Contoh kode tetap memakai versi aslinya.
 I18N.lessons('flutter', {
   dart: {
+    terms: [
+      ['Sound null safety (`String` vs `String?`)', 'Type non-nullable menjamin nilainya ada; type nullable (`String?`) mewajibkanmu menangani kasus `null` (`??`, `?.`) sebelum dipakai.'],
+      ['`final` vs `const`', '`final` di-assign sekali waktu run time; `const` tetap sejak compile time agar Flutter bisa memakai ulang instance widget.'],
+      ['Named parameter (`{required String id}`)', 'Argumen konfigurasi yang mudah dibaca di dalam `{}` dan dipakai oleh hampir semua constructor widget Flutter.']
+    ],
     title: 'Dart esensial: type, null safety, dan function',
     why: "Aplikasi Flutter ditulis dengan Dart, dan Dart memang dirancang untuk pekerjaan itu. Kalau kamu sudah paham C# atau TypeScript, sebagian besarnya akan terasa akrab — bagian yang berbeda (sound null safety, named parameter, `final` versus `const`) justru bagian yang dipakai di setiap file Flutter.",
     points: [
@@ -26,6 +31,11 @@ I18N.lessons('flutter', {
     ]
   },
   dartoop: {
+    terms: [
+      ['Constructor initializer & `required`', 'Membentuk object yang pasti valid dalam satu baris (`const Product({required this.id, required this.name})`).'],
+      ['Collection `if` / `for` & Spread (`...`)', 'Menyusun daftar widget bersyarat langsung di dalam `[ ... ]` secara deklaratif tanpa panggilan `.add()` imperatif.'],
+      ['Salinan immutable (`copyWith`)', 'Membuat salinan object state yang diperbarui alih-alih memutasinya di tempat supaya Bloc/Riverpod mengenali perubahan.']
+    ],
     title: 'Class, collection, dan immutability',
     why: "Setiap widget Flutter adalah class, dan setiap layar disusun dari list dan map berisi data. Model class yang immutable dengan value equality juga yang membuat state management — khususnya Bloc — jadi bisa diprediksi.",
     points: [
@@ -51,6 +61,11 @@ I18N.lessons('flutter', {
     ]
   },
   widgets: {
+    terms: [
+      ['`StatelessWidget` vs `StatefulWidget`', 'Cetak biru konfigurasi immutable yang dibangun ulang dengan murah (`build(context)`), dipasangkan dengan object `State` berumur panjang bila perlu.'],
+      ['`BuildContext`', 'Penunjuk letak widget-mu di dalam pohon agar ia bisa membaca `Theme.of(context)` atau `Navigator.of(context)`.'],
+      ['Komposisi daripada widget monolitik', 'Memecah layar menjadi widget bernama kecil memberi Flutter batas rebuild yang rapi sekaligus optimasi `const`.']
+    ],
     title: 'Flutter: widget dan widget tree',
     why: "Di Flutter, semua yang ada di layar adalah widget, dan UI-nya adalah tree berisi widget yang dideskripsikan dalam kode. Begitu kamu melihat `build` sebagai function dari data ke deskripsi layar — ide yang sama dengan komponen React — framework-nya tidak lagi terasa misterius.",
     points: [
@@ -76,6 +91,11 @@ I18N.lessons('flutter', {
     ]
   },
   layout: {
+    terms: [
+      ['Constraints go down, sizes go up', 'Parent menurunkan batas min/maks; child menentukan ukurannya yang pas; parent menetapkan posisi akhir x/y child.'],
+      ['Batasan tak terhingga (`∞`)', 'Terjadi pada sumbu scrollable atau child `Row`/`Column` bebas — menaruh `Expanded` atau `ListView` tak terbatas memicu error overflow.'],
+      ['`Expanded` vs `Flexible`', '`Expanded` memaksa child mengisi penuh sisa ruang sumbu (`flex`); `Flexible` membiarkannya cukup sebesar konten maksimalnya.']
+    ],
     title: 'Layout: row, column, dan constraint',
     why: "Hampir semua bug layout di Flutter — garis-garis overflow kuning-hitam, 'unbounded height', widget yang mengabaikan ukurannya — berasal dari satu aturan yang disalahpahami. Begitu kamu paham aturannya, pesan error-nya mulai masuk akal.",
     points: [
@@ -102,6 +122,11 @@ I18N.lessons('flutter', {
     ]
   },
   async: {
+    terms: [
+      ['`Future<T>` & `async`/`await`', 'Mewakili satu nilai atau error asinkron yang datang nanti tanpa menghentikan UI isolate 60/120 fps Flutter.'],
+      ['`Stream<T>`', 'Memancarkan nol, satu, atau banyak nilai seiring waktu (detak WebSocket, scroll offset, state Bloc) untuk di-subscribe lalu di-cancel.'],
+      ['Microtask vs Event queue', 'Event loop single-thread Dart selalu menguras habis seluruh antrean microtask lebih dulu sebelum memproses event timer/sentuhan berikutnya.']
+    ],
     title: 'Async Dart: Future, Stream, dan event loop',
     why: "Panggilan network, akses file, input user, dan Bloc sendiri semuanya asynchronous di Flutter. `Future` adalah satu nilai yang datang nanti; `Stream` adalah banyak nilai seiring waktu — dan state management dibangun di atas stream.",
     points: [
@@ -128,6 +153,11 @@ I18N.lessons('flutter', {
     ]
   },
   state: {
+    terms: [
+      ['Pemeriksaan `mounted`', 'Mencegah pemanggilan `setState()` sesudah widget meninggalkan layar ketika proses async `Future` baru selesai belakangan.'],
+      ['`initState()` & `dispose()`', 'Inisialisasi sekali saat mount (controller/listener) dan pembersihan pasangannya (`controller.dispose()`) saat permanen dicopot.'],
+      ['Mendorong state ke bawah', 'Menyimpan state lokal di widget daun dan menandai saudara-saudaranya `const` membatasi pemanggilan `build()` hanya di subtree yang berubah.']
+    ],
     title: 'State: StatefulWidget, setState, dan lifecycle',
     why: "State adalah hal yang berubah selama aplikasi berjalan. `setState` adalah tool paling sederhana sekaligus fondasi semua library state management — kamu tidak akan paham rebuild pada Bloc tanpa memahami ini.",
     points: [
@@ -153,6 +183,12 @@ I18N.lessons('flutter', {
     ]
   },
   navforms: {
+    splits: ['1 · Setup GoRouter', '2 · Halaman Home & Product', '3 · Form NewProductPage'],
+    terms: [
+      ['Routing deklaratif (`GoRouter`)', 'Memetakan path URL (`/products/:id`) langsung ke tumpukan layar lengkap dengan deep link browser dan parameter bertipe.'],
+      ['`GlobalKey<FormState>`', 'Mengoordinasikan callback `validator` seluruh `TextFormField` di dalam satu kali panggilan `.validate()`.'],
+      ['Pembuangan controller', 'Setiap `TextEditingController` mendaftarkan listener sehingga wajib di-release di `dispose()` agar tidak bocor di memori.']
+    ],
     title: 'Navigasi dan form',
     why: "Aplikasi sungguhan terdiri dari beberapa layar, dan sebagian di antaranya menerima input data. Routing deklaratif memberimu deep link dan tombol back yang berfungsi; form yang tervalidasi adalah awal dari kualitas data.",
     points: [
@@ -182,6 +218,12 @@ I18N.lessons('flutter', {
     ]
   },
   network: {
+    splits: ['1 · Model & ApiException', '2 · Client ProductApi', '3 · Layar ProductList'],
+    terms: [
+      ['Factory `fromJson` bertipe', 'Memetakan hasil decode JSON dinamis menjadi class Dart bertipe aman tepat di batas HTTP.'],
+      ['`ApiException` & `ProblemDetails`', 'Mem-parsing payload error RFC 9457 backend secara aman tanpa memamerkan HTML mentah atau stack trace di layar UI.'],
+      ['State async (loading / empty / error)', 'Melacak status memuat, kosong, error-retry, dan data siap secara eksplisit bukan mengasumsikan jaringan selalu lancar.']
+    ],
     title: 'Networking: HTTP, JSON, dan API ASP.NET Core-mu',
     why: "Di sinilah aplikasi mobile bertemu dengan bagian stack lainnya: layar Flutter memanggil endpoint ASP.NET Core yang sama dengan aplikasi React. Model ber-type, state loading dan error yang jujur, serta client yang bisa di-inject adalah yang membuatnya bisa dites.",
     points: [
@@ -209,6 +251,12 @@ I18N.lessons('flutter', {
     ]
   },
   bloc: {
+    splits: ['1 · ProductsState sealed', '2 · ProductsCubit', '3 · Event CartBloc', '4 · UI ProductsPage'],
+    terms: [
+      ['`Cubit` vs `Bloc`', '`Cubit` memaparkan method sederhana (`load()`); `Bloc` menambahkan stream `Event` eksplisit untuk debounce, canceling, dan jejak audit.'],
+      ['State class sealed', 'Memodelkan state saling lepas (`Loading | Loaded | Failed`) supaya `switch (state)` memaksa kita menangani setiap kondisi layar.'],
+      ['`BlocSelector`', 'Membangun ulang UI (`build()`) HANYA saat bagian state yang dipilih ikut berubah tanpa me-rebuild field lain yang tak terdampak.']
+    ],
     title: 'State management dengan Bloc dan Cubit',
     why: "`setState` berhenti bisa diandalkan begitu beberapa layar berbagi data atau logic-nya perlu dites tanpa UI. Bloc adalah salah satu jawaban yang paling umum di tim Flutter profesional: perubahan state jadi eksplisit, bisa dilacak, dan bisa di-unit test, dan ada baiknya kamu bisa menjelaskan perbandingannya dengan alternatif lain.",
     points: [
@@ -239,6 +287,12 @@ I18N.lessons('flutter', {
     ]
   },
   dartdeep: {
+    splits: ['1 · Generics, extension & mixin', '2 · Pattern Result sealed', '3 · Record & main()'],
+    terms: [
+      ['Extension method & Mixin (`with`)', 'Extension menambah helper (`context.theme`) ke type yang ada; mixin berbagi perilaku reusable lintas class tanpa hierarki inheritance.'],
+      ['Pattern Result sealed', 'Mengembalikan `Success<T> | Failure<T>` secara lengkap saat compile time sehingga pemanggil wajib menangani error tanpa exception kejutan.'],
+      ['Record & destructuring', 'Tuple bertipe ringan (`(double lat, double lng)`) untuk mengembalikan beberapa nilai bernama tanpa boilerplate class ekstra.']
+    ],
     title: 'Dart lebih dalam: generics, mixin, record, dan pattern',
     why: "Dart modern punya sealed class, pattern matching, record, dan extension — fitur yang membuat pemodelan state jadi exhaustive dan penanganan JSON jadi aman. Fitur-fitur ini juga pembeda antara kode yang ditulis orang yang paham Dart dan kode yang diterjemahkan dari bahasa lain.",
     points: [
@@ -264,6 +318,11 @@ I18N.lessons('flutter', {
     ]
   },
   testing: {
+    terms: [
+      ['Unit vs Widget test (`WidgetTester`)', 'Unit test menguji logika Dart/Cubit murni tanpa UI; widget test merender frame UI cepat secara headless tanpa emulator.'],
+      ['`pump()` vs `pumpAndSettle()`', '`pump()` memajukan tepat satu frame (cocok memeriksa spinner); `pumpAndSettle()` terus berjalan hingga semua animasi berhenti.'],
+      ['Injeksi repository palsu (fake)', 'Mengganti client HTTP nyata dengan fake deterministik yang langsung membalas fixture atau skenario error tanpa jaringan.']
+    ],
     title: 'Testing: unit, widget, dan integration test',
     why: "Tooling test Flutter itu kuat: widget test menjalankan widget tree sungguhan dalam hitungan milidetik, tanpa device. Bloc dengan repository yang di-inject membuat business logic mudah dites, dan itulah hasil nyata dari arsitekturnya.",
     points: [
@@ -289,6 +348,12 @@ I18N.lessons('flutter', {
     ]
   },
   platform: {
+    splits: ['1 · Adapter penyimpanan', '2 · MethodChannel Battery', '3 · AdaptiveShell'],
+    terms: [
+      ['Pembungkus repository di atas plugin', 'Melindungi UI/Cubit di balik interface `SettingsStore` milikmu sendiri agar mengganti `shared_preferences` cukup menyentuh satu file.'],
+      ['`MethodChannel`', 'Jembatan pesan asinkron bertipe antara Dart dan kode native Kotlin/Swift pada platform perangkat.'],
+      ['Breakpoint adaptif (`LayoutBuilder`)', 'Menampilkan `NavigationBar` bawah di ponsel dan `NavigationRail` samping di tablet dari pohon widget yang sama.']
+    ],
     title: 'Persistence, platform channel, dan UI adaptif',
     why: "Aplikasi sungguhan mengingat hal-hal di antara peluncuran, berbicara dengan fitur device yang tidak dicakup Flutter, dan tampil benar di HP, tablet, maupun browser. Inilah jarak antara demo dan sesuatu yang bisa kamu rilis ke store.",
     points: [
@@ -315,6 +380,17 @@ I18N.lessons('flutter', {
     ]
   },
   render: {
+    splits: ['1 · Worker isolate', '2 · CustomPainter Sparkline', '3 · Feed & Key'],
+    terms: [
+      ['Tiga pohon (Widget / Element / RenderObject)', 'Widget hanyalah konfigurasi murah; Element memegang identitas & `State`; RenderObject menghitung ukuran dan melukis piksel.'],
+      ['Isolate (`Isolate.run(...)`)', 'Memindahkan parsing JSON berat atau kriptografi ke memori pekerja terpisah agar UI isolate tetap di bawah anggaran 8–16 ms per frame.'],
+      ['Identitas `Key` (`ValueKey(id)`)', 'Menjaga Element stateful tetap terpasang ke item datanya saat baris disusun ulang atau disisipkan ketimbang tertukar index.']
+    ],
+    predict: {
+      prompt: 'List `StatefulWidget` menampilkan `[A, B, C]` tanpa `Key`, lalu kamu menyisipkan `X` di indeks 0 (`[X, A, B, C]`). Object `State` mana yang dipasangkan ke `A`?',
+      options: ['`A` otomatis menyimpan `State`-nya berdasar isi teks', '`A` mewarisi `State` lama milik `B` (slot indeks bergeser tanpa key)', 'Flutter langsung menolak berjalan tanpa `UniqueKey`'],
+      explain: 'Tanpa key eksplisit, Flutter mencocokkan slot Element berdasarkan tipe widget dan nomor indeks (`[0, 1, 2]`). Menyisipkan elemen di indeks 0 menggeser seluruh State lama kecuali tiap baris memakai `ValueKey(item.id)`.'
+    },
     title: 'Internal rendering, performance, dan isolate',
     why: "Mulus berarti satu frame setiap 16 ms — atau 8 ms di layar 120 Hz. Materi ini tentang apa yang terjadi di dalam sebuah frame, cara membaca DevTools, dan cara mengenali di tree mana masalahnya berada.",
     points: [
@@ -342,6 +418,12 @@ I18N.lessons('flutter', {
     ]
   },
   arch: {
+    splits: ['1 · Konfigurasi & Domain', '2 · Lapisan Data & Cubit', '3 · Error boundary & main()'],
+    terms: [
+      ['Konfigurasi `--dart-define`', 'Menyuntikkan URL API staging/produksi lewat `const String.fromEnvironment(...)` saat build tanpa menaruh rahasia di Git.'],
+      ['Batas lapisan feature-first', 'Memisahkan entity Domain Dart murni dari implementasi API di Data serta Cubit di Presentation per fitur.'],
+      ['Zone / `PlatformDispatcher.onError`', 'Penangkap error global untuk mencatat seluruh exception framework maupun async tak tertangani ke layanan pelapor crash.']
+    ],
     title: 'Arsitektur, flavor, dan rilis',
     why: "Merilis aplikasi mobile berbeda dari merilis website: bug tidak bisa diperbaiki dengan sekadar redeploy, user memakai versi lama berbulan-bulan, dan store me-review binary-mu. Jadi struktur, configuration, dan disiplin rilis lebih penting di sini daripada di web.",
     points: [

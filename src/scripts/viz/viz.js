@@ -4,9 +4,9 @@
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const btn = (label, onclick, cls) => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
   const check = (label, checked, onchange) => { const cb = h('input', { type: 'checkbox', onchange }); cb.checked = checked; return [h('label', {}, cb, label), cb]; };
-  const table = (cols, rows, rowClass) => h('table', { class: 't' },
-    h('thead', {}, h('tr', {}, cols.map(c => h('th', {}, c)))),
-    h('tbody', {}, rows.map((r, i) => h('tr', { class: rowClass ? rowClass(r, i) : null }, r.map(v => v == null ? h('td', { class: 'null' }, 'NULL') : h('td', {}, v))))));
+  const table = (cols, rows, rowClass, cap) => window.tableWrap(cap || 'Comparison table', h('table', { class: 't' },
+    h('thead', {}, h('tr', {}, cols.map(c => h('th', { scope: 'col' }, c)))),
+    h('tbody', {}, rows.map((r, i) => h('tr', { class: rowClass ? rowClass(r, i) : null }, r.map(v => v == null ? h('td', { class: 'null' }, 'NULL') : h('td', {}, v)))))));
 
   // Back / Next / Reset controls driving draw(i).
   function stepper(n, draw) {
@@ -18,7 +18,7 @@
   }
   const codeLines = lines => { const lis = lines.map(l => h('li', {}, l)); return { el: h('ol', { class: 'lines' }, lis), set: (cur, done) => lis.forEach((li, j) => li.className = j === cur ? 'cur' : done(j) ? 'done' : '') }; };
 
-  const VIZ = window.VIZ = {};
+  const VIZ = window.VIZ = window.VIZ || {};
 
   // ---------- C#: stack & heap ----------
   VIZ.stackheap = {
@@ -94,9 +94,10 @@
         ['.Take(3)', a => a.slice(0, 3)]
       ];
       const on = [true, true, false, true];
-      const out = h('div', {}), ctl = h('div', { class: 'viz-ctl' });
+      const out = h('div', {}), ctl = h('div', { class: 'viz-ctl' }), pullLog = h('div', { class: 'cells', style: { marginTop: '.5rem' } });
       const cells = (vals, gone = []) => h('div', { class: 'cells' }, vals.map(v => h('span', { class: 'cell' + (gone.includes(v) ? ' out' : '') }, v)));
       const draw = () => {
+        pullLog.replaceChildren();
         let cur = src; const rows = [h('div', { class: 'stage-row' }, h('code', {}, 'numbers'), cells(src))];
         defs.forEach(([name, fn], i) => {
           if (!on[i]) return;
@@ -107,8 +108,24 @@
         rows.push(h('div', { class: 'stage-row' }, h('code', {}, '.ToList()  ← runs here'), h('div', { class: 'cells' }, cur.map(v => h('span', { class: 'cell hit' }, v)))));
         out.replaceChildren(...rows);
       };
+      const stepPull = async () => {
+        const need = on[3] ? 3 : src.length;
+        if (on[2]) { draw(); pullLog.replaceChildren(h('p', { class: 'muted' }, 'OrderBy must buffer and inspect every item before yielding the smallest one.')); return; }
+        let kept = 0, inspected = 0;
+        const pills = [];
+        for (const v of src) {
+          inspected++;
+          if (on[0] && v <= 4) { pills.push(h('span', { class: 'cell out' }, `${v} skip`)); continue; }
+          const outV = on[1] ? v * 2 : v;
+          kept++;
+          pills.push(h('span', { class: 'cell hit' }, on[1] ? `${v}→${outV}` : String(outV)));
+          if (kept >= need) break;
+        }
+        pullLog.replaceChildren(h('p', { class: 'muted' }, T('Lazy iterator inspected {i} of {n} source items and stopped once {k} matched.', { i: inspected, n: src.length, k: kept })), h('div', { class: 'cells' }, pills));
+      };
       defs.forEach(([name], i) => { const [lab] = check(name, on[i], e => { on[i] = e.target.checked; draw(); }); ctl.append(lab); });
-      el.append(ctl, out, h('p', { class: 'viz-note' }, 'Deferred execution: the chain is only a description. No item moves until something enumerates it — here, ToList().'));
+      ctl.append(btn('Trace item-by-item pull', stepPull, 'ghost'));
+      el.append(ctl, out, pullLog, h('p', { class: 'viz-note' }, 'Deferred execution: the chain is only a description. No item moves until something enumerates it — here, ToList().'));
       draw();
     }
   };
@@ -158,7 +175,7 @@
     mount(el) {
       let req = 0, n = 0; const rows = [];
       const id = v => h('span', { class: 'id', style: { background: `hsl(${(v * 67) % 360} 65% 50% / .28)` } }, '#' + v);
-      const singleton = ++n;
+      let singleton = ++n;
       const body = h('div', {}), note = h('p', { class: 'viz-note' }, 'Send a few requests. Same colour = same object instance.');
       const draw = () => body.replaceChildren(table(['Request', 'Singleton', 'Scoped', 'Transient'], rows));
       const send = () => {
@@ -168,7 +185,10 @@
         draw();
         if (req >= 2) note.textContent = T('Singleton: one instance forever. Scoped: one per request, shared within it. Transient: a new one every single time it is asked for.');
       };
-      el.append(h('div', { class: 'viz-ctl' }, btn('Send request', send), btn('Restart app', () => { rows.length = 0; req = 0; draw(); note.textContent = T('App restarted — in a real app the singleton would be recreated too.'); }, 'ghost')), body, note);
+      el.append(h('div', { class: 'viz-ctl' }, btn('Send request', send), btn('Restart app', () => {
+        rows.length = 0; req = 0; singleton = ++n; send();
+        note.textContent = T('App restarted — a fresh singleton ({id}) was created. Send requests to compare with earlier runs.', { id: '#' + singleton });
+      }, 'ghost')), body, note);
       send();
     }
   };
@@ -250,7 +270,7 @@
     mount(el) {
       const sorted = [2, 5, 9, 12, 17, 21, 24, 28, 33, 37, 41, 46, 50, 55, 58, 62, 67, 71, 76, 80, 84, 89, 93, 97];
       const heap = [46, 9, 84, 21, 67, 2, 93, 33, 58, 12, 76, 41, 5, 97, 28, 62, 17, 89, 50, 24, 71, 37, 80, 55];
-      const sel = h('select', { 'aria-label': 'Target id' }, sorted.map(v => h('option', { value: v }, 'id = ' + v))); sel.value = 80;
+      const sel = h('select', { 'aria-label': 'Target id' }, sorted.map(v => h('option', { value: v }, T('id = {v}', { v })))); sel.value = 80;
       const mk = vals => vals.map(v => h('span', { class: 'cell' }, v));
       const hc = mk(heap), ic = mk(sorted), n1 = h('b', {}, '0'), n2 = h('b', {}, '0'), note = h('p', { class: 'viz-note' }, 'Pick a target and press Find.');
       let run = 0;
@@ -286,9 +306,10 @@
       const count = {}, nodes = {};
       const note = h('p', { class: 'viz-note' }, 'Click any component.');
       const [memoLab, memo] = check('Wrap child components in memo (props unchanged)', false, () => reset());
+      const [inlineLab, inlineProp] = check('Pass new inline onClick={() => ...} prop', false, () => reset());
       const label = name => { nodes[name].lastChild.textContent = `${T('renders:')} ${count[name]}`; };
       const render = (name, isRoot, hit, skipped) => {
-        if (!isRoot && memo.checked) { skipped.push(name); nodes[name].classList.add('skip'); return; }
+        if (!isRoot && memo.checked && !inlineProp.checked) { skipped.push(name); nodes[name].classList.add('skip'); return; }
         count[name]++; label(name); hit.push(name);
         const n = nodes[name]; n.classList.remove('flash-r'); void n.offsetWidth; n.classList.add('flash-r');
         (tree[name] || []).forEach(c => render(c, false, hit, skipped));
@@ -297,13 +318,18 @@
         Object.values(nodes).forEach(n => n.classList.remove('skip'));
         const hit = [], skipped = [];
         render(name, true, hit, skipped);
-        note.textContent = T(hit.length > 1 ? 'setState in {name} → {n} components re-rendered' : 'setState in {name} → {n} component re-rendered', { name, n: hit.length }) +
-          (skipped.length ? T('; {n} skipped by memo because their props did not change.', { n: skipped.length }) : T(hit.length > 1 ? ' — the component and its whole subtree, even though the children’s props are identical.' : '. Parents and siblings are never affected.'));
+        const tail = inlineProp.checked && memo.checked && hit.length > 1
+          ? T(' — memo did NOT skip children because inline () => {} created a brand-new function reference.')
+          : skipped.length ? T('; {n} skipped by memo because their props did not change.', { n: skipped.length })
+            : T(hit.length > 1 ? ' — the component and its whole subtree, even though the children’s props are identical.' : '. Parents and siblings are never affected.');
+        note.textContent = T(hit.length > 1 ? 'setState in {name} → {n} components re-rendered' : 'setState in {name} → {n} component re-rendered', { name, n: hit.length }) + tail;
       };
-      const mk = name => { count[name] = 1; return nodes[name] = h('button', { type: 'button', class: 'comp', onclick: () => click(name) }, `<${name.split(' ')[0]}>`, h('small', {}, T('renders:') + ' 1')); };
+      const mk = name => { count[name] = 1; return nodes[name] = h('button', { type: 'button', class: 'comp', onclick: () => click(name) }, `<${name}>`, h('small', {}, T('renders:') + ' 1')); };
       const reset = () => { Object.keys(nodes).forEach(n => { count[n] = 1; label(n); nodes[n].classList.remove('skip'); }); note.textContent = T('Click any component.'); };
-      el.append(h('div', { class: 'viz-ctl' }, memoLab, btn('Reset counts', reset, 'ghost')),
-        h('div', { class: 'tree' }, h('div', { class: 'tree-r' }, mk('App')), h('div', { class: 'tree-r' }, tree.App.map(mk)), h('div', { class: 'tree-r' }, tree.TodoList.map(mk))),
+      const treeEl = h('div', { class: 'tree' }, h('div', { class: 'tree-r' }, mk('App')), h('div', { class: 'tree-r' }, tree.App.map(mk)), h('div', { class: 'tree-r' }, tree.TodoList.map(mk)));
+      window.treeWire(treeEl, [[nodes.App, [nodes.Header, nodes.TodoList, nodes.Footer]], [nodes.TodoList, [nodes['TodoItem A'], nodes['TodoItem B'], nodes['TodoItem C']]]]);
+      el.append(h('div', { class: 'viz-ctl' }, memoLab, inlineLab, btn('Reset counts', reset, 'ghost')),
+        treeEl,
         h('p', { class: 'muted' }, 'App contains Header, TodoList and Footer. TodoList contains the three TodoItems.'), note);
     }
   };

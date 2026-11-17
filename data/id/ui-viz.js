@@ -62,7 +62,7 @@ I18N.add({
   'Request': 'Request',
   'Singleton: one instance forever. Scoped: one per request, shared within it. Transient: a new one every single time it is asked for.': 'Singleton: satu instance selamanya. Scoped: satu per request, dipakai bersama di dalam request itu. Transient: instance baru setiap kali diminta.',
   'Restart app': 'Restart aplikasi',
-  'App restarted — in a real app the singleton would be recreated too.': 'Aplikasi di-restart — di aplikasi sungguhan, singleton-nya juga akan dibuat ulang.',
+  'App restarted — a fresh singleton ({id}) was created. Send requests to compare with earlier runs.': 'Aplikasi di-restart — singleton baru ({id}) dibuat. Kirim request untuk membandingkannya dengan sesi sebelumnya.',
 
   // joins
   'JOIN explorer': 'JOIN explorer',
@@ -91,6 +91,7 @@ I18N.add({
   'Find one id among 24 rows: reading every row in storage order, or halving a sorted index each step.': 'Cari satu id di antara 24 baris: dengan membaca tiap baris sesuai urutan penyimpanan, atau dengan membagi dua index yang terurut di tiap langkah.',
   'Target id': 'Id yang dicari',
   'Pick a target and press Find.': 'Pilih id yang dicari lalu tekan Cari.',
+  'id = {v}': 'id = {v}',
   'Find': 'Cari',
   'Scan read {a} rows; the index needed {b} comparisons. With 1,000,000 rows a scan reads up to 1,000,000 — a seek needs about 20. That is O(n) versus O(log n).': 'Scan membaca {a} baris; index hanya butuh {b} perbandingan. Dengan 1.000.000 baris, scan bisa membaca sampai 1.000.000 — seek hanya butuh sekitar 20. Itulah O(n) versus O(log n).',
   'Table scan — rows in storage order · rows read: ': 'Table scan — baris sesuai urutan penyimpanan · baris dibaca: ',
@@ -109,6 +110,11 @@ I18N.add({
   '. Parents and siblings are never affected.': '. Parent dan sibling tidak pernah terpengaruh.',
   'Reset counts': 'Reset hitungan',
   'App contains Header, TodoList and Footer. TodoList contains the three TodoItems.': 'App berisi Header, TodoList, dan Footer. TodoList berisi tiga TodoItem.',
+  'Pass new inline onClick={() => ...} prop': 'Kirim prop inline onClick={() => ...} baru',
+  ' — memo did NOT skip children because inline () => {} created a brand-new function reference.': ' — memo TIDAK bisa melewati child karena fungsi inline () => {} membuat referensi baru setiap render.',
+  'Trace item-by-item pull': 'Lacak penarikan item satu per satu',
+  'OrderBy must buffer and inspect every item before yielding the smallest one.': 'OrderBy harus menampung dan memeriksa semua item dulu sebelum mengeluarkan item terkecil.',
+  'Lazy iterator inspected {i} of {n} source items and stopped once {k} matched.': 'Iterator malas memeriksa {i} dari {n} item sumber dan berhenti begitu {k} item cocok.',
 
   // journey
   'One click through the whole stack': 'Satu klik melewati seluruh stack',

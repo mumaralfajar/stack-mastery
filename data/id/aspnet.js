@@ -1,6 +1,11 @@
 // Bahasa Indonesia — track ASP.NET Core. Contoh kode tetap memakai versi aslinya.
 I18N.lessons('aspnet', {
   http: {
+    terms: [
+      ['Method & URL', 'Kata kerja (`GET`, `POST`, `PUT`, `DELETE`) ditambah jalur resource (`/api/products/7`) yang memberi tahu server aksi apa yang diminta.'],
+      ['Status code', 'Vonis tiga digit (`200 OK`, `201 Created`, `400 Bad Request`, `404 Not Found`, `500 Error`) agar klien tahu hasil request.'],
+      ['Header & body JSON', 'Metadata kunci/nilai (`Authorization`, `Content-Type`) yang membungkus payload JSON saat melintas lewat HTTP.']
+    ],
     title: 'Cara kerja web: HTTP dalam 20 menit',
     why: "ASP.NET Core adalah mesin yang mengubah HTTP request menjadi HTTP response. Begitu kamu bisa membaca request dan response mentah, kamu bisa men-debug masalah web di framework apa pun. Setiap contoh di track ini adalah `Program.cs` lengkap untuk .NET 10. Mulai dari `dotnet new web`, jalankan baris `dotnet add package` di bagian atas contohnya kalau ada, lalu paste. Contoh yang memakai database mengharapkan SQL Server Express di komputermu (`.\\SQLEXPRESS`), kecuali kamu mengisi connection string `Shop`.",
     points: [
@@ -28,6 +33,11 @@ I18N.lessons('aspnet', {
     ]
   },
   anatomy: {
+    terms: [
+      ['`builder.Services` (container DI)', 'Paruh pertama `Program.cs`: mendaftarkan service dan konteks database *sebelum* `builder.Build()`.'],
+      ['Pipeline middleware (`app.Use*`)', 'Paruh kedua `Program.cs`: menyusun rantai berurutan yang memproses setiap request masuk dan response keluar.'],
+      ['Endpoint Minimal API', '`app.MapGet("/path", handler)` memetakan rute langsung ke lambda C# tanpa boilerplate controller ekstra.']
+    ],
     title: 'Anatomi aplikasi ASP.NET Core',
     why: "`Program.cs` punya dua bagian, dan kebanyakan pertanyaan 'kenapa service-ku tidak ditemukan?' atau 'kenapa middleware-ku tidak jalan?' terjawab dengan tahu sesuatu itu masuk bagian yang mana.",
     points: [
@@ -54,6 +64,11 @@ I18N.lessons('aspnet', {
     ]
   },
   routing: {
+    terms: [
+      ['Batasan rute (`{id:int}`)', 'Memastikan `/products/abc` langsung ditolak 404 sebelum masuk ke handler C# dengan parameter yang salah.'],
+      ['Model binding', 'Otomatis menarik nilai bertipe dari segmen rute, query string (`?page=2`), header, dan body JSON request.'],
+      ['`TypedResults` vs `Results`', '`TypedResults.Ok(x)` menanamkan tipe balikan nyata (`Results<Ok<T>, NotFound>`) ke signature supaya OpenAPI mendokumentasikan semua status code.']
+    ],
     title: 'Routing, endpoint, dan model binding',
     why: "API adalah daftar endpoint. Memetakan URL ke kode, membaca input dengan aman, dan mengembalikan status code yang tepat adalah pekerjaan harian seorang backend developer.",
     points: [
@@ -82,6 +97,11 @@ I18N.lessons('aspnet', {
     ]
   },
   middleware: {
+    terms: [
+      ['Delegate middleware (`next()`)', 'Komponen pembungkus setiap HTTP request: kode sebelum `await next()` berjalan saat masuk; kode sesudahnya saat keluar.'],
+      ['Short-circuiting', 'Mengembalikan `401` atau response cache lebih awal tanpa memanggil `next()`, melewati handler di hilir dengan aman.'],
+      ['Urutan pipeline', 'Memasang `ExceptionHandler` di paling luar dan `UseAuthentication()` sebelum `UseAuthorization()` menjaga error tertangkap serta identitas siap sebelum dicek.']
+    ],
     title: 'Middleware pipeline',
     why: "Penanganan error, CORS, authentication, dan logging semuanya middleware. Salah urutan adalah salah satu kesalahan paling umum di ASP.NET Core, dan sulit terlihat kalau kamu belum punya gambaran pipeline-nya di kepala.",
     points: [
@@ -108,6 +128,11 @@ I18N.lessons('aspnet', {
     ]
   },
   di: {
+    terms: [
+      ['`Transient`', 'Instance baru dibuat setiap kali ada constructor atau endpoint yang meminta service ini.'],
+      ['`Scoped`', 'Satu instance dipakai bersama sepanjang satu HTTP request lalu di-dispose di akhir request — wajib untuk `DbContext`.'],
+      ['Bug captive dependency', 'Menyuntikkan service `Scoped` ke dalam `Singleton`, yang tak sengaja menahan koneksi DB usang selamanya.']
+    ],
     title: 'Dependency injection dan service lifetime',
     why: "DI adalah tulang punggung ASP.NET Core. Salah memilih lifetime membuatmu mendapat data basi, race pada state bersama, dan error 'cannot consume scoped service from singleton'.",
     points: [
@@ -133,6 +158,12 @@ I18N.lessons('aspnet', {
     ]
   },
   efcore: {
+    splits: ['1 · Setup & Program.cs', '2 · Proyeksi & update', '3 · Entity & DbContext'],
+    terms: [
+      ['`DbContext`', 'Mewakili sesi dengan database, melacak entity yang diambil, dan menghasilkan transaksi SQL saat `SaveChangesAsync()` dipanggil.'],
+      ['Proyeksi (`.Select(...)`)', 'Mengambil kolom DTO yang diperlukan langsung dari SQL alih-alih memuat grafik entity utuh ke memori.'],
+      ['Migration', 'Kode C# berversi (`dotnet ef migrations add`) untuk menjaga perubahan skema database tetap sinkron di Git.']
+    ],
     title: 'EF Core: database-mu di dalam C#',
     why: "EF Core adalah tempat C#, LINQ, dan SQL bertemu. Kalau dipakai dengan baik, boilerplate hilang; kalau dipakai membabi buta, ia menghasilkan query lambat yang tidak pernah kamu lihat. Kebiasaan yang paling penting adalah membaca SQL yang dihasilkannya.",
     points: [
@@ -160,6 +191,11 @@ I18N.lessons('aspnet', {
     ]
   },
   validation: {
+    terms: [
+      ['DTO Input/Output', 'Kontrak `record` terpisah (`CreateProductRequest`, `ProductResponse`) agar klien tak bisa mengubah kolom entity sensitif.'],
+      ['`AddValidation()`', 'Filter endpoint opsional pada Minimal API untuk menjalankan atribut `[Required]`, `[Range]`, dan `[MaxLength]` sebelum handler berjalan.'],
+      ['RFC 9457 `ProblemDetails`', 'Format payload JSON error standar (`title`, `status`, `errors`) untuk kegagalan validasi maupun exception tak terduga.']
+    ],
     title: 'DTO, validasi, dan penanganan error',
     why: "API adalah kontrak dengan orang asing. Memvalidasi setiap input dan mengembalikan error yang konsisten dan bisa dibaca mesin adalah yang membuatnya bisa dipakai oleh orang selain kamu.",
     points: [
@@ -187,6 +223,12 @@ I18N.lessons('aspnet', {
     ]
   },
   auth: {
+    splits: ['1 · Setup Auth & CORS', '2 · Endpoint & kepemilikan', '3 · Entity & pengaturan'],
+    terms: [
+      ['Autentikasi vs Otorisasi', 'Autentikasi memastikan *siapa* kamu (`ClaimsPrincipal`); otorisasi memeriksa *apa* yang boleh kamu sentuh.'],
+      ['Otorisasi berbasis resource', 'Memeriksa kepemilikan (`order.UserId == callerId`) di tiap baris data dan membalas `404` agar keberadaan data orang lain tidak bocor.'],
+      ['Kebijakan CORS', 'Header server yang menentukan origin frontend mana (jangan `*` dengan credentials) yang boleh membaca respons lintas-origin di browser.']
+    ],
     title: 'Authentication dan authorization',
     why: "Bug keamanan adalah yang paling mahal. Kamu harus bisa menjelaskan siapa pemanggilnya, bagaimana server tahu, dan bagaimana setiap endpoint memutuskan apa yang boleh mereka lakukan.",
     points: [
@@ -214,6 +256,11 @@ I18N.lessons('aspnet', {
     ]
   },
   config: {
+    terms: [
+      ['Pattern Options (`IOptions<T>`)', 'Mengikat bagian konfigurasi ke class C# bertipe kuat yang divalidasi saat aplikasi start (`ValidateDataAnnotations().ValidateOnStart()`).'],
+      ['Logging terstruktur', 'Template log (`"Paid {OrderId} for {Total}"`) menjaga field bernama tetap bisa dicari di Seq/OpenTelemetry alih-alih string polos.'],
+      ['User Secrets / Key Vault', 'Menyimpan password database dan API key di luar Git serta `appsettings.json` dengan rapi per environment.']
+    ],
     title: 'Options, logging, dan environment',
     why: "Build yang sama harus jalan di laptop, di CI, dan di production dengan setting yang berbeda. Saat ada yang rusak di production, sering kali log adalah satu-satunya pegangan.",
     points: [
@@ -240,6 +287,11 @@ I18N.lessons('aspnet', {
     ]
   },
   testing: {
+    terms: [
+      ['`WebApplicationFactory<T>`', 'Menyalakan pipeline ASP.NET Core aslimu (`routing`, `validation`, `middleware`) di memori untuk test integrasi cepat.'],
+      ['`HttpClient` in-memory', 'Mengirim request JSON HTTP sungguhan dari test ke `TestServer` tanpa membuka port jaringan nyata.'],
+      ['Test double & container', 'Jalankan test integrasi dengan kontainer SQL nyata (Testcontainers) bukan EF InMemory bila menguji perilaku SQL sesungguhnya.']
+    ],
     title: 'Testing API: unit dan integration',
     why: "Test membuatmu bisa mengubah kode tanpa rasa takut. Test yang baik juga dokumentasi yang tidak bisa basi: ia menyatakan apa yang seharusnya dilakukan kode, dan gagal begitu kode tidak lagi melakukannya.",
     points: [
@@ -265,6 +317,12 @@ I18N.lessons('aspnet', {
     ]
   },
   efadv: {
+    splits: ['1 · N+1 vs proyeksi', '2 · Optimistic concurrency', '3 · Entity & DbContext'],
+    terms: [
+      ['`AsNoTracking()`', 'Melewati pembukuan change-tracker pada query baca-saja untuk memangkas alokasi CPU dan RAM.'],
+      ['Bug query N+1', 'Mengirim 1 query untuk N baris ditambah N query tersembunyi di dalam loop — diselesaikan dengan proyeksi `.Select(...)` atau `.Include(...)`.'],
+      ['Optimistic concurrency (`[Timestamp]`)', 'Mendeteksi dua suntingan bentrok lewat versi baris dan mengembalikan `409 Conflict` alih-alih diam-diam menimpa suntingan pertama.']
+    ],
     title: 'EF Core lebih dalam: tracking, N+1, dan concurrency',
     why: "Kebanyakan aplikasi ASP.NET Core yang lambat itu lambat karena segelintir kesalahan EF Core. Masing-masing punya bentuk yang mudah dikenali di log SQL, dan perbaikan yang kecil.",
     points: [
@@ -291,6 +349,12 @@ I18N.lessons('aspnet', {
     ]
   },
   perf: {
+    splits: ['1 · Setup & RateLimiter', '2 · Endpoint cache', '3 · Model & DbContext'],
+    terms: [
+      ['`OutputCache`', 'Menyimpan byte respons HTTP utuh per kunci rute/query sehingga `GET` identik melewati eksekusi endpoint.'],
+      ['`HybridCache` (anti-stampede)', 'Menggabungkan cache L1 memori + L2 terdistribusi dan menyatukan miss paralel agar 1.000 request cukup memicu 1 bacaan DB.'],
+      ['Invalidasi cache', 'Menghapus entri cache lama (`EvictByTagAsync` / `RemoveAsync`) setiap ada operasi tulis `POST`/`PUT`/`DELETE`.']
+    ],
     title: 'Performance: caching, rate limiting, dan jebakan async',
     why: "Pekerjaan performance adalah pengukuran ditambah segelintir tuas yang sudah dipahami dengan baik. Keahliannya adalah mencocokkan tuas dengan gejalanya, dan tahu apa ongkos masing-masing terhadap ketepatan data.",
     points: [
@@ -319,6 +383,12 @@ I18N.lessons('aspnet', {
     ]
   },
   arch: {
+    splits: ['1 · Wiring aplikasi', '2 · Slice PlaceOrder', '3 · Entity domain', '4 · Outbox & worker'],
+    terms: [
+      ['Vertical slice', 'Mengelompokkan kode berdasarkan fitur (`PlaceOrder.cs` berisi command, validasi, handler, endpoint) bukan memisah-misahkannya per lapisan teknis.'],
+      ['Entity domain kaya', 'Menjaga invariant di dalam method pabrik/perilaku (`Order.Place(...)`) sehingga state invalid mustahil tercipta.'],
+      ['Transactional Outbox', 'Menulis baris bisnis dan `OutboxMessage` dalam transaksi DB *yang sama*; lalu `BackgroundService` mengirimkannya ke broker dengan andal.']
+    ],
     title: 'Arsitektur: batasan, slice, dan pekerjaan di background',
     why: "Arsitektur adalah memutuskan apa yang bisa berubah tanpa merusak apa. Sebuah struktur hanya layak dipertahankan kalau kamu bisa menyebutkan alasan di baliknya, dan kamu juga harus siap mengatakan kapan ia berlebihan.",
     points: [
@@ -348,6 +418,12 @@ I18N.lessons('aspnet', {
     ]
   },
   prod: {
+    splits: ['1 · Telemetri & resiliensi', '2 · Health check & client', '3 · Dockerfile & kontainer'],
+    terms: [
+      ['Trace & metrik OpenTelemetry', 'Menghubungkan log, latensi, dan span SQL/HTTP lintas service memakai header W3C Trace Context.'],
+      ['Probe Liveness vs Readiness', '`/health/live` mengecek “apakah prosesnya hidup?”; `/health/ready` mengecek “apakah DB siap menerima trafik?”.'],
+      ['Circuit breaker + retry ber-jitter', 'Melindungi dependensi hilir yang bermasalah dari kegagalan berantai menggunakan resilience handler standar dan idempotency key.']
+    ],
     title: 'Production: observability, resilience, dan deployment',
     why: "Kode baru selesai saat ia berjalan dengan andal untuk user, bukan saat berhasil di-compile. Artinya merancang untuk hari ketika sesuatu gagal, dan di production, cepat atau lambat sesuatu pasti gagal.",
     points: [

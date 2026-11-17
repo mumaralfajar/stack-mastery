@@ -5,6 +5,11 @@ TRACKS.push({
     // ---------------- Beginner ----------------
     {
       id: 'js', title: 'JavaScript essentials for TypeScript', level: 0, mins: 30,
+      terms: [
+        ['`const` vs `let`', '`const` prevents rebinding the variable name (default choice); object contents still use immutable copying (`{ ...x }`).'],
+        ['`===` vs `==`', '`===` compares value and type strictly with no hidden conversions (`0 == ""` is a famous `==` trap).'],
+        ['Array `.map()` / `.filter()`', 'Produces new transformed or filtered arrays without mutating the original list — fundamental to React updates.']
+      ],
       why: "TypeScript is JavaScript with types. Most React bugs that confuse beginners — stale values, mutated arrays, `undefined` — are JavaScript problems, not React ones.",
       points: [
         "`const` can't be reassigned, `let` can. Default to `const`, and don't use `var`.",
@@ -61,6 +66,11 @@ async function load(): Promise<void> {
     },
     {
       id: 'ts', title: 'TypeScript: types that catch bugs', level: 0, mins: 35,
+      terms: [
+        ['Discriminated union', 'Union of object shapes sharing a literal tag (`{ ok: true; data: T } | { ok: false; error: string }`) narrowed automatically in `if` blocks.'],
+        ['Type narrowing', 'Compiler tracking control flow (`typeof x === "string"`, `in`, `switch`) to know the exact subtype inside a branch.'],
+        ['`unknown` vs `any`', '`unknown` forces you to check the runtime shape before reading properties; `any` turns off the type checker completely.']
+      ],
       why: "TypeScript moves a whole class of bugs from 'a user found it' to 'the editor underlined it'. It is also the contract between your React frontend and your C# backend.",
       points: [
         "Annotate where data enters: parameters, return types, API responses. Let inference do the rest.",
@@ -117,6 +127,11 @@ function show(r: Result<Product>) {
     },
     {
       id: 'components', title: 'React: components, JSX and props', level: 0, mins: 35,
+      terms: [
+        ['JSX expression', 'JavaScript expression syntax (`<Card price={p.price} />`) compiled to `jsx(...)` UI description calls — not a separate template parser.'],
+        ['Props (one-way down)', 'Read-only inputs passed from parent to child; changing a child never mutates parent props directly.'],
+        ['Stable `key` prop', 'Lets React track items by database ID across inserts/sorts — using array index causes subtle state bugs when lists reorder.']
+      ],
       why: "React's main idea fits in one sentence: the UI is a function of data. Once you see a component as a function that returns a description of the screen, the rest follows. This track uses React 19, which is what a new Vite project installs.",
       points: [
         "A **component** is a function that returns JSX. Its name starts with a capital letter.",
@@ -176,6 +191,17 @@ export default function App() {
     // ---------------- Intermediate ----------------
     {
       id: 'jsdeep', title: 'JavaScript in depth: closures, this and the event loop', level: 1, mins: 40, viz: 'eventloop', lang: 'ts',
+      terms: [
+        ['Lexical closure', 'A function bundled with the variables from the scope where it was created — explaining how React hooks remember state across renders.'],
+        ['Microtask queue (`Promise.then`)', 'Drains completely right after the call stack empties and *before* the browser picks the next `setTimeout` macrotask or paints.'],
+        ['Value vs Reference equality (`===`)', 'Two objects with identical keys `{ a: 1 } === { a: 1 }` are `false` unless they point to the exact same object in memory.']
+      ],
+      predict: {
+        prompt: 'In what order do these log? `console.log(1); setTimeout(() => console.log(2), 0); Promise.resolve().then(() => console.log(3)); console.log(4);`',
+        options: ['`1, 2, 3, 4`', '`1, 4, 3, 2` (microtasks flush before timers)', '`1, 4, 2, 3` (timers run before promises)'],
+        answer: 1,
+        explain: 'Synchronous calls (`1`, `4`) run first on the call stack, then the microtask queue drains completely (`3`), and only after that does the macrotask queue (`setTimeout` `2`) run.'
+      },
       why: "These three ideas explain most 'weird' JavaScript behavior: stale values in React hooks, a `this` that goes missing, and code that runs in an unexpected order.",
       points: [
         "A **closure** is a function plus the variables it could see when it was created. Those variables stay alive as long as the function does. Every React hook and event handler relies on this.",
@@ -235,6 +261,11 @@ async function loadDashboard() {
     },
     {
       id: 'state', title: 'State and re-rendering', level: 1, mins: 40, viz: 'rerender',
+      terms: [
+        ['Render snapshot', 'State (`count`) stays constant inside one render pass; `setCount(c => c + 1)` reads the newest queued state safely.'],
+        ['Immutable state update', 'Creating a new array/object (`setItems([...items, x])`) so `Object.is(prev, next)` sees the reference changed and re-renders.'],
+        ['Derived state', 'Computing filtered totals on the fly during render instead of copying values into extra `useState` variables that drift out of sync.']
+      ],
       why: "State is how a component remembers things, and how React knows the screen must change. 'Why didn't the screen update?' and 'why does it render so often?' both come from how this works.",
       points: [
         "**State** is data a component remembers between renders: `const [count, setCount] = useState(0)`.",
@@ -300,7 +331,18 @@ export function Todos() {
       ]
     },
     {
-      id: 'effects', title: 'Effects and data fetching', level: 1, mins: 40,
+      id: 'effects', title: 'Effects and data fetching', level: 1, mins: 40, viz: 'useeffect',
+      terms: [
+        ['Dependency array (`[userId]`)', 'Every reactive value read inside `useEffect` belongs in this list so React re-runs the effect whenever those inputs change.'],
+        ['Cleanup function (`return () => ...`)', 'Runs before the next effect executes and on unmount — essential for `AbortController`, timers, and ignoring stale async responses.'],
+        ['Synchronization, not event logic', '`useEffect` syncs React with an external system (network, WebSocket, DOM API); button-click saves belong in event handlers.']
+      ],
+      predict: {
+        prompt: 'A user switches quickly from `userId = 1` (slow 700 ms request) to `userId = 2` (fast 100 ms request) in a naive `useEffect` without cleanup. What ends up on screen at t = 700 ms?',
+        options: ['User #2 stays shown cleanly', 'User #1 overwrites User #2 (race condition)', 'React automatically cancels `fetch` calls without `AbortController`'],
+        answer: 1,
+        explain: 'React does not auto-cancel `fetch()` promises. When slow request #1 resolves at 700 ms without cleanup checking an abort/ignore flag, its stale `setState` overwrites User #2.'
+      },
       why: "`useEffect` causes more confusion than any other hook. Knowing what it's for (keeping in step with something outside React) and what it isn't for prevents infinite loops, races, and a lot of hard-to-trace bugs.",
       points: [
         "Rendering must be **pure**: same props and state in, same JSX out, no side effects.",
@@ -356,6 +398,11 @@ export function ProductDetails({ id }: { id: number }) {
     },
     {
       id: 'forms', title: 'Forms, lifting state and composition', level: 1, mins: 35,
+      terms: [
+        ['Controlled input', 'An `<input value={val} onChange={...} />` whose source of truth lives in React state rather than reading the DOM on submit.'],
+        ['Lifting state up', 'Moving shared state to the lowest common parent so two sibling components stay synchronized through props.'],
+        ['Composition (`children`)', 'Passing JSX slots (`<Modal>{content}</Modal>`) instead of chaining boolean/config props keeps parents decoupled.']
+      ],
       why: "Real interfaces are forms and lists that share data. Knowing where state should live, and how sibling components talk to each other, keeps an app tidy instead of tangled.",
       points: [
         "React 19 forms can use **Actions**: pass a function to `<form action={…}>` and `useActionState` gives you the returned state (such as errors) and an `isPending` flag. The values arrive as `FormData`.",
@@ -433,6 +480,11 @@ export function Catalog() {
     },
     {
       id: 'generics', title: 'TypeScript generics and utility types', level: 1, mins: 35,
+      terms: [
+        ['Generic constraint (`<T extends { id: number }>`)', 'Requires a generic type parameter to support at least a minimum shape while preserving the full subtype on return.'],
+        ['`Pick` / `Omit` / `Partial`', 'Built-in utility types deriving `CreateProduct` (`Omit<Product, "id">`) or `UpdateProduct` directly from one canonical interface.'],
+        ['`keyof T` & Indexed access (`T[K]`)', 'Lets helper functions (`groupBy(items, key)`) ensure keys actually exist and know the exact property type returned.']
+      ],
       why: "Generics let you write one reusable function, hook or component that stays fully typed. Utility types let you derive types instead of copying them, which keeps the frontend in step with the API.",
       points: [
         "A **generic** is a type parameter: `function first<T>(items: T[]): T | undefined`. The caller's type flows through.",
@@ -494,6 +546,11 @@ export function List<T>({ items, render, keyOf }: ListProps<T>) {
     // ---------------- Advanced ----------------
     {
       id: 'hooks', title: 'Custom hooks, context and reducers', level: 2, mins: 40,
+      terms: [
+        ['Custom hook (`useX`)', 'A plain TypeScript function extracting stateful logic + hooks so multiple components reuse behavior cleanly without extra DOM wrappers.'],
+        ['`useReducer`', 'Bundles complex state transitions behind an explicit `switch (action.type)` state machine outside the JSX component.'],
+        ['Context (`createContext`)', 'Passes shared theme/auth values down a deep tree without prop-drilling through intermediate layers.']
+      ],
       why: "As apps grow, logic has to be shared without copy-paste, and data has to reach deep components without passing props through ten layers. These three tools are React's answer.",
       points: [
         "A **custom hook** is a function named `useX` that calls other hooks. It shares **logic**, not state: each caller gets its own state.",
@@ -569,6 +626,11 @@ export function useCart() {
     },
     {
       id: 'perf', title: 'Rendering performance', level: 2, mins: 35, viz: 'rerender',
+      terms: [
+        ['`React.memo`', 'Skips re-rendering a child when all props match shallowly (`Object.is`) — easily defeated by fresh inline object or callback literals unless stabilized.'],
+        ['`useCallback` & `useMemo`', 'Preserves function/object references across renders ONLY worth using when profiling proves child memoization or heavy work needs them.'],
+        ['`useTransition` / state colocation', 'Moves fast-changing state down to the leaf that needs it and marks slow filter updates non-urgent so typing never lags.']
+      ],
       why: "React is fast by default, and most hand-made 'optimizations' make code harder to read without making it faster. Measure first, then apply the right fix to the right component.",
       points: [
         "A **render** is React calling your function; a **commit** is React touching the DOM. Renders are usually cheap; extra ones only matter when they're slow or very many.",
@@ -634,6 +696,12 @@ export function Catalog({ rows }: { rows: Row[] }) {
     },
     {
       id: 'server', title: 'Server state, routing and talking to your API', level: 2, mins: 45,
+      splits: [['1 · ApiError & api() helper', 'import { useState }'], ['2 · ProductsPage Query & Mutation', 'export function ProductsPage()']],
+      terms: [
+        ['Server state vs Client state', 'Backend data is asynchronous, shared, and cacheable; keeping it in TanStack Query eliminates stale local copies.'],
+        ['`useQuery` & `invalidateQueries`', '`useQuery` caches fetches by `queryKey`; after `useMutation` writes, invalidation refreshes every matching screen automatically.'],
+        ['`ProblemDetails` field error map', 'Translates ASP.NET Core `400` validation JSON (`errors.Name[0]`) straight into accessible form errors wired via `aria-describedby`.']
+      ],
       why: "This is where the tracks meet: a React screen calling an ASP.NET Core endpoint that runs SQL. Getting caching, errors, auth and types right here is the core of full-stack work.",
       points: [
         "**Server state** (data owned by the backend) is different from **client state** (UI state). It's asynchronous, shared, and can go stale.",
@@ -741,6 +809,11 @@ export function ProductsPage() {
     // ---------------- Expert ----------------
     {
       id: 'tsadv', title: 'Advanced types: conditional, mapped and inferred', level: 3, mins: 45,
+      terms: [
+        ['Conditional type (`T extends U ? X : Y`)', 'Computes a return type dynamically based on input shape — just like TypeScript’s built-in `Awaited<T>` or `ReturnType<F>`.'],
+        ['Mapped type (`{ [K in keyof T]: ... }`)', 'Transforms every property in an interface systematically (for example creating typed form field error dictionaries).'],
+        ['`infer` & Template literals', 'Extracts inner types cleanly (`infer R`) and enforces API path strings (`\`/api/${string}\``) at compile time.']
+      ],
       why: "TypeScript's type system is a small programming language. Used well, it makes wrong code impossible to write; used too cleverly, it makes code nobody else can change. The skill is telling the two apart.",
       points: [
         "**Conditional types** choose a type: `T extends U ? X : Y`. Over a union they **distribute**: they're applied to each member.",
@@ -803,6 +876,11 @@ type RouteName = keyof typeof routes;                // "home" | "product"
     },
     {
       id: 'internals', title: 'React internals: reconciliation and concurrency', level: 3, mins: 45,
+      terms: [
+        ['Fiber tree (work unit)', 'React’s internal linked tree holding component state/hooks so rendering can pause, resume, or abort low-priority work.'],
+        ['Reconciliation (render vs commit)', 'Render computes the next UI diff purely in JS; Commit flushes minimal DOM mutations synchronously so screens never half-update.'],
+        ['`StrictMode` double invocation', 'Dev-only check calling render/effects twice to flush out impure state mutations and missing effect cleanups early.']
+      ],
       why: "Knowing how React decides what to change, and when, turns puzzling behavior — lost state, effects running twice, jank — into predictable results of a small set of rules.",
       points: [
         "Rendering produces a tree of **elements** (plain objects). **Reconciliation** compares it with the previous tree to find the smallest set of DOM changes.",
@@ -863,6 +941,11 @@ export function Search({ items }: { items: string[] }) {
     },
     {
       id: 'arch', title: 'Frontend architecture, testing and accessibility', level: 3, mins: 45,
+      terms: [
+        ['Query-level test (`render` + `userEvent`)', 'Tests components from the user’s viewpoint via accessible roles/labels (`getByRole("button")`) instead of internal component state.'],
+        ['API mocking (`MSW`)', 'Intercepts `fetch` at the network boundary so component tests run real serialization, validation, and error states cleanly.'],
+        ['Core a11y gates (`axe-core`)', 'Semantic landmarks, keyboard operability, labelled controls, and `role="alert"` error regions verified automatically per feature.']
+      ],
       why: "A good frontend is one a team can change safely for years and that every user can operate. That takes structure, tests that survive refactoring, and accessibility treated as a requirement rather than a feature.",
       points: [
         "Classify state before choosing tools: **server state** (query library), **URL state** (router), **local UI state** (`useState`), **shared client state** (context, or a store such as Zustand when it changes often).",

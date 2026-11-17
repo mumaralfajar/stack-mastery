@@ -1,6 +1,6 @@
 // CSS visualizations: specificity, box model, flexbox, grid.
 (() => {
-  const VIZ = window.VIZ, T = window.t;
+  const VIZ = window.VIZ = window.VIZ || {}, T = window.t;
   const meta = { track: 'css', trackName: 'CSS + Tailwind' };
   const select = (label, opts, onchange) => { const s = h('select', { onchange }, opts.map(o => h('option', {}, o))); return [h('label', {}, label, s), s]; };
   const range = (label, min, max, step, val, oninput) => {

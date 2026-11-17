@@ -1,6 +1,7 @@
 // Shared helpers: DOM builder, escaping, mini-markdown, syntax highlighting.
 const W = typeof window !== 'undefined' ? window : globalThis;
 W.TRACKS = W.TRACKS || [];
+W.VIZ = W.VIZ || {};
 W.LEVELS = W.LEVELS || ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
 
 // ---------- language ----------
@@ -65,12 +66,45 @@ const SPEC = {
   html: ['<!--[\\s\\S]*?-->', '"[^"]*"', '<\\/?[a-zA-Z][\\w-]*|\\/?>', '(?!)', '[a-z-]+(?==)'],
   sh: ['#[^\\n]*', '"[^"]*"|\'[^\']*\'', '\\b(?:dotnet|npm|npx|git|node|cd|code|docker)\\b', '(?!)', '(?<=\\s)--?[a-zA-Z][\\w-]*']
 };
+const TPL_RX = /(<!--[\s\S]*?-->)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(@(?:if|else\s+if|else|for|empty|switch|case|default|defer|placeholder|loading|error)\b|\{\{|\}\})|(<\/?[a-zA-Z][\w-]*|\/?>)|([([]?[a-zA-Z][\w.-]*[\])]?(?==))/g;
+function highlightTemplate(raw) {
+  const inner = raw.slice(1, -1);
+  let out = '<span class="tk-s">`</span>', last = 0;
+  inner.replace(TPL_RX, (m, c, s, k, tag, _attr, i) => {
+    out += W.esc(inner.slice(last, i));
+    const cls = c ? 'c' : s ? 's' : k ? 'k' : tag ? 't' : 'n';
+    out += `<span class="tk-${cls}">${W.esc(m)}</span>`;
+    last = i + m.length;
+    return m;
+  });
+  return out + W.esc(inner.slice(last)) + '<span class="tk-s">`</span>';
+}
+function highlightInterp(raw, lang) {
+  if (lang === 'cs' && !raw.startsWith('$"') && !raw.startsWith('@$"') && !raw.startsWith('$@"')) return `<span class="tk-s">${W.esc(raw)}</span>`;
+  if (lang === 'ts' && !raw.startsWith('`')) return `<span class="tk-s">${W.esc(raw)}</span>`;
+  if (lang !== 'cs' && lang !== 'ts' && lang !== 'dart') return `<span class="tk-s">${W.esc(raw)}</span>`;
+  const rx = lang === 'ts' ? /(\$\{[^}]*\})/g
+    : lang === 'cs' ? /(\{\{|\}\}|\{[^}]*\})/g
+    : /(\$\{[^}]*\}|\$[a-zA-Z_]\w*)/g;
+  let out = '', last = 0, any = false;
+  raw.replace(rx, (m, _g, i) => {
+    any = true;
+    if (i > last) out += `<span class="tk-s">${W.esc(raw.slice(last, i))}</span>`;
+    out += m === '{{' || m === '}}' ? `<span class="tk-s">${W.esc(m)}</span>` : `<span class="tk-n">${W.esc(m)}</span>`;
+    last = i + m.length;
+    return m;
+  });
+  if (!any) return `<span class="tk-s">${W.esc(raw)}</span>`;
+  if (last < raw.length) out += `<span class="tk-s">${W.esc(raw.slice(last))}</span>`;
+  return out;
+}
 function rx(lang) {
   if (RX[lang]) return RX[lang];
   if (SPEC[lang]) return RX[lang] = new RegExp(SPEC[lang].map(p => `(${p})`).join('|'), 'g');
   const sql = lang === 'sql';
   const comment = sql ? '--[^\\n]*' : '\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/';
-  const str = sql ? "'[^']*'" : '"(?:[^"\\\\\\n]|\\\\.)*"|\'(?:[^\'\\\\\\n]|\\\\.)*\'|`[^`]*`';
+  const prefix = lang === 'cs' ? '(?:\\$@?|@\\$)?' : '';
+  const str = sql ? "'[^']*'" : `${prefix}"(?:[^"\\\\\\n]|\\\\.)*"|'(?:[^'\\\\\\n]|\\\\.)*'|\`[^\`]*\``;
   const kw = (KW[lang] || KW.cs).split(' ').join('|');
   return RX[lang] = new RegExp(`(${comment})|(${str})|\\b(${kw})\\b|\\b(\\d+(?:\\.\\d+)?)\\b|\\b([A-Z][A-Za-z0-9]*)\\b`, sql ? 'gi' : 'g');
 }
@@ -78,8 +112,13 @@ W.highlight = function (code, lang) {
   let out = '', last = 0;
   code.replace(rx(lang), (m, c, s, k, n, t, i) => {
     out += W.esc(code.slice(last, i));
-    const cls = c ? 'c' : s ? 's' : k ? 'k' : n ? 'n' : (lang === 'sql' ? '' : 't');
-    out += cls ? `<span class="tk-${cls}">${W.esc(m)}</span>` : W.esc(m);
+    if (s) {
+      if (lang === 'ts' && m.startsWith('`') && /(?:\n|<[a-zA-Z/]|@(?:if|for|switch|defer)\b|\{\{)/.test(m)) out += highlightTemplate(m);
+      else out += highlightInterp(m, lang);
+    } else {
+      const cls = c ? 'c' : k ? 'k' : n ? 'n' : (lang === 'sql' ? '' : 't');
+      out += cls ? `<span class="tk-${cls}">${W.esc(m)}</span>` : W.esc(m);
+    }
     last = i + m.length;
     return m;
   });
@@ -89,10 +128,18 @@ W.highlight = function (code, lang) {
 const copyTimers = new WeakMap();
 let lastCopyMsg = '';
 
-W.codeBlock = function (code, lang) {
+W.codeBlock = function (code, lang, opts = {}) {
   code = code.replace(/^\n+|\s+$/g, '');
   const label = { cs: 'C#', sql: 'SQL', ts: 'TypeScript', tsx: 'TSX', dart: 'Dart', sh: 'Shell', css: 'CSS', html: 'HTML' }[lang] || lang;
   const tip = W.h('span', { class: 'copy-tip', role: 'status' });
+  const pre = W.h('pre', {}, W.h('code', { html: W.highlight(code, lang === 'tsx' ? 'ts' : lang) }));
+  let hidden = !!opts.blurComments;
+  const wrap = W.h('div', { class: 'code' + (hidden ? ' hide-hints' : '') });
+  const hintBtn = opts.blurToggle ? W.h('button', { type: 'button', class: 'copy', onclick: () => {
+    hidden = !hidden;
+    wrap.classList.toggle('hide-hints', hidden);
+    hintBtn.textContent = W.t(hidden ? 'Show hints' : 'Hide hints');
+  } }, hidden ? 'Show hints' : 'Hide hints') : null;
   const btn = W.h('button', { class: 'copy', type: 'button', onclick: async () => {
     let ok = false;
     try {
@@ -115,7 +162,129 @@ W.codeBlock = function (code, lang) {
       tip.textContent = '';
     }, 1800));
   } }, 'Copy');
-  return W.h('div', { class: 'code' },
-    W.h('div', { class: 'code-bar' }, W.h('span', {}, label), W.h('span', { class: 'copy-wrap' }, tip, btn)),
-    W.h('pre', {}, W.h('code', { html: W.highlight(code, lang === 'tsx' ? 'ts' : lang) })));
+  wrap.append(W.h('div', { class: 'code-bar' }, W.h('span', {}, label), W.h('span', { class: 'copy-wrap' }, hintBtn, tip, btn)), pre);
+  return wrap;
+};
+
+// Render either a single codeBlock or accessible section tabs derived from l.splits.
+W.codeFiles = function (code, lang, splits, opts = {}) {
+  if (!splits || !splits.length) return W.codeBlock(code, lang, opts);
+  const lines = code.replace(/^\n+|\s+$/g, '').split('\n');
+  const idxs = splits.map(([, anchor]) => lines.findIndex(ln => ln.includes(anchor)));
+  if (idxs.some(i => i < 0)) return W.codeBlock(code, lang, opts);
+  const tabs = splits.map(([label], i) => {
+    const start = idxs[i];
+    const end = i + 1 < idxs.length ? idxs[i + 1] : lines.length;
+    return [label, lines.slice(start, end).join('\n').trimEnd()];
+  });
+  tabs.push(['Full file', lines.join('\n')]);
+  const panel = W.h('div', { role: 'tabpanel' });
+  const bar = W.h('div', { class: 'code-tabs', role: 'tablist', 'aria-label': 'Code sections' });
+  const btns = [];
+  const select = k => {
+    btns.forEach((b, i) => {
+      const on = i === k;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-selected', String(on));
+      b.tabIndex = on ? 0 : -1;
+    });
+    panel.replaceChildren(W.codeBlock(tabs[k][1], lang, opts));
+  };
+  tabs.forEach(([label], i) => {
+    const b = W.h('button', {
+      type: 'button', role: 'tab', 'aria-selected': i === 0 ? 'true' : 'false',
+      tabindex: i === 0 ? '0' : '-1',
+      onclick: () => select(i),
+      onkeydown: e => {
+        if (e.key === 'ArrowRight') { select((i + 1) % tabs.length); btns[(i + 1) % tabs.length].focus(); }
+        if (e.key === 'ArrowLeft') { select((i - 1 + tabs.length) % tabs.length); btns[(i - 1 + tabs.length) % tabs.length].focus(); }
+      }
+    }, label);
+    btns.push(b);
+    bar.append(b);
+  });
+  select(0);
+  return W.h('div', { class: 'code-tabwrap' }, bar, panel);
+};
+
+// Connect parent/child component nodes in `.tree` visualizations with crisp SVG hierarchy lines.
+W.treeWire = function (treeEl, edges) {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('class', 'tree-wires');
+  svg.setAttribute('aria-hidden', 'true');
+  treeEl.prepend(svg);
+  const draw = () => {
+    const tr = treeEl.getBoundingClientRect();
+    if (!tr.width || !tr.height) return;
+    svg.setAttribute('viewBox', `0 0 ${tr.width} ${tr.height}`);
+    let d = '';
+    for (const [parent, children] of edges) {
+      if (!parent || !children.length) continue;
+      const pr = parent.getBoundingClientRect();
+      const px = pr.left - tr.left + pr.width / 2;
+      const py = pr.bottom - tr.top;
+      const cRects = children.map(c => c.getBoundingClientRect());
+      const midY = py + (cRects[0].top - pr.bottom) / 2;
+      d += `M${px} ${py}V${midY}`;
+      const xs = cRects.map(cr => cr.left - tr.left + cr.width / 2);
+      d += `M${Math.min(...xs)} ${midY}H${Math.max(...xs)}`;
+      for (let i = 0; i < cRects.length; i++) d += `M${xs[i]} ${midY}V${cRects[i].top - tr.top}`;
+    }
+    svg.innerHTML = `<path d="${d}"/>`;
+  };
+  if (typeof ResizeObserver === 'function') new ResizeObserver(draw).observe(treeEl);
+  requestAnimationFrame(draw);
+  return treeEl;
+};
+
+// Accessible native modal dialog helper (showModal + safe autofocus + closedby fallback).
+W.confirmDialog = function (message, { title = 'Confirm', confirmText = 'Continue', cancelText = 'Cancel', danger = false } = {}) {
+  return new Promise(resolve => {
+    const id = 'dlg-' + Math.random().toString(36).slice(2, 8);
+    const dlg = W.h('dialog', { class: 'sm-dialog', closedby: 'any', 'aria-labelledby': id });
+    const cancelBtn = W.h('button', { type: 'submit', value: 'cancel', class: 'btn ghost', autofocus: danger }, cancelText);
+    const okBtn = W.h('button', { type: 'submit', value: 'ok', class: 'btn' + (danger ? ' danger' : ''), autofocus: !danger }, confirmText);
+    const form = W.h('form', { method: 'dialog' },
+      W.h('h2', { id }, title),
+      W.h('p', {}, message),
+      W.h('div', { class: 'dlg-actions' }, cancelBtn, okBtn));
+    dlg.append(form);
+    if (!('closedBy' in HTMLDialogElement.prototype)) {
+      let downOut = false;
+      const out = e => { const r = dlg.getBoundingClientRect(); return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom; };
+      dlg.addEventListener('pointerdown', e => { downOut = out(e); });
+      dlg.addEventListener('click', e => { if (downOut && out(e)) dlg.close(''); });
+    }
+    dlg.addEventListener('close', () => {
+      const ok = dlg.returnValue === 'ok';
+      dlg.returnValue = '';
+      dlg.remove();
+      resolve(ok);
+    });
+    document.body.append(dlg);
+    dlg.showModal();
+  });
+};
+
+W.alertDialog = function (message, { title = 'Notice', okText = 'OK' } = {}) {
+  return new Promise(resolve => {
+    const id = 'dlg-' + Math.random().toString(36).slice(2, 8);
+    const dlg = W.h('dialog', { class: 'sm-dialog', closedby: 'any', 'aria-labelledby': id });
+    dlg.append(W.h('form', { method: 'dialog' },
+      W.h('h2', { id }, title),
+      W.h('p', {}, message),
+      W.h('div', { class: 'dlg-actions' }, W.h('button', { type: 'submit', value: 'ok', class: 'btn', autofocus: true }, okText))));
+    dlg.addEventListener('close', () => { dlg.returnValue = ''; dlg.remove(); resolve(); });
+    document.body.append(dlg);
+    dlg.showModal();
+  });
+};
+
+// Wrap tables in a keyboard-scrollable landmark with an accessible caption.
+W.tableWrap = function (caption, tbl) {
+  if (caption && !tbl.querySelector('caption')) {
+    tbl.prepend(W.h('caption', { class: 'sr-only' }, caption));
+  }
+  return W.h('div', { class: 'table-wrap', role: 'region', tabindex: 0, 'aria-label': caption || 'Data table' }, tbl);
 };

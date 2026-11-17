@@ -5,6 +5,11 @@ TRACKS.push({
     // ---------------- Beginner ----------------
     {
       id: 'types', title: 'Programs, variables and types', level: 0, mins: 25,
+      terms: [
+        ['Static typing', 'Every variable has a known type (`int`, `string`, `decimal`) checked at build time before the program ever runs.'],
+        ['`var` (type inference)', 'Lets the compiler infer the exact variable type from the right-hand expression — it does NOT make the type dynamic.'],
+        ['`decimal` vs `double`', '`decimal` (`0.1m`) uses base-10 arithmetic for money; `double` uses binary floating point and can round `0.1 + 0.2`.']
+      ],
       why: "Every C# program is values with types, moving through statements. Once you see that the compiler checks those types **before** the program runs, most beginner errors stop being mysterious: they are the compiler telling you, early, that two things don't fit.",
       points: [
         "C# source compiles to IL (intermediate language); the .NET runtime (CLR) turns IL into machine code as the program runs (JIT). `dotnet run` does both steps.",
@@ -49,6 +54,11 @@ Console.WriteLine(7 / 2.0);                                       // 3.5
     },
     {
       id: 'flow', title: 'Control flow and methods', level: 0, mins: 30,
+      terms: [
+        ['Guard clause (early `return`)', 'Handling invalid cases at the top of a method so the happy path stays flat instead of deeply nested.'],
+        ['Switch expression', 'Compact form (`score switch { >= 90 => "A", _ => "B" }`) that guarantees every branch returns a value.'],
+        ['Method signature', 'A method’s name, return type, and parameter types — changing it is the clearest way to spot breaking API changes.']
+      ],
       why: "Decisions, repetition and named, reusable steps: that is the whole grammar of program logic. LINQ, async and web requests later on are all built out of these pieces.",
       points: [
         "`if / else if / else` picks a branch using a `bool` expression. `==` compares, `=` assigns.",
@@ -96,6 +106,11 @@ else Console.WriteLine("Needs review");
     },
     {
       id: 'classes', title: 'Classes, objects and properties', level: 0, mins: 35,
+      terms: [
+        ['Class vs Object', 'A `class` is the blueprint (`Product`); an object is one real instance in memory created with `new Product(...)`.'],
+        ['Constructor', 'Runs when `new` builds the object to ensure required state starts valid (`init` or primary constructor parameters).'],
+        ['Invariant', 'A rule an object never breaks — for example, blocking negative prices inside a constructor or setter rather than letting callers corrupt it.']
+      ],
       why: "C# is object-oriented at its core. ASP.NET Core controllers, EF Core entities and DTOs are all classes, so reading a class fluently is what lets you read a real codebase at all.",
       points: [
         "A **class** is a blueprint; an **object** is one instance built with `new`.",
@@ -147,6 +162,17 @@ public class BankAccount
     // ---------------- Intermediate ----------------
     {
       id: 'memory', title: 'Value types vs reference types', level: 1, mins: 30, viz: 'stackheap',
+      terms: [
+        ['Value type (`struct`, `int`)', 'Assignment copies the entire value (`b = a`), so changing `b` leaves `a` untouched.'],
+        ['Reference type (`class`)', 'The variable stores a memory address pointing to the heap object — copying the variable copies the address, not the object.'],
+        ['Immutability', 'Making properties `init`-only or returning new instances (`with`) so sharing a reference cannot cause surprise mutations.']
+      ],
+      predict: {
+        prompt: 'Suppose `p1 = new Person("Ana")`, `p2 = p1`, and then `p2.Name = "Budi"`. What does `Console.WriteLine(p1.Name)` print?',
+        options: ['`Ana` (`p2` received a separate copy)', '`Budi` (both variables point to the same heap object)', 'Compiler error on re-assignment'],
+        answer: 1,
+        explain: 'Because `Person` is a `class` (reference type), `p2 = p1` copied the reference address, not the object. Mutating `p2.Name` mutates the single shared instance.'
+      },
       why: "'I changed one variable and the other one changed too' is one of the first confusing bugs you will hit in C#. The answer is value versus reference semantics, and once it clicks it stays clicked.",
       points: [
         "**Value types** (`int`, `bool`, `decimal`, `DateTime`, any `struct` or `enum`): the variable holds the data itself. Assignment copies the data.",
@@ -193,6 +219,11 @@ class Person { public string Name { get; set; } = ""; }
     },
     {
       id: 'interfaces', title: 'Interfaces, inheritance and polymorphism', level: 1, mins: 35,
+      terms: [
+        ['Interface (`IPayment`)', 'A contract listing *what* a type can do without dictating *how* — letting tests swap real Stripe calls for fakes.'],
+        ['Polymorphism', 'Calling `.Charge(...)` through an `IPayment` variable and having each concrete class run its own implementation.'],
+        ['Composition over inheritance', 'Holding helper dependencies as fields (`class OrderService(IPayment pay)`) instead of rigid `BaseOrderService` inheritance trees.']
+      ],
       why: "ASP.NET Core leans on interfaces everywhere: you ask for an `ILogger<T>`, register services on an `IServiceCollection`, read settings through `IConfiguration`. Dependency injection and unit testing only make sense once interfaces do.",
       points: [
         "An **interface** is a contract: a list of members a class promises to provide. It holds no instance data.",
@@ -269,6 +300,11 @@ public class Cat : Animal
     },
     {
       id: 'generics', title: 'Collections and generics', level: 1, mins: 30,
+      terms: [
+        ['`List<T>` vs `Dictionary<K,V>` vs `HashSet<T>`', '`List` indexes by position; `Dictionary` and `HashSet` use hashes for instant O(1) lookup by key or uniqueness.'],
+        ['Generic parameter `<T>`', 'A type placeholder resolved at compile time so `Repository<Product>` gives full type safety without boxing.'],
+        ['`IEnumerable<T>`', 'A read-only forward sequence you can loop or query with LINQ without forcing callers to pass a `List`.']
+      ],
       why: "Most of a real program is collections of things. Choosing between `List`, `Dictionary` and `HashSet` is usually the first performance decision you make, often without noticing.",
       points: [
         "`List<T>`: ordered, indexable, grows automatically. Finding an item by value is O(n).",
@@ -320,6 +356,11 @@ Console.WriteLine(Max(new[] { "kiwi", "fig" }));  // kiwi
     },
     {
       id: 'errors', title: 'Exceptions and cleanup', level: 1, mins: 30,
+      terms: [
+        ['`using` / `IDisposable`', 'Guarantees unmanaged handles (files, sockets, DB connections) close deterministically even if an exception is thrown mid-method.'],
+        ['Exception filter / catch order', 'Catch specific exceptions (`FileNotFoundException`) at boundaries where you can recover; never swallow bare `Exception` silently.'],
+        ['Result pattern vs Exceptions', 'Use expected return values (or 404/400 `Result`) for predictable validation errors; throw exceptions for unexpected failures.']
+      ],
       why: "Things fail: files go missing, networks drop, users type nonsense. How you throw, catch and clean up decides whether a failure becomes a clear message and a useful log line, or a crash that leaves a half-written file behind.",
       points: [
         "An exception stops the current method and travels up the call stack until a matching `catch`. If nothing catches it, the program ends and prints the stack trace.",
@@ -394,6 +435,11 @@ static int ParseAge(string text)
     },
     {
       id: 'linq', title: 'LINQ: querying anything', level: 1, mins: 35, viz: 'linq',
+      terms: [
+        ['Deferred execution', 'Query operators (`Where`, `Select`) only build a recipe; no elements are tested until `.ToList()`, `.First()`, or `foreach` runs.'],
+        ['`IEnumerable<T>` vs `IQueryable<T>`', '`IEnumerable` runs lambdas in C# memory; `IQueryable` keeps an expression tree so EF Core can translate it into SQL.'],
+        ['`Any()` vs `Count() > 0`', '`Any()` stops at the first matching item (`EXISTS` in SQL), while `Count()` can scan every row unnecessarily.']
+      ],
       why: "LINQ is how C# code filters, transforms and summarises data: in memory and, through EF Core, in SQL. It is the bridge between this track and the SQL track.",
       points: [
         "LINQ methods are extension methods on `IEnumerable<T>`: `Where` filters, `Select` transforms, `OrderBy` sorts, `GroupBy` groups.",
@@ -444,6 +490,11 @@ record Product(string Name, string Category, decimal Price);
     // ---------------- Advanced ----------------
     {
       id: 'delegates', title: 'Delegates, lambdas and events', level: 2, mins: 30,
+      terms: [
+        ['Delegate (`Func<>` / `Action<>`)', 'A strongly typed reference to a function (`Func<int, bool>` takes an `int` and returns a `bool`; `Action` returns nothing).'],
+        ['Lambda (`x => x * 2`)', 'An inline anonymous function passed straight into LINQ, middleware, or event handlers.'],
+        ['Closure capture', 'A lambda remembering outer variables — beware capturing a mutated loop variable or holding large objects alive in memory.']
+      ],
       why: "Passing a function around as a value is what LINQ, middleware and minimal API handlers are made of. Once you can read `Func<T, bool>`, a lot of framework code becomes readable.",
       points: [
         "A **delegate** is a type that holds a method: 'something that takes an `int` and returns a `bool`'.",
@@ -511,6 +562,17 @@ public class Thermostat
     },
     {
       id: 'async', title: 'async, await and Tasks', level: 2, mins: 40, viz: 'async',
+      terms: [
+        ['Non-blocking I/O (`await`)', 'Hands the thread back to ASP.NET Core while waiting for SQL/HTTP, letting one thread pool serve thousands of concurrent requests.'],
+        ['`Task.WhenAll(...)`', 'Awaits multiple independent async operations concurrently instead of running them one-by-one.'],
+        ['`CancellationToken`', 'Propagates client disconnects or timeouts so abandoned DB queries stop wasting server work.']
+      ],
+      predict: {
+        prompt: 'An endpoint calls two independent 200 ms queries: `await db.GetUserAsync(); await db.GetOrdersAsync();` versus starting both and awaiting `Task.WhenAll(u, o)`. Roughly how fast is the sequential vs parallel version?',
+        options: ['Both take ~200 ms because both use `await`', 'Sequential takes ~400 ms; `Task.WhenAll` takes ~200 ms', 'Parallel fails unless you open two processes'],
+        answer: 1,
+        explain: 'Writing two `await` statements back-to-back pauses after the first before starting the second (~400 ms total). Starting both Tasks first and awaiting `Task.WhenAll` overlaps their I/O wait (~200 ms).'
+      },
       why: "Most of what a web server does is wait: for the database, for another API, for the disk. Async code lets a thread do other work during that wait. Getting it wrong rarely shows in development; it shows under load, as requests that queue up and time out.",
       points: [
         "A `Task` represents work that will finish later; `Task<T>` also carries a result.",
@@ -589,6 +651,11 @@ static async IAsyncEnumerable<string> LoadPagesAsync(int count, [EnumeratorCance
     },
     {
       id: 'modern', title: 'Null safety, records and patterns', level: 2, mins: 30,
+      terms: [
+        ['Nullable reference types (`string?`)', 'Compiler flow analysis warns before you dereference a variable that might be `null`.'],
+        ['`record`', 'Compact immutable data class with automatic value-based equality (`a == b` compares fields, not references) and `with` copying.'],
+        ['Pattern matching', 'Declarative branching on type and shape (`is Order { Total: > 100 } o`) checked for exhaustiveness by the compiler.']
+      ],
       why: "Modern C# lets the compiler catch whole categories of bugs before you run anything: null references, unhandled shapes of data, accidental mutation. Code that uses these features well is shorter and harder to break.",
       points: [
         "**Nullable reference types** are on by default in new projects: `string` means never null, `string?` means might be null, and the compiler warns when you use a maybe-null value without checking it.",
@@ -643,6 +710,11 @@ public record Transfer(string Iban) : Payment;
     // ---------------- Expert ----------------
     {
       id: 'gc', title: 'Memory, the GC and performance', level: 3, mins: 40,
+      terms: [
+        ['Generations (Gen 0 / 1 / 2)', 'Short-lived objects die cheaply in Gen 0; objects that survive are promoted to heavier Gen 2 / LOH collections.'],
+        ['`Span<T>`', 'A stack-only view over contiguous memory (array, slice, or string) allowing parsing with zero heap allocations.'],
+        ['Boxing', 'Wrapping a value type (`int`) inside an `object` on the heap — silent allocation hotspot in non-generic collections or `string.Format`.']
+      ],
       why: "At scale, allocation rate turns into latency. This lesson is about reading what the garbage collector is doing, finding the allocations that matter on a hot path, and removing them without making the code unreadable.",
       points: [
         "The GC is **generational**: new objects start in Gen 0; survivors are promoted to Gen 1, then Gen 2. Most objects die young, so Gen 0 collections are cheap.",
@@ -694,6 +766,11 @@ finally { ArrayPool<byte>.Shared.Return(buffer); }
     },
     {
       id: 'concurrency', title: 'Concurrency and thread safety', level: 3, mins: 40,
+      terms: [
+        ['Race condition', 'Two threads reading and writing shared state without coordination so the final outcome depends on random timing.'],
+        ['`ConcurrentDictionary` vs `lock`', '`ConcurrentDictionary` coordinates bucket access safely; `SemaphoreSlim(1, 1)` coordinates async critical sections (never `lock` around `await`).'],
+        ['`Channel<T>`', 'Lock-free async producer/consumer queue for handing background jobs cleanly from HTTP requests to worker tasks.']
+      ],
       why: "A web server runs many requests at the same time. Any shared state — a static field, a singleton service, an in-memory cache — gets touched by several threads at once, and the resulting bugs are rare, hard to reproduce and expensive when they happen.",
       points: [
         "A **race condition** is when the result depends on thread timing. `count++` is read, add, write, and it is **not atomic**.",
@@ -760,6 +837,11 @@ await consumer;
     },
     {
       id: 'internals', title: 'How frameworks work: variance, reflection and generated code', level: 3, mins: 35,
+      terms: [
+        ['Covariance / Contravariance (`out` / `in`)', 'Lets `IEnumerable<Dog>` satisfy `IEnumerable<Animal>` (`out`) and `IComparer<Animal>` satisfy `IComparer<Dog>` (`in`) safely.'],
+        ['Reflection vs Source Generators', 'Reflection inspects types dynamically at run time (slower, harder to trim/AOT); Source Generators emit plain C# at compile time.'],
+        ['Expression tree (`Expression<Func<>>`)', 'Captures code as a data AST rather than compiled IL so EF Core can walk it and emit parameterized SQL.']
+      ],
       why: "This is the layer frameworks are written in. It explains how a DI container finds constructors, how a JSON serializer finds properties, and how EF Core turns a lambda into SQL.",
       points: [
         "**Covariance** (`out T`): an `IEnumerable<Dog>` can be used as an `IEnumerable<Animal>` because values only come out. **Contravariance** (`in T`): an `Action<Animal>` can be used as an `Action<Dog>` because values only go in.",

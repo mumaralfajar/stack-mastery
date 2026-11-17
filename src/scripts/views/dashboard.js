@@ -1,11 +1,14 @@
-import { allLessons, score, key, pct, overall, streak, dueCards } from '../state.js';
+import { allLessons, score, key, peek, pct, overall, streak, dueCards } from '../state.js';
 import { ico, dots, bar, ring, section, lessonHref } from '../icons.js';
 
 export function dashboard() {
   const { h, t: T, TRACKS, LEVELS, INTERVIEW } = window;
   const all = allLessons();
   const mastered = all.filter(e => score(e.k) === 3).length;
-  const next = TRACKS.map(t => ({ t, l: t.lessons.find(l => score(key(t, l)) < 3) })).filter(x => x.l)
+  const started = TRACKS.filter(t => t.lessons.some(l => score(key(t, l)) > 0 || peek(key(t, l)).read || peek(key(t, l)).quiz || peek(key(t, l)).teach));
+  const next = (started.length ? started : TRACKS.slice(0, 1))
+    .map(t => ({ t, l: t.lessons.find(l => score(key(t, l)) < 3) }))
+    .filter(x => x.l)
     .sort((x, y) => x.l.level - y.l.level || pct(x.t) - pct(y.t));
   const stat = (n, label) => h('div', { class: 'stat' }, h('b', {}, n), h('span', {}, label));
   return h('div', { class: 'page' },
@@ -14,10 +17,12 @@ export function dashboard() {
         h('p', { class: 'eyebrow' }, 'Beginner → Expert → Teacher'),
         h('h1', {}, 'Learn it. Prove it. Teach it.'),
         h('p', { class: 'lede' }, 'Seven stack tracks — C#, ASP.NET Core, SQL, CSS with Tailwind, TypeScript with React, Angular, and Dart with Flutter — plus computer-science fundamentals, each from first principles to expert level. A lesson only counts as mastered once you can explain it to someone else.'),
-        overall() === 0 ? h('p', {}, h('a', { class: 'btn', href: '#/start' }, 'New here? Set up your machine first →')) : null),
+        overall() === 0 ? h('div', { class: 'actions' },
+          h('a', { class: 'btn', href: '#/start' }, 'New here? Set up your machine first →'),
+          h('a', { class: 'btn ghost', href: '#/lab/journey' }, 'See how one click travels through the whole stack →')) : null),
       ring(overall())),
     h('div', { class: 'stats' }, stat(streak(), 'day streak'), stat(dueCards().length, 'cards due'), stat(mastered, 'lessons mastered'), stat(all.length, 'lessons total')),
-    next.length ? section('Continue where you left off', h('div', { class: 'grid' }, next.map(({ t, l }) =>
+    next.length ? section(started.length ? 'Continue where you left off' : 'Recommended first lesson', h('div', { class: 'grid' }, next.map(({ t, l }) =>
       h('a', { class: 'card go', href: lessonHref(t, l), style: { '--tc': `var(--${t.id})` } },
         ico(t.id, 'card-ico'),
         h('span', { class: 'card-k' }, t.name + ' · ' + LEVELS[l.level]), h('strong', {}, l.title), dots(key(t, l)))))) : null,

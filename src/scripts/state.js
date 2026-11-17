@@ -3,6 +3,27 @@ const KEY = 'stackmastery.v1';
 const KEYS = ['stackmastery.v1', 'stackmastery.sql', 'stackmastery.interview'];
 const fresh = () => ({ lessons: {}, cards: {}, projects: {}, streak: { last: '', count: 0 }, theme: '' });
 
+// Lightweight readiness computation used until the full interview bundle is lazy-loaded.
+if (typeof window !== 'undefined' && !window.INTERVIEW) {
+  window.INTERVIEW = {
+    readiness() {
+      try {
+        const d = JSON.parse(localStorage.getItem('stackmastery.interview') || '{}');
+        const beh = new Set((d.stories || []).flatMap(s => s.tags || []));
+        const parts = [
+          Object.keys(d.solved || {}).length / 21,
+          Object.values(d.design || {}).filter(Boolean).length / 6,
+          Math.min(beh.size, 8) / 8,
+          Object.values(d.rapid || {}).filter(v => v === 2).length / 55,
+          Math.min((d.mocks || []).length, 8) / 8
+        ];
+        return Math.round(parts.reduce((a, x) => a + x, 0) / parts.length * 100);
+      } catch { return 0; }
+    },
+    view: () => document.createTextNode('')
+  };
+}
+
 export let S;
 try { S = Object.assign(fresh(), JSON.parse(localStorage.getItem(KEY) || '{}')); } catch { S = fresh(); }
 
@@ -73,11 +94,11 @@ export function importBackup() {
       if (data.app !== 'stack-mastery' || !data.keys) throw new Error(T('not a Stack Mastery backup file'));
       const entries = Object.entries(data.keys).filter(([k, v]) => KEYS.includes(k) && typeof v === 'string');
       entries.forEach(([, v]) => JSON.parse(v));   // every value must itself be valid JSON
-      if (!confirm(T('Replace the progress in this browser with the backup from {date}?', { date: String(data.exported).slice(0, 10) }))) return;
+      if (!(await window.confirmDialog(T('Replace the progress in this browser with the backup from {date}?', { date: String(data.exported).slice(0, 10) }), { title: 'Import backup', confirmText: 'Import backup', danger: true }))) return;
       KEYS.forEach(k => localStorage.removeItem(k));
       entries.forEach(([k, v]) => localStorage.setItem(k, v));
       location.reload();
-    } catch (e) { alert(T('Could not import: ') + e.message); }
+    } catch (e) { await window.alertDialog(T('Could not import: ') + e.message); }
   } });
   input.click();
 }
