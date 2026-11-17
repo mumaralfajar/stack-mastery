@@ -402,7 +402,125 @@ const total = computed(() => {
 console.log("1st read:", total()); // computes once
 console.log("2nd read:", total()); // cached!
 qty.set(3);
-console.log("after qty=3:", total());`
+console.log("after qty=3:", total());`,
+    'Angular linkedSignal': `// Writable derived state: stays editable, but resets automatically when the source changes
+interface Option { id: string; label: string; cost: number }
+
+function createLinkedSignal<S, V>(source: () => S, compute: (src: S, prev?: V) => V) {
+  let lastSrc = source();
+  let value = compute(lastSrc, undefined);
+  const get = () => {
+    const cur = source();
+    if (!Object.is(cur, lastSrc)) {
+      lastSrc = cur;
+      value = compute(cur, value);
+    }
+    return value;
+  };
+  return { get, set: (v: V) => { value = v; } };
+}
+
+let options: Option[] = [
+  { id: "std", label: "Standard", cost: 10 },
+  { id: "exp", label: "Express", cost: 25 },
+];
+const shipping = createLinkedSignal(
+  () => options,
+  (opts, prev) => opts.find(o => o.id === prev?.id) ?? opts[0]
+);
+
+shipping.set(options[1]); // user picks Express
+console.log("user choice:", shipping.get().label);
+
+options = [
+  { id: "std", label: "Standard", cost: 10 },
+  { id: "exp", label: "Express", cost: 25 },
+  { id: "vip", label: "Same-day", cost: 40 },
+];
+console.log("kept after adding VIP:", shipping.get().label);
+
+options = [{ id: "pickup", label: "Store pickup", cost: 0 }];
+console.log("reset when Express disappeared:", shipping.get().label);`,
+    'RxJS switchMap vs exhaustMap': `// Modeling async cancellation (switchMap) vs click-ignoring (exhaustMap)
+const wait = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
+
+function makeSwitchRunner() {
+  let latestId = 0;
+  return async (label: string, ms: number) => {
+    const id = ++latestId;
+    await wait(ms);
+    if (id !== latestId) {
+      console.log("switchMap dropped stale:", label);
+      return;
+    }
+    console.log("switchMap kept latest:", label);
+  };
+}
+
+function makeExhaustRunner() {
+  let busy = false;
+  return async (label: string, ms: number) => {
+    if (busy) {
+      console.log("exhaustMap ignored while busy:", label);
+      return;
+    }
+    busy = true;
+    try {
+      await wait(ms);
+      console.log("exhaustMap finished first:", label);
+    } finally {
+      busy = false;
+    }
+  };
+}
+
+const search = makeSwitchRunner();
+const p1 = search("typing 'ke'", 60);
+await wait(15);
+const p2 = search("typing 'keyboard'", 40);
+await Promise.all([p1, p2]);
+
+const pay = makeExhaustRunner();
+const c1 = pay("1st Pay click", 60);
+const c2 = pay("accidental double-click", 60);
+await Promise.all([c1, c2]);`,
+    'ASP.NET ProblemDetails mapper': `// Turning ASP.NET Core RFC 9457 ProblemDetails into structured Angular form errors
+interface ProblemDetails {
+  title?: string;
+  status?: number;
+  errors?: Record<string, string[]>;
+}
+
+class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly fieldErrors: Record<string, string[]> = {},
+  ) {
+    super(message);
+  }
+}
+
+function toApiError(status: number, body: ProblemDetails | null): ApiError {
+  return new ApiError(
+    body?.title ?? "HTTP " + status,
+    status,
+    body?.errors ?? {},
+  );
+}
+
+const serverResponse: ProblemDetails = {
+  status: 400,
+  title: "One or more validation errors occurred.",
+  errors: {
+    Price: ["Must be positive"],
+    Name: ["Name must be at least 3 characters"],
+  },
+};
+
+const apiErr = toApiError(400, serverResponse);
+console.log("summary:", apiErr.message);
+console.log("price error:", apiErr.fieldErrors["Price"]?.[0]);`
   };
 
   // React 19 from esm.sh, pinned; react-dom is told to share the same React.

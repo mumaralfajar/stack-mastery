@@ -12,7 +12,7 @@
     put(t, tr, ['name', 'tagline']);
     for (const l of t.lessons) {
       const x = tr.lessons && tr.lessons[l.id]; if (!x) continue;
-      put(l, x, ['title', 'why', 'points', 'practice', 'teach', 'analogy', 'pitfalls', 'code']);
+      put(l, x, ['title', 'why', 'terms', 'points', 'practice', 'teach', 'analogy', 'pitfalls', 'code']);
       (x.quiz || []).forEach(([q, a, why], i) => { if (l.quiz[i]) Object.assign(l.quiz[i], { q, a, why }); });
     }
   }

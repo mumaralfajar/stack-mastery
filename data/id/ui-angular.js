@@ -41,5 +41,10 @@ Object.assign(I18N.ui, {
 
   '5. Your first Angular app': '5. Aplikasi Angular pertamamu',
   'The Angular CLI scaffolds a standalone, zoneless workspace with TypeScript and strict templates enabled. Start the dev server on `http://localhost:4200` and open it in the browser.': 'Angular CLI membuatkan workspace standalone dan zoneless lengkap dengan TypeScript dan strict templates aktif. Jalankan dev server di `http://localhost:4200` dan buka di browser.',
-  'Open TypeScript playground': 'Buka playground TypeScript'
+  'Open TypeScript playground': 'Buka playground TypeScript',
+  'Key words': 'Istilah penting',
+  'Angular signals': 'Signal Angular',
+  'Angular linkedSignal': 'linkedSignal Angular',
+  'RxJS switchMap vs exhaustMap': 'RxJS switchMap vs exhaustMap',
+  'ASP.NET ProblemDetails mapper': 'Mapper ProblemDetails ASP.NET'
 });

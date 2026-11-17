@@ -548,3 +548,9 @@ table.t td code { white-space: pre; }
 .ng-graph .slot.tt-new .ng-tag { color: var(--good); border-color: var(--good); }
 .ng-graph .slot.tt-upd .ng-tag { color: var(--tc); border-color: var(--tc); }
 .tree-r > *, .comp { min-inline-size: 0; }
+
+/* Plain-English lesson glossary strip */
+.terms { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: .55rem .85rem; margin: 0; }
+.term-item { min-inline-size: 0; background: var(--sunken); border: 1px solid var(--border); border-left: 3px solid var(--tc); border-radius: 8px; padding: .5rem .7rem; }
+.terms dt { font-weight: 600; font-size: .9rem; color: var(--text); margin: 0 0 .2rem; overflow-wrap: anywhere; }
+.terms dd { margin: 0; font-size: .88rem; color: var(--muted); overflow-wrap: anywhere; }

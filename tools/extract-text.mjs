@@ -22,7 +22,7 @@ else if (what === 'interview') {
 } else {
   const t = TRACKS.find(x => x.id === what);
   const [from, to] = (process.argv[3] || '0-99').split('-').map(Number);
-  out = { name: t.name, tagline: t.tagline, lessons: t.lessons.slice(from, to).map(l => ({ id: l.id, title: l.title, why: l.why, points: l.points, practice: l.practice, teach: l.teach, analogy: l.analogy, pitfalls: l.pitfalls, quiz: l.quiz.map(q => [q.q, q.a, q.why]) })) };
+  out = { name: t.name, tagline: t.tagline, lessons: t.lessons.slice(from, to).map(l => ({ id: l.id, title: l.title, why: l.why, ...(l.terms ? { terms: l.terms } : {}), points: l.points, practice: l.practice, teach: l.teach, analogy: l.analogy, pitfalls: l.pitfalls, quiz: l.quiz.map(q => [q.q, q.a, q.why]) })) };
 }
 const NL = String.fromCharCode(10);
 console.log(what === 'projects' || what === 'interview' ? JSON.stringify(out) : JSON.stringify({ name: out.name, tagline: out.tagline }) + NL + out.lessons.map(l => JSON.stringify(l)).join(NL));

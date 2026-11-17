@@ -28,6 +28,16 @@ for (const t of TRACKS) {
     lessons++;
     for (const f of ['title', 'why', 'practice', 'teach', 'analogy']) if (!x[f]) errors.push(`${w}: missing ${f}`); else if (f !== 'title') ticks(`${w}.${f}`, l[f], x[f]);
     same(`${w}.points`, l.points, x.points); same(`${w}.pitfalls`, l.pitfalls, x.pitfalls); same(`${w}.quiz`, l.quiz, x.quiz);
+    if (l.terms) {
+      same(`${w}.terms`, l.terms, x.terms);
+      (x.terms || []).forEach((pair, i) => {
+        if (l.terms[i]) {
+          same(`${w}.terms[${i}]`, l.terms[i], pair);
+          ticks(`${w}.terms[${i}][0]`, l.terms[i][0], pair[0]);
+          ticks(`${w}.terms[${i}][1]`, l.terms[i][1], pair[1]);
+        }
+      });
+    }
     (x.points || []).forEach((p, i) => l.points[i] && ticks(`${w}.points[${i}]`, l.points[i], p));
     (x.quiz || []).forEach((q, i) => { if (l.quiz[i]) { same(`${w}.quiz[${i}].answers`, l.quiz[i].a, q[1]); ticks(`${w}.quiz[${i}].q`, l.quiz[i].q, q[0]); } });
   }

@@ -74,6 +74,8 @@ export function lessonView(tid, lid) {
       h('p', { class: 'eyebrow' }, h('a', { href: `#/track/${t.id}` }, t.name), ' · ', LEVELS[l.level], ' · ', l.mins + ' ' + T('min')),
       h('h1', {}, l.title), tracker),
     section('Why this matters', h('p', { class: 'why', html: md(l.why) })),
+    l.terms?.length ? section('Key words', h('dl', { class: 'terms' }, l.terms.map(([term, def]) =>
+      h('div', { class: 'term-item' }, h('dt', { html: md(term) }), h('dd', { html: md(def) }))))) : null,
     section('Key ideas', h('ul', { class: 'points' }, l.points.map(p => h('li', { html: md(p) })))),
     l.code ? section('See it in code', codeBlock(l.code, l.lang || t.lang)) : null,
     vizEl ? section(T('Play with it: ') + T(VIZ[l.viz].title), h('p', { class: 'muted' }, VIZ[l.viz].desc), vizEl) : null,
@@ -107,6 +109,8 @@ export function planView(tid, lid) {
       h('h1', {}, l.title),
       h('div', { class: 'actions no-print' }, h('button', { type: 'button', class: 'btn', onclick: () => print() }, 'Print'), h('a', { class: 'btn ghost', href: lessonHref(t, l) }, 'Back to lesson'))),
     block('', 'Objective', h('p', { html: md(l.why) })),
+    l.terms?.length ? block('', 'Key words', h('dl', { class: 'terms' }, l.terms.map(([term, def]) =>
+      h('div', { class: 'term-item' }, h('dt', { html: md(term) }), h('dd', { html: md(def) }))))) : null,
     block('5 min', 'Hook', h('p', { html: md(l.analogy) })),
     block('10 min', 'Explain — one idea at a time', h('ul', { class: 'points' }, l.points.map(p => h('li', { html: md(p) })))),
     l.code ? block('10 min', 'Live demo — type it, have students predict each line before you run it', codeBlock(l.code, l.lang || t.lang)) : null,
