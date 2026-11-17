@@ -28,6 +28,7 @@ Available in **English** and **Bahasa Indonesia** — switch with the **ID / EN*
 - [Verifying the Dart + Flutter content](#verifying-the-dart--flutter-content)
 - [Verifying the SQL content](#verifying-the-sql-content)
 - [Verifying the ASP.NET Core content](#verifying-the-aspnet-core-content)
+- [Verifying the CSS + Tailwind content](#verifying-the-css--tailwind-content)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 - [Licence](#licence)
@@ -81,7 +82,7 @@ Every lesson has the same three steps, and only counts as mastered when all thre
 - **TypeScript playground** — a real editor with live type checking.
 - **Dart + Flutter playground** — the official DartPad embedded, loaded with each lesson's runnable sample.
 - **CSS + Tailwind playground** — live preview you can resize to test breakpoints.
-- **Flashcard review** — 270 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
+- **Flashcard review** — 275 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
 - **Mock exam** — ten random questions by track and level.
 - **Capstone projects** — one full-stack project per level.
 - **Search** — press `/` anywhere.
@@ -186,7 +187,7 @@ The lessons, quizzes, flashcards, visualizations and interview content work offl
 | Code editor with TypeScript type checking | [Monaco Editor](https://github.com/microsoft/monaco-editor) | MIT |
 | TypeScript playground and coding-problem judge | [TypeScript](https://github.com/microsoft/TypeScript) | Apache-2.0 |
 | SQL playground | [sql.js](https://github.com/sql-js/sql.js) (SQLite as WebAssembly) | MIT |
-| Tailwind toggle in the CSS playground | [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss) browser build | MIT |
+| Tailwind toggle in the CSS playground | [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss) browser build, pinned to 4.3.4 | MIT |
 | Dart + Flutter playground | [DartPad](https://github.com/dart-lang/dart-pad), embedded from dartpad.dev | BSD-3-Clause |
 
 These are downloaded from public CDNs (cdnjs and jsDelivr). Loading them sends an ordinary web request to the CDN, as with any website; none of your progress or code is sent. If the editor library cannot load, the editors fall back to plain text boxes.
@@ -218,6 +219,7 @@ These are downloaded from public CDNs (cdnjs and jsDelivr). Loading them sends a
 | `tools/verify-dart.mjs` | Analyzes, runs and tests the Dart + Flutter samples |
 | `tools/verify-sql.mjs` | Runs every SQL lesson sample on a real SQL Server |
 | `tools/verify-aspnet.mjs` | Builds and starts every ASP.NET Core sample, and runs the testing lesson's tests |
+| `tools/verify-css.mjs` | Checks the CSS samples in Chrome, compiles the Tailwind classes, and type-checks the React sample |
 | `tools/check-i18n.mjs` | Checks that the Indonesian content matches the English structure |
 | `tools/extract-text.mjs` | Prints the translatable text of a track, for translators |
 
@@ -326,6 +328,23 @@ Every ASP.NET Core lesson sample is a complete `Program.cs` for .NET 10. The scr
 3. runs the testing lesson's xUnit tests with `dotnet test`, against the validation lesson's API.
 
 No database is needed: the samples only connect to SQL Server when an endpoint is called. Add `--show` to print each app's startup log.
+
+---
+
+## Verifying the CSS + Tailwind content
+
+```bash
+node tools/verify-css.mjs
+```
+
+Needs Google Chrome (or Edge) and, the first time, internet access to install Tailwind, TypeScript and the React types into a scratch folder. It:
+
+1. checks every declaration and selector in the CSS samples with Chrome's own `CSS.supports`, so a typo or an unsupported value fails;
+2. renders the HTML samples in Chrome at 360px wide and fails if the page scrolls sideways (the Tailwind sample with its CSS compiled first);
+3. compiles the Tailwind samples with Tailwind 4.3.4, the version the playground loads, and fails on any class Tailwind doesn't generate;
+4. type-checks the React `Button` with TypeScript, and checks that an invalid variant such as `intent="purple"` really fails to compile.
+
+When you upgrade Tailwind, change the version in both `tools/verify-css.mjs` and `src/scripts/playground.js`. Add `--show` for a line per lesson.
 ---
 
 ## Troubleshooting

@@ -355,7 +355,7 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
     const render = () => {
       const tw = twBox.checked;
       frame.srcdoc = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">` +
-        (tw ? `<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"><\/script>` : '') +
+        (tw ? `<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.4"><\/script>` : '') +
         `<style${tw ? ' type="text/tailwindcss"' : ''}>${cssTa.value}</style></head><body>${htmlTa.value}</body></html>`;
     };
     const later = () => { clearTimeout(t); t = setTimeout(render, 350); };
