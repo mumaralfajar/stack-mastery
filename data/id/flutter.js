@@ -33,7 +33,7 @@ I18N.lessons('flutter', {
       "Constructor `const` membuat instance bisa dibuat saat compile time. Tidak ada keyword `public`/`private`: underscore di depan (`_count`) membuat sebuah member private di library-nya.",
       "Model object sebaiknya **immutable**: semua field `final`, dan perubahan dilakukan dengan membuat salinan lewat `copyWith`.",
       "Dart membandingkan object berdasarkan identity kecuali kamu meng-override `==` dan `hashCode`. Value equality dibutuhkan untuk perbandingan state; package `equatable` atau code generation menghilangkan boilerplate-nya.",
-      "Collection: `List` (berurutan), `Set` (unik), `Map` (key → value). `where`, `map`, `fold`, `any`, dan `firstWhere` itu lazy seperti LINQ — panggil `toList()` untuk mematerialisasikannya.",
+      "Collection: `List` (berurutan), `Set` (unik), `Map` (key → value). `where` dan `map` itu lazy seperti LINQ: keduanya mengembalikan `Iterable` yang tidak mengerjakan apa-apa sampai kamu melakukan loop atau memanggil `toList()`. `fold`, `any`, dan `firstWhere` langsung jalan dan mengembalikan sebuah nilai.",
       "**Collection `if` dan `for`** menyusun list secara deklaratif — `[for (final p in items) if (p.inStock) p.name]` — dan merupakan cara idiomatis untuk menyusun list widget."
     ],
     practice: "Tulis `CartItem` (product, quantity) yang immutable dengan `copyWith` dan value equality, serta sebuah function yang mengembalikan list baru dengan quantity satu item bertambah. Buktikan list aslinya tidak berubah, dan bahwa dua item yang sama bernilai `==`.",
@@ -42,17 +42,17 @@ I18N.lessons('flutter', {
     pitfalls: [
       "Meng-override `==` tanpa `hashCode`. Object yang sama harus punya hash code yang sama, kalau tidak perilakunya kacau di set dan map.",
       "Me-mutate list yang merupakan bagian dari state (`items.add(x)`) alih-alih membuat list baru — apa pun yang membandingkan state lama dan baru tidak akan melihat perubahannya.",
-      "Lupa bahwa `where` dan `map` itu lazy: pekerjaannya diulang di setiap iterasi kecuali kamu memanggil `toList()`."
+      "Lupa bahwa `where` dan `map` itu lazy: pekerjaannya diulang setiap kali kamu melakukan loop atas hasilnya, kecuali kamu memanggil `toList()` sekali."
     ],
     quiz: [
       ["Bagaimana membuat sebuah member jadi private di Dart?", ["Keyword `private`", "Awali namanya dengan underscore", "Taruh di dalam `#region`", "Tandai dengan `@hidden`"], "Privacy berlaku per library dan ditandai dengan underscore di depan nama."],
-      ["Dua instance sebuah class dengan field identik dibandingkan dengan `==`. Secara default hasilnya…", ["true", "false, kecuali keduanya instance yang sama", "compile error", "true hanya kalau `const`… selain itu tidak pernah"], "Equality default adalah identity. Override `==` dan `hashCode` untuk value equality."],
+      ["Dua instance sebuah class dengan field identik, dibuat dengan pemanggilan gaya `new` (bukan `const`), dibandingkan dengan `==`. Secara default hasilnya…", ["true", "false, kecuali keduanya instance yang sama", "compile error", "true kalau class-nya punya `toString`"], "Equality default adalah identity. Override `==` dan `hashCode` untuk value equality. (Dua ekspresi `const` yang identik adalah instance yang sama, jadi keduanya tetap sama meski tanpa override.)"],
       ["Apa hasil `[for (final n in [1, 2, 3]) if (n.isOdd) n * 10]`?", ["`[10, 20, 30]`", "`[10, 30]`", "`[1, 3]`", "Syntax error"], "Collection `for` dan `if` menyusun list dari elemen ganjil yang sudah ditransformasi."]
     ]
   },
   widgets: {
     title: 'Flutter: widget dan widget tree',
-    why: "Di Flutter, semua yang ada di layar adalah widget, dan UI-nya adalah tree berisi widget yang dideskripsikan dalam kode. Begitu murid melihat `build` sebagai function dari data ke deskripsi layar — ide yang sama dengan komponen React — framework-nya tidak lagi terasa misterius.",
+    why: "Di Flutter, semua yang ada di layar adalah widget, dan UI-nya adalah tree berisi widget yang dideskripsikan dalam kode. Begitu kamu melihat `build` sebagai function dari data ke deskripsi layar — ide yang sama dengan komponen React — framework-nya tidak lagi terasa misterius.",
     points: [
       "**Widget** adalah deskripsi immutable dari sebagian UI. Flutter mengubah tree berisi widget menjadi pixel; kamu tidak pernah mengubah layar secara langsung.",
       "`StatelessWidget` punya field final (input-nya) dan method `build` yang mengembalikan widget lain. Ia setara dengan function component di React beserta props-nya.",
@@ -70,14 +70,14 @@ I18N.lessons('flutter', {
       "Mengekstrak UI ke helper *method*, bukan ke widget: method tidak bisa `const` dan selalu ikut rebuild bersama parent-nya."
     ],
     quiz: [
-      ["Apa yang dikembalikan method `build` milik `StatelessWidget`?", ["Pixel", "Sebuah widget (deskripsi UI)", "Object `State`", "Tidak ada"], "`build` mengembalikan widget tree lain yang mendeskripsikan bagian layar ini."],
-      ["Kenapa menambahkan `const` pada pemanggilan constructor widget?", ["Membuat teks jadi tebal", "Instance-nya kanonik, jadi Flutter bisa melewati rebuild-nya", "Diwajibkan Dart", "Mematikan hot reload"], "Widget `const` yang identik adalah object yang sama, jadi framework tahu tidak ada yang berubah."],
+      ["Apa yang dikembalikan method `build` milik `StatelessWidget`?", ["`RenderObject` yang menggambar dirinya sendiri", "Sebuah widget (deskripsi UI)", "Object `State`", "Sebuah `Element`"], "`build` mengembalikan widget tree lain yang mendeskripsikan bagian layar ini. Flutter membuat element dan render object dari situ."],
+      ["Kenapa menambahkan `const` pada pemanggilan constructor widget?", ["Membuat widget-nya jadi immutable", "Instance-nya kanonik, jadi Flutter bisa melewati rebuild-nya", "Wajib untuk widget yang tidak punya field", "Menjaga State widget-nya saat hot reload"], "Widget `const` yang identik adalah object yang sama, jadi framework tahu tidak ada yang berubah. Widget memang sudah immutable apa pun caranya."],
       ["Apa itu `BuildContext`?", ["Global state aplikasi", "Pegangan ke posisi widget di dalam tree", "Layar device", "Network client"], "Lewat context, widget bisa mencari ancestor seperti theme, media query, dan navigator."]
     ]
   },
   layout: {
     title: 'Layout: row, column, dan constraint',
-    why: "Hampir semua bug layout di Flutter — garis-garis overflow kuning-hitam, 'unbounded height', widget yang mengabaikan ukurannya — berasal dari satu aturan yang disalahpahami. Ajarkan aturannya, dan error-error itu mulai menjelaskan dirinya sendiri.",
+    why: "Hampir semua bug layout di Flutter — garis-garis overflow kuning-hitam, 'unbounded height', widget yang mengabaikan ukurannya — berasal dari satu aturan yang disalahpahami. Begitu kamu paham aturannya, pesan error-nya mulai masuk akal.",
     points: [
       "Satu aturannya: **constraint turun, size naik, parent menentukan posisi**. Parent memberi tahu tiap child ukuran minimum dan maksimumnya; child memilih ukuran di dalam rentang itu; parent yang menempatkannya.",
       "`Row` menata children secara horizontal, `Column` secara vertikal. `mainAxisAlignment` bekerja searah dengan arah itu, `crossAxisAlignment` melintanginya — model yang sama dengan flexbox.",
@@ -92,7 +92,8 @@ I18N.lessons('flutter', {
     pitfalls: [
       "`Row` dengan `Text` panjang tanpa `Expanded` atau `Flexible` — teksnya diberi lebar tak terbatas dan overflow.",
       "Widget scrollable (`ListView`) di dalam `Column` tanpa `Expanded`: column menawarkan tinggi tak terbatas dan list-nya tidak bisa menentukan ukurannya.",
-      "Mengandalkan ukuran pixel tetap di mana-mana alih-alih membiarkan widget fleksibel beradaptasi dengan layar."
+      "Mengandalkan ukuran pixel tetap di mana-mana alih-alih membiarkan widget fleksibel beradaptasi dengan layar.",
+      "`IconButton` tanpa `tooltip`: screen reader hanya menyebut 'tombol', dan tidak ada petunjuk saat ditekan lama atau di-hover."
     ],
     quiz: [
       ["Di dalam `Row`, property mana yang mengatur posisi children secara vertikal?", ["`mainAxisAlignment`", "`crossAxisAlignment`", "`textAlign`", "`alignment`"], "Main axis milik row itu horizontal, jadi cross axis-nya vertikal."],
@@ -105,7 +106,7 @@ I18N.lessons('flutter', {
     why: "Panggilan network, akses file, input user, dan Bloc sendiri semuanya asynchronous di Flutter. `Future` adalah satu nilai yang datang nanti; `Stream` adalah banyak nilai seiring waktu — dan state management dibangun di atas stream.",
     points: [
       "`Future<T>` adalah nilai yang datang belakangan. `await` menjeda function `async` tanpa mem-block UI thread, persis seperti di C# dan TypeScript.",
-      "Mulai dulu pekerjaan-pekerjaan yang independen, lalu `await Future.wait([...])` supaya berjalan concurrent. Tangani kegagalan dengan `try`/`catch` dan tambahkan `.timeout(...)` pada apa pun yang menyentuh network.",
+      "Mulai dulu pekerjaan-pekerjaan yang independen, lalu tunggu bersamaan: `Future.wait([...])` untuk sebuah list, atau sebuah record, `await (fetchUser(1), fetchOrders()).wait`, yang menjaga type masing-masing hasil. Tangani kegagalan dengan `try`/`catch`, dan beri panggilan network sebuah `.timeout(...)`: ia menghentikan *penantianmu*, tapi request-nya sendiri tetap berjalan.",
       "`Stream<T>` mengirimkan serangkaian nilai seiring waktu: tap, pesan WebSocket, perubahan state. Konsumsi dengan `await for` atau `listen`; hasilkan dengan `async*` dan `yield` atau sebuah `StreamController`.",
       "Selalu cancel `StreamSubscription` dan close `StreamController` kalau sudah selesai — subscription yang terlupa adalah memory leak.",
       "Dart menjalankan kodemu di **satu thread dengan sebuah event loop**: selesaikan kode synchronous yang sedang berjalan, habiskan **microtask queue**, lalu ambil satu **event** (timer, I/O, tap).",
@@ -117,12 +118,13 @@ I18N.lessons('flutter', {
     pitfalls: [
       "Lupa menulis `await`: function-nya langsung lanjut dan error-nya hilang.",
       "Meng-await panggilan independen satu per satu padahal `Future.wait` bisa membuatnya tumpang-tindih.",
-      "Me-listen sebuah stream dan tidak pernah meng-cancel subscription-nya saat widget di-dispose."
+      "Me-listen sebuah stream dan tidak pernah meng-cancel subscription-nya saat widget di-dispose.",
+      "Mengira `.timeout()` membatalkan pekerjaannya. Ia hanya menghentikan penantian; request HTTP-nya tetap jalan sampai selesai di background."
     ],
     quiz: [
-      ["`Future` selesai ___; `Stream` bisa meng-emit ___.", ["berkali-kali; sekali", "sekali; banyak nilai seiring waktu", "tidak pernah; sekali", "sekali; persis dua kali"], "Future adalah satu hasil asynchronous; stream adalah serangkaian hasil."],
+      ["`Future` selesai ___; `Stream` bisa meng-emit ___.", ["berkali-kali; sekali", "sekali; banyak nilai seiring waktu", "sekali; satu nilai, tapi lebih lambat dari future", "sekali per listener; sekali per listener"], "Future adalah satu hasil asynchronous; stream adalah serangkaian hasil."],
       ["Dengan urutan apa callback `scheduleMicrotask` dan `Timer.run` dieksekusi setelah kode synchronous yang sedang berjalan?", ["Timer dulu", "Microtask dulu", "Yang dijadwalkan lebih dulu", "Paralel"], "Microtask queue dihabiskan seluruhnya sebelum event berikutnya diambil."],
-      ["Ada dua panggilan independen, masing-masing 300 ms. Pendekatan benar yang paling cepat?", ["`await` satu per satu", "`await Future.wait([a(), b()])`", "Panggil tanpa `await`", "Pakai `sleep`"], "Kedua future sudah dimulai sebelum di-await, jadi waktu tunggunya tumpang-tindih."]
+      ["Ada dua panggilan independen, masing-masing 300 ms. Pendekatan benar yang paling cepat?", ["`await` satu per satu", "`await Future.wait([a(), b()])`", "Panggil tanpa `await` dan berharap keduanya selesai", "`await` masing-masing di dalam loop `for`"], "Kedua future sudah dimulai sebelum di-await, jadi waktu tunggunya tumpang-tindih. Tanpa `await` sama sekali, kamu tidak pernah melihat hasil maupun error-nya."]
     ]
   },
   state: {
@@ -157,9 +159,10 @@ I18N.lessons('flutter', {
       "Flutter menyimpan layar dalam sebuah **stack**: `push` menaruh layar baru di atas, `pop` membuangnya. API dasarnya `Navigator.of(context).push(MaterialPageRoute(...))`.",
       "Untuk aplikasi yang lebih dari beberapa layar, pakai router deklaratif — **go_router** memetakan path mirip URL ke layar, menangani path parameter, deep link, redirect, dan history browser di web.",
       "`context.go('/products/42')` mengganti stack supaya sesuai dengan lokasinya; `context.push(...)` menambah di atasnya; `context.pop(result)` mengembalikan sebuah nilai ke pemanggilnya.",
+      "**Penyusunan bertingkat menentukan apa yang ada di bawahnya.** Kalau `products/:id` dideklarasikan di dalam route `/`, `go('/products/42')` menyusun Home dengan product di atasnya, jadi ada tombol back. Sebagai route top-level yang terpisah, halaman product akan sendirian di stack, dan Back akan menutup aplikasinya.",
       "Sebuah `Form` dengan `GlobalKey<FormState>` mengelompokkan beberapa `TextFormField`. `validate()` menjalankan `validator` tiap field — mengembalikan string berarti menampilkan error, mengembalikan null berarti valid.",
-      "`save()` menjalankan tiap `onSaved`. Pilih `keyboardType`, `textInputAction`, dan `autofillHints` supaya keyboard yang muncul tepat.",
-      "Validasi di client itu demi kenyamanan user. API harus memvalidasi lagi — jangan pernah percaya pada aplikasinya."
+      "`save()` menjalankan tiap `onSaved`. Pilih `keyboardType`, `textInputAction`, dan `autofillHints` supaya keyboard yang muncul tepat. Untuk harga, pakai `TextInputType.numberWithOptions(decimal: true)`: `number` biasa tidak punya tombol desimal di iOS.",
+      "Validasi di client itu demi kenyamanan user, dan aturannya sebaiknya sama dengan API (di sini, harga minimal 0.01, seperti di materi validasi ASP.NET Core). API harus memvalidasi lagi — jangan pernah percaya pada aplikasinya."
     ],
     practice: "Tambahkan route edit `/products/:id/edit` yang memakai ulang form-nya dengan nilai awal, dan kembalikan product yang tersimpan ke layar sebelumnya dengan `context.pop(product)`. Jalankan aplikasinya di target web dan pastikan tombol back browser serta URL yang di-paste sama-sama berfungsi.",
     teach: "Jelaskan navigation stack: apa yang dilakukan `push`, `pop`, dan `go` masing-masing terhadap stack itu?",
@@ -167,12 +170,15 @@ I18N.lessons('flutter', {
     pitfalls: [
       "Mengoper object utuh antar-route sehingga deep link rusak: kirim id di path lalu load datanya.",
       "Memakai `context` setelah sebuah `await` tanpa mengecek `mounted` — layarnya bisa saja sudah tidak ada.",
-      "Hanya memvalidasi di device. Server harus menegakkan aturan yang sama."
+      "Mendeklarasikan semua route di level teratas. `go` lalu meninggalkan halaman baru sendirian di stack, tanpa tombol back.",
+      "`double.parse` pada ketikan user: `19,99` melempar error di keyboard yang memakai koma. Normalisasi dulu.",
+      "Hanya memvalidasi di device, atau dengan aturan yang berbeda dari server. Server harus menegakkan aturan yang sama."
     ],
     quiz: [
       ["Apa yang dikembalikan `validator` kalau input-nya valid?", ["`true`", "String kosong", "`null`", "Nilainya"], "String yang tidak null ditampilkan sebagai error; null berarti field-nya lolos."],
       ["Apa bedanya `context.go` dan `context.push` di go_router?", ["Tidak ada", "`go` mengganti stack supaya sesuai lokasi; `push` menambah satu layar di atasnya", "`push` khusus web", "`go` tidak bisa menerima parameter"], "`go` adalah navigasi deklaratif ke sebuah lokasi; `push` adalah penumpukan secara imperatif."],
-      ["Kenapa path parameter seperti `/products/42` lebih baik daripada mengoper object `Product`?", ["Lebih cepat", "Lokasinya bisa dipulihkan dari sebuah link atau setelah restart", "Object tidak bisa dioper", "Menghindari rebuild"], "URL bisa di-serialize; object di memory hilang saat aplikasi dibuka dari sebuah link."]
+      ["Kenapa path parameter seperti `/products/42` lebih baik daripada mengoper object `Product`?", ["Lebih cepat", "Lokasinya bisa dipulihkan dari sebuah link atau setelah restart", "Object tidak bisa dioper", "Menghindari rebuild"], "URL bisa di-serialize; object di memory hilang saat aplikasi dibuka dari sebuah link."],
+      ["`/products/:id` adalah route top-level, sejajar dengan `/`. Setelah `context.go('/products/42')`, apa yang ada di bawah halaman product?", ["Halaman home", "Tidak ada: ia sendirian di stack, jadi tidak ada tombol back", "Halaman apa pun yang terbuka sebelumnya", "Salinan halaman product"], "`go` menyusun stack dari hierarki route. Susun route-nya di bawah `/` supaya Home ada di bawahnya."]
     ]
   },
   network: {
@@ -182,7 +188,8 @@ I18N.lessons('flutter', {
       "Pakai package `http` (atau `dio`) dengan `http.Client` yang kamu **inject** — jangan pernah global — supaya test bisa menggantinya dengan fake.",
       "JSON datang sebagai `Map<String, dynamic>`. Ubah di boundary menjadi model ber-type lewat factory `fromJson`; untuk model yang banyak, generate kodenya dengan `json_serializable`.",
       "Angka di JSON bisa berupa `int` atau `double`: baca sebagai `num` lalu konversi. Type di Dart, seperti type di TypeScript, tidak memvalidasi data saat run time.",
-      "Cek `statusCode`, lempar exception ber-type untuk kegagalan, dan selalu pasang timeout. Petakan body ProblemDetails dari ASP.NET Core menjadi pesan yang ditampilkan ke user.",
+      "Cek `statusCode`, lempar exception ber-type untuk kegagalan, dan selalu pasang timeout. Ubah ProblemDetails dari ASP.NET Core menjadi pesan yang aman ditampilkan (`title`) dan error per field (`errors`), jangan pernah body mentahnya.",
+      "Android memblokir `http://` biasa secara default, dan iOS juga. Untuk API lokal, pakai alamat HTTPS-nya, atau izinkan cleartext hanya untuk host dev-mu di network-security config khusus debug. Aplikasi yang dirilis sebaiknya hanya memakai HTTPS.",
       "Sebuah layar punya minimal empat state: **loading, data, kosong, error**. `FutureBuilder` menangani kasus sederhananya; buat future-nya sekali saja, bukan di dalam `build`.",
       "Jauhkan networking dari widget: widget → repository → API client. Kirim token auth lewat header dari satu tempat, dan simpan token dengan `flutter_secure_storage`, bukan preferences biasa."
     ],
@@ -192,21 +199,24 @@ I18N.lessons('flutter', {
     pitfalls: [
       "Membuat future di dalam `build`, yang mengirim request baru di setiap rebuild.",
       "Meng-cast angka JSON langsung ke `double` — nilai seperti `25` datang sebagai `int` dan cast-nya melempar exception.",
-      "Menampilkan spinner selamanya karena error dan timeout tidak pernah ditangani."
+      "Menampilkan spinner selamanya karena error dan timeout tidak pernah ditangani.",
+      "Memanggil `http://10.0.2.2:5000` dari Android emulator dan mendapat error cleartext sebelum request-nya sampai ke API-mu."
     ],
     quiz: [
-      ["Kenapa `http.Client` di-inject ke class API?", ["Lebih cepat", "Test bisa mengirim fake client sehingga tidak butuh network sungguhan", "Diwajibkan Dart", "Mengaktifkan HTTPS"], "Dependency yang dikirim dari luar bisa diganti — dasar dari kode yang bisa dites."],
+      ["Kenapa `http.Client` di-inject ke class API?", ["Satu client per class lebih cepat", "Test bisa mengirim fake client sehingga tidak butuh network sungguhan", "Diwajibkan package `http`", "Menjadikan client-nya singleton"], "Dependency yang dikirim dari luar bisa diganti — dasar dari kode yang bisa dites."],
       ["JSON berisi `\"price\": 25`. Cara paling aman membacanya sebagai double?", ["`json['price'] as double`", "`(json['price'] as num).toDouble()`", "`double(json['price'])`", "`json.price`"], "`25` di-decode sebagai `int`; `num` menerima keduanya dan `toDouble` mengonversinya."],
       ["Di mana `Future` yang dipakai `FutureBuilder` sebaiknya dibuat?", ["Di dalam `build`", "Sekali, di State (sebagai field atau di `initState`)", "Di `dispose`", "Di `main`"], "`build` bisa jalan berkali-kali; membuat future di sana mengulang request-nya setiap kali."]
     ]
   },
   bloc: {
     title: 'State management dengan Bloc dan Cubit',
-    why: "`setState` berhenti bisa diandalkan begitu beberapa layar berbagi data atau logic-nya perlu dites tanpa UI. Bloc adalah jawaban yang paling banyak dipakai tim Flutter profesional: perubahan state jadi eksplisit, bisa dilacak, dan bisa di-unit test — dan interviewer berharap kamu bisa membandingkannya dengan alternatif lain.",
+    why: "`setState` berhenti bisa diandalkan begitu beberapa layar berbagi data atau logic-nya perlu dites tanpa UI. Bloc adalah salah satu jawaban yang paling umum di tim Flutter profesional: perubahan state jadi eksplisit, bisa dilacak, dan bisa di-unit test, dan ada baiknya kamu bisa menjelaskan perbandingannya dengan alternatif lain.",
     points: [
       "Idenya: UI mengirim **intent masuk**, menerima **state immutable keluar** lewat sebuah stream. Business logic tinggal di luar widget dan tidak punya `BuildContext`.",
       "**Cubit** menyediakan method yang memanggil `emit(newState)` — bentuk paling sederhana, cocok untuk kebanyakan fitur. **Bloc** menerima **event** dan memetakannya ke state lewat handler `on<Event>`: lebih banyak seremoni, tapi setiap perubahan adalah event bernama yang bisa di-log, dan event bisa ditransformasi (debounce, drop, restart).",
-      "Modelkan state sebagai **sealed class** (loading / loaded / failed) atau satu class dengan `copyWith`. State harus immutable dengan value equality: meng-emit state yang sama tidak berefek apa-apa, dan me-mutate list di tempat berarti tidak ada rebuild.",
+      "Modelkan state sebagai **sealed class** (loading / loaded / failed) atau satu class dengan `copyWith`. State harus immutable dengan value equality: meng-emit state yang sama tidak berefek apa-apa, dan me-mutate list di tempat berarti tidak ada rebuild. Tulis `==` secara manual seperti di bawah, atau pakai package `equatable`.",
+      "Sebuah cubit bisa hidup lebih lama dari request-nya: user pergi, layar menutup cubit-nya, lalu response-nya datang. Memanggil `emit` setelah `close` melempar error, jadi cek `isClosed` setelah setiap `await`.",
+      "Event transformer berasal dari package `bloc_concurrency`: `restartable()` untuk pencarian sambil mengetik, `droppable()` untuk mengabaikan tap selama sibuk, `sequential()` untuk satu per satu.",
       "`BlocProvider` membuat dan men-dispose sebuah bloc lalu menyediakannya untuk subtree. `BlocBuilder` me-rebuild UI, `BlocListener` menjalankan efek sekali jalan (snackbar, navigasi), `BlocSelector` dan `buildWhen` mempersempit rebuild.",
       "`context.read<T>()` mengambil bloc untuk dipanggil (di callback); `context.watch<T>()` sekaligus berlangganan (di `build`). Bloc bergantung pada **repository**, yang di-inject lewat constructor.",
       "Sebagai perbandingan: **Provider** adalah dependency injection biasa plus `ChangeNotifier` — kodenya sedikit, tapi mutable dan implisit. **Riverpod** adalah provider yang compile-safe tanpa `BuildContext` dengan dependency yang halus — boilerplate lebih sedikit, mental model berbeda. **Bloc** memakan kode lebih banyak dan membeli prediktabilitas, tooling, dan konsistensi di seluruh tim."
@@ -217,12 +227,15 @@ I18N.lessons('flutter', {
     pitfalls: [
       "Me-mutate state lalu meng-emit object yang sama (`state.add(x); emit(state)`) — dianggap sama dengan state sebelumnya, jadi tidak ada yang rebuild.",
       "Memakai `context.watch` di dalam callback atau `context.read` di `build` untuk menggerakkan UI: yang pertama berlangganan tanpa guna, yang kedua tidak pernah ter-update.",
-      "Menaruh navigasi dan snackbar di `BlocBuilder`. Builder bisa jalan berkali-kali; efek sekali jalan tempatnya di `BlocListener`."
+      "Menaruh navigasi dan snackbar di `BlocBuilder`. Builder bisa jalan berkali-kali; efek sekali jalan tempatnya di `BlocListener`.",
+      "`emit` setelah `await` tanpa mengecek `isClosed`: 'Cannot emit new states after calling close' muncul pertama kali ada user yang pergi di tengah request.",
+      "Menampilkan `'$e'` ke user. Teks exception itu untuk log; state-nya sebaiknya membawa pesan yang ditulis untuk manusia."
     ],
     quiz: [
-      ["Apa perbedaan Cubit dan Bloc?", ["Cubit tidak bisa meng-emit state", "Cubit menyediakan method; Bloc menerima event lalu memetakannya ke state", "Bloc khusus web", "Tidak ada"], "Keduanya meng-emit state; Bloc menambahkan lapisan event yang membuat setiap perubahan bisa dilacak dan ditransformasi."],
+      ["Apa perbedaan Cubit dan Bloc?", ["Cubit tidak bisa di-unit test", "Cubit menyediakan method; Bloc menerima event lalu memetakannya ke state", "Bloc hanya bisa menyimpan satu type state", "Cubit me-rebuild seluruh layar di setiap perubahan"], "Keduanya meng-emit state; Bloc menambahkan lapisan event yang membuat setiap perubahan bisa dilacak dan ditransformasi."],
       ["Sebuah cubit menjalankan `state.items.add(x); emit(state);`. Kenapa UI-nya tidak ter-update?", ["`emit` itu async", "State yang di-emit adalah object yang sama dengan sebelumnya, jadi dianggap tidak berubah", "List tidak bisa jadi state", "Cubit-nya sudah closed"], "Bloc melewati state yang sama dengan state saat ini; jangan mutate apa pun dan emit object baru."],
-      ["Di mana snackbar sebaiknya ditampilkan sebagai respons atas perubahan state?", ["`BlocBuilder`", "`BlocListener`", "`initState`", "Di dalam cubit"], "Listener jalan sekali per perubahan state dan memang dirancang untuk side effect."]
+      ["Di mana snackbar sebaiknya ditampilkan sebagai respons atas perubahan state?", ["`BlocBuilder`", "`BlocListener`", "`initState`", "Di dalam cubit"], "Listener jalan sekali per perubahan state dan memang dirancang untuk side effect."],
+      ["User membuka sebuah layar lalu pergi sebelum datanya datang. Aplikasi mencatat 'Cannot emit new states after calling close'. Perbaikannya?", ["Jangan pernah menutup cubit-nya", "Cek `isClosed` setelah `await`, sebelum memanggil `emit`", "Bungkus `emit` dengan `Future.delayed`", "Pakai Bloc, bukan Cubit"], "`BlocProvider` menutup cubit saat layarnya hilang; response yang terlambat harus diabaikan."]
     ]
   },
   dartdeep: {
@@ -252,7 +265,7 @@ I18N.lessons('flutter', {
   },
   testing: {
     title: 'Testing: unit, widget, dan integration test',
-    why: "Tooling test Flutter luar biasa bagus: widget test menjalankan widget tree sungguhan dalam hitungan milidetik tanpa device. Bloc dengan repository yang di-inject membuat business logic sangat mudah dites — dan itulah hasil nyata dari arsitekturnya.",
+    why: "Tooling test Flutter itu kuat: widget test menjalankan widget tree sungguhan dalam hitungan milidetik, tanpa device. Bloc dengan repository yang di-inject membuat business logic mudah dites, dan itulah hasil nyata dari arsitekturnya.",
     points: [
       "**Unit test** (`test`) mengecek Dart biasa: model, repository, cubit. Cepat dan jumlahnya banyak.",
       "**Widget test** (`testWidgets`) memasang sebuah widget ke environment test, mencari element, melakukan tap, dan assert pada apa yang ditampilkan — tanpa emulator.",
@@ -279,7 +292,8 @@ I18N.lessons('flutter', {
     title: 'Persistence, platform channel, dan UI adaptif',
     why: "Aplikasi sungguhan mengingat hal-hal di antara peluncuran, berbicara dengan fitur device yang tidak dicakup Flutter, dan tampil benar di HP, tablet, maupun browser. Inilah jarak antara demo dan sesuatu yang bisa kamu rilis ke store.",
     points: [
-      "Storage sesuai tujuannya: `shared_preferences` untuk setting kecil, `flutter_secure_storage` (Keychain / Keystore) untuk token, database lokal (`sqflite`, `drift`) untuk data offline yang terstruktur.",
+      "Storage sesuai tujuannya: `shared_preferences` untuk setting kecil (pakai API `SharedPreferencesAsync`; API `SharedPreferences` yang lama sedang ditinggalkan), `flutter_secure_storage` (Keychain / Keystore) untuk token, database lokal (`sqflite`, `drift`) untuk data offline yang terstruktur.",
+      "Secure storage hanya seaman platformnya: di web tidak ada keystore, jadi datanya berakhir di storage browser. Jangan simpan token berumur panjang di build web.",
       "Bungkus storage dalam class milikmu sendiri supaya bagian aplikasi lainnya bergantung pada interface *milikmu*, bukan pada sebuah plugin.",
       "**Platform channel** mengirim pesan antara Dart dan Kotlin/Swift native. `MethodChannel.invokeMethod` itu asynchronous dan bisa gagal — tangkap `PlatformException` dan `MissingPluginException`. Cari dulu plugin yang sudah ada di pub.dev sebelum menulis sendiri.",
       "**Layout adaptif**: putuskan berdasarkan lebar yang tersedia, bukan jenis device — `NavigationBar` di bawah untuk layar sempit, `NavigationRail` untuk layar lebar. `SafeArea` menghindari notch dan system bar.",
@@ -290,7 +304,7 @@ I18N.lessons('flutter', {
     teach: "Jelaskan apa itu platform channel dan kenapa memanggilnya bersifat asynchronous dan bisa gagal.",
     analogy: "Platform channel itu penerjemah di antara dua kantor yang bahasanya berbeda. Kamu menyerahkan permintaan tertulis yang singkat ('level baterai?'), penerjemah membawanya ke kantor sebelah, dan sesaat kemudian jawabannya kembali — atau secarik catatan bahwa tidak ada orang di kantor itu yang menangani permintaan semacam itu. Kamu tidak pernah masuk sendiri ke kantor sebelah.",
     pitfalls: [
-      "Menyimpan access token di `shared_preferences`, yang berupa teks polos di disk. Pakai secure storage.",
+      "Menyimpan access token di `shared_preferences`, yang berupa teks polos di disk. Pakai secure storage (dan ingat bahwa web tidak punya).",
       "Memilih layout berdasarkan `Platform.isAndroid`, bukan lebar yang tersedia — tablet, HP lipat, dan window yang bisa diubah ukurannya jadi rusak.",
       "Meminta semua permission di peluncuran pertama. Mintalah sesuai konteks, dan tangani penolakannya."
     ],
@@ -302,32 +316,34 @@ I18N.lessons('flutter', {
   },
   render: {
     title: 'Internal rendering, performance, dan isolate',
-    why: "Mulus berarti satu frame setiap 16 ms — atau 8 ms di layar 120 Hz. Seorang expert tahu apa yang terjadi di dalam sebuah frame, bisa membaca DevTools, dan tahu masalahnya ada di tree yang mana dari ketiganya.",
+    why: "Mulus berarti satu frame setiap 16 ms — atau 8 ms di layar 120 Hz. Materi ini tentang apa yang terjadi di dalam sebuah frame, cara membaca DevTools, dan cara mengenali di tree mana masalahnya berada.",
     points: [
       "Flutter menyimpan **tiga tree**: **widget** (konfigurasi immutable, bebas di-rebuild), **element** (instance berumur panjang yang memegang State dan mencocokkan widget lama dengan yang baru), dan **render object** (layout dan paint).",
       "Saat rebuild, element membandingkan widget baru dengan yang lama: `runtimeType` dan `key` yang sama berarti **update di tempat**, kalau tidak subtree-nya dibuang dan State-nya hilang. Itulah kenapa key dan `const` penting.",
-      "Satu frame menjalankan **build → layout → paint → composite** di UI thread, lalu raster thread yang menggambar. Jank adalah frame yang melewatkan deadline-nya di salah satu thread itu.",
-      "Kurangi rebuild: constructor `const`, state dipindah ke bawah, `BlocSelector` / `buildWhen`, dan `ListView.builder` supaya hanya item yang terlihat yang di-build. `RepaintBoundary` mengisolasi area yang sering di-repaint.",
-      "Isolate di Dart punya **memory terpisah** dan berkomunikasi lewat pesan. `Isolate.run` (atau `compute`) memindahkan pekerjaan berat CPU — parsing JSON besar, pemrosesan gambar — keluar dari UI isolate supaya animasi tetap berjalan.",
+      "Satu frame menjalankan **build → layout → paint → composite** di UI thread, lalu raster thread menggambarnya dengan **Impeller**, engine default di iOS dan Android, yang meng-compile shader-nya lebih dulu sehingga animasi pertama tidak lagi tersendat. Jank adalah frame yang melewatkan deadline-nya di salah satu thread itu.",
+      "Kurangi rebuild: constructor `const`, state dipindah ke bawah, `BlocSelector` / `buildWhen`, dan `ListView.builder` supaya hanya item yang terlihat yang di-build. `RepaintBoundary` mengisolasi area yang sering di-repaint; list builder sudah menambahkan satu untuk tiap item.",
+      "Isolate di Dart punya **memory terpisah** dan berkomunikasi lewat pesan. `compute` (atau `Isolate.run`) memindahkan pekerjaan berat CPU — parsing JSON besar, pemrosesan gambar — keluar dari UI isolate supaya animasi tetap berjalan. Input-nya disalin ke isolate lain, jadi kirim yang dibutuhkan saja, bukan seluruh state aplikasimu.",
+      "Web tidak punya isolate: `Isolate.run` melempar error di sana, sedangkan `compute` beralih menjalankan pekerjaannya di main thread (tetap jalan, tapi mem-block selama itu).",
       "Ukur di **profile mode** di device sungguhan, jangan pernah di debug. Pakai DevTools: performance overlay, frame chart, 'Track widget rebuilds', dan memory view."
     ],
-    practice: "Jalankan checksum-nya di UI isolate dulu (panggil `slowChecksum` langsung) sementara sebuah spinner sedang beranimasi, dan lihat layarnya membeku; lalu pindahkan ke `Isolate.run`. Buka DevTools di profile mode, aktifkan 'Track widget rebuilds', scroll sebuah list panjang, dan buang satu rebuild yang tidak perlu.",
+    practice: "Di Android emulator atau build desktop, jalankan checksum-nya di UI isolate dulu (panggil `slowChecksum` langsung) sementara sebuah spinner sedang beranimasi, dan lihat layarnya membeku; lalu pindahkan ke `compute`. Coba hal yang sama di build web dan jelaskan perbedaannya. Buka DevTools di profile mode, aktifkan 'Track widget rebuilds', scroll sebuah list panjang, dan buang satu rebuild yang tidak perlu.",
     teach: "Jelaskan widget tree, element tree, dan render object tree: untuk apa masing-masing, dan mana yang memegang State.",
     analogy: "Widget itu gambar kerja arsitek, digambar ulang setiap kali ada yang berubah. Element itu manajer lapangan yang tetap berada di lokasi, membandingkan setiap gambar baru dengan yang terakhir, lalu memutuskan apa yang benar-benar harus diubah. Render object itu dinding sungguhannya: mahal, jadi hanya disentuh kalau manajer bilang gambarnya memang berbeda.",
     pitfalls: [
       "Menilai performance di debug mode, yang berkali-kali lipat lebih lambat daripada profile atau release.",
       "Melakukan parsing berat atau pengolahan gambar di `build` atau di UI isolate, lalu menambahkan `const` di mana-mana untuk mengimbanginya.",
-      "Membungkus semuanya dengan `RepaintBoundary` — masing-masing memakan satu layer dan memory. Tambahkan hanya di tempat yang biaya repaint-nya terlihat di profiler."
+      "Membungkus semuanya dengan `RepaintBoundary` — masing-masing memakan satu layer dan memory. Tambahkan hanya di tempat yang biaya repaint-nya terlihat di profiler; item list sudah punya satu.",
+      "Memakai `Isolate.run` di aplikasi yang juga menargetkan web, tempat ia melempar error. Pakai `compute`, atau cek `kIsWeb`."
     ],
     quiz: [
       ["Tree mana yang memegang State milik `StatefulWidget` melewati rebuild?", ["Widget tree", "Element tree", "Render tree", "Tidak ada — State itu global"], "Element berumur panjang dan memiliki State; widget dibuang lalu dibuat ulang."],
       ["Kapan sebuah element memakai ulang State-nya untuk widget baru?", ["Selalu", "Saat widget baru punya runtime type dan key yang sama", "Tidak pernah", "Hanya untuk widget `const`"], "Type dan key yang cocok berarti update di tempat; kalau tidak, subtree lama di-unmount."],
-      ["Kenapa memakai `Isolate.run` untuk parsing JSON yang besar?", ["Memakai GPU", "Ia berjalan di isolate lain, jadi UI isolate tetap bisa me-render frame", "Meng-cache hasilnya", "Mengompres datanya"], "Isolate tidak berbagi memory maupun thread; UI tetap responsif selama pekerjaannya berjalan."]
+      ["Kenapa memakai `compute` untuk parsing JSON yang besar?", ["Parsing-nya dilakukan di GPU", "Ia berjalan di isolate lain, jadi UI isolate tetap bisa me-render frame", "Meng-cache hasil parsing untuk lain kali", "Men-stream JSON-nya alih-alih mem-parsing"], "Isolate tidak berbagi memory maupun thread, jadi UI tetap responsif selama pekerjaannya berjalan (kecuali di web, tempat `compute` jalan di main thread)."]
     ]
   },
   arch: {
     title: 'Arsitektur, flavor, dan rilis',
-    why: "Merilis aplikasi mobile berbeda dari merilis website: bug tidak bisa diperbaiki dengan sekadar redeploy, user memakai versi lama berbulan-bulan, dan store me-review binary-mu. Struktur, configuration, dan disiplin rilis adalah yang dibawa seorang expert.",
+    why: "Merilis aplikasi mobile berbeda dari merilis website: bug tidak bisa diperbaiki dengan sekadar redeploy, user memakai versi lama berbulan-bulan, dan store me-review binary-mu. Jadi struktur, configuration, dan disiplin rilis lebih penting di sini daripada di web.",
     points: [
       "Susun aplikasi dalam layer: **presentation** (widget + bloc) → **domain** (model Dart biasa dan interface repository) → **data** (API client, database). Dependency mengarah ke dalam; domain tidak meng-import Flutter.",
       "Susun berdasarkan **fitur** (`features/cart/…`) dengan layer-layer di dalam tiap fitur. Pilih implementasi di satu tempat — composition root — dengan `RepositoryProvider` atau locator seperti `get_it`.",
@@ -346,7 +362,7 @@ I18N.lessons('flutter', {
     ],
     quiz: [
       ["Di aplikasi Flutter yang berlapis, apa yang boleh di-import oleh layer domain?", ["Widget Flutter", "HTTP client", "Hanya Dart biasa — tanpa Flutter, tanpa data source", "Semuanya"], "Dependency mengarah ke dalam; domain mendefinisikan model dan interface yang diimplementasikan layer luar."],
-      ["Kenapa secret tidak boleh ditaruh di nilai `--dart-define` untuk release build?", ["Membuat aplikasi lambat", "Nilainya di-compile ke dalam binary dan bisa diekstrak", "Store menolaknya", "Merusak hot reload"], "Binary di sisi client itu publik; secret yang sesungguhnya tempatnya di server."],
+      ["Kenapa secret tidak boleh ditaruh di nilai `--dart-define` untuk release build?", ["Membuat aplikasi jadi lambat", "Nilainya di-compile ke dalam binary dan bisa diekstrak", "Store memindainya lalu menolak aplikasinya", "Hanya tersedia di build debug"], "Binary di sisi client itu publik; secret yang sesungguhnya tempatnya di server. Obfuscation membuatnya lebih susah ditemukan, bukan tersembunyi."],
       ["Apa yang ditangkap `PlatformDispatcher.instance.onError`?", ["Hanya layout overflow", "Error async yang tidak tertangkap di luar callback milik framework Flutter", "Compile error", "Response HTTP 500"], "`FlutterError.onError` mencakup error yang ditangkap framework; hook milik dispatcher mencakup sisanya."]
     ]
   }

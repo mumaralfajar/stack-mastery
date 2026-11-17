@@ -83,7 +83,7 @@ Every lesson has the same three steps, and only counts as mastered when all thre
 - **TypeScript playground** — a real editor with live type checking.
 - **Dart + Flutter playground** — the official DartPad embedded, loaded with each lesson's runnable sample.
 - **CSS + Tailwind playground** — live preview you can resize to test breakpoints.
-- **Flashcard review** — 278 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
+- **Flashcard review** — 280 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
 - **Mock exam** — ten random questions by track and level.
 - **Capstone projects** — one full-stack project per level.
 - **Search** — press `/` anywhere.
@@ -217,7 +217,7 @@ These are downloaded from public CDNs (cdnjs and jsDelivr). Loading them sends a
 | `data/id/ui-*.js` | Indonesian interface text (English string → Indonesian string) |
 | `data/id/<track>.js`, `projects.js`, `interview.js` | Indonesian lesson, capstone and interview content |
 | `tools/verify.mjs` | Compiles and tests the C# content |
-| `tools/verify-dart.mjs` | Analyzes, runs and tests the Dart + Flutter samples |
+| `tools/verify-dart.mjs` | Analyzes (with flutter_lints), runs and tests the Dart + Flutter samples, plus behaviour checks |
 | `tools/verify-sql.mjs` | Runs every SQL lesson sample on a real SQL Server |
 | `tools/verify-aspnet.mjs` | Builds and starts every ASP.NET Core sample, and runs the testing lesson's tests |
 | `tools/verify-css.mjs` | Checks the CSS samples in Chrome, compiles the Tailwind classes, and type-checks the React sample |
@@ -296,9 +296,10 @@ node tools/verify-dart.mjs
 
 Requires Node.js and the Flutter SDK. On first run it creates a scratch Flutter project in your temp folder with the packages the lessons use (`flutter_bloc`, `go_router`, `http`, `shared_preferences`). Then it:
 
-1. writes every Dart + Flutter lesson sample into that project and runs `flutter analyze` — any error or warning fails;
+1. writes every Dart + Flutter lesson sample into that project and runs `flutter analyze` with Flutter's recommended lints (`flutter_lints`, as in a new project) — any error, warning or lint fails;
 2. runs the samples that are plain Dart programs and prints their output;
-3. runs the samples that are tests with `flutter test`.
+3. runs the samples that are tests with `flutter test`;
+4. runs behaviour tests the analyzer can't do: the navigation sample keeps Home under a product page (so Back works), the Bloc sample's cubit doesn't crash when it's closed mid-request, and the networking sample turns ProblemDetails into a safe message plus field errors.
 
 Every sample is a complete file, so what a learner copies into a fresh `flutter create` project compiles as shown. Inside the lesson data, a Dart `${` must be written `\${` because the samples live in JavaScript template strings.
 
