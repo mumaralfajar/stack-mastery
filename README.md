@@ -27,6 +27,7 @@ Available in **English** and **Bahasa Indonesia** — switch with the **ID / EN*
 - [Verifying the C# content](#verifying-the-c-content)
 - [Verifying the Dart + Flutter content](#verifying-the-dart--flutter-content)
 - [Verifying the SQL content](#verifying-the-sql-content)
+- [Verifying the ASP.NET Core content](#verifying-the-aspnet-core-content)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 - [Licence](#licence)
@@ -80,7 +81,7 @@ Every lesson has the same three steps, and only counts as mastered when all thre
 - **TypeScript playground** — a real editor with live type checking.
 - **Dart + Flutter playground** — the official DartPad embedded, loaded with each lesson's runnable sample.
 - **CSS + Tailwind playground** — live preview you can resize to test breakpoints.
-- **Flashcard review** — 268 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
+- **Flashcard review** — 270 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
 - **Mock exam** — ten random questions by track and level.
 - **Capstone projects** — one full-stack project per level.
 - **Search** — press `/` anywhere.
@@ -216,6 +217,7 @@ These are downloaded from public CDNs (cdnjs and jsDelivr). Loading them sends a
 | `tools/verify.mjs` | Compiles and tests the C# content |
 | `tools/verify-dart.mjs` | Analyzes, runs and tests the Dart + Flutter samples |
 | `tools/verify-sql.mjs` | Runs every SQL lesson sample on a real SQL Server |
+| `tools/verify-aspnet.mjs` | Builds and starts every ASP.NET Core sample, and runs the testing lesson's tests |
 | `tools/check-i18n.mjs` | Checks that the Indonesian content matches the English structure |
 | `tools/extract-text.mjs` | Prints the translatable text of a track, for translators |
 
@@ -278,7 +280,7 @@ Requires Node.js and the .NET SDK. It:
 2. compiles every C# pattern template;
 3. compiles every lesson snippet in the C# and CS Fundamentals tracks as a `Program.cs` and runs it, failing on any unhandled exception (add `--show` to print each lesson's output).
 
-Run it after changing any C# content. ASP.NET Core snippets that depend on NuGet packages (EF Core, JWT bearer, OpenTelemetry) are not covered by this script.
+Run it after changing any C# content. ASP.NET Core samples have their own script; see the next sections.
 
 ---
 
@@ -308,6 +310,22 @@ The SQL lessons are written for SQL Server. The script needs `sqlcmd` and a SQL 
 
 The playground itself runs SQLite, so a few things differ there (`LIMIT` instead of `TOP`, no `YEAR()`, no exact `DECIMAL`); the playground page lists them.
 
+
+---
+
+## Verifying the ASP.NET Core content
+
+```bash
+node tools/verify-aspnet.mjs
+```
+
+Every ASP.NET Core lesson sample is a complete `Program.cs` for .NET 10. The script needs the .NET 10 SDK and internet access the first time, to download the NuGet packages the samples use (EF Core for SQL Server, JWT bearer, OpenAPI, HybridCache, resilience, health checks and OpenTelemetry, pinned to the .NET 10 versions). In a scratch web project in your temp folder it:
+
+1. builds each sample as `Program.cs`, failing on any compile error;
+2. starts each app in Development and fails if it crashes before "Application started";
+3. runs the testing lesson's xUnit tests with `dotnet test`, against the validation lesson's API.
+
+No database is needed: the samples only connect to SQL Server when an endpoint is called. Add `--show` to print each app's startup log.
 ---
 
 ## Troubleshooting
