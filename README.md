@@ -29,6 +29,7 @@ Available in **English** and **Bahasa Indonesia** — switch with the **ID / EN*
 - [Verifying the SQL content](#verifying-the-sql-content)
 - [Verifying the ASP.NET Core content](#verifying-the-aspnet-core-content)
 - [Verifying the CSS + Tailwind content](#verifying-the-css--tailwind-content)
+- [Verifying the TypeScript + React content](#verifying-the-typescript--react-content)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 - [Licence](#licence)
@@ -82,7 +83,7 @@ Every lesson has the same three steps, and only counts as mastered when all thre
 - **TypeScript playground** — a real editor with live type checking.
 - **Dart + Flutter playground** — the official DartPad embedded, loaded with each lesson's runnable sample.
 - **CSS + Tailwind playground** — live preview you can resize to test breakpoints.
-- **Flashcard review** — 275 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
+- **Flashcard review** — 278 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
 - **Mock exam** — ten random questions by track and level.
 - **Capstone projects** — one full-stack project per level.
 - **Search** — press `/` anywhere.
@@ -220,6 +221,7 @@ These are downloaded from public CDNs (cdnjs and jsDelivr). Loading them sends a
 | `tools/verify-sql.mjs` | Runs every SQL lesson sample on a real SQL Server |
 | `tools/verify-aspnet.mjs` | Builds and starts every ASP.NET Core sample, and runs the testing lesson's tests |
 | `tools/verify-css.mjs` | Checks the CSS samples in Chrome, compiles the Tailwind classes, and type-checks the React sample |
+| `tools/verify-react.mjs` | Type-checks every TypeScript + React sample, runs the testing lesson's test, and checks the event-loop output |
 | `tools/check-i18n.mjs` | Checks that the Indonesian content matches the English structure |
 | `tools/extract-text.mjs` | Prints the translatable text of a track, for translators |
 
@@ -345,6 +347,22 @@ Needs Google Chrome (or Edge) and, the first time, internet access to install Ta
 4. type-checks the React `Button` with TypeScript, and checks that an invalid variant such as `intent="purple"` really fails to compile.
 
 When you upgrade Tailwind, change the version in both `tools/verify-css.mjs` and `src/scripts/playground.js`. Add `--show` for a line per lesson.
+
+---
+
+## Verifying the TypeScript + React content
+
+```bash
+node tools/verify-react.mjs
+```
+
+Needs internet access the first time, to install TypeScript, React 19, TanStack Query, Testing Library, MSW and Vitest into a scratch folder. It:
+
+1. type-checks every lesson sample with the same strict settings as the Vite `react-ts` template, each lesson as its own module;
+2. runs the testing lesson's test with Vitest, jsdom and MSW against the server-state lesson's `ProductsPage`, so the page, the API helper and the test have to agree;
+3. runs the event-loop example and checks that it prints `1 sync`, `2 sync`, `3 microtask`, `4 timeout`, as its comments say.
+
+Add `--show` to print the event-loop output.
 ---
 
 ## Troubleshooting
