@@ -26,6 +26,7 @@ Available in **English** and **Bahasa Indonesia** — switch with the **ID / EN*
 - [Adding or editing content](#adding-or-editing-content)
 - [Verifying the C# content](#verifying-the-c-content)
 - [Verifying the Dart + Flutter content](#verifying-the-dart--flutter-content)
+- [Verifying the SQL content](#verifying-the-sql-content)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 - [Licence](#licence)
@@ -60,7 +61,7 @@ What this means in practice:
 | --- | --- | --- |
 | **C#** | 14 | Variables and classes → exceptions, async, memory, concurrency, internals |
 | **CS Fundamentals** | 7 | Git and Big-O → data structures, graphs, dynamic programming |
-| **SQL** | 12 | SELECT and joins → indexes, transactions, query plans, scaling |
+| **SQL** | 12 | SELECT and joins → indexes, transactions, query plans, scaling (SQL Server syntax) |
 | **ASP.NET Core** | 14 | HTTP and routing → auth, EF Core, performance, architecture, production |
 | **CSS + Tailwind** | 13 | HTML, the cascade, layout → Tailwind in React, architecture, rendering |
 | **TypeScript + React** | 14 | JavaScript and types → hooks, performance, advanced types, internals |
@@ -79,7 +80,7 @@ Every lesson has the same three steps, and only counts as mastered when all thre
 - **TypeScript playground** — a real editor with live type checking.
 - **Dart + Flutter playground** — the official DartPad embedded, loaded with each lesson's runnable sample.
 - **CSS + Tailwind playground** — live preview you can resize to test breakpoints.
-- **Flashcard review** — 266 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
+- **Flashcard review** — 268 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
 - **Mock exam** — ten random questions by track and level.
 - **Capstone projects** — one full-stack project per level.
 - **Search** — press `/` anywhere.
@@ -214,6 +215,7 @@ These are downloaded from public CDNs (cdnjs and jsDelivr). Loading them sends a
 | `data/id/<track>.js`, `projects.js`, `interview.js` | Indonesian lesson, capstone and interview content |
 | `tools/verify.mjs` | Compiles and tests the C# content |
 | `tools/verify-dart.mjs` | Analyzes, runs and tests the Dart + Flutter samples |
+| `tools/verify-sql.mjs` | Runs every SQL lesson sample on a real SQL Server |
 | `tools/check-i18n.mjs` | Checks that the Indonesian content matches the English structure |
 | `tools/extract-text.mjs` | Prints the translatable text of a track, for translators |
 
@@ -293,6 +295,18 @@ Requires Node.js and the Flutter SDK. On first run it creates a scratch Flutter 
 3. runs the samples that are tests with `flutter test`.
 
 Every sample is a complete file, so what a learner copies into a fresh `flutter create` project compiles as shown. Inside the lesson data, a Dart `${` must be written `\${` because the samples live in JavaScript template strings.
+
+---
+
+## Verifying the SQL content
+
+```bash
+node tools/verify-sql.mjs
+```
+
+The SQL lessons are written for SQL Server. The script needs `sqlcmd` and a SQL Server you can reach with Windows authentication; it uses `.\SQLEXPRESS` unless you pass `--server <name>`. For each lesson it creates a scratch database called `StackMasteryVerify`, loads the same shop data the playground uses, and runs the lesson's sample; any error fails the check. The scratch database is dropped at the end. Add `--show` to print each lesson's output.
+
+The playground itself runs SQLite, so a few things differ there (`LIMIT` instead of `TOP`, no `YEAR()`, no exact `DECIMAL`); the playground page lists them.
 
 ---
 

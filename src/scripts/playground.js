@@ -86,13 +86,16 @@ console.log = console.info = console.warn = console.error = (...a) => { if (__lo
   // ---------------- SQL ----------------
   const SEED = `
 CREATE TABLE customers (id INTEGER PRIMARY KEY, name TEXT NOT NULL, city TEXT);
-CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT NOT NULL, category TEXT NOT NULL, price REAL NOT NULL CHECK (price >= 0));
+CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT NOT NULL, category TEXT NOT NULL, price REAL NOT NULL CHECK (price >= 0), stock INTEGER NOT NULL DEFAULT 10 CHECK (stock >= 0));
 CREATE TABLE orders (id INTEGER PRIMARY KEY, customer_id INTEGER NOT NULL REFERENCES customers(id), order_date TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'new');
 CREATE TABLE order_items (order_id INTEGER NOT NULL REFERENCES orders(id), product_id INTEGER NOT NULL REFERENCES products(id), quantity INTEGER NOT NULL, unit_price REAL NOT NULL, PRIMARY KEY (order_id, product_id));
 INSERT INTO customers VALUES (1,'Ana','Jakarta'),(2,'Budi','Bandung'),(3,'Citra','Surabaya'),(4,'Dewi','Jakarta'),(5,'Eko',NULL),(6,'Fitri','Bandung');
-INSERT INTO products VALUES (1,'Laptop','Tech',1200),(2,'Mouse','Tech',25),(3,'Keyboard','Tech',80),(4,'Monitor','Tech',320),(5,'Desk','Home',300),(6,'Lamp','Home',40),(7,'Chair','Home',150),(8,'Notebook','Office',5),(9,'Pen','Office',2),(10,'Backpack','Office',60);
+INSERT INTO products (id, name, category, price) VALUES (1,'Laptop','Tech',1200),(2,'Mouse','Tech',25),(3,'Keyboard','Tech',80),(4,'Monitor','Tech',320),(5,'Desk','Home',300),(6,'Lamp','Home',40),(7,'Chair','Home',150),(8,'Notebook','Office',5),(9,'Pen','Office',2),(10,'Backpack','Office',60);
 INSERT INTO orders VALUES (1,1,'2026-01-05','paid'),(2,1,'2026-02-11','paid'),(3,2,'2026-02-14','paid'),(4,3,'2026-03-01','cancelled'),(5,3,'2026-03-09','paid'),(6,4,'2026-03-15','new'),(7,2,'2026-04-02','paid'),(8,5,'2026-04-20','paid');
 INSERT INTO order_items VALUES (1,1,1,1200),(1,2,2,25),(2,5,1,300),(2,6,2,40),(3,3,1,80),(3,8,10,5),(4,4,1,320),(5,7,1,150),(5,9,20,2),(6,10,1,60),(7,2,1,25),(7,4,1,320),(8,8,4,5),(8,6,1,40);
+UPDATE products SET stock = 1 WHERE id = 7;
+CREATE TABLE accounts (id INTEGER PRIMARY KEY, owner TEXT NOT NULL, balance REAL NOT NULL CHECK (balance >= 0));
+INSERT INTO accounts VALUES (1,'Ana',500),(2,'Budi',200);
 PRAGMA foreign_keys = ON;`;
 
   const CHALLENGES = [
@@ -151,8 +154,8 @@ PRAGMA foreign_keys = ON;`;
     el.style.setProperty('--tc', 'var(--sql)');
     el.append(
       h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Practice'), h('h1', {}, 'SQL playground'),
-        h('p', { class: 'lede' }, 'A real SQLite database running in your browser. Queries and writes are live; reset whenever you like. SQLite uses LIMIT where SQL Server uses TOP / OFFSET FETCH — everything else in these lessons carries over.')),
-      h('p', { class: 'schema', html: '<b>customers</b>(id, name, city) · <b>products</b>(id, name, category, price) · <b>orders</b>(id, customer_id, order_date, status) · <b>order_items</b>(order_id, product_id, quantity, unit_price)' }),
+        h('p', { class: 'lede' }, 'A real SQLite database running in your browser. Queries and writes are live; reset whenever you like. The lessons use SQL Server, and most of it works here too. The differences to know: write LIMIT at the end instead of TOP, use strftime() instead of YEAR(), and expect money to show float rounding, because SQLite has no exact DECIMAL. SQLite is also more forgiving: it accepts an alias in WHERE, a bare column next to an aggregate and "double-quoted" text, all of which SQL Server rejects.')),
+      h('p', { class: 'schema', html: '<b>customers</b>(id, name, city) · <b>products</b>(id, name, category, price, stock) · <b>orders</b>(id, customer_id, order_date, status) · <b>order_items</b>(order_id, product_id, quantity, unit_price) · <b>accounts</b>(id, owner, balance)' }),
       chips, task,
       h('div', { class: 'play' },
         h('div', {}, ta, h('div', { class: 'actions' },
