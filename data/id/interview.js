@@ -27,7 +27,7 @@ I18N.iv = {
     ['Minggu 2 — Pattern inti', [
       'Pelajari pattern hash map, two pointers, sliding window, dan stack',
       'Kerjakan 5 soal medium (masing-masing 30 menit, pakai timer)',
-      'Selesaikan materi Pemula di ASP.NET Core, CSS, React, dan Flutter',
+      'Selesaikan materi Pemula di ASP.NET Core, CSS, React, Angular, dan Flutter',
       'Tulis 3 cerita STAR di bank cerita'
     ]],
     ['Minggu 3 — Tree, graph, search', [
@@ -41,7 +41,7 @@ I18N.iv = {
       'Kerjakan soal yang tersisa, termasuk yang hard',
       'Pelajari framework system design dan building block-nya',
       'Mock coding interview pertama, dinilai dengan rubrik',
-      'Selesaikan materi Menengah di CSS, React, dan Flutter'
+      'Selesaikan materi Menengah di CSS, React, Angular, dan Flutter'
     ]],
     ['Minggu 5 — System design', [
       'Kerjakan keenam kasus design: coba dulu, baru bandingkan',
@@ -87,6 +87,8 @@ I18N.iv = {
     ['Todo list dengan filter', 'Tambah, toggle, edit, dan hapus item; filter berdasarkan all / active / done; tetap tersimpan setelah reload.', 'Update yang immutable; list hasil filter diturunkan; controlled input; reducer atau handler yang rapi; proses edit yang ramah keyboard.'],
     ['Star rating', 'Komponen rating lima bintang yang bisa dipakai sebagai input form.', 'Bisa dipakai controlled maupun uncontrolled; preview saat hover; dukungan keyboard dengan tombol panah; semantik radio group; props ber-type.'],
     ['Infinite scroll feed', 'Muat halaman item berikutnya saat user mendekati bagian bawah.', 'IntersectionObserver, bukan scroll event; cursor pagination; tidak ada request duplikat; virtualization dibahas untuk list panjang.'],
+    ['Angular: pencarian live & tabel dengan filter', 'Component Angular yang memuat produk dari API, memfilter berdasarkan kata kunci dan kategori di URL, serta menghindari race condition pencarian.', '`httpResource` atau `toObservable` + `debounceTime` + `switchMap`; `withComponentInputBinding()` untuk query param; `computed()` untuk baris terfilter; `@for (...; track p.id)` dengan `@empty`; `@defer` atau live region ARIA untuk status update.'],
+    ['Angular: form checkout multi-langkah (Signal Forms)', 'Component form dengan kolom pengiriman/penagihan, validasi diskon kondisional, verifikasi promo asinkron, dan pemetaan ProblemDetails server.', 'Signal Forms (`form()`, `[formField]`, `applyWhen()`, `submit()`); membaca state lewat `field().touched()` / `errors()`; `exhaustMap` atau state disabled saat submit; menempelkan `ProblemDetails.errors` server dengan `aria-describedby` dan `role="alert"`.'],
     ['Flutter: daftar produk dengan pencarian', 'Layar yang memuat produk dari API, memfilternya saat user mengetik, dan mendukung pull-to-refresh.', 'Ada state loading, kosong, dan error; pencarian di-debounce; logic ada di cubit atau bloc, bukan di widget; `ListView.builder` dengan key; tidak ada pekerjaan yang dimulai di dalam `build`.'],
     ['Flutter: cart dengan tombol quantity', 'Layar cart yang tiap barisnya punya tombol plus dan minus, total yang terus ter-update, dan aksi swipe untuk menghapus.', 'State immutable dengan `copyWith`; rebuild yang sempit (`BlocSelector` atau widget kecil); key pada baris yang dismissible; tombol minus nonaktif di angka nol; semantics label pada icon button.']
   ],
@@ -492,5 +494,13 @@ I18N.iv.rapid = [
     ['Cubit vs Bloc, dan bagaimana perbandingannya dengan Provider dan Riverpod?', 'Cubit menyediakan method yang meng-emit state; Bloc memetakan event ke state, sehingga ada log event yang bisa dilacak dan ditransformasi, dengan harga kode yang lebih banyak. Provider adalah dependency injection plus ChangeNotifier — sederhana tapi mutable. Riverpod itu compile-safe dan tidak butuh context, dengan dependency yang lebih halus.'],
     ['Bagaimana layout bekerja di Flutter?', 'Constraint turun, size naik, parent menentukan posisi. Parent meneruskan ukuran minimum dan maksimum, child memilih ukuran di dalam rentang itu, lalu parent menempatkannya. Error overflow dan unbounded height berasal dari aturan ini.'],
     ['Bagaimana menjaga aplikasi Flutter tetap mulus?', 'Tiap frame punya jatah sekitar 16 ms di 60 Hz, dan hanya 8 ms di layar 120 Hz. Kurangi rebuild dengan widget const, state yang dipindah ke bawah, dan selector; build list secara lazy; pindahkan pekerjaan berat CPU keluar dari UI isolate dengan compute, yang juga jalan di web; dan ukur di profile mode dengan DevTools, jangan menebak.']
+  ] },
+  { qs: [
+    ['computed() vs linkedSignal() vs effect()?', 'computed adalah derived state read-only yang lazy dan memoized. linkedSignal membuat state writable yang otomatis di-reset ketika signal sumber berubah, menghindari loop effect. effect khusus untuk efek samping eksternal seperti localStorage, canvas, atau logging, bukan untuk menyalin antar-signal.'],
+    ['Bagaimana cara kerja @Component({ imports }) di Angular modern?', 'Component bersifat standalone secara default tanpa perlu NgModule. Setiap component mendaftarkan directive, pipe, dan child component yang dipakai di templatenya dalam imports, sehingga compiler dapat men-tree-shake kode tak terpakai per component.'],
+    ['Apa perbedaan element provider dan environment injector?', 'Pencarian dependensi menelusuri ElementInjector pada host element leluhur terlebih dahulu, lalu EnvironmentInjector dari provider route sampai root. Menaruh service di @Component({ providers }) membuat satu instance per instance component, sedangkan @Service() berbagi singleton di root.'],
+    ['Kapan memakai switchMap vs exhaustMap vs concatMap?', 'switchMap membatalkan inner observable yang sedang berjalan dan hanya mempertahankan yang terbaru, ideal untuk pencarian typeahead. exhaustMap mengabaikan pemicu baru saat request berjalan, mencegah double submit form atau tagihan ganda. concatMap mengantrekan request secara berurutan untuk penulisan serial.'],
+    ['Bagaimana change detection zoneless OnPush dengan Signal menentukan apa yang di-render ulang?', 'Signal hanya memberi tahu view template spesifik yang membacanya saat render. View parent dan sibling yang tidak terkait dilewati sepenuhnya tanpa Zone.js mem-patch event atau berjalan dari root ke bawah.'],
+    ['Bagaimana seharusnya client Angular menangani auth guard dan error server bersama ASP.NET Core?', 'Guard fungsional CanActivateFn dan CanMatchFn menangani redirect UX lewat RedirectCommand, sementara API ASP.NET Core tetap wajib menegakkan policy otorisasi di tiap endpoint. Interceptor menyisipkan token atau header XSRF dengan bersih dan memetakan RFC 9457 ProblemDetails ke error per field.']
   ] }
 ];

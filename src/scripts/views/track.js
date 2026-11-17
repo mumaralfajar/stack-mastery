@@ -66,7 +66,7 @@ export function lessonView(tid, lid) {
   if (l.viz && VIZ[l.viz]) { vizEl = h('div', { class: 'viz' }); VIZ[l.viz].mount(vizEl); }
   const playLink = t.id === 'sql' ? h('a', { class: 'btn ghost', href: '#/play/sql' }, 'Open SQL playground')
     : t.id === 'css' ? h('a', { class: 'btn ghost', href: '#/play/css' }, 'Open CSS playground')
-    : t.id === 'react' ? h('a', { class: 'btn ghost', href: '#/play/ts' }, 'Open TypeScript playground')
+    : t.id === 'react' || t.id === 'angular' ? h('a', { class: 'btn ghost', href: '#/play/ts' }, 'Open TypeScript playground')
     : t.id === 'flutter' ? h('a', { class: 'btn ghost', href: '#/play/dart/' + l.id }, 'Open Dart + Flutter playground') : null;
 
   const page = h('div', { class: 'page lesson', style: { '--tc': `var(--${t.id})` } },

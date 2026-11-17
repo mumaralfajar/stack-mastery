@@ -2,7 +2,7 @@
 
 **Learn it. Prove it. Teach it.**
 
-A free, self-paced program that takes you from beginner to expert in a complete stack — **C#, ASP.NET Core, SQL, CSS + Tailwind, TypeScript + React, Dart + Flutter** and **computer-science fundamentals** — and then prepares you for technical interviews at large tech companies.
+A free, self-paced program that takes you from beginner to expert in a complete stack — **C#, ASP.NET Core, SQL, CSS + Tailwind, TypeScript + React, Angular, Dart + Flutter** and **computer-science fundamentals** — and then prepares you for technical interviews at large tech companies.
 
 **Use it now:** <https://mumaralfajar.github.io/stack-mastery/>
 
@@ -30,6 +30,7 @@ Available in **English** and **Bahasa Indonesia** — switch with the **ID / EN*
 - [Verifying the ASP.NET Core content](#verifying-the-aspnet-core-content)
 - [Verifying the CSS + Tailwind content](#verifying-the-css--tailwind-content)
 - [Verifying the TypeScript + React content](#verifying-the-typescript--react-content)
+- [Verifying the Angular content](#verifying-the-angular-content)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 - [Licence](#licence)
@@ -58,7 +59,7 @@ What this means in practice:
 
 ## What is inside
 
-### Seven tracks, 91 lessons, four levels each
+### Eight tracks, 105 lessons, four levels each
 
 | Track | Lessons | From → to |
 | --- | --- | --- |
@@ -68,6 +69,7 @@ What this means in practice:
 | **ASP.NET Core** | 14 | HTTP and routing → auth, EF Core, performance, architecture, production |
 | **CSS + Tailwind** | 13 | HTML, the cascade, layout → Tailwind in React, architecture, rendering |
 | **TypeScript + React** | 14 | JavaScript and types → hooks, performance, advanced types, internals |
+| **Angular** | 14 | Components and Signals → DI, routing, Signal Forms, HTTP, zoneless testing, SSR, ARIA |
 | **Dart + Flutter** | 14 | Dart and widgets → layout, async, state with Bloc/Cubit, testing, rendering, release |
 
 Every lesson has the same three steps, and only counts as mastered when all three are done:
@@ -78,12 +80,12 @@ Every lesson has the same three steps, and only counts as mastered when all thre
 
 ### Practice tools
 
-- **21 interactive visualizations** — stack vs heap, async timeline, middleware pipeline, service lifetimes, JOIN explorer, index seek vs scan, flexbox and grid playgrounds, React re-renders, Flutter layout constraints and its three trees, the event loop, sorting algorithms, BFS vs DFS on a graph, Big-O growth, and more.
+- **23 interactive visualizations** — stack vs heap, async timeline, middleware pipeline, service lifetimes, JOIN explorer, index seek vs scan, flexbox and grid playgrounds, React re-renders, Angular Signal dependency graphs and zoneless change detection, Flutter layout constraints and its three trees, the event loop, sorting algorithms, BFS vs DFS on a graph, Big-O growth, and more.
 - **SQL playground** — a real SQLite database in the browser with 14 auto-checked challenges, from a first SELECT to keyset pagination and gaps-and-islands.
 - **TypeScript playground** — a real editor with live type checking; code that imports React renders in a live preview.
 - **Dart + Flutter playground** — the official DartPad embedded, loaded with each lesson's runnable sample.
 - **CSS + Tailwind playground** — live preview you can resize to test breakpoints.
-- **Flashcard review** — 292 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
+- **Flashcard review** — 334 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
 - **Mock exam** — ten random questions by track and level.
 - **Capstone projects** — one full-stack project per level.
 - **Search** — press `/` anywhere.
@@ -93,9 +95,9 @@ Every lesson has the same three steps, and only counts as mastered when all thre
 - **Coding** — 21 classic problems across 12 patterns, judged in the browser against test cases, with hints, solutions in TypeScript and C#, complexity and follow-up questions.
 - **System design** — a 45-minute framework, 6 worked cases, a capacity estimator and a glossary of building blocks. The sixth case is a savings-and-loan ledger, the kind of system this stack was used for.
 - **Behavioral** — the STAR method, 32 questions in 8 themes, a worked example answer, and a personal story bank.
-- **Rapid-fire** — 49 stack questions with model answers.
+- **Rapid-fire** — 55 stack questions with model answers.
 - **Getting hired** — an eight-week plan (with its weekly hours), big-tech hiring advice, and notes on take-home assignments and remote or Indonesian interviews.
-- **SQL and frontend rounds** — graded SQL challenges and eight "build a component" prompts, two of them in Flutter.
+- **SQL and frontend rounds** — graded SQL challenges and ten "build a component" prompts, two in Angular and two in Flutter.
 - **Mock interviews** — timed rounds with help locked until the end and a hire / no-hire scorecard.
 - **Eight-week plan** and a readiness meter.
 
@@ -122,7 +124,7 @@ The percentages in the sidebar show your progress per track; the dashboard shows
 
 ## Languages
 
-The whole program — interface, all 91 lessons, quizzes, visualizations, playgrounds and interview preparation — is available in English and Bahasa Indonesia.
+The whole program — interface, all 105 lessons, quizzes, visualizations, playgrounds and interview preparation — is available in English and Bahasa Indonesia.
 
 - Use the **ID / EN** button at the top-right of the screen. The choice is remembered in your browser.
 - On a first visit, a browser set to Indonesian starts in Indonesian; every other browser starts in English.
@@ -210,9 +212,9 @@ These are downloaded from public CDNs (cdnjs, jsDelivr and esm.sh). Loading them
 | `src/scripts/views/` | Modular views (`dashboard.js`, `track.js`, `practice.js`, `teach.js`) |
 | `src/scripts/interview.js` | Interview section: code judge, design, story bank, mocks |
 | `src/scripts/playground.js` | SQL, TypeScript, CSS and DartPad playgrounds; editor integration |
-| `src/scripts/viz/` | Interactive visualizations (`viz.js`, `vizcss.js`, `vizmore.js`, `vizflutter.js`) |
+| `src/scripts/viz/` | Interactive visualizations (`viz.js`, `vizcss.js`, `vizmore.js`, `vizangular.js`, `vizflutter.js`) |
 | `src/scripts/i18n.js`, `load-id.js` | Lazy-loads and overlays the selected language's content |
-| `data/csharp.js`, `aspnet.js`, `sql.js`, `css.js`, `react.js`, `flutter.js`, `fundamentals.js` | Lesson content, one file per track |
+| `data/csharp.js`, `aspnet.js`, `sql.js`, `css.js`, `react.js`, `angular.js`, `flutter.js`, `fundamentals.js` | Lesson content, one file per track |
 | `data/projects.js` | Capstone projects |
 | `data/interview.js` | Coding problems, patterns, system design, behavioral, rapid-fire, plan |
 | `data/interview-cs.js` | C# solutions and the frontend-round prompts |
@@ -224,6 +226,7 @@ These are downloaded from public CDNs (cdnjs, jsDelivr and esm.sh). Loading them
 | `tools/verify-aspnet.mjs` | Builds and starts every ASP.NET Core sample with only the packages its `dotnet add package` lines name, and runs the testing lesson's tests |
 | `tools/verify-css.mjs` | Checks the CSS samples in Chrome, compiles the Tailwind classes, and type-checks the React sample |
 | `tools/verify-react.mjs` | Type-checks every TypeScript + React sample, runs the testing lesson's test, and checks the event-loop output |
+| `tools/verify-angular.mjs` | Compiles every Angular 22 sample with `ngc` (`strictTemplates: true`), runs the zoneless Vitest suite, and checks the RxJS flattening output |
 | `tools/check-i18n.mjs` | Checks that the Indonesian content matches the English structure |
 | `tools/extract-text.mjs` | Prints the translatable text of a track, for translators |
 
@@ -366,6 +369,21 @@ Needs internet access the first time, to install TypeScript, React 19, TanStack 
 3. runs the event-loop example and checks that it prints `1 sync`, `2 sync`, `3 microtask`, `4 timeout`, as its comments say.
 
 Add `--show` to print the event-loop output.
+
+---
+
+## Verifying the Angular content
+
+```sh
+node tools/verify-angular.mjs
+```
+
+Needs internet access the first time, to install Angular 22 (`@angular/core`, `@angular/common`, `@angular/forms`, `@angular/router`, `@angular/ssr`, `@angular/aria`, `@angular/compiler-cli`), TypeScript 6, RxJS, Vitest and jsdom into a scratch folder. It:
+
+1. compiles every Angular lesson sample as a module with `ngc` and `strictTemplates: true`;
+2. runs the testing lesson's Vitest suite against the `http` lesson's `ProductsPage` with `TestBed`, `HttpTestingController` and zoneless `whenStable()`;
+3. runs the RxJS flattening sample and checks that `switchMap` emits `['second']` and `exhaustMap` emits `['first']` (add `--show` to print its output).
+
 ---
 
 ## Troubleshooting

@@ -9,6 +9,7 @@ window.PROJECTS = [
       "**React + TypeScript**: a typed `ProductList` component rendering hard-coded products with an empty-state message.",
       "**CSS**: style the product list with a responsive grid and a card component — no framework yet, and no horizontal scroll at 360px.",
       "Explain out loud what a request, a row, an object, a component and a CSS rule each are — one sentence each.",
+      "**Angular**: the same hard-coded product list built from standalone components with `@for (...; track p.id)`, empty states, and clean TypeScript interfaces.",
       "**Dart + Flutter**: the same hard-coded product list as a Flutter screen built from `StatelessWidget`s, run on the web target."
     ],
     stretch: ["Add `POST` to the API and call it with `curl`.", "Add a search box to the React list that filters as you type."],
@@ -26,6 +27,7 @@ window.PROJECTS = [
       "TypeScript types for every API response; no `any`.",
       "Styled with Tailwind: a responsive layout, reusable `Button` and `Input` components with typed variants, visible focus states.",
       "A JOIN query endpoint: projects with their open-task counts, written so it produces exactly one SQL statement.",
+      "An Angular client for the same API: task list via `httpResource`, Signal Form validation, toggle done, delete — with loading and error states.",
       "A Flutter client for the same API: task list, create form with validation, toggle done — with loading, empty and error states."
     ],
     stretch: ["Filter and sort tasks via query-string parameters reflected in the URL.", "Replace hand-written fetching with TanStack Query."],
@@ -44,6 +46,7 @@ window.PROJECTS = [
       "Integration tests with `WebApplicationFactory` against a real database for every endpoint; React Testing Library tests for the checkout flow.",
       "Cart implemented with a reducer and context; server state via a query library with invalidation.",
       "A small design system: tokens through `@theme`, dark mode, and components that own no outer margin.",
+      "An Angular storefront with functional route guards, HTTP auth interceptor mapping `ProblemDetails`, `@Service()` cart signals, and Vitest `HttpTestingController` tests.",
       "The Flutter app signs in, stores its token in secure storage, and manages cart and orders with Bloc/Cubit, covered by cubit and widget tests."
     ],
     stretch: ["Options pattern with startup validation for all settings.", "Structured logging with a correlation ID visible in every log line of a request."],
@@ -61,6 +64,7 @@ window.PROJECTS = [
       "A zero-downtime schema change executed with expand → migrate → contract while the app runs.",
       "Frontend: route-based code splitting, virtualized long list, Core Web Vitals within budget, fully keyboard accessible.",
       "Containerized, deployed through CI with tests, migrations and a rollback plan you have actually exercised.",
+      "The Angular app configured with `@defer` chunks, hybrid SSR (`ServerRoute`), and a runtime check verifying OpenAPI-generated types match the deployed API.",
       "The Flutter app built in CI as a signed release with dev and prod flavors, crash reporting, and a tested upgrade path from the previous version."
     ],
     stretch: ["Write an architecture decision record for your three most consequential choices.", "Run a game day: break the database, a dependency and a deploy, and document what the system and the dashboards did."],

@@ -10,6 +10,7 @@ I18N.projects = [
       "**React + TypeScript**: komponen `ProductList` ber-type yang me-render produk hard-code, lengkap dengan pesan empty state.",
       "**CSS**: beri style daftar produknya dengan grid responsif dan komponen card — belum pakai framework, dan tanpa scroll horizontal di 360px.",
       "Jelaskan dengan lantang apa itu request, row, object, komponen, dan rule CSS — masing-masing satu kalimat.",
+      "**Angular**: daftar produk hard-code yang sama dibangun dari standalone component dengan `@for (...; track p.id)`, empty state, dan interface TypeScript yang rapi.",
       "**Dart + Flutter**: daftar produk hard-code yang sama sebagai satu layar Flutter yang disusun dari `StatelessWidget`, dijalankan di target web."
     ],
     stretch: [
@@ -30,6 +31,7 @@ I18N.projects = [
       "Type TypeScript untuk setiap response API; tanpa `any`.",
       "Di-style dengan Tailwind: layout responsif, komponen `Button` dan `Input` reusable dengan variant ber-type, focus state yang terlihat.",
       "Endpoint dengan query JOIN: projects beserta jumlah task yang masih open, ditulis sedemikian rupa sehingga menghasilkan tepat satu statement SQL.",
+      "Client Angular untuk API yang sama: daftar task lewat `httpResource`, validasi Signal Forms, toggle done, delete — lengkap dengan state loading dan error.",
       "Client Flutter untuk API yang sama: daftar task, form create dengan validasi, toggle done — lengkap dengan state loading, kosong, dan error."
     ],
     stretch: [
@@ -51,6 +53,7 @@ I18N.projects = [
       "Integration test dengan `WebApplicationFactory` terhadap database sungguhan untuk setiap endpoint; test React Testing Library untuk alur checkout.",
       "Cart diimplementasikan dengan reducer dan context; server state lewat query library dengan invalidation.",
       "Design system kecil: token lewat `@theme`, dark mode, dan komponen yang tidak memiliki margin luar.",
+      "Storefront Angular dengan functional route guard, HTTP auth interceptor yang memetakan `ProblemDetails`, signal cart di `@Service()`, dan test Vitest `HttpTestingController`.",
       "Aplikasi Flutter-nya bisa sign in, menyimpan token di secure storage, dan mengelola cart serta order dengan Bloc/Cubit, dilengkapi test untuk cubit dan widget."
     ],
     stretch: [
@@ -71,6 +74,7 @@ I18N.projects = [
       "Perubahan schema tanpa downtime yang dieksekusi dengan expand → migrate → contract selagi aplikasinya berjalan.",
       "Frontend: code splitting berbasis route, list panjang yang di-virtualize, Core Web Vitals sesuai budget, sepenuhnya bisa diakses lewat keyboard.",
       "Di-containerize, di-deploy lewat CI dengan test, migration, dan rencana rollback yang benar-benar pernah kamu jalankan.",
+      "Aplikasi Angular yang dikonfigurasi dengan chunk `@defer`, hybrid SSR (`ServerRoute`), dan pemeriksaan runtime agar tipe hasil generate OpenAPI cocok dengan API yang ter-deploy.",
       "Aplikasi Flutter di-build di CI sebagai release yang di-sign, dengan flavor dev dan prod, crash reporting, dan jalur upgrade dari versi sebelumnya yang sudah diuji."
     ],
     stretch: [

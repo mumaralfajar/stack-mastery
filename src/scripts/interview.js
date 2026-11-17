@@ -364,7 +364,7 @@ self.onmessage = e => {
       ['Coding', '#/interview/coding', 'Two rounds in most loops. Data structures and algorithms, solved out loud in 35–45 minutes.'],
       ['System design', '#/interview/design', 'From mid-level up. Design a large system on a whiteboard and defend the trade-offs.'],
       ['Behavioral', '#/interview/behavioral', 'Evidence of ownership, collaboration and judgement, told as specific stories.'],
-      ['Stack knowledge', '#/interview/rapid', 'Depth in your own technologies: C#, ASP.NET Core, SQL, TypeScript, React, CSS, Flutter, the web.'],
+      ['Stack knowledge', '#/interview/rapid', 'Depth in your own technologies: C#, ASP.NET Core, SQL, TypeScript, React, Angular, CSS, Flutter, the web.'],
       ['Mock interviews', '#/interview/mock', 'Timed, scored simulations of each round — the fastest way to improve.']
     ];
     return h('div', { class: 'page iv' },
@@ -377,7 +377,7 @@ self.onmessage = e => {
       sec('The interview loop', h('div', { class: 'grid' }, loop.map(([t, href, d]) => h('a', { class: 'card go', href }, h('strong', {}, t), h('p', {}, d))))),
       sec('Two more rounds for full-stack roles',
         h('details', {}, h('summary', {}, 'SQL round'), h('p', {}, 'Many backend and full-stack loops include live SQL: joins, grouping, a window function, and reading a slow query. The 14 graded challenges in the ', h('a', { href: '#/play/sql' }, 'SQL playground'), ' cover exactly that range — do them timed, explaining each clause out loud. Then review ', h('a', { href: '#/lesson/sql/indexes' }, 'indexes'), ' and ', h('a', { href: '#/lesson/sql/plans' }, 'execution plans'), ' for the follow-up questions.')),
-        h('details', {}, h('summary', {}, 'Frontend “build a component” round'), h('p', {}, 'Forty-five minutes to build a working UI component in React and TypeScript while explaining your decisions. Practise each prompt in a fresh Vite project against the clock.'),
+        h('details', {}, h('summary', {}, 'Frontend “build a component” round'), h('p', {}, 'Forty-five minutes to build a working UI component in React, Angular, or TypeScript while explaining your decisions. Practise each prompt in a fresh Vite or Angular CLI project against the clock.'),
           h('div', { class: 'rows' }, IV.ui.map(([t, build, checks]) => h('div', { class: 'row static' }, h('span', { class: 'row-t' }, h('b', {}, t), h('br'), build, h('br'), h('span', { class: 'muted', html: T('Interviewers check: ') + md(checks) })))))),
         h('p', { class: 'muted' }, 'Before any coding round, make sure the ', h('a', { href: '#/track/cs' }, 'CS Fundamentals'), ' track is solid — every pattern here assumes it.')),
       sec('Eight-week plan', h('p', { class: 'muted' }, 'Assumes about 15–20 hours a week. With a full-time job, give each week two weeks: finishing later beats skipping the mocks.'), IV.plan.map(([week, items], wi) => {

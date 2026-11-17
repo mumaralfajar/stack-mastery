@@ -13,6 +13,7 @@
     "astro": "astro",
     "check:i18n": "node tools/check-i18n.mjs",
     "verify:cs": "node tools/verify.mjs",
+    "verify:angular": "node tools/verify-angular.mjs",
     "verify:dart": "node tools/verify-dart.mjs"
   },
   "dependencies": {

@@ -359,7 +359,50 @@ console.log("sequential:", a, b, Date.now() - start, "ms");
 
 start = Date.now();
 const both = await Promise.all([wait(300, "A"), wait(300, "B")]);
-console.log("concurrent:", both, Date.now() - start, "ms");`
+console.log("concurrent:", both, Date.now() - start, "ms");`,
+    'Angular signals': `// Minimal reactive signal + computed — the same push-pull model Angular uses
+let currentObserver: (() => void) | null = null;
+
+function signal<T>(initial: T) {
+  let value = initial;
+  const subs = new Set<() => void>();
+  const read = () => {
+    if (currentObserver) subs.add(currentObserver);
+    return value;
+  };
+  read.set = (next: T) => {
+    if (Object.is(value, next)) return;
+    value = next;
+    subs.forEach(fn => fn());
+  };
+  return read;
+}
+
+function computed<T>(fn: () => T): () => T {
+  let cached: T;
+  let dirty = true;
+  const notify = () => { dirty = true; };
+  return () => {
+    if (dirty) {
+      const prev = currentObserver;
+      currentObserver = notify;
+      try { cached = fn(); dirty = false; } finally { currentObserver = prev; }
+    }
+    return cached;
+  };
+}
+
+const price = signal(100);
+const qty = signal(2);
+const total = computed(() => {
+  console.log("recomputing total...");
+  return price() * qty();
+});
+
+console.log("1st read:", total()); // computes once
+console.log("2nd read:", total()); // cached!
+qty.set(3);
+console.log("after qty=3:", total());`
   };
 
   // React 19 from esm.sh, pinned; react-dom is told to share the same React.

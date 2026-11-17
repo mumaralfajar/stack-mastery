@@ -1,7 +1,7 @@
 :root {
   --bg: #f6f5f1; --surface: #ffffff; --sunken: #efede7; --text: #1b2030; --muted: #5d6677; --border: #e0ddd4;
   --accent: #3b47d6; --good: #0f7b4f; --bad: #c0362c; --good-bg: #e3f4ea; --bad-bg: #fbe9e6;
-  --csharp: #7c3aed; --aspnet: #4338ca; --sql: #b45309; --css: #0d9488; --react: #0284c7; --flutter: #1d4ed8; --cs: #be123c;
+  --csharp: #7c3aed; --aspnet: #4338ca; --sql: #b45309; --css: #0d9488; --react: #0284c7; --angular: #b8145e; --flutter: #1d4ed8; --cs: #be123c;
   --code-bg: #14171f; --code-text: #e4e7ee;
   --tc: var(--accent);
   --mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, Menlo, monospace;
@@ -12,13 +12,13 @@
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0e1117; --surface: #161a23; --sunken: #1d222d; --text: #e7eaf0; --muted: #9aa3b4; --border: #272d3a;
   --accent: #8b95ff; --good: #4fd19a; --bad: #ff8b7e; --good-bg: #12301f; --bad-bg: #3a1a17;
-  --csharp: #b79cff; --aspnet: #818cf8; --sql: #f5b955; --css: #2dd4bf; --react: #38bdf8; --flutter: #60a5fa; --cs: #fb7185;
+  --csharp: #b79cff; --aspnet: #818cf8; --sql: #f5b955; --css: #2dd4bf; --react: #38bdf8; --angular: #f472b6; --flutter: #60a5fa; --cs: #fb7185;
   --code-bg: #0a0c11; color-scheme: dark;
 } }
 :root[data-theme="dark"], :root:has(> head > meta[name="color-scheme"][content="dark"]) {
   --bg: #0e1117; --surface: #161a23; --sunken: #1d222d; --text: #e7eaf0; --muted: #9aa3b4; --border: #272d3a;
   --accent: #8b95ff; --good: #4fd19a; --bad: #ff8b7e; --good-bg: #12301f; --bad-bg: #3a1a17;
-  --csharp: #b79cff; --aspnet: #818cf8; --sql: #f5b955; --css: #2dd4bf; --react: #38bdf8; --flutter: #60a5fa; --cs: #fb7185;
+  --csharp: #b79cff; --aspnet: #818cf8; --sql: #f5b955; --css: #2dd4bf; --react: #38bdf8; --angular: #f472b6; --flutter: #60a5fa; --cs: #fb7185;
   --code-bg: #0a0c11; color-scheme: dark;
 }
 :root[data-theme="light"], :root:has(> head > meta[name="color-scheme"][content="light"]) {
@@ -42,6 +42,7 @@
     --sql: light-dark(#b45309, #f5b955);
     --css: light-dark(#0d9488, #2dd4bf);
     --react: light-dark(#0284c7, #38bdf8);
+    --angular: light-dark(#b8145e, #f472b6);
     --flutter: light-dark(#1d4ed8, #60a5fa);
     --cs: light-dark(#be123c, #fb7185);
     --code-bg: light-dark(#14171f, #0a0c11);
@@ -533,3 +534,17 @@ table.t td code { white-space: pre; }
 .gviz .cur circle { fill: var(--tc); stroke: var(--tc); }
 .gviz .cur text:not(.d) { fill: var(--surface); }
 .gviz .path circle { fill: var(--good-bg); stroke: var(--good); stroke-width: 3; }
+
+/* Angular visualizations: Signal dependency graph & Change detection explorer */
+.ng-graph { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: .75rem; margin: .75rem 0; }
+.ng-graph > * { min-inline-size: 0; }
+.ng-graph .viz-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: .7rem .8rem; display: flex; flex-direction: column; gap: .4rem; min-inline-size: 0; }
+.ng-graph .viz-box h4 { margin: 0 0 .2rem; font-size: .84rem; letter-spacing: .01em; color: var(--muted); }
+.ng-graph .slot { display: flex; justify-content: space-between; align-items: center; gap: .5rem; flex-wrap: wrap; min-inline-size: 0; padding: .35rem .5rem; border-radius: 6px; border: 1px solid var(--border); background: var(--sunken); font-size: .86rem; }
+.ng-graph .slot.tt-kept { opacity: .68; border-style: dashed; }
+.ng-graph .slot.tt-upd { border-color: color-mix(in srgb, var(--tc) 55%, var(--border)); }
+.ng-graph .slot.tt-new { background: var(--good-bg); border-color: color-mix(in srgb, var(--good) 55%, var(--border)); }
+.ng-tag { display: inline-block; font-size: .72rem; font-weight: 600; padding: .1rem .4rem; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); margin-inline-start: .25rem; }
+.ng-graph .slot.tt-new .ng-tag { color: var(--good); border-color: var(--good); }
+.ng-graph .slot.tt-upd .ng-tag { color: var(--tc); border-color: var(--tc); }
+.tree-r > *, .comp { min-inline-size: 0; }

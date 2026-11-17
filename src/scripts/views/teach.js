@@ -108,7 +108,7 @@ export function startView() {
   return h('div', { class: 'page' },
     h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Before lesson one'), h('h1', {}, 'Start here: set up your machine'),
       h('p', { class: 'lede' }, 'Reading is not learning. Every lesson ends with something to build, and that needs a handful of free tools. This takes about twenty minutes, once.')),
-    step('1. Install the tools', 'Install the **.NET SDK** (current LTS) from dotnet.microsoft.com, **Node.js LTS** from nodejs.org, **Git** from git-scm.com, the **Flutter SDK** from flutter.dev (it includes Dart), and **Visual Studio Code** with the C# Dev Kit and Flutter extensions. Then confirm each one answers in a new terminal:', `
+    step('1. Install the tools', 'Install the **.NET SDK** (current LTS) from dotnet.microsoft.com, **Node.js LTS** from nodejs.org, **Git** from git-scm.com, the **Flutter SDK** from flutter.dev (it includes Dart), and **Visual Studio Code** with the C# Dev Kit, Angular Language Service, and Flutter extensions. Then confirm each one answers in a new terminal:', `
 dotnet --version
 node --version
 git --version
@@ -128,22 +128,26 @@ cd shop-web
 npm install
 npm install tailwindcss @tailwindcss/vite
 npm run dev`),
-    step('5. Your first Flutter app', '`flutter doctor` tells you what is still missing for each platform. The web target needs only Chrome, so you can start before setting up Android Studio or Xcode.', `
+    step('5. Your first Angular app', 'The Angular CLI scaffolds a standalone, zoneless workspace with TypeScript and strict templates enabled. Start the dev server on `http://localhost:4200` and open it in the browser.', `
+npx @angular/cli@latest new shop-ng
+cd shop-ng
+npx ng serve`),
+    step('6. Your first Flutter app', '`flutter doctor` tells you what is still missing for each platform. The web target needs only Chrome, so you can start before setting up Android Studio or Xcode.', `
 flutter doctor
 flutter create shop_app
 cd shop_app
 flutter run -d chrome`),
-    step('6. A database', 'The SQL and ASP.NET Core tracks use **SQL Server**. On Windows, install the free **SQL Server Express** edition; the samples connect to it as `.\\SQLEXPRESS`. On macOS or Linux, run SQL Server in Docker and set a `Shop` connection string. The SQL playground runs SQLite in the browser, so the first SQL lessons work before any of this.', `
+    step('7. A database', 'The SQL and ASP.NET Core tracks use **SQL Server**. On Windows, install the free **SQL Server Express** edition; the samples connect to it as `.\\SQLEXPRESS`. On macOS or Linux, run SQL Server in Docker and set a `Shop` connection string. The SQL playground runs SQLite in the browser, so the first SQL lessons work before any of this.', `
 dotnet add package Microsoft.EntityFrameworkCore.SqlServer
 dotnet add package Microsoft.EntityFrameworkCore.Design
 dotnet tool install --global dotnet-ef
 dotnet ef migrations add Init
 dotnet ef database update`),
-    step('7. Put everything in Git from day one', 'A commit history is both your safety net and, later, your portfolio. The first lesson of the CS Fundamentals track covers the workflow.', `
+    step('8. Put everything in Git from day one', 'A commit history is both your safety net and, later, your portfolio. The first lesson of the CS Fundamentals track covers the workflow.', `
 git init
 git add .
 git commit -m "First commit"`),
-    h('section', { class: 'sec' }, h('h2', {}, '8. A routine that works'),
+    h('section', { class: 'sec' }, h('h2', {}, '9. A routine that works'),
       h('ol', { class: 'steps' },
         h('li', {}, h('b', {}, '10 minutes: '), 'flashcard review. Do this first, every day — it is what makes knowledge stay.'),
         h('li', {}, h('b', {}, '30 minutes: '), 'one lesson — learn it, check yourself, then write the teach-back.'),

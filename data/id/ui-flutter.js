@@ -3,7 +3,7 @@ I18N.add({
   // navigation, lesson page, setup guide
   'Dart + Flutter playground': 'Dart + Flutter playground',
   'Open Dart + Flutter playground': 'Buka Dart + Flutter playground',
-  '5. Your first Flutter app': '5. Aplikasi Flutter pertamamu',
+  '6. Your first Flutter app': '6. Aplikasi Flutter pertamamu',
   '`flutter doctor` tells you what is still missing for each platform. The web target needs only Chrome, so you can start before setting up Android Studio or Xcode.': '`flutter doctor` memberi tahu apa yang masih kurang untuk tiap platform. Target web hanya butuh Chrome, jadi kamu bisa mulai sebelum menyiapkan Android Studio atau Xcode.',
 
   // playground
