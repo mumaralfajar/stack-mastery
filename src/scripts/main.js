@@ -36,9 +36,7 @@ const nav = document.getElementById('nav');
 let routed = false;
 addEventListener('keydown', e => {
   if (e.key === 'Escape' && isMenuOpen()) {
-    setMenu(false);
-    const b = nav && nav.querySelector('.nav-toggle');
-    if (b) b.focus();
+    setMenu(false, { restoreFocus: true });
     return;
   }
   if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.target.closest('input, textarea, select, [contenteditable], .monaco-host')) {
@@ -64,13 +62,25 @@ function route() {
     search: searchView,
     start: startView
   }[a] || dashboard;
-  view.replaceChildren(r());
-  renderNav();
-  const h1 = view.querySelector('h1');
-  document.title = (h1 && a ? h1.textContent + ' — ' : '') + 'Stack Mastery';
-  scrollTo(0, 0);
-  if (routed && a !== 'search') view.focus({ preventScroll: true });
-  routed = true;
+  const updateDOM = () => {
+    view.replaceChildren(r());
+    renderNav();
+    const h1 = view.querySelector('h1');
+    document.title = (h1 && a ? h1.textContent + ' — ' : '') + 'Stack Mastery';
+    scrollTo(0, 0);
+  };
+  if (!routed || !document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    updateDOM();
+    if (routed && a !== 'search') view.focus({ preventScroll: true });
+    routed = true;
+    return;
+  }
+  const transition = document.startViewTransition(updateDOM);
+  if (a !== 'search') {
+    transition.finished.finally(() => {
+      view.focus({ preventScroll: true });
+    });
+  }
 }
 
 addEventListener('hashchange', route);

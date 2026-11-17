@@ -16,6 +16,17 @@ const {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="text-scale" content="scale" />
+    <meta name="color-scheme" content="light dark" />
+    <script is:inline>
+      try {
+        const t = JSON.parse(localStorage.getItem("stackmastery.v1") || "{}").theme;
+        if (t === "light" || t === "dark") {
+          document.documentElement.dataset.theme = t;
+          document.querySelector('meta[name="color-scheme"]').content = t;
+        }
+      } catch {}
+    </script>
     <link rel="icon" type="image/svg+xml" href="/stack-mastery/favicon.svg" />
     <link rel="icon" href="/stack-mastery/favicon.ico" />
     <meta name="generator" content={Astro.generator} />

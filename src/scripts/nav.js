@@ -5,18 +5,44 @@ let menuOpen = false;
 
 export const isMenuOpen = () => menuOpen;
 
-export function setMenu(open) {
+export function setMenu(open, { restoreFocus = false } = {}) {
   const nav = document.getElementById('nav');
   if (!nav) return;
+  const wasOpen = menuOpen;
   menuOpen = !!open;
+  const isMobile = typeof matchMedia !== 'undefined' && matchMedia('(max-width: 860px)').matches;
   nav.classList.toggle('open', menuOpen);
   document.body.classList.toggle('nav-open', menuOpen);
+  const view = document.getElementById('view');
+  if (view) view.inert = menuOpen && isMobile;
+  const drawer = nav.querySelector('.nav-drawer');
+  if (drawer) {
+    if (menuOpen && isMobile) {
+      drawer.setAttribute('role', 'dialog');
+      drawer.setAttribute('aria-modal', 'true');
+      drawer.setAttribute('aria-label', window.t ? window.t('Main') : 'Main');
+    } else {
+      drawer.removeAttribute('role');
+      drawer.removeAttribute('aria-modal');
+      drawer.removeAttribute('aria-label');
+    }
+  }
   const btn = nav.querySelector('.nav-toggle');
   if (btn) btn.setAttribute('aria-expanded', String(menuOpen));
-  if (menuOpen) {
+  if (menuOpen && !wasOpen) {
     const on = nav.querySelector('.nav-link.on');
     if (on) on.scrollIntoView({ block: 'nearest' });
+    const closeBtn = nav.querySelector('.drawer-head .icon-btn');
+    if (closeBtn && isMobile) closeBtn.focus({ preventScroll: true });
+  } else if (!menuOpen && wasOpen && restoreFocus && btn && isMobile) {
+    btn.focus({ preventScroll: true });
   }
+}
+
+if (typeof matchMedia !== 'undefined') {
+  matchMedia('(max-width: 860px)').addEventListener('change', e => {
+    if (!e.matches && menuOpen) setMenu(false);
+  });
 }
 
 export function renderNav() {
@@ -40,11 +66,11 @@ export function renderNav() {
         h('button', { type: 'button', class: 'nav-toggle', 'aria-label': 'Menu', 'aria-expanded': String(menuOpen), 'aria-controls': 'nav-drawer', onclick: () => setMenu(!menuOpen) },
           h('span', { html: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>' }),
           due ? h('small', { class: 'badge' }, due) : null))),
-    h('div', { class: 'nav-backdrop', onclick: () => setMenu(false) }),
+    h('div', { class: 'nav-backdrop', onclick: () => setMenu(false, { restoreFocus: true }) }),
     h('div', { class: 'nav-drawer', id: 'nav-drawer' },
       h('div', { class: 'drawer-head' },
         brand(),
-        h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Close menu', title: 'Close menu', onclick: () => setMenu(false), html: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>' })),
+        h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Close menu', title: 'Close menu', onclick: () => setMenu(false, { restoreFocus: true }), html: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>' })),
       h('nav', { 'aria-label': 'Main' },
         link('#/', 'Dashboard', a === ''),
         link('#/start', 'Start here: setup', a === 'start'),

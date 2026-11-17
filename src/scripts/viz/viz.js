@@ -90,7 +90,7 @@
       const defs = [
         ['.Where(n => n > 4)', a => a.filter(n => n > 4)],
         ['.Select(n => n * 2)', a => a.map(n => n * 2)],
-        ['.OrderBy(n => n)', a => a.slice().sort((x, y) => x - y)],
+        ['.OrderBy(n => n)', a => a.toSorted((x, y) => x - y)],
         ['.Take(3)', a => a.slice(0, 3)]
       ];
       const on = [true, true, false, true];

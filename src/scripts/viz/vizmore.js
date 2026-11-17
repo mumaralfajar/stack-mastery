@@ -113,7 +113,7 @@
       const draw = () => {
         const s = steps[i];
         lis.forEach((li, j) => li.className = j === s.line ? 'cur' : 'done');
-        fill(stack, s.stack.slice().reverse()); fill(micro, s.micro); fill(task, s.task); fill(out, s.out);
+        fill(stack, s.stack.toReversed()); fill(micro, s.micro); fill(task, s.task); fill(out, s.out);
         note.textContent = T(s.note); label.textContent = T('Step {i} of {n}', { i: i + 1, n: steps.length });
         back.disabled = i === 0; next.disabled = i === steps.length - 1;
       };

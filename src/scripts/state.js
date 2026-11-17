@@ -32,12 +32,30 @@ export const dueCards = () => allCards().filter(c => S.cards[c.id] ? S.cards[c.i
 export const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 export function applyTheme() {
-  if (S.theme) document.documentElement.dataset.theme = S.theme; else delete document.documentElement.dataset.theme;
+  const meta = typeof document !== 'undefined' ? document.querySelector('meta[name="color-scheme"]') : null;
+  if (S.theme === 'light' || S.theme === 'dark') {
+    document.documentElement.dataset.theme = S.theme;
+    if (meta) meta.content = S.theme;
+  } else {
+    delete document.documentElement.dataset.theme;
+    if (meta) meta.content = 'light dark';
+  }
 }
 
 export function toggleTheme() {
-  const dark = S.theme ? S.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-  S.theme = dark ? 'light' : 'dark'; save(); applyTheme();
+  const sysDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const curDark = S.theme ? S.theme === 'dark' : sysDark;
+  const nextDark = !curDark;
+  S.theme = nextDark === sysDark ? '' : (nextDark ? 'dark' : 'light');
+  save(); applyTheme();
+}
+
+if (typeof addEventListener !== 'undefined') {
+  addEventListener('storage', e => {
+    if (e.key === KEY) {
+      try { S.theme = JSON.parse(e.newValue || '{}').theme || ''; applyTheme(); } catch { /* ignore */ }
+    }
+  });
 }
 
 export function exportBackup() {

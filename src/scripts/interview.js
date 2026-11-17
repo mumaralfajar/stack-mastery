@@ -313,7 +313,7 @@ self.onmessage = e => {
   function history() {
     if (!D.mocks.length) return h('p', { class: 'muted' }, 'No mock interviews recorded yet.');
     return h('table', { class: 't' }, h('thead', {}, h('tr', {}, ['Date', 'Type', 'Session', 'Score', 'Verdict'].map(c => h('th', {}, c)))),
-      h('tbody', {}, D.mocks.slice().reverse().map(m => h('tr', {}, h('td', {}, m.date), h('td', {}, m.type), h('td', {}, m.title), h('td', {}, m.avg.toFixed(2)), h('td', {}, verdict(m.avg))))));
+      h('tbody', {}, D.mocks.toReversed().map(m => h('tr', {}, h('td', {}, m.date), h('td', {}, m.type), h('td', {}, m.title), h('td', {}, m.avg.toFixed(2)), h('td', {}, verdict(m.avg))))));
   }
 
   function mockView() {

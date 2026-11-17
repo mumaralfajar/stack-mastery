@@ -86,15 +86,36 @@ W.highlight = function (code, lang) {
   return out + W.esc(code.slice(last));
 };
 
+const copyTimers = new WeakMap();
+let lastCopyMsg = '';
+
 W.codeBlock = function (code, lang) {
   code = code.replace(/^\n+|\s+$/g, '');
   const label = { cs: 'C#', sql: 'SQL', ts: 'TypeScript', tsx: 'TSX', dart: 'Dart', sh: 'Shell', css: 'CSS', html: 'HTML' }[lang] || lang;
-  const btn = W.h('button', { class: 'copy', type: 'button', onclick: () => {
-    navigator.clipboard && navigator.clipboard.writeText(code).then(() => {
-      btn.textContent = W.t('Copied'); setTimeout(() => btn.textContent = W.t('Copy'), 1200);
-    });
+  const tip = W.h('span', { class: 'copy-tip', role: 'status' });
+  const btn = W.h('button', { class: 'copy', type: 'button', onclick: async () => {
+    let ok = false;
+    try {
+      await navigator.clipboard.writeText(code);
+      ok = true;
+    } catch { ok = false; }
+    clearTimeout(copyTimers.get(btn));
+    btn.removeAttribute('data-copied');
+    btn.removeAttribute('data-failed');
+    let msg = W.t(ok ? 'Copied' : 'Copy failed');
+    if (msg === lastCopyMsg) msg += '\u00A0';
+    lastCopyMsg = msg;
+    tip.textContent = '';
+    void btn.offsetWidth;
+    btn.setAttribute(ok ? 'data-copied' : 'data-failed', '');
+    requestAnimationFrame(() => { tip.textContent = msg; });
+    copyTimers.set(btn, setTimeout(() => {
+      btn.removeAttribute('data-copied');
+      btn.removeAttribute('data-failed');
+      tip.textContent = '';
+    }, 1800));
   } }, 'Copy');
   return W.h('div', { class: 'code' },
-    W.h('div', { class: 'code-bar' }, W.h('span', {}, label), btn),
+    W.h('div', { class: 'code-bar' }, W.h('span', {}, label), W.h('span', { class: 'copy-wrap' }, tip, btn)),
     W.h('pre', {}, W.h('code', { html: W.highlight(code, lang === 'tsx' ? 'ts' : lang) })));
 };

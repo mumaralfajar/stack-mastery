@@ -3,7 +3,7 @@
 I18N.levels = ['Pemula', 'Menengah', 'Mahir', 'Expert'];
 I18N.add({
   // util
-  'Copy': 'Salin', 'Copied': 'Tersalin',
+  'Copy': 'Salin', 'Copied': 'Tersalin', 'Copy failed': 'Gagal menyalin',
 
   // nav
   'Main': 'Utama',
