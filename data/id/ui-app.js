@@ -63,7 +63,7 @@ I18N.add({
   'How a lesson works': 'Cara kerja satu materi',
   'Learn': 'Pelajari', 'Check': 'Uji', 'Teach': 'Ajarkan',
   ' — read the key ideas, study the code, play with the visualization.': ' — baca ide-ide kuncinya, pelajari kodenya, mainkan visualisasinya.',
-  ' — answer the questions. A question you miss comes back tomorrow as a flashcard; once you mark the lesson learned, all its questions join your spaced-repetition review.': ' — jawab pertanyaannya. Pertanyaan yang salah muncul lagi besok sebagai flashcard; begitu materinya kamu tandai sudah dipelajari, semua pertanyaannya masuk ke review spaced repetition-mu.',
+  ' — answer the questions. A question you miss goes straight into your flashcard review; once you mark the lesson learned, all its questions join it.': ' — jawab pertanyaannya. Pertanyaan yang salah langsung masuk ke review flashcard-mu; begitu materinya kamu tandai sudah dipelajari, semua pertanyaannya ikut masuk.',
   ' — write the explanation you would give a beginner, then grade it against the rubric. This is the step that turns knowing into teaching.': ' — tulis penjelasan yang akan kamu berikan ke seorang pemula, lalu nilai dengan rubrik. Langkah inilah yang mengubah “tahu” menjadi “bisa mengajar”.',
   'Suggested order': 'Urutan yang disarankan',
   'Work level by level across the tracks rather than finishing one track first — the stack only makes sense together.': 'Kerjakan level demi level di semua track, jangan menghabiskan satu track dulu — stack ini baru masuk akal kalau dipelajari bersama.',

@@ -48,7 +48,7 @@ export function lessonView(tid, lid) {
   const results = l.quiz.map(() => false);
   const quiz = h('div', {}, l.quiz.map((q, i) => quizItem(q, {
     onResult: () => { results[i] = true; if (results.every(Boolean)) set('quiz', true); },
-    onMiss: () => { S.cards[k + '#' + i] = { box: 1, due: day(1) }; save(); }   // a missed question comes back tomorrow as a flashcard
+    onMiss: () => { S.cards[k + '#' + i] = { box: 1, due: day() }; save(); }   // a missed question goes straight into today's review
   })));
 
   // Teach

@@ -95,11 +95,12 @@ self.onmessage = e => {
       });
       const passed = rows.filter(x => x.ok).length, all = passed === rows.length;
       if (all) { D.solved[p.id] = true; save(); }
-      out.replaceChildren(
-        PLAY.typeNote(ta) || '',
+      const note = await PLAY.typeNote(ta);
+      out.replaceChildren(...[
+        note,
         h('p', { class: all ? 'ok' : 'err' }, all ? T('✓ All {n} tests passed. Now state the time and space complexity out loud.', { n: rows.length }) : T('{passed} of {n} tests passed.', { passed, n: rows.length })),
         h('ul', { class: 'tests' }, rows.map(x => x.el)),
-        r.logs.length ? h('div', {}, h('p', { class: 'muted' }, 'console.log output'), h('pre', {}, r.logs.join('\n'))) : null);
+        r.logs.length ? h('div', {}, h('p', { class: 'muted' }, 'console.log output'), h('pre', {}, r.logs.join('\n'))) : null].filter(Boolean));   // null would print as text
     };
     const ta = PLAY.editor(D.code[p.id] || p.starter, run, 'typescript');
     ta.classList.add('tall');

@@ -129,7 +129,6 @@ Console.WriteLine(HasDuplicateFast(data));         // False, in milliseconds; th
         { q: "5n² + 3n + 100 simplifies to…", a: ["O(n)", "O(5n²)", "O(n²)", "O(n² + n)"], c: 2, why: "Drop constants and lower-order terms: the n² term dominates as n grows." }
       ]
     },
-    // ---------------- Intermediate ----------------
     {
       id: 'numbers', title: "Numbers and text: binary, floating point and Unicode", level: 0, mins: 30,
       why: "Money that ends up a cent off, a name that shows up as 'Ã©', an id that breaks past 2.1 billion: these bugs come from how computers store numbers and text, and they turn up in every track — `DECIMAL` in SQL, `decimal` in C#, `NVARCHAR`, and JavaScript's single number type.",
@@ -182,6 +181,7 @@ Console.WriteLine(s.EnumerateRunes().Count());                 // 6: Unicode cod
         { q: "`\"👍\".Length` is 2 in C#. Why?", a: ["C# strings are UTF-16, and this emoji needs two 16-bit units", "Windows stores every emoji as two characters", "`Length` counts bytes in UTF-8", "It's a bug in .NET"], c: 0, why: "Characters outside the first 65,536 code points take a surrogate pair in UTF-16. Use `EnumerateRunes()` to count code points." }
       ]
     },
+    // ---------------- Intermediate ----------------
     {
       id: 'structures', title: 'Arrays, hash tables, stacks, queues and linked lists', level: 1, mins: 40,
       why: "Choosing the right data structure is often most of the solution. `Dictionary` behind a cache, a queue behind background jobs, a stack behind undo: the same few structures show up in the codebase and in interviews.",
@@ -484,7 +484,6 @@ static List<string> TopoOrder(Dictionary<string, string[]> g)
         { q: "In a directed graph, DFS reaches node D a second time. What does that tell you?", a: ["There is a cycle", "Nothing on its own: check whether D is still on the current path", "The graph is undirected", "The visited set is broken"], c: 1, why: "Only reaching a node that is on the current path means a cycle. Reaching a finished node just means two paths meet." }
       ]
     },
-    // ---------------- Expert ----------------
     {
       id: 'backtracking', title: "Backtracking: exploring every choice", level: 2, mins: 35,
       why: "When a problem asks for 'all combinations', 'every arrangement' or 'any way to fill this', there is usually no clever formula: you try a choice, explore what follows, then undo it. Backtracking is that idea written carefully, and pruning is what keeps it fast enough to use.",
@@ -565,6 +564,7 @@ static string Show(List<List<int>> lists) => string.Join(" ", lists.Select(l => 
         { q: "How many subsets does a set of 20 distinct items have?", a: ["400", "20!", "2²⁰, about a million", "190"], c: 2, why: "Each item is either in or out, so there are 2ⁿ subsets. 2²⁰ is 1,048,576, still fine to generate; 2⁴⁰ is not." }
       ]
     },
+    // ---------------- Expert ----------------
     {
       id: 'dp', title: 'Dynamic programming and problem-solving strategy', level: 3, mins: 45,
       why: "Dynamic programming has a reputation for needing a flash of insight. It doesn't: it is a procedure you can learn. And the habits behind it — try a small case, spot repeated work, pick the right structure — work on any problem you haven't seen before.",

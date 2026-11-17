@@ -34,7 +34,7 @@ export function dashboard() {
     section('How a lesson works',
       h('ol', { class: 'steps' },
         h('li', {}, h('b', {}, 'Learn'), ' — read the key ideas, study the code, play with the visualization.'),
-        h('li', {}, h('b', {}, 'Check'), ' — answer the questions. A question you miss comes back tomorrow as a flashcard; once you mark the lesson learned, all its questions join your spaced-repetition review.'),
+        h('li', {}, h('b', {}, 'Check'), ' — answer the questions. A question you miss goes straight into your flashcard review; once you mark the lesson learned, all its questions join it.'),
         h('li', {}, h('b', {}, 'Teach'), ' — write the explanation you would give a beginner, then grade it against the rubric. This is the step that turns knowing into teaching.'))),
     section('Suggested order',
       h('p', {}, 'Work level by level across the tracks rather than finishing one track first — the stack only makes sense together.'),

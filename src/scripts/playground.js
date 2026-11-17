@@ -45,6 +45,12 @@
   export function createContext<T>(value: T): Context<T>;
   export function useContext<T>(context: Context<T>): T;
   export function memo<T>(component: T): T;
+  export function useTransition(): [boolean, (action: () => void | Promise<void>) => void];
+  export function useDeferredValue<T>(value: T): T;
+  export function useActionState<S, P = FormData>(action: (state: S, payload: P) => S | Promise<S>, initial: S): [S, (payload: P) => void, boolean];
+  export function useOptimistic<S, A = S>(state: S, update?: (state: S, action: A) => S): [S, (action: A) => void];
+  export function use<T>(resource: Promise<T> | Context<T>): T;
+  export function lazy<T>(load: () => Promise<{ default: T }>): T;
   export const Fragment: any, StrictMode: any, Suspense: any;
 }
 declare module 'react/jsx-runtime' { export const jsx: any, jsxs: any, Fragment: any; }
