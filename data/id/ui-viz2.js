@@ -73,5 +73,22 @@ I18N.add({
   'Call stack': 'Call stack',
   'Microtask queue (promises)': 'Microtask queue (promise)',
   'Task queue (timers, events)': 'Task queue (timer, event)',
-  'Console': 'Console'
+  'Console': 'Console',
+
+  // Graph search
+  "BFS and DFS on a graph": "BFS dan DFS pada graph",
+  "Search from A to F with each algorithm and compare the path each one finds. BFS uses a queue and spreads out in rings; DFS follows one path as deep as it can.": "Cari dari A ke F dengan tiap algoritma dan bandingkan path yang ditemukan masing-masing. BFS memakai queue dan menyebar seperti riak; DFS menyusuri satu path sedalam mungkin.",
+  "Start at {node}: distance 0. It goes into the queue.": "Mulai dari {node}: jarak 0. Node ini masuk ke queue.",
+  "Take {node} from the front of the queue (distance {d}). Unvisited neighbours go to the back: {added}.": "Ambil {node} dari depan queue (jarak {d}). Tetangga yang belum dikunjungi masuk ke belakang: {added}.",
+  "{node} reached at distance {d}: {path}. BFS finishes every node at distance {prev} before any at distance {d}, so the first path it finds is a shortest one.": "{node} tercapai di jarak {d}: {path}. BFS menyelesaikan semua node berjarak {prev} sebelum node mana pun berjarak {d}, jadi path pertama yang ditemukannya adalah salah satu yang terpendek.",
+  "Go deeper to {node}. The recursion stack is the current path: {path}.": "Masuk lebih dalam ke {node}. Recursion stack adalah path saat ini: {path}.",
+  "{node} has no unvisited neighbours left, so the recursion returns to {back}.": "{node} tidak punya tetangga yang belum dikunjungi, jadi rekursinya kembali ke {back}.",
+  "{node} found via {path}: {n} steps. DFS found a path, but not the shortest: BFS needs 3.": "{node} ditemukan lewat {path}: {n} langkah. DFS menemukan sebuah path, tapi bukan yang terpendek: BFS cukup 3.",
+  "none": "tidak ada",
+  "Graph with nodes A to H": "Graph dengan node A sampai H",
+  "Queue (front first)": "Queue (depan lebih dulu)",
+  "Recursion stack (bottom first)": "Recursion stack (bawah lebih dulu)",
+  "Visited, in order": "Sudah dikunjungi, berurutan",
+  "BFS (queue)": "BFS (queue)",
+  "DFS (recursion)": "DFS (rekursi)"
 });

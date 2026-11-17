@@ -22,47 +22,89 @@
       const t = window.monaco.languages.typescript;
       // moduleDetection 3 = "force": every snippet is its own module, so top-level await works and
       // declarations such as `const name` do not collide with browser globals or with other editors.
-      t.typescriptDefaults.setCompilerOptions({ target: t.ScriptTarget.ESNext, module: t.ModuleKind.ESNext, moduleDetection: 3, strict: true, allowNonTsExtensions: true });
+      t.typescriptDefaults.setCompilerOptions({ target: t.ScriptTarget.ESNext, module: t.ModuleKind.ESNext, moduleDetection: 3, strict: true, allowNonTsExtensions: true, jsx: t.JsxEmit.ReactJSX });
+      t.typescriptDefaults.addExtraLib(REACT_TYPES, 'file:///react-shim.d.ts');
       ok(window.monaco);
     }, fail);
   })).catch(e => { monacoP = null; throw e; }));
 
+  // A simplified version of React's types: enough for the editor to check hooks and component props.
+  // The preview runs the real React.
+  const REACT_TYPES = `declare module 'react' {
+  export type ReactNode = any;
+  export type SetStateAction<S> = S | ((prev: S) => S);
+  export interface Context<T> { Provider: any; Consumer: any; __type?: T }
+  export function useState<S>(initial: S | (() => S)): [S, (value: SetStateAction<S>) => void];
+  export function useReducer<S, A>(reducer: (state: S, action: A) => S, initial: S): [S, (action: A) => void];
+  export function useEffect(effect: () => void | (() => void), deps?: readonly unknown[]): void;
+  export function useLayoutEffect(effect: () => void | (() => void), deps?: readonly unknown[]): void;
+  export function useMemo<T>(factory: () => T, deps: readonly unknown[]): T;
+  export function useCallback<T extends (...args: any[]) => any>(fn: T, deps: readonly unknown[]): T;
+  export function useRef<T>(initial: T): { current: T };
+  export function useId(): string;
+  export function createContext<T>(value: T): Context<T>;
+  export function useContext<T>(context: Context<T>): T;
+  export function memo<T>(component: T): T;
+  export const Fragment: any, StrictMode: any, Suspense: any;
+}
+declare module 'react/jsx-runtime' { export const jsx: any, jsxs: any, Fragment: any; }
+declare module 'react-dom/client' { export function createRoot(el: Element | DocumentFragment): { render(node: any): void; unmount(): void }; }
+interface ShimAttrs {
+  onChange?: (e: { target: HTMLInputElement; currentTarget: HTMLInputElement }) => void;
+  onInput?: (e: { target: HTMLInputElement; currentTarget: HTMLInputElement }) => void;
+  onClick?: (e: MouseEvent) => void;
+  onKeyDown?: (e: KeyboardEvent) => void;
+  onSubmit?: (e: { preventDefault(): void; currentTarget: HTMLFormElement }) => void;
+  [attr: string]: any;
+}
+declare namespace JSX { interface IntrinsicElements { [tag: string]: ShimAttrs } }
+`;
+
   const live = [];
-  function enhance(ta, lang, run) {
+  function enhance(ta, lang, run, fileExt) {
     getMonaco().then(monaco => {
       // Dispose editors left behind by the previous page before creating new ones.
       for (let i = live.length - 1; i >= 0; i--) if (!live[i].host.isConnected) { live[i].ed.dispose(); live[i].model.dispose(); live.splice(i, 1); }
       if (!ta.isConnected) return;
       const host = h('div', { class: 'monaco-host' + (ta.classList.contains('tall') ? ' tall' : '') });
       ta.after(host); ta.hidden = true;
-      const ext = { typescript: 'ts', sql: 'sql', css: 'css', html: 'html' }[lang];
+      const ext = fileExt || { typescript: 'ts', sql: 'sql', css: 'css', html: 'html' }[lang];
       const model = monaco.editor.createModel(ta.value, lang, monaco.Uri.parse(`file:///snippet${++seq}.${ext}`));
       const ed = monaco.editor.create(host, { model, theme: 'vs-dark', minimap: { enabled: false }, automaticLayout: true, fontSize: 13.5,
         scrollBeyondLastLine: false, tabSize: 2, lineNumbersMinChars: 3, padding: { top: 10 }, fixedOverflowWidgets: true, ariaLabel: T('Code editor') });
       // The textarea stays the single interface for the rest of the app: reads and writes go to the model.
       Object.defineProperty(ta, 'value', { configurable: true, get: () => model.getValue(), set: v => { if (v !== model.getValue()) model.setValue(v); } });
       ta.focus = () => ed.focus();
-      ta.typeErrors = () => monaco.editor.getModelMarkers({ resource: model.uri }).filter(m => m.severity === monaco.MarkerSeverity.Error)
+      // Ask the TypeScript worker directly: the editor's markers lag a moment behind the latest edit.
+      const markers = () => monaco.editor.getModelMarkers({ resource: model.uri }).filter(m => m.severity === monaco.MarkerSeverity.Error)
         .map(m => `${T('line')} ${m.startLineNumber}: ${m.message}`);
+      ta.typeErrors = async () => {
+        if (lang !== 'typescript') return markers();
+        try {
+          const worker = await (await monaco.languages.typescript.getTypeScriptWorker())(model.uri), file = model.uri.toString();
+          const diags = [...await worker.getSyntacticDiagnostics(file), ...await worker.getSemanticDiagnostics(file)].filter(d => d.category === 1);
+          return diags.map(d => `${T('line')} ${model.getPositionAt(d.start || 0).lineNumber}: ${typeof d.messageText === 'string' ? d.messageText : d.messageText.messageText}`);
+        } catch { return markers(); }
+      };
       model.onDidChangeContent(() => ta.oninput && ta.oninput());
       ed.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, run);
       live.push({ host, ed, model });
     }).catch(() => { /* offline: the textarea remains */ });
   }
 
-  const editor = (value, run, lang) => {
+  const editor = (value, run, lang, fileExt) => {
     const ta = h('textarea', { class: 'editor', spellcheck: 'false', 'aria-label': 'Code editor', onkeydown: e => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); run(); }
       if (e.key === 'Tab') { e.preventDefault(); ta.setRangeText('  ', ta.selectionStart, ta.selectionEnd, 'end'); }
     } });
     ta.value = value;
-    if (lang) setTimeout(() => enhance(ta, lang, run));   // after the caller has attached it
+    if (lang) setTimeout(() => enhance(ta, lang, run, fileExt));   // after the caller has attached it
     return ta;
   };
 
   // Lists TypeScript type errors found by the editor, or nothing when the editor is unavailable.
-  const typeNote = ta => {
-    const errs = ta.typeErrors ? ta.typeErrors() : [];
+  const typeNote = async ta => {
+    const errs = ta.typeErrors ? await ta.typeErrors() : [];
     return errs.length ? h('div', { class: 'type-errs' },
       h('p', { class: 'err' }, T(errs.length > 1 ? '{n} type errors — the code still ran, because types are erased at build time:' : '{n} type error — the code still ran, because types are erased at build time:', { n: errs.length })),
       h('ul', {}, errs.slice(0, 6).map(e => h('li', {}, e)))) : null;
@@ -109,7 +151,10 @@ PRAGMA foreign_keys = ON;`;
     { lvl: 1, t: 'Pricey categories', task: 'Return the categories whose average product price is above 100 (category column only).', sol: 'SELECT category FROM products GROUP BY category HAVING AVG(price) > 100;' },
     { lvl: 1, t: 'Above average', task: 'Return the names of products priced above the average product price.', sol: 'SELECT name FROM products WHERE price > (SELECT AVG(price) FROM products);' },
     { lvl: 2, t: 'Top per category', task: 'Return category and name of the most expensive product in each category. Use a window function.', sol: 'WITH r AS (SELECT category, name, ROW_NUMBER() OVER (PARTITION BY category ORDER BY price DESC) AS rn FROM products) SELECT category, name FROM r WHERE rn = 1;' },
-    { lvl: 2, t: 'Running total', task: 'For paid orders, return order id and the running total of order value, ordered by order date.', ordered: true, sol: "WITH t AS (SELECT o.id, o.order_date, SUM(i.quantity * i.unit_price) AS total FROM orders o JOIN order_items i ON i.order_id = o.id WHERE o.status = 'paid' GROUP BY o.id, o.order_date) SELECT id, SUM(total) OVER (ORDER BY order_date, id) FROM t ORDER BY order_date, id;" }
+    { lvl: 2, t: 'Running total', task: 'For paid orders, return order id and the running total of order value, ordered by order date.', ordered: true, sol: "WITH t AS (SELECT o.id, o.order_date, SUM(i.quantity * i.unit_price) AS total FROM orders o JOIN order_items i ON i.order_id = o.id WHERE o.status = 'paid' GROUP BY o.id, o.order_date) SELECT id, SUM(total) OVER (ORDER BY order_date, id) FROM t ORDER BY order_date, id;" },
+    { lvl: 3, t: 'Best sellers with ties', task: 'For paid orders, return category, product name and units sold for the top two sales figures in each category. Products with equal sales share a place, so a category can return more than two rows.', sol: "WITH s AS (SELECT p.category, p.name, SUM(i.quantity) AS sold FROM order_items i JOIN orders o ON o.id = i.order_id JOIN products p ON p.id = i.product_id WHERE o.status = 'paid' GROUP BY p.id, p.category, p.name), r AS (SELECT category, name, sold, DENSE_RANK() OVER (PARTITION BY category ORDER BY sold DESC) AS rk FROM s) SELECT category, name, sold FROM r WHERE rk <= 2;" },
+    { lvl: 3, t: 'Next page without OFFSET', task: 'Products are listed cheapest first, ties broken by id. The last row on the current page was Lamp (price 40, id 6). Return name and price of the next three products, using that (price, id) pair instead of OFFSET.', ordered: true, sol: "SELECT name, price FROM products WHERE price > 40 OR (price = 40 AND id > 6) ORDER BY price, id LIMIT 3;" },
+    { lvl: 3, t: 'Streaks of active months', task: 'For each customer, find the runs of consecutive months in which they had at least one paid order. Return the customer name, the first and last month of each run as \'YYYY-MM\', and the number of months in it.', sol: "WITH m AS (SELECT DISTINCT c.name, CAST(strftime('%Y', o.order_date) AS INTEGER) * 12 + CAST(strftime('%m', o.order_date) AS INTEGER) - 1 AS mi FROM orders o JOIN customers c ON c.id = o.customer_id WHERE o.status = 'paid'), g AS (SELECT name, mi, mi - ROW_NUMBER() OVER (PARTITION BY name ORDER BY mi) AS grp FROM m) SELECT name, printf('%04d-%02d', MIN(mi) / 12, MIN(mi) % 12 + 1), printf('%04d-%02d', MAX(mi) / 12, MAX(mi) % 12 + 1), COUNT(*) FROM g GROUP BY name, grp;" }
   ];
 
   let SQLp;
@@ -242,6 +287,62 @@ state = reducer(state, { type: "toggle", id: 1 });
 
 console.log(state);
 console.log("original untouched:", before.length === 0);`,
+    'React component': `import { useState } from "react";
+import { createRoot } from "react-dom/client";
+
+interface Product { id: number; name: string; price: number }
+
+const products: Product[] = [
+  { id: 1, name: "Laptop", price: 1200 },
+  { id: 2, name: "Mouse", price: 25 },
+  { id: 3, name: "Desk", price: 300 },
+  { id: 4, name: "Lamp", price: 40 },
+];
+
+function ProductList({ items }: { items: Product[] }) {
+  const [query, setQuery] = useState("");
+  // Derived during render, not stored in state
+  const visible = items.filter(p => p.name.toLowerCase().includes(query.toLowerCase()));
+  return (
+    <div>
+      <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search products" />
+      <p>{visible.length} of {items.length} products</p>
+      <ul>
+        {visible.map(p => <li key={p.id}>{p.name}: {p.price}</li>)}
+      </ul>
+    </div>
+  );
+}
+
+// Try passing a wrong prop, such as items={42}: the editor underlines it.
+createRoot(document.getElementById("root")!).render(<ProductList items={products} />);`,
+    'React effects': `import { useEffect, useState } from "react";
+import { createRoot } from "react-dom/client";
+
+function Clock() {
+  const [seconds, setSeconds] = useState(0);
+  useEffect(() => {
+    console.log("effect: timer started");
+    const id = setInterval(() => setSeconds(s => s + 1), 1000);
+    return () => {                       // cleanup runs when Clock leaves the screen
+      clearInterval(id);
+      console.log("cleanup: timer stopped");
+    };
+  }, []);
+  return <p>Running for {seconds} s</p>;
+}
+
+function App() {
+  const [show, setShow] = useState(true);
+  return (
+    <div>
+      <button onClick={() => setShow(s => !s)}>{show ? "Hide" : "Show"} the clock</button>
+      {show && <Clock />}
+    </div>
+  );
+}
+
+createRoot(document.getElementById("root")!).render(<App />);`,
     'async / await': `const wait = (ms: number, value: string) =>
   new Promise<string>(resolve => setTimeout(() => resolve(value), ms));
 
@@ -255,23 +356,58 @@ const both = await Promise.all([wait(300, "A"), wait(300, "B")]);
 console.log("concurrent:", both, Date.now() - start, "ms");`
   };
 
+  // React 19 from esm.sh, pinned; react-dom is told to share the same React.
+  const REACT_IMPORTS = { react: 'https://esm.sh/react@19.1.0', 'react/jsx-runtime': 'https://esm.sh/react@19.1.0/jsx-runtime',
+    'react-dom/client': 'https://esm.sh/react-dom@19.1.0/client?deps=react@19.1.0' };
+  const usesReact = code => /from\s+["']react(-dom\/client)?["']/.test(code);
+  // The preview page: an import map for React, console and errors forwarded to the playground, then the code.
+  const reactPage = js => `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>body{margin:12px;font:15px/1.5 system-ui,sans-serif;color:#111;background:#fff}input,button{font:inherit;padding:.3rem .5rem}</style>
+<script type="importmap">${JSON.stringify({ imports: REACT_IMPORTS })}<\/script>
+<script>
+const send = (kind, text) => parent.postMessage({ stackmasteryPreview: true, kind, text }, '*');
+const fmt = v => typeof v === 'string' ? v : (() => { try { return JSON.stringify(v); } catch { return String(v); } })();
+for (const k of ['log', 'info', 'warn', 'error']) { const orig = console[k]; console[k] = (...a) => { send(k, a.map(fmt).join(' ')); orig.apply(console, a); }; }
+addEventListener('error', e => send('err', e.message));
+addEventListener('unhandledrejection', e => send('err', String(e.reason && e.reason.message || e.reason)));
+<\/script></head><body><div id="root"></div>
+<script type="module" onerror="send('err', 'Could not load React from esm.sh. The React preview needs an internet connection.')">
+${js.replace(/<\/script/gi, '<\\/script')}
+<\/script></body></html>`;
+
   function ts(el) {
     const out = h('div', { class: 'out', 'aria-live': 'polite' }, h('p', { class: 'muted' }, 'Output appears here.'));
+    let frame = null;
+    const onMessage = e => {
+      if (!out.isConnected) return removeEventListener('message', onMessage);   // the page was left
+      if (!frame || e.source !== frame.contentWindow || !e.data || !e.data.stackmasteryPreview) return;
+      const logs = out.querySelector('pre.preview-log') || out.appendChild(h('pre', { class: 'preview-log' }));
+      if (e.data.kind === 'err') out.append(h('p', { class: 'err' }, e.data.text));
+      else logs.textContent += (logs.textContent ? '\n' : '') + e.data.text;
+    };
+    addEventListener('message', onMessage);
+    const showReact = async js => {
+      frame = h('iframe', { class: 'preview', sandbox: 'allow-scripts', title: 'React preview' });
+      frame.srcdoc = reactPage(js);
+      out.replaceChildren(...[await typeNote(ta), frame, h('p', { class: 'muted' }, 'Console output from the preview appears below it.')].filter(Boolean));
+    };
     const run = async () => {
       out.replaceChildren(h('p', { class: 'muted' }, 'Running…'));
       try {
         await loadScript(CDN + 'typescript/5.4.5/typescript.min.js');
-        const res = window.ts.transpileModule(ta.value, { reportDiagnostics: true, compilerOptions: { target: 'ES2022', module: 'ESNext' } });
+        const res = window.ts.transpileModule(ta.value, { fileName: 'snippet.tsx', reportDiagnostics: true, compilerOptions: { target: 'ES2022', module: 'ESNext', jsx: window.ts.JsxEmit.ReactJSX } });
         const diag = (res.diagnostics || []).map(d => window.ts.flattenDiagnosticMessageText(d.messageText, '\n'));
         if (diag.length) throw new Error(T('Syntax error: ') + diag.join('\n'));
+        if (usesReact(ta.value)) return showReact(res.outputText);
+        frame = null;
         const r = await runIsolated(res.outputText);
-        out.replaceChildren(...[typeNote(ta), h('pre', {}, r.logs.join('\n') || (r.err ? '' : T('(no output — use console.log)'))), r.err ? h('p', { class: 'err' }, r.err) : null].filter(Boolean));
+        out.replaceChildren(...[await typeNote(ta), h('pre', {}, r.logs.join('\n') || (r.err ? '' : T('(no output — use console.log)'))), r.err ? h('p', { class: 'err' }, r.err) : null].filter(Boolean));
       } catch (e) {
         out.replaceChildren(h('p', { class: 'err' }, String(e.message || e)));
       }
     };
     const first = Object.keys(TS_EXAMPLES)[0];
-    const ta = editor(TS_EXAMPLES[first], run, 'typescript');
+    const ta = editor(TS_EXAMPLES[first], run, 'typescript', 'tsx');
     const chips = h('div', { class: 'chips' }, Object.keys(TS_EXAMPLES).map(name => h('button', { type: 'button', onclick: e => {
       ta.value = TS_EXAMPLES[name]; [...chips.children].forEach(c => c.classList.toggle('on', c === e.currentTarget));
     } }, name)));
@@ -279,7 +415,7 @@ console.log("concurrent:", both, Date.now() - start, "ms");`
     el.style.setProperty('--tc', 'var(--react)');
     el.append(
       h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Practice'), h('h1', {}, 'TypeScript playground'),
-        h('p', { class: 'lede' }, 'Write TypeScript and run it instantly. Type errors are underlined as you type and listed when you run — hover a red squiggle to read the message. Code runs in an isolated worker with a five-second limit.')),
+        h('p', { class: 'lede' }, 'Write TypeScript and run it instantly. Type errors are underlined as you type and listed when you run — hover a red squiggle to read the message. Plain TypeScript runs in an isolated worker with a five-second limit. Code that imports react renders in a live preview instead, with React 19 loaded from esm.sh, so it needs an internet connection.')),
       chips,
       h('div', { class: 'play' },
         h('div', {}, ta, h('div', { class: 'actions' }, h('button', { type: 'button', class: 'btn', onclick: run }, 'Run (Ctrl+Enter)'))),

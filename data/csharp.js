@@ -519,10 +519,12 @@ public class Thermostat
         "Async all the way: don't call `.Result` or `.Wait()` on a task. In ASP.NET Core that ties up a thread-pool thread for the whole wait, and under load the pool runs out (thread-pool starvation). In desktop apps (WinForms, WPF) it can also deadlock.",
         "Start independent operations first, then `await Task.WhenAll(...)` to run them concurrently.",
         "`async void` is only for event handlers: callers cannot await it or catch its exceptions.",
-        "Pass a `CancellationToken` down every async call, so work stops when the user gives up or the request is aborted."
+        "Pass a `CancellationToken` down every async call, so work stops when the user gives up or the request is aborted.",
+        "`IAsyncEnumerable<T>` is a stream of results that arrive over time: produce it with `async` and `yield return`, consume it with `await foreach`. EF Core's `AsAsyncEnumerable()` and an ASP.NET Core endpoint returning one stream rows instead of collecting them all in memory first."
       ],
       code: `
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 var cts = new CancellationTokenSource();
 var sw = Stopwatch.StartNew();
@@ -546,12 +548,27 @@ catch (OperationCanceledException) { Console.WriteLine("reports: cancelled"); }
 
 // Don't: var s = LoadAsync("orders", cts.Token).Result;   // blocks a thread for the whole wait
 
+// Streaming: each page is printed as soon as it arrives, not after all of them
+await foreach (string page in LoadPagesAsync(3))
+    Console.WriteLine(page);                                   // page 1, page 2, page 3
+
 // Stands in for a database query or an HTTP call. With HttpClient it would be
 // await http.GetStringAsync(url, ct): same shape, same rules.
 static async Task<string> LoadAsync(string what, CancellationToken ct)
 {
     await Task.Delay(1000, ct);    // no thread is used while waiting
     return $"{what} loaded";
+}
+
+// async + yield return = an async stream. [EnumeratorCancellation] lets
+// await foreach (... in LoadPagesAsync(3).WithCancellation(ct)) pass a token in.
+static async IAsyncEnumerable<string> LoadPagesAsync(int count, [EnumeratorCancellation] CancellationToken ct = default)
+{
+    for (int i = 1; i <= count; i++)
+    {
+        await Task.Delay(100, ct);    // fetch the next page
+        yield return $"page {i}";
+    }
 }
 `,
       practice: "Change the code to load five things concurrently with `Task.WhenAll` and print the total time. Then cancel after 500 ms and check that every unfinished load stops. Finally, replace `Task.Delay` with a real `HttpClient.GetStringAsync` call to a public URL and check that the timings behave the same way.",
@@ -560,12 +577,14 @@ static async Task<string> LoadAsync(string what, CancellationToken ct)
       pitfalls: [
         "'Async makes code run in parallel on another thread.' No: for I/O there is no thread at all while waiting.",
         "Wrapping synchronous CPU work in `Task.Run` inside ASP.NET Core and calling it async. That just moves the work to another pool thread.",
-        "Forgetting `await`. The method carries on before the work finishes, and if the task fails nobody sees the exception. The compiler warns you (CS4014); don't ignore it."
+        "Forgetting `await`. The method carries on before the work finishes, and if the task fails nobody sees the exception. The compiler warns you (CS4014); don't ignore it.",
+        "Calling `ToListAsync()` on a huge result only to loop over it once. Stream it with `AsAsyncEnumerable()` and `await foreach`, and memory stays flat however many rows there are."
       ],
       quiz: [
         { q: "What happens to the current thread at `await http.GetAsync(url)` while the network call is in flight?", a: ["It sleeps until the response arrives", "It is released to do other work", "It polls the network in a loop", "It hands the request to a new thread it creates"], c: 1, why: "`await` gives the thread back; a continuation resumes the method when the response arrives." },
         { q: "Three independent 1-second I/O calls. Fastest correct approach?", a: ["Await each in turn", "Start all three, then `await Task.WhenAll`", "Wrap each in `Task.Run` and read `.Result`", "`Parallel.For` with `.Wait()` on each"], c: 1, why: "Starting the tasks before awaiting lets the waits overlap: about 1 second in total instead of 3, without blocking any thread." },
-        { q: "Why avoid `.Result` in ASP.NET Core?", a: ["It returns a different value from `await`", "It blocks a thread-pool thread for the whole wait, and under load the pool runs out", "It always deadlocks", "It is not allowed inside controllers"], c: 1, why: "ASP.NET Core has no synchronization context, so the classic deadlock doesn't happen there. But every blocked thread is one that can't serve another request." }
+        { q: "Why avoid `.Result` in ASP.NET Core?", a: ["It returns a different value from `await`", "It blocks a thread-pool thread for the whole wait, and under load the pool runs out", "It always deadlocks", "It is not allowed inside controllers"], c: 1, why: "ASP.NET Core has no synchronization context, so the classic deadlock doesn't happen there. But every blocked thread is one that can't serve another request." },
+        { q: "A method returns `IAsyncEnumerable<Order>`. How do you consume it?", a: ["`foreach (var o in GetOrders())`", "`await foreach (var o in GetOrders())`", "`GetOrders().Result`", "`await Task.WhenAll(GetOrders())`"], c: 1, why: "`await foreach` awaits each next item, so the loop can start before the last item exists. A plain `foreach` doesn't compile against an async stream." }
       ]
     },
     {

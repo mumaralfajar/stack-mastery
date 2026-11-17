@@ -145,7 +145,8 @@ I18N.lessons('sql', {
       "Constraint adalah test gratis yang jalan di setiap penulisan: `NOT NULL`, `UNIQUE`, `CHECK (price >= 0)`, `DEFAULT`.",
       "Tentukan apa akibatnya kalau parent dihapus. Secara default foreign key menolak; `ON DELETE CASCADE` ikut menghapus child-nya.",
       "Kekhasan SQL Server: `IDENTITY` membuat id otomatis, `NVARCHAR(n)` adalah type teks yang umum (`TEXT` sudah deprecated), dan kolom foreign key **tidak** otomatis di-index.",
-      "Lakukan denormalisasi dengan sengaja (misalnya menyimpan `unit_price` saat penjualan) dan pahami alasannya."
+      "Lakukan denormalisasi dengan sengaja (misalnya menyimpan `unit_price` saat penjualan) dan pahami alasannya.",
+      "**Kolom JSON** cocok untuk data yang disimpan dan dikembalikan utuh, seperti pengaturan yang bentuknya tidak tetap atau payload dari sistem lain. `CHECK (ISJSON(col) = 1)` menjaganya tetap valid, `JSON_VALUE` membaca satu nilai, dan `OPENJSON` mengubah array menjadi baris. Apa pun yang kamu filter, join, atau beri constraint tempatnya di kolom sungguhan. (SQL Server 2025 juga menambahkan type `json` bawaan.)"
     ],
     practice: "Rancang schema untuk perpustakaan: buku, pengarang (satu buku bisa punya beberapa pengarang), anggota, dan peminjaman. Daftarkan key dan constraint tiap tabel, dan tentukan apa yang harus terjadi pada data peminjaman kalau seorang anggota dihapus. Lalu sebutkan satu fakta yang sengaja kamu simpan dua kali, atau jelaskan kenapa tidak ada yang perlu.",
     teach: "Jelaskan kenapa kita tidak menyimpan nama dan alamat customer di setiap baris order, dan apa yang salah kalau kita melakukannya.",
@@ -154,12 +155,14 @@ I18N.lessons('sql', {
       "Daftar yang dipisah koma di satu kolom ('tags: red,blue'). Tidak bisa di-index, di-join, maupun diberi constraint.",
       "Melewatkan foreign key 'demi fleksibilitas' lalu menimbun baris yatim.",
       "Menormalisasi sampai riwayat hilang: sebuah order harus ingat harga yang dikenakan saat itu.",
-      "Menyimpan uang dalam `FLOAT` atau `REAL`. Pakai `DECIMAL`, kalau tidak, sen-nya akan bergeser."
+      "Menyimpan uang dalam `FLOAT` atau `REAL`. Pakai `DECIMAL`, kalau tidak, sen-nya akan bergeser.",
+      "Menyembunyikan nilai yang sering dicari di dalam JSON. `WHERE JSON_VALUE(preferences, '$.language') = 'id'` tidak bisa memakai index biasa; jadikan kolom sendiri, atau beri index pada computed column di atasnya."
     ],
     quiz: [
       ["Order dan produk berelasi many-to-many. Bagaimana memodelkannya?", ["Kolom `product_ids` berisi daftar yang dipisah koma di `orders`", "Junction table dengan foreign key ke masing-masing tabel", "Kolom `order_id` di `products`", "Satu baris `orders` per produk, dengan detail order yang diulang"], "Junction table punya satu baris per pasangan dan bisa membawa atribut seperti quantity."],
       ["Apa yang dicegah oleh constraint foreign key?", ["Join yang lambat", "Baris yang merujuk ke baris parent yang tidak ada", "Value yang duplikat di kolom itu", "Value NULL di kolom itu"], "Foreign key menegakkan referential integrity di setiap insert, update, dan delete. Duplikat dicegah oleh `UNIQUE`, dan kolom foreign key tetap bisa NULL kecuali diberi `NOT NULL`."],
-      ["Kenapa `unit_price` disimpan di `order_items` padahal `products` sudah punya `price`?", ["Itu kesalahan; seharusnya diambil lewat join", "Penjualan harus menyimpan harga saat pembelian terjadi", "Supaya join ke `products` lebih cepat", "Foreign key mewajibkan salinan"], "Itu fakta yang berbeda: harga historis yang dikenakan, bukan harga katalog hari ini."]
+      ["Kenapa `unit_price` disimpan di `order_items` padahal `products` sudah punya `price`?", ["Itu kesalahan; seharusnya diambil lewat join", "Penjualan harus menyimpan harga saat pembelian terjadi", "Supaya join ke `products` lebih cepat", "Foreign key mewajibkan salinan"], "Itu fakta yang berbeda: harga historis yang dikenakan, bukan harga katalog hari ini."],
+      ["Data mana yang paling cocok untuk kolom JSON?", ["Email customer, yang harus unik", "Pengaturan notifikasi yang field-nya berbeda-beda tiap customer", "`customer_id` pemilik sebuah order", "Harga produk, yang dipakai di laporan setiap hari"], "Data yang bentuknya tidak tetap, dibaca dan ditulis utuh, memang untuk JSON. Nilai yang diberi constraint, di-join, atau dilaporkan butuh kolom sungguhan dengan type dan constraint."]
     ]
   },
   indexes: {
@@ -279,7 +282,8 @@ I18N.lessons('sql', {
       "**Deadlock** adalah siklus: T1 memegang A dan menginginkan B, T2 memegang B dan menginginkan A. SQL Server memilih satu korban, me-rollback-nya, dan memunculkan error 1205.",
       "Cegah deadlock: sentuh baris dan tabel dengan **urutan yang konsisten**, jaga transaction tetap singkat, tambah index supaya statement me-lock lebih sedikit baris, dan retry korbannya. `EnableRetryOnFailure()` di EF Core me-retry deadlock secara otomatis, asalkan kamu tidak membuka transaction sendiri di luar execution strategy-nya.",
       "Blocking yang mengejutkan: `UPDATE … WHERE` pada kolom tanpa index me-lock setiap baris yang di-scan-nya, dan begitu satu statement memegang sekitar 5.000 lock, SQL Server menaikkannya menjadi lock pada seluruh tabel.",
-      "Diagnosis dengan deadlock graph di Extended Events session `system_health`, `blocking_session_id` di `sys.dm_exec_requests`, dan `sys.dm_tran_locks`."
+      "Diagnosis dengan deadlock graph di Extended Events session `system_health`, `blocking_session_id` di `sys.dm_exec_requests`, dan `sys.dm_tran_locks`.",
+      "**Upsert** (update barisnya kalau ada, insert kalau belum) itu rawan race: dua session bisa sama-sama tidak menemukan barisnya lalu sama-sama insert. Jalankan `UPDATE … WITH (UPDLOCK, HOLDLOCK)` lalu `IF @@ROWCOUNT = 0 INSERT …` dalam satu transaction, atau `MERGE … WITH (HOLDLOCK)`, dan tetap pasang key `UNIQUE` sebagai pertahanan terakhir."
     ],
     practice: "Buka dua jendela query di SQL Server Management Studio (atau dua terminal `sqlcmd`) ke database test yang punya tabel `accounts`, lalu mainkan keempat langkah di atas secara manual. Rekam error 1205, lalu temukan deadlock graph-nya di session `system_health`. Perbaiki dengan versi yang mendahulukan id terkecil, dan secara terpisah tambahkan retry di aplikasimu (di EF Core, `EnableRetryOnFailure()`). Perbaikan mana yang akan kamu rilis, dan kenapa sebaiknya keduanya tetap dipakai?",
     teach: "Jelaskan bagaimana deadlock terjadi memakai dua transfer di antara dua rekening yang sama, dan satu cara untuk mencegahnya.",
@@ -288,12 +292,14 @@ I18N.lessons('sql', {
       "Menganggap deadlock sebagai bug database, bukan bug urutan akses.",
       "Menebar hint `NOLOCK` untuk menyembunyikan blocking, dengan imbalan pembacaan yang kotor dan tidak konsisten.",
       "Tidak me-retry korban deadlock. Deadlock adalah error yang memang bisa terjadi dan sifatnya sementara.",
-      "Hanya me-retry statement yang gagal. Seluruh transaction korbannya sudah di-rollback, jadi retry semuanya."
+      "Hanya me-retry statement yang gagal. Seluruh transaction korbannya sudah di-rollback, jadi retry semuanya.",
+      "Upsert dengan `IF NOT EXISTS (SELECT …) INSERT …` tanpa lock hint. Dua request lolos pengecekan bersamaan, dan salah satunya gagal di key, atau menyimpan duplikat kalau tidak ada key."
     ],
     quiz: [
       ["Apa cara standar mencegah deadlock antara transaction yang meng-update baris yang sama?", ["Tambahkan `WITH (NOLOCK)` pada update-nya", "Akses baris-barisnya dengan urutan yang konsisten", "Naikkan isolation level ke Serializable", "Perbesar lock timeout"], "Kalau semua pihak mengambil lock dengan urutan yang sama, siklus tidak bisa terbentuk. Serializable justru mengambil lebih banyak lock dan membuat deadlock lebih mungkin terjadi."],
       ["Dengan `READ_COMMITTED_SNAPSHOT` aktif, pembacaan yang berjalan lama…", ["memblokir semua penulis sampai selesai", "melihat versi yang konsisten dan tidak memblokir penulis", "melihat perubahan transaction lain yang belum di-commit", "mengambil lock pada seluruh tabel"], "Pembaca memakai row version, bukan shared lock."],
-      ["Apa yang harus dilakukan kode aplikasi saat terpilih sebagai korban deadlock?", ["Tampilkan error-nya ke user", "Retry seluruh transaction", "Retry hanya statement yang gagal", "Tidak perlu apa-apa: perubahannya sudah tersimpan"], "Seluruh transaction-nya sudah di-rollback, jadi me-retry statement terakhir saja akan menerapkan setengah perubahan."]
+      ["Apa yang harus dilakukan kode aplikasi saat terpilih sebagai korban deadlock?", ["Tampilkan error-nya ke user", "Retry seluruh transaction", "Retry hanya statement yang gagal", "Tidak perlu apa-apa: perubahannya sudah tersimpan"], "Seluruh transaction-nya sudah di-rollback, jadi me-retry statement terakhir saja akan menerapkan setengah perubahan."],
+      ["Dua request 'tambah ke keranjang' menjalankan `UPDATE …; IF @@ROWCOUNT = 0 INSERT …` untuk item yang sama pada saat bersamaan, tanpa lock hint. Apa yang bisa terjadi?", ["Tidak ada: tiap statement atomic, jadi pasangannya juga", "Keduanya tidak menemukan baris dan sama-sama insert, jadi salah satunya gagal di primary key", "Database menggabungkan kedua insert menjadi satu baris", "Request kedua otomatis menunggu sampai yang pertama commit"], "Tiap statement atomic, tapi pasangannya tidak. `UPDLOCK, HOLDLOCK` pada update menahan lock range-nya sampai insert, jadi request kedua menunggu lalu meng-update."]
     ]
   },
   scale: {

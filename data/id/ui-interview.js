@@ -195,7 +195,7 @@ I18N.add({
   'The interview loop': 'Interview loop',
   'Two more rounds for full-stack roles': 'Dua ronde tambahan untuk posisi full-stack',
   'SQL round': 'Ronde SQL',
-  'Many backend and full-stack loops include live SQL: joins, grouping, a window function, and reading a slow query. The 11 graded challenges in the ': 'Banyak loop backend dan full-stack menyertakan live SQL: join, grouping, window function, dan membaca query yang lambat. Sebelas challenge bernilai di ',
+  'Many backend and full-stack loops include live SQL: joins, grouping, a window function, and reading a slow query. The 14 graded challenges in the ': 'Banyak loop backend dan full-stack menyertakan live SQL: join, grouping, window function, dan membaca query yang lambat. Empat belas challenge bernilai di ',
   ' cover exactly that range — do them timed, explaining each clause out loud. Then review ': ' mencakup persis rentang itu — kerjakan dengan timer sambil menjelaskan tiap clause. Setelah itu review ',
   'execution plans': 'execution plan',
   ' for the follow-up questions.': ' untuk pertanyaan lanjutannya.',

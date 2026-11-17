@@ -131,6 +131,58 @@ Console.WriteLine(HasDuplicateFast(data));         // False, in milliseconds; th
     },
     // ---------------- Intermediate ----------------
     {
+      id: 'numbers', title: "Numbers and text: binary, floating point and Unicode", level: 0, mins: 30,
+      why: "Money that ends up a cent off, a name that shows up as 'Ã©', an id that breaks past 2.1 billion: these bugs come from how computers store numbers and text, and they turn up in every track — `DECIMAL` in SQL, `decimal` in C#, `NVARCHAR`, and JavaScript's single number type.",
+      points: [
+        "Everything is stored in **binary**. An `int` is 32 bits, so it holds about ±2.1 billion; a `long` (64 bits) holds about ±9.2 × 10¹⁸. Go past the limit and the value **overflows**: in C# it silently wraps around unless the code runs in a `checked` context.",
+        "`double` (and every JavaScript `number`) is binary **floating point**. Most decimal fractions, such as 0.1, have no exact binary form, so `0.1 + 0.2` is `0.30000000000000004`.",
+        "For money, use an exact decimal type: `decimal` in C#, `DECIMAL(19,4)` in SQL Server, or whole rupiah or cents in an integer. Never compare floating-point results with `==`; compare with a small tolerance.",
+        "JavaScript has one number type, and its integers are exact only up to 2⁵³ − 1 (`Number.MAX_SAFE_INTEGER`). A 64-bit database id beyond that loses digits in the browser, so send large ids as strings, or use `BigInt`.",
+        "Text is a sequence of **Unicode code points**, encoded into bytes. **UTF-8**, the web's default, uses 1 to 4 bytes per character; C#, JavaScript and Java strings use **UTF-16**, where an emoji takes two 16-bit units.",
+        "So 'length' depends on what you count: `\"👍\".Length` is 2 in C# and JavaScript, though a person sees one character. Garbled text such as 'Ã©' means bytes were written in one encoding and read in another.",
+        "In SQL Server, `NVARCHAR` stores Unicode. `VARCHAR` stores text in a single code page unless the column uses a UTF-8 collation, so names in other scripts can come back as '?'."
+      ],
+      code: `
+// Integers have a fixed size and wrap around silently
+int big = int.MaxValue;
+Console.WriteLine(big + 1);                       // -2147483648
+try { checked { big += 1; } }
+catch (OverflowException) { Console.WriteLine("checked: overflow caught"); }
+
+// Binary floating point can't hold 0.1 exactly
+double d = 0.1 + 0.2;
+Console.WriteLine(d == 0.3);                      // False
+Console.WriteLine(d);                             // 0.30000000000000004
+Console.WriteLine(Math.Abs(d - 0.3) < 1e-9);      // True: compare with a tolerance
+
+// decimal counts in base 10, so it is exact for money
+double sumD = 0;
+decimal sumM = 0;
+for (int i = 0; i < 10; i++) { sumD += 0.1; sumM += 0.1m; }
+Console.WriteLine($"{sumD == 1.0} {sumM == 1.0m}");   // False True
+
+// Text: "length" depends on what you count
+string s = "café 👍";
+Console.WriteLine(s.Length);                                   // 7: UTF-16 units (the emoji takes two)
+Console.WriteLine(System.Text.Encoding.UTF8.GetByteCount(s));  // 10: bytes in UTF-8
+Console.WriteLine(s.EnumerateRunes().Count());                 // 6: Unicode code points
+`,
+      practice: "In the browser console, run `0.1 + 0.2`, `9007199254740993` and `\"👍\".length`, and explain each result. Then, in C#, add up the prices of a 1,000-line order with `double` and again with `decimal`, and print the difference. Finally, in SQL Server, insert `N'Đặng Thị Hà'` into a `VARCHAR(50)` column and an `NVARCHAR(50)` column and compare what comes back.",
+      teach: "Explain why `0.1 + 0.2` is not exactly `0.3`, and which type you would use for a savings balance instead.",
+      analogy: "Write 1/3 as a decimal: 0.3333… never ends, so any fixed number of digits is slightly wrong. Binary has the same problem with 1/10. A decimal type counts in tenths and hundredths, like a cashier counting coins, so 0.10 stays exactly 0.10.",
+      pitfalls: [
+        "Storing money in `double`, `float`, or SQL `REAL` or `FLOAT`. Each error is tiny, but they add up over thousands of operations.",
+        "Sending a 64-bit id to JavaScript as a number. Above 2⁵³ its last digits silently change.",
+        "Cutting a string at a fixed number of `char`s, which can split an emoji in half.",
+        "Declaring names as `VARCHAR` and getting '?' for anything outside the code page."
+      ],
+      quiz: [
+        { q: "Why is `0.1 + 0.2 == 0.3` false for `double` in C#?", a: ["The compiler rounds the right-hand side", "0.1 and 0.2 have no exact binary form, so the sum is slightly off", "`==` compares references for doubles", "A double keeps only two decimal places"], c: 1, why: "Binary floating point stores the nearest binary fraction, and the tiny errors make the sum 0.30000000000000004. Use `decimal` for exact decimal values." },
+        { q: "Which type fits an account balance in SQL Server?", a: ["`FLOAT`", "`REAL`", "`DECIMAL(19,4)`", "`NVARCHAR(20)`"], c: 2, why: "`DECIMAL` is exact in base 10. `FLOAT` and `REAL` are binary floating point, and text can't be summed or checked as a number." },
+        { q: "`\"👍\".Length` is 2 in C#. Why?", a: ["C# strings are UTF-16, and this emoji needs two 16-bit units", "Windows stores every emoji as two characters", "`Length` counts bytes in UTF-8", "It's a bug in .NET"], c: 0, why: "Characters outside the first 65,536 code points take a surrogate pair in UTF-16. Use `EnumerateRunes()` to count code points." }
+      ]
+    },
+    {
       id: 'structures', title: 'Arrays, hash tables, stacks, queues and linked lists', level: 1, mins: 40,
       why: "Choosing the right data structure is often most of the solution. `Dictionary` behind a cache, a queue behind background jobs, a stack behind undo: the same few structures show up in the codebase and in interviews.",
       points: [
@@ -345,7 +397,7 @@ class Node(int value)
       ]
     },
     {
-      id: 'graphs', title: 'Graphs: BFS, DFS and topological order', level: 2, mins: 40,
+      id: 'graphs', title: 'Graphs: BFS, DFS and topological order', level: 2, mins: 40, viz: 'graphsearch',
       why: "Maps, social networks, build systems and grids are graphs, and so is your own code: a DI container resolving constructor dependencies and EF Core ordering migrations are both walking a graph. In problems, the hard part is noticing the graph at all.",
       points: [
         "A **graph** is nodes (vertices) connected by edges, directed or undirected, weighted or not. Trees and linked lists are special cases.",
@@ -434,6 +486,86 @@ static List<string> TopoOrder(Dictionary<string, string[]> g)
     },
     // ---------------- Expert ----------------
     {
+      id: 'backtracking', title: "Backtracking: exploring every choice", level: 2, mins: 35,
+      why: "When a problem asks for 'all combinations', 'every arrangement' or 'any way to fill this', there is usually no clever formula: you try a choice, explore what follows, then undo it. Backtracking is that idea written carefully, and pruning is what keeps it fast enough to use.",
+      points: [
+        "Backtracking builds a solution **one choice at a time**. At each step: **choose** an option, **explore** recursively, then **un-choose** it, so the next option starts from the same state.",
+        "The choices form a **decision tree**, and backtracking is a depth-first search of it. The recursion stack holds the current partial solution.",
+        "When you reach a solution, record a **copy** of the path. The path keeps changing after you return, so storing the list itself leaves you with empty or wrong results.",
+        "**Pruning** stops a branch as soon as it can't lead to a valid answer: the sum is already too big, or the square is already attacked. The worst case stays the same, but in practice pruning removes most of the tree.",
+        "Three shapes cover most problems: **subsets** (include or skip each item), **combinations** (pass a start index so earlier items aren't reused), and **permutations** (track which items are already used).",
+        "The cost is exponential by nature: 2ⁿ subsets, n! permutations. That is expected; say so in an interview, then show how pruning or sorting cuts the work down.",
+        "If the same sub-question comes up again and again with the same inputs, you are looking at dynamic programming instead: cache the answer rather than exploring it again."
+      ],
+      code: `
+// Subsets: each item is either in or out
+var subsets = new List<List<int>>();
+Subsets([1, 2, 3], 0, [], subsets);
+Console.WriteLine(Show(subsets));     // [] [1] [1,2] [1,2,3] [1,3] [2] [2,3] [3]
+
+// Combination sum with pruning: sorted candidates, so stop once one is too big
+var sums = new List<List<int>>();
+CombinationSum([2, 3, 5], 8, 0, [], sums);
+Console.WriteLine(Show(sums));        // [2,2,2,2] [2,3,3] [3,5]
+
+// Permutations: track which items are already used
+var perms = new List<string>();
+Permute("abc", new bool[3], new System.Text.StringBuilder(), perms);
+Console.WriteLine(string.Join(" ", perms));   // abc acb bac bca cab cba
+
+static void Subsets(int[] items, int start, List<int> path, List<List<int>> result)
+{
+    result.Add(new List<int>(path));                  // record a COPY of the path
+    for (int i = start; i < items.Length; i++)
+    {
+        path.Add(items[i]);                           // choose
+        Subsets(items, i + 1, path, result);          // explore
+        path.RemoveAt(path.Count - 1);                // un-choose
+    }
+}
+
+static void CombinationSum(int[] sorted, int remaining, int start, List<int> path, List<List<int>> result)
+{
+    if (remaining == 0) { result.Add(new List<int>(path)); return; }
+    for (int i = start; i < sorted.Length; i++)
+    {
+        if (sorted[i] > remaining) break;             // prune: every later candidate is bigger too
+        path.Add(sorted[i]);
+        CombinationSum(sorted, remaining - sorted[i], i, path, result);   // i, not i + 1: a number may repeat
+        path.RemoveAt(path.Count - 1);
+    }
+}
+
+static void Permute(string items, bool[] used, System.Text.StringBuilder path, List<string> result)
+{
+    if (path.Length == items.Length) { result.Add(path.ToString()); return; }
+    for (int i = 0; i < items.Length; i++)
+    {
+        if (used[i]) continue;
+        used[i] = true; path.Append(items[i]);        // choose
+        Permute(items, used, path, result);           // explore
+        used[i] = false; path.Length--;               // un-choose
+    }
+}
+
+static string Show(List<List<int>> lists) => string.Join(" ", lists.Select(l => "[" + string.Join(",", l) + "]"));
+`,
+      practice: "Solve 'All subsets' in the interview section, then change it to return only the subsets of size k, pruning as soon as the path can no longer reach size k. Finally, solve N-Queens for n = 6 and count the solutions (there are 4).",
+      teach: "Explain choose, explore and un-choose using the subsets of [1, 2, 3], and why the code saves a copy of the path.",
+      analogy: "Finding your way through a maze with a ball of string. At each junction you pick a corridor and unroll string as you go; at a dead end you wind the string back to the last junction and try the next corridor. The string is your path, and winding it back is the un-choose step.",
+      pitfalls: [
+        "Adding `path` itself to the results instead of a copy. Every saved result then points at the same list, which ends up empty.",
+        "Forgetting to undo a choice, so state from one branch leaks into the next.",
+        "Passing `i + 1` when items may repeat, or `i` when they may not. The start index decides whether repeats are allowed.",
+        "Generating everything and filtering at the end, when a check during the search would have cut most of the branches."
+      ],
+      quiz: [
+        { q: "Why remove the last item from `path` after the recursive call?", a: ["To save memory", "So the next choice starts from the same state this one did", "Because a C# list can't hold duplicates", "To make the recursion stop"], c: 1, why: "Un-choosing restores the state, so each sibling branch starts from exactly the same point." },
+        { q: "The candidates are sorted, and the next one is already bigger than the remaining sum. What should the loop do?", a: ["Skip it and try the next candidate", "Break: every later candidate is bigger too", "Add it anyway and check at the end", "Start again from the first candidate"], c: 1, why: "That is pruning. Sorting makes it safe to stop the whole loop, not just skip one item." },
+        { q: "How many subsets does a set of 20 distinct items have?", a: ["400", "20!", "2²⁰, about a million", "190"], c: 2, why: "Each item is either in or out, so there are 2ⁿ subsets. 2²⁰ is 1,048,576, still fine to generate; 2⁴⁰ is not." }
+      ]
+    },
+    {
       id: 'dp', title: 'Dynamic programming and problem-solving strategy', level: 3, mins: 45,
       why: "Dynamic programming has a reputation for needing a flash of insight. It doesn't: it is a procedure you can learn. And the habits behind it — try a small case, spot repeated work, pick the right structure — work on any problem you haven't seen before.",
       points: [
@@ -496,6 +628,77 @@ Console.WriteLine(Lcs("kitten", "sitting"));    // 4 ("ittn")
         { q: "Which two properties make a problem suitable for dynamic programming?", a: ["Sorted input and unique values", "Overlapping subproblems and optimal substructure", "A recursive solution and small input", "A greedy solution that fails"], c: 1, why: "Repeated subproblems make caching worthwhile; optimal substructure makes combining cached answers correct." },
         { q: "What is the first step in designing a DP solution?", a: ["Optimise space", "Define precisely what the state means", "Write the nested loops", "Write the memo dictionary"], c: 1, why: "Without a clear state definition the recurrence cannot be written or checked." },
         { q: "When is a greedy algorithm safe to use?", a: ["Whenever it is faster than DP", "When you can argue the locally best choice never blocks the best overall answer", "Whenever the input is sorted", "Never in interviews"], c: 1, why: "Greedy needs a reason it is always right. Without one, a single counter-example sends you back to DP." }
+      ]
+    },
+    {
+      id: 'concurrency', title: "Concurrency: threads, locks and event loops", level: 3, mins: 40,
+      why: "A lost update in SQL, thread-pool starvation in ASP.NET Core, a frozen Flutter screen and a React state update that 'didn't happen' are one subject seen from different tracks: more than one thing in progress at once, touching shared state. Seeing the common model makes each of them easier to reason about.",
+      points: [
+        "A **process** has its own memory; its **threads** share it. Sharing is what makes threads fast to coordinate, and easy to get wrong.",
+        "**Concurrency** means several tasks are in progress at once; **parallelism** means they run at the same moment on different cores. An event loop gives concurrency on a single thread.",
+        "A **race condition** is a result that depends on timing. `count++` is read, add, write: two threads can both read 5 and both write 6, and one increment is lost.",
+        "Fixes, simplest first: **don't share** (give each task its own data and combine at the end), make the operation **atomic** (`Interlocked.Increment`, or one SQL `UPDATE … SET x = x + 1`), or protect it with a **lock** so only one thread runs that section at a time.",
+        "Locks bring **deadlocks** when two threads take the same locks in different orders. The cure is the one from SQL: always take them in the same order, and hold them briefly.",
+        "**Event loops** (JavaScript, Dart, a UI thread) run one callback at a time, so synchronous code between two `await`s is never interrupted. But other code can run at each `await`, so anything you checked before it may have changed after: the same reason a Cubit checks `isClosed`.",
+        "Heavy CPU work blocks an event loop completely. Move it off that thread: a Web Worker, `compute` in Flutter, `Task.Run` in a desktop app. In ASP.NET Core, keep request code async and let the thread pool do its job."
+      ],
+      code: `
+// A race: four threads each add 100,000 to shared counters
+int unsafeCount = 0, atomicCount = 0, lockedCount = 0;
+var gate = new object();
+
+Parallel.For(0, 4, _ =>
+{
+    for (int i = 0; i < 100_000; i++)
+    {
+        unsafeCount++;                                // read, add, write: not atomic
+        Interlocked.Increment(ref atomicCount);       // one atomic CPU instruction
+        lock (gate) { lockedCount++; }                // one thread at a time
+    }
+});
+Console.WriteLine(unsafeCount < 400_000);             // usually True: increments were lost
+Console.WriteLine($"{atomicCount} {lockedCount}");    // 400000 400000
+
+// Often better: don't share at all. Each task sums its own range; combine at the end.
+long[] parts = await Task.WhenAll(Enumerable.Range(0, 4).Select(p => Task.Run(() =>
+{
+    long sum = 0;
+    for (int i = p * 250_000; i < (p + 1) * 250_000; i++) sum += i;
+    return sum;
+})));
+Console.WriteLine(parts.Sum());                       // 499999500000
+
+// Check, await, act: another call can run at the await. lock can't contain an await,
+// so SemaphoreSlim(1, 1) is the async lock that holds the check and the change together.
+var stock = new Dictionary<string, int> { ["Chair"] = 1 };
+var oneAtATime = new SemaphoreSlim(1, 1);
+async Task<string> BuyAsync(string item)
+{
+    await oneAtATime.WaitAsync();
+    try
+    {
+        if (stock[item] == 0) return "sold out";
+        await Task.Delay(10);                         // a payment call, say
+        stock[item]--;
+        return "bought";
+    }
+    finally { oneAtATime.Release(); }
+}
+Console.WriteLine(string.Join(", ", await Task.WhenAll(BuyAsync("Chair"), BuyAsync("Chair"))));   // bought, sold out
+`,
+      practice: "Run the counter example several times and note how many increments are lost each time. Then write an in-memory 'add to cart' in C# with a `Dictionary<int, int>`, call it from 1,000 parallel tasks, and make it safe twice: once with a lock, once with `ConcurrentDictionary.AddOrUpdate`. Finally, remove the `SemaphoreSlim` from `BuyAsync` and see both purchases succeed.",
+      teach: "Explain why `count++` on two threads can lose an update, and three ways to prevent it.",
+      analogy: "Two cashiers updating the same paper ledger. Both read the balance 500, both add their own sale, both write down their total, and one sale disappears. A lock is a rule that only the person holding the pen may write; an atomic operation is a till that adds the sale in a single press.",
+      pitfalls: [
+        "Assuming `count++` or `List<T>.Add` is safe from several threads. Neither is; use `Interlocked`, a concurrent collection, or a lock.",
+        "Trying to `await` inside a `lock`. The compiler forbids it; use `SemaphoreSlim.WaitAsync` instead.",
+        "Checking a condition, awaiting, then acting as if it still holds. Check again after the `await`, or hold an async lock across both.",
+        "Blocking on async code with `.Result` while holding a lock or on a UI thread: a classic way to deadlock."
+      ],
+      quiz: [
+        { q: "Two threads each run `count++` 1,000 times on a shared `int` that starts at 0. What is the final value?", a: ["Always 2,000", "Anything up to 2,000: increments can be lost", "Always 1,000", "The program throws an exception"], c: 1, why: "`count++` is a read, an add and a write. Two threads can read the same value and both write the same result." },
+        { q: "Why is synchronous JavaScript code never interrupted by another callback?", a: ["The browser locks every variable", "The event loop runs one callback at a time, on one thread", "`await` copies all the variables", "JavaScript has no concurrency at all"], c: 1, why: "Other callbacks run only when the current one returns or reaches an `await`. That is why state can change across an `await`, but not in the middle of synchronous code." },
+        { q: "In C#, you need to protect a section that contains an `await`. What do you use?", a: ["`lock (gate) { … }`", "`SemaphoreSlim` with `await WaitAsync()` and `Release()`", "`Thread.Sleep` before the section", "`volatile` on the fields"], c: 1, why: "`lock` can't contain an `await`. `SemaphoreSlim(1, 1)` works as an async lock; release it in a `finally` block." }
       ]
     }
   ]

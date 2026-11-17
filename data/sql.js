@@ -282,7 +282,8 @@ SELECT REPLICATE('  ', depth) + name AS category, depth FROM tree ORDER BY depth
         "Constraints are free tests that run on every write: `NOT NULL`, `UNIQUE`, `CHECK (price >= 0)`, `DEFAULT`.",
         "Decide what deleting a parent does. By default the foreign key refuses; `ON DELETE CASCADE` deletes the children too.",
         "SQL Server specifics: `IDENTITY` generates ids, `NVARCHAR(n)` is the usual text type (`TEXT` is deprecated), and foreign key columns are **not** indexed for you.",
-        "Denormalize deliberately (for example, storing `unit_price` at the time of sale) and know why."
+        "Denormalize deliberately (for example, storing `unit_price` at the time of sale) and know why.",
+        "**JSON columns** suit data you store and hand back whole, such as settings with no fixed shape or a payload from another system. A `CHECK (ISJSON(col) = 1)` keeps it valid, `JSON_VALUE` reads one value, and `OPENJSON` turns an array into rows. Anything you filter, join or constrain on belongs in a real column. (SQL Server 2025 also adds a native `json` type.)"
       ],
       code: `
 CREATE TABLE customers (
@@ -317,6 +318,17 @@ CREATE TABLE order_items (
 -- SQL Server doesn't index foreign keys for you
 CREATE INDEX ix_orders_customer ON orders (customer_id);
 CREATE INDEX ix_order_items_product ON order_items (product_id);
+
+-- JSON: preferences with no fixed shape, kept valid by a CHECK
+ALTER TABLE customers ADD preferences NVARCHAR(MAX) NULL CHECK (ISJSON(preferences) = 1);
+GO
+INSERT INTO customers (name, email, preferences)
+VALUES (N'Ana', N'ana@example.com', N'{"language": "id", "newsletter": true}');
+SELECT name, JSON_VALUE(preferences, '$.language') AS language FROM customers;   -- Ana, id
+
+-- OPENJSON turns a JSON array, such as order lines posted by the app, into rows
+DECLARE @lines NVARCHAR(MAX) = N'[{"productId": 1, "quantity": 2}, {"productId": 3, "quantity": 1}]';
+SELECT productId, quantity FROM OPENJSON(@lines) WITH (productId INT, quantity INT);
 `,
       practice: "Design a schema for a library: books, authors (a book may have several), members and loans. List each table's keys and constraints, and decide what deleting a member should do to their loans. Then name one fact you chose to store twice, or explain why none is needed.",
       teach: "Explain why we do not store the customer's name and address on every order row, and what goes wrong if we do.",
@@ -325,12 +337,14 @@ CREATE INDEX ix_order_items_product ON order_items (product_id);
         "Comma-separated lists in a column ('tags: red,blue'). They can't be indexed, joined or constrained.",
         "Skipping foreign keys 'for flexibility' and collecting orphan rows.",
         "Normalizing away history: an order must remember the price that was charged.",
-        "Storing money in `FLOAT` or `REAL`. Use `DECIMAL`, or the cents will drift."
+        "Storing money in `FLOAT` or `REAL`. Use `DECIMAL`, or the cents will drift.",
+        "Hiding a value you search on inside JSON. `WHERE JSON_VALUE(preferences, '$.language') = 'id'` can't use an ordinary index; promote it to a column, or index a computed column over it."
       ],
       quiz: [
         { q: "Orders and products are many-to-many. How is that modelled?", a: ["A comma-separated `product_ids` column in `orders`", "A junction table with a foreign key to each", "An `order_id` column in `products`", "One `orders` row per product, repeating the order details"], c: 1, why: "A junction table has one row per pairing and can carry attributes such as quantity." },
         { q: "What does a foreign key constraint prevent?", a: ["Slow joins", "Rows that reference a parent row that does not exist", "Duplicate values in the column", "NULL values in the column"], c: 1, why: "It enforces referential integrity on every insert, update and delete. Duplicates are what `UNIQUE` prevents, and a foreign key column can still be NULL unless it's `NOT NULL`." },
-        { q: "Why is `unit_price` stored on `order_items` even though `products` has `price`?", a: ["It's a mistake; it should come from a join", "The sale must keep the price at the time of purchase", "To make the join to `products` faster", "Foreign keys require a copy"], c: 1, why: "It is a different fact: the historical price charged, not today's list price." }
+        { q: "Why is `unit_price` stored on `order_items` even though `products` has `price`?", a: ["It's a mistake; it should come from a join", "The sale must keep the price at the time of purchase", "To make the join to `products` faster", "Foreign keys require a copy"], c: 1, why: "It is a different fact: the historical price charged, not today's list price." },
+        { q: "Which data fits a JSON column best?", a: ["A customer's email, which must be unique", "Notification settings whose fields differ from customer to customer", "The `customer_id` an order belongs to", "A product's price, used in reports every day"], c: 1, why: "Data with no fixed shape, read and written as a whole, is what JSON is for. Values you constrain, join or report on need real columns with types and constraints." }
       ]
     },
     // ---------------- Advanced ----------------
@@ -555,7 +569,8 @@ ORDER BY order_date DESC, id DESC;
         "A **deadlock** is a cycle: T1 holds A and wants B, T2 holds B and wants A. SQL Server picks a victim, rolls it back, and raises error 1205.",
         "Prevent deadlocks: touch rows and tables in a **consistent order**, keep transactions short, add indexes so statements lock fewer rows, and retry the victim. EF Core's `EnableRetryOnFailure()` retries deadlocks automatically, as long as you don't open your own transaction outside its execution strategy.",
         "Surprise blocking: an `UPDATE … WHERE` on an unindexed column locks every row it scans, and once one statement holds about 5,000 locks SQL Server escalates to a table lock.",
-        "Diagnose with the deadlock graph in the `system_health` Extended Events session, `blocking_session_id` in `sys.dm_exec_requests`, and `sys.dm_tran_locks`."
+        "Diagnose with the deadlock graph in the `system_health` Extended Events session, `blocking_session_id` in `sys.dm_exec_requests`, and `sys.dm_tran_locks`.",
+        "An **upsert** (update the row if it exists, insert it otherwise) is a race: two sessions can both find no row and both insert. Run `UPDATE … WITH (UPDLOCK, HOLDLOCK)` and then `IF @@ROWCOUNT = 0 INSERT …` in one transaction, or `MERGE … WITH (HOLDLOCK)`, and keep a `UNIQUE` key as the last line of defence."
       ],
       code: `
 -- Classic deadlock: two transfers between the same two accounts, in opposite order
@@ -581,6 +596,31 @@ SELECT id, balance FROM accounts;   -- Ana 505.00, Budi 195.00
 
 -- Let readers use row versions instead of shared locks (needs no other connections open)
 -- ALTER DATABASE CURRENT SET READ_COMMITTED_SNAPSHOT ON;
+
+-- Upsert "add to cart". Without the hints, two clicks at once can both insert.
+CREATE TABLE cart_items (
+    customer_id INT NOT NULL, product_id INT NOT NULL, quantity INT NOT NULL CHECK (quantity > 0),
+    PRIMARY KEY (customer_id, product_id)
+);
+GO
+DECLARE @customer INT = 1, @product INT = 2, @qty INT = 1;
+SET XACT_ABORT ON;
+BEGIN TRANSACTION;
+UPDATE cart_items WITH (UPDLOCK, HOLDLOCK)          -- holds the key range, even when no row exists yet
+SET quantity = quantity + @qty
+WHERE customer_id = @customer AND product_id = @product;
+IF @@ROWCOUNT = 0
+    INSERT INTO cart_items (customer_id, product_id, quantity) VALUES (@customer, @product, @qty);
+COMMIT;
+
+-- The same with MERGE, which needs HOLDLOCK for the same reason
+MERGE cart_items WITH (HOLDLOCK) AS t
+USING (VALUES (@customer, @product, @qty)) AS s (customer_id, product_id, quantity)
+   ON t.customer_id = s.customer_id AND t.product_id = s.product_id
+WHEN MATCHED THEN UPDATE SET quantity = t.quantity + s.quantity
+WHEN NOT MATCHED THEN INSERT (customer_id, product_id, quantity) VALUES (s.customer_id, s.product_id, s.quantity);
+
+SELECT quantity FROM cart_items WHERE customer_id = 1 AND product_id = 2;   -- 2
 `,
       practice: "Open two query windows in SQL Server Management Studio (or two `sqlcmd` terminals) on a test database with an `accounts` table, and play the four steps above by hand. Capture error 1205, then find the deadlock graph in the `system_health` session. Fix it with the lower-id-first version, and separately add a retry in your application (in EF Core, `EnableRetryOnFailure()`). Which fix would you ship, and why keep both?",
       teach: "Explain how a deadlock happens using two transfers between the same two accounts, and one way to prevent it.",
@@ -589,12 +629,14 @@ SELECT id, balance FROM accounts;   -- Ana 505.00, Budi 195.00
         "Treating deadlocks as database bugs rather than access-order bugs.",
         "Scattering `NOLOCK` hints to hide blocking, and accepting dirty and inconsistent reads in return.",
         "Not retrying deadlock victims. A deadlock is an expected, temporary error.",
-        "Retrying only the statement that failed. The victim's whole transaction was rolled back, so retry all of it."
+        "Retrying only the statement that failed. The victim's whole transaction was rolled back, so retry all of it.",
+        "Upserting with `IF NOT EXISTS (SELECT …) INSERT …` and no lock hints. Two requests pass the check together, and one of them fails on the key, or stores a duplicate if there is no key."
       ],
       quiz: [
         { q: "What is the standard way to prevent deadlocks between transactions that update the same rows?", a: ["Add `WITH (NOLOCK)` to the updates", "Access the rows in a consistent order", "Raise the isolation level to Serializable", "Increase the lock timeout"], c: 1, why: "If everyone takes locks in the same order, a cycle can't form. Serializable takes more locks and makes deadlocks more likely." },
         { q: "With `READ_COMMITTED_SNAPSHOT` on, a long-running read…", a: ["blocks all writers until it finishes", "sees a consistent version and does not block writers", "sees other transactions' uncommitted changes", "takes a table lock"], c: 1, why: "Readers use row versions rather than shared locks." },
-        { q: "What should application code do when it is chosen as a deadlock victim?", a: ["Show the error to the user", "Retry the whole transaction", "Retry only the statement that failed", "Nothing: the change was saved"], c: 1, why: "The whole transaction was rolled back, so retrying only the last statement would apply half a change." }
+        { q: "What should application code do when it is chosen as a deadlock victim?", a: ["Show the error to the user", "Retry the whole transaction", "Retry only the statement that failed", "Nothing: the change was saved"], c: 1, why: "The whole transaction was rolled back, so retrying only the last statement would apply half a change." },
+        { q: "Two 'add to cart' requests run `UPDATE …; IF @@ROWCOUNT = 0 INSERT …` for the same item at the same moment, with no lock hints. What can happen?", a: ["Nothing: each statement is atomic, so the pair is too", "Both find no row and both insert, so one fails on the primary key", "The database merges the two inserts into one row", "The second request waits automatically until the first commits"], c: 1, why: "Each statement is atomic, but the pair isn't. `UPDLOCK, HOLDLOCK` on the update keeps the range locked until the insert, so the second request waits and then updates instead." }
       ]
     },
     {

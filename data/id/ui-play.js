@@ -30,6 +30,12 @@ I18N.add({
   'Return category and name of the most expensive product in each category. Use a window function.': 'Tampilkan category dan name produk termahal di tiap kategori. Gunakan window function.',
   'Running total': 'Running total',
   'For paid orders, return order id and the running total of order value, ordered by order date.': 'Untuk order berstatus paid, tampilkan id order dan running total nilai order, diurutkan berdasarkan tanggal order.',
+  'Best sellers with ties': 'Terlaris, termasuk yang seri',
+  'For paid orders, return category, product name and units sold for the top two sales figures in each category. Products with equal sales share a place, so a category can return more than two rows.': 'Untuk order berstatus paid, tampilkan category, nama produk, dan jumlah unit terjual untuk dua angka penjualan teratas di tiap kategori. Produk dengan penjualan sama berbagi peringkat, jadi satu kategori bisa menghasilkan lebih dari dua baris.',
+  'Next page without OFFSET': 'Halaman berikutnya tanpa OFFSET',
+  'Products are listed cheapest first, ties broken by id. The last row on the current page was Lamp (price 40, id 6). Return name and price of the next three products, using that (price, id) pair instead of OFFSET.': 'Produk ditampilkan dari yang termurah, dan kalau harganya sama diurutkan berdasarkan id. Baris terakhir di halaman sekarang adalah Lamp (price 40, id 6). Tampilkan name dan price dari tiga produk berikutnya, memakai pasangan (price, id) itu, bukan OFFSET.',
+  'Streaks of active months': 'Rangkaian bulan aktif',
+  'For each customer, find the runs of consecutive months in which they had at least one paid order. Return the customer name, the first and last month of each run as \'YYYY-MM\', and the number of months in it.': 'Untuk tiap customer, cari rangkaian bulan berturut-turut yang masing-masing punya minimal satu order berstatus paid. Tampilkan nama customer, bulan pertama dan terakhir tiap rangkaian dalam format \'YYYY-MM\', serta jumlah bulannya.',
   'Loading SQLite…': 'Memuat SQLite…',
   'Free play — or pick a challenge above.': 'Bebas bereksperimen — atau pilih salah satu challenge di atas.',
   'OK — {n} row(s) changed.': 'OK — {n} baris berubah.',
@@ -50,7 +56,9 @@ I18N.add({
   // TypeScript
   'Output appears here.': 'Output akan muncul di sini.',
   '(no output — use console.log)': '(tidak ada output — gunakan console.log)',
-  'Write TypeScript and run it instantly. Type errors are underlined as you type and listed when you run — hover a red squiggle to read the message. Code runs in an isolated worker with a five-second limit.': 'Tulis TypeScript dan langsung jalankan. Type error digarisbawahi saat kamu mengetik dan didaftar saat kode dijalankan — arahkan kursor ke garis merah untuk membaca pesannya. Kode berjalan di worker terisolasi dengan batas lima detik.',
+  'Write TypeScript and run it instantly. Type errors are underlined as you type and listed when you run — hover a red squiggle to read the message. Plain TypeScript runs in an isolated worker with a five-second limit. Code that imports react renders in a live preview instead, with React 19 loaded from esm.sh, so it needs an internet connection.': 'Tulis TypeScript dan jalankan seketika. Type error digarisbawahi saat kamu mengetik dan didaftar saat kode dijalankan — arahkan kursor ke garis merah untuk membaca pesannya. TypeScript biasa berjalan di worker terisolasi dengan batas lima detik. Kode yang meng-import react tampil di preview langsung, dengan React 19 dimuat dari esm.sh, jadi butuh koneksi internet.',
+  'Console output from the preview appears below it.': 'Output console dari preview muncul di bawahnya.',
+  'React preview': 'Preview React',
 
   // CSS
   'Preview': 'Preview',

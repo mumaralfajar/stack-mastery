@@ -58,12 +58,12 @@ What this means in practice:
 
 ## What is inside
 
-### Seven tracks, 88 lessons, four levels each
+### Seven tracks, 91 lessons, four levels each
 
 | Track | Lessons | From → to |
 | --- | --- | --- |
 | **C#** | 14 | Variables and classes → exceptions, async, memory, concurrency, internals |
-| **CS Fundamentals** | 7 | Git and Big-O → data structures, graphs, dynamic programming |
+| **CS Fundamentals** | 10 | Git, Big-O, numbers and text → data structures, graphs, backtracking, dynamic programming, concurrency |
 | **SQL** | 12 | SELECT and joins → indexes, transactions, query plans, scaling (SQL Server syntax) |
 | **ASP.NET Core** | 14 | HTTP and routing → auth, EF Core, performance, architecture, production |
 | **CSS + Tailwind** | 13 | HTML, the cascade, layout → Tailwind in React, architecture, rendering |
@@ -78,12 +78,12 @@ Every lesson has the same three steps, and only counts as mastered when all thre
 
 ### Practice tools
 
-- **20 interactive visualizations** — stack vs heap, async timeline, middleware pipeline, service lifetimes, JOIN explorer, index seek vs scan, flexbox and grid playgrounds, React re-renders, Flutter layout constraints and its three trees, the event loop, sorting algorithms, Big-O growth, and more.
-- **SQL playground** — a real SQLite database in the browser with 11 auto-checked challenges.
-- **TypeScript playground** — a real editor with live type checking.
+- **21 interactive visualizations** — stack vs heap, async timeline, middleware pipeline, service lifetimes, JOIN explorer, index seek vs scan, flexbox and grid playgrounds, React re-renders, Flutter layout constraints and its three trees, the event loop, sorting algorithms, BFS vs DFS on a graph, Big-O growth, and more.
+- **SQL playground** — a real SQLite database in the browser with 14 auto-checked challenges, from a first SELECT to keyset pagination and gaps-and-islands.
+- **TypeScript playground** — a real editor with live type checking; code that imports React renders in a live preview.
 - **Dart + Flutter playground** — the official DartPad embedded, loaded with each lesson's runnable sample.
 - **CSS + Tailwind playground** — live preview you can resize to test breakpoints.
-- **Flashcard review** — 280 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
+- **Flashcard review** — 292 questions on a 1 / 2 / 4 / 8 / 16-day schedule.
 - **Mock exam** — ten random questions by track and level.
 - **Capstone projects** — one full-stack project per level.
 - **Search** — press `/` anywhere.
@@ -122,7 +122,7 @@ The percentages in the sidebar show your progress per track; the dashboard shows
 
 ## Languages
 
-The whole program — interface, all 88 lessons, quizzes, visualizations, playgrounds and interview preparation — is available in English and Bahasa Indonesia.
+The whole program — interface, all 91 lessons, quizzes, visualizations, playgrounds and interview preparation — is available in English and Bahasa Indonesia.
 
 - Use the **ID / EN** button at the top-right of the screen. The choice is remembered in your browser.
 - On a first visit, a browser set to Indonesian starts in Indonesian; every other browser starts in English.
@@ -188,11 +188,12 @@ The lessons, quizzes, flashcards, visualizations and interview content work offl
 | --- | --- | --- |
 | Code editor with TypeScript type checking | [Monaco Editor](https://github.com/microsoft/monaco-editor) | MIT |
 | TypeScript playground and coding-problem judge | [TypeScript](https://github.com/microsoft/TypeScript) | Apache-2.0 |
+| React preview in the TypeScript playground | [React](https://github.com/facebook/react) 19.1, loaded from esm.sh | MIT |
 | SQL playground | [sql.js](https://github.com/sql-js/sql.js) (SQLite as WebAssembly) | MIT |
 | Tailwind toggle in the CSS playground | [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss) browser build, pinned to 4.3.4 | MIT |
 | Dart + Flutter playground | [DartPad](https://github.com/dart-lang/dart-pad), embedded from dartpad.dev | BSD-3-Clause |
 
-These are downloaded from public CDNs (cdnjs and jsDelivr). Loading them sends an ordinary web request to the CDN, as with any website; none of your progress or code is sent. If the editor library cannot load, the editors fall back to plain text boxes.
+These are downloaded from public CDNs (cdnjs, jsDelivr and esm.sh). Loading them sends an ordinary web request to the CDN, as with any website; none of your progress or code is sent. If the editor library cannot load, the editors fall back to plain text boxes.
 
 ---
 

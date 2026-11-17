@@ -1,4 +1,4 @@
-// Visualizations for fundamentals: Big-O growth, sorting, the JavaScript event loop.
+// Visualizations for fundamentals: Big-O growth, sorting, the JavaScript event loop, graph search.
 (() => {
   const VIZ = window.VIZ, T = window.t;
   const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -119,6 +119,84 @@
       };
       el.append(h('div', { class: 'viz-ctl' }, back, next, btn('Reset', () => { i = 0; draw(); }, 'ghost'), label), h('ol', { class: 'lines' }, lis),
         h('div', { class: 'viz-cols' }, stackB, outB, microB, taskB), note);
+      draw();
+    }
+  };
+  // ---------- graph search: BFS vs DFS ----------
+  VIZ.graphsearch = {
+    title: 'BFS and DFS on a graph', track: 'cs', trackName: 'CS Fundamentals',
+    desc: 'Search from A to F with each algorithm and compare the path each one finds. BFS uses a queue and spreads out in rings; DFS follows one path as deep as it can.',
+    mount(el) {
+      // Neighbour order is part of the picture: DFS tries G first, which leads it the long way round.
+      const pos = { A: [50, 95], G: [50, 190], B: [170, 35], C: [170, 120], H: [260, 205], D: [300, 35], E: [330, 125], F: [450, 80] };
+      const adj = { A: ['G', 'B', 'C'], G: ['A', 'H'], H: ['G', 'E'], E: ['H', 'C', 'F'], C: ['A', 'E'], B: ['A', 'D'], D: ['B', 'F'], F: ['D', 'E'] };
+      const edges = [];
+      for (const [a, ns] of Object.entries(adj)) for (const b of ns) if (a < b) edges.push([a, b]);
+      const START = 'A', GOAL = 'F';
+
+      const bfsSteps = () => {
+        const steps = [], dist = { [START]: 0 }, parent = {}, order = [], queue = [START];
+        steps.push({ cur: null, seen: [START], frontier: [...queue], order: [], dist: { ...dist }, note: T('Start at {node}: distance 0. It goes into the queue.', { node: START }) });
+        while (queue.length) {
+          const n = queue.shift(); order.push(n);
+          if (n === GOAL) {
+            const path = [n]; while (parent[path[0]]) path.unshift(parent[path[0]]);
+            steps.push({ cur: n, seen: Object.keys(dist), frontier: [...queue], order: [...order], dist: { ...dist }, path,
+              note: T('{node} reached at distance {d}: {path}. BFS finishes every node at distance {prev} before any at distance {d}, so the first path it finds is a shortest one.', { node: n, d: dist[n], prev: dist[n] - 1, path: path.join(' → ') }) });
+            break;
+          }
+          const added = [];
+          for (const m of adj[n]) if (!(m in dist)) { dist[m] = dist[n] + 1; parent[m] = n; queue.push(m); added.push(m); }
+          steps.push({ cur: n, seen: Object.keys(dist), frontier: [...queue], order: [...order], dist: { ...dist },
+            note: T('Take {node} from the front of the queue (distance {d}). Unvisited neighbours go to the back: {added}.', { node: n, d: dist[n], added: added.join(', ') || T('none') }) });
+        }
+        return steps;
+      };
+      const dfsSteps = () => {
+        const steps = [], seen = new Set(), order = [], stack = [];
+        let found = null;
+        const visit = n => {
+          seen.add(n); order.push(n); stack.push(n);
+          if (n === GOAL) {
+            found = [...stack];
+            steps.push({ cur: n, seen: [...seen], frontier: [...stack], order: [...order], path: found,
+              note: T('{node} found via {path}: {n} steps. DFS found a path, but not the shortest: BFS needs 3.', { node: n, path: found.join(' → '), n: found.length - 1 }) });
+            return;
+          }
+          steps.push({ cur: n, seen: [...seen], frontier: [...stack], order: [...order],
+            note: T('Go deeper to {node}. The recursion stack is the current path: {path}.', { node: n, path: stack.join(' → ') }) });
+          for (const m of adj[n]) { if (found) return; if (!seen.has(m)) visit(m); }
+          if (found) return;
+          stack.pop();
+          steps.push({ cur: stack[stack.length - 1], seen: [...seen], frontier: [...stack], order: [...order],
+            note: T('{node} has no unvisited neighbours left, so the recursion returns to {back}.', { node: n, back: stack[stack.length - 1] }) });
+        };
+        visit(START);
+        return steps;
+      };
+
+      let mode = 'bfs', steps = bfsSteps(), i = 0;
+      const svg = h('div', { class: 'gviz' }), note = h('p', { class: 'viz-note' }), label = h('span', { class: 'muted' });
+      const fBox = h('div', {}), oBox = h('div', {}), fTitle = h('h4', {});
+      const pick = m => { mode = m; steps = m === 'bfs' ? bfsSteps() : dfsSteps(); i = 0; bfsB.classList.toggle('ghost', m !== 'bfs'); dfsB.classList.toggle('ghost', m !== 'dfs'); draw(); };
+      const bfsB = btn('BFS (queue)', () => pick('bfs')), dfsB = btn('DFS (recursion)', () => pick('dfs'), 'ghost');
+      const back = btn('← Back', () => { i--; draw(); }, 'ghost'), next = btn('Next →', () => { i++; draw(); });
+      const fill = (box, items) => box.replaceChildren(...(items.length ? items.map(x => h('div', { class: 'slot' }, x)) : [h('p', { class: 'muted' }, 'empty')]));
+      const draw = () => {
+        const s = steps[i], path = s.path || [];
+        const onPath = (a, b) => path.some((p, k) => k > 0 && ((path[k - 1] === a && p === b) || (path[k - 1] === b && p === a)));
+        const state = n => n === s.cur ? 'cur' : path.includes(n) ? 'path' : s.frontier.includes(n) ? 'front' : s.seen.includes(n) ? 'seen' : '';
+        svg.innerHTML = `<svg viewBox="0 0 500 240" role="img" aria-label="${T('Graph with nodes A to H')}">` +
+          edges.map(([a, b]) => `<line class="${onPath(a, b) ? 'path' : ''}" x1="${pos[a][0]}" y1="${pos[a][1]}" x2="${pos[b][0]}" y2="${pos[b][1]}"/>`).join('') +
+          Object.entries(pos).map(([n, [x, y]]) => `<g class="${state(n)}"><circle cx="${x}" cy="${y}" r="19"/><text x="${x}" y="${y + 5}" text-anchor="middle">${n}</text>` +
+            (s.dist && n in s.dist ? `<text class="d" x="${x + 22}" y="${y - 16}">${s.dist[n]}</text>` : '') + '</g>').join('') + '</svg>';
+        fTitle.textContent = T(mode === 'bfs' ? 'Queue (front first)' : 'Recursion stack (bottom first)');
+        fill(fBox, s.frontier); fill(oBox, s.order);
+        note.textContent = s.note; label.textContent = T('Step {i} of {n}', { i: i + 1, n: steps.length });
+        back.disabled = i === 0; next.disabled = i === steps.length - 1;
+      };
+      el.append(h('div', { class: 'viz-ctl' }, bfsB, dfsB), h('div', { class: 'viz-ctl' }, back, next, btn('Reset', () => { i = 0; draw(); }, 'ghost'), label), svg,
+        h('div', { class: 'viz-cols' }, h('div', { class: 'viz-box' }, fTitle, fBox), h('div', { class: 'viz-box' }, h('h4', {}, 'Visited, in order'), oBox)), note);
       draw();
     }
   };

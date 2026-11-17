@@ -238,7 +238,8 @@ I18N.lessons('csharp', {
       "Async dari ujung ke ujung: jangan memanggil `.Result` atau `.Wait()` pada task. Di ASP.NET Core itu menahan satu thread dari thread pool selama menunggu, dan saat beban tinggi pool-nya habis (thread-pool starvation). Di aplikasi desktop (WinForms, WPF) itu juga bisa deadlock.",
       "Mulai dulu operasi-operasi yang independen, lalu `await Task.WhenAll(...)` supaya semuanya berjalan secara concurrent.",
       "`async void` hanya untuk event handler: pemanggil tidak bisa meng-await-nya atau menangkap exception-nya.",
-      "Teruskan `CancellationToken` ke setiap pemanggilan async, supaya pekerjaan berhenti saat user menyerah atau request-nya dibatalkan."
+      "Teruskan `CancellationToken` ke setiap pemanggilan async, supaya pekerjaan berhenti saat user menyerah atau request-nya dibatalkan.",
+      "`IAsyncEnumerable<T>` adalah aliran hasil yang datang seiring waktu: buat dengan `async` dan `yield return`, konsumsi dengan `await foreach`. `AsAsyncEnumerable()` di EF Core dan endpoint ASP.NET Core yang mengembalikannya men-stream baris, alih-alih mengumpulkan semuanya di memory dulu."
     ],
     practice: "Ubah kodenya supaya memuat lima hal secara concurrent dengan `Task.WhenAll` dan cetak total waktunya. Lalu batalkan setelah 500 ms dan pastikan semua yang belum selesai ikut berhenti. Terakhir, ganti `Task.Delay` dengan panggilan `HttpClient.GetStringAsync` sungguhan ke URL publik, dan cek apakah perilaku waktunya tetap sama.",
     teach: "Jelaskan apa yang terjadi pada thread saat kode sampai di `await`, dan kenapa itu membuat web server bisa menangani lebih banyak request.",
@@ -246,12 +247,14 @@ I18N.lessons('csharp', {
     pitfalls: [
       "'Async membuat kode jalan paralel di thread lain.' Bukan: untuk I/O, selama menunggu tidak ada thread sama sekali.",
       "Membungkus pekerjaan CPU yang synchronous dengan `Task.Run` di ASP.NET Core lalu menyebutnya async. Itu cuma memindahkan pekerjaannya ke thread lain di pool.",
-      "Lupa menulis `await`. Method langsung lanjut sebelum pekerjaannya selesai, dan kalau task-nya gagal, tidak ada yang melihat exception-nya. Compiler memberi warning (CS4014); jangan diabaikan."
+      "Lupa menulis `await`. Method langsung lanjut sebelum pekerjaannya selesai, dan kalau task-nya gagal, tidak ada yang melihat exception-nya. Compiler memberi warning (CS4014); jangan diabaikan.",
+      "Memanggil `ToListAsync()` pada hasil yang sangat besar hanya untuk di-loop sekali. Stream dengan `AsAsyncEnumerable()` dan `await foreach`, maka pemakaian memory tetap datar berapa pun jumlah barisnya."
     ],
     quiz: [
       ["Apa yang terjadi pada thread saat ini di `await http.GetAsync(url)` selama panggilan network masih berlangsung?", ["Tidur sampai response datang", "Dilepas untuk mengerjakan hal lain", "Terus mengecek network dalam loop", "Menyerahkan request ke thread baru yang ia buat"], "`await` menyerahkan thread; sebuah continuation melanjutkan method-nya saat response tiba."],
       ["Ada tiga panggilan I/O independen, masing-masing 1 detik. Pendekatan benar yang paling cepat?", ["Await satu per satu", "Mulai ketiganya, lalu `await Task.WhenAll`", "Bungkus masing-masing dengan `Task.Run` lalu baca `.Result`", "`Parallel.For` dengan `.Wait()` di tiap panggilan"], "Memulai semua task sebelum meng-await membuat waktu tunggunya tumpang-tindih: total sekitar 1 detik, bukan 3, tanpa mem-block thread mana pun."],
-      ["Kenapa `.Result` perlu dihindari di ASP.NET Core?", ["Nilainya berbeda dengan hasil `await`", "Menahan satu thread dari thread pool selama menunggu, dan saat beban tinggi pool-nya habis", "Selalu menyebabkan deadlock", "Tidak boleh dipakai di dalam controller"], "ASP.NET Core tidak punya synchronization context, jadi deadlock klasiknya tidak terjadi di sana. Tapi setiap thread yang ter-block adalah thread yang tidak bisa melayani request lain."]
+      ["Kenapa `.Result` perlu dihindari di ASP.NET Core?", ["Nilainya berbeda dengan hasil `await`", "Menahan satu thread dari thread pool selama menunggu, dan saat beban tinggi pool-nya habis", "Selalu menyebabkan deadlock", "Tidak boleh dipakai di dalam controller"], "ASP.NET Core tidak punya synchronization context, jadi deadlock klasiknya tidak terjadi di sana. Tapi setiap thread yang ter-block adalah thread yang tidak bisa melayani request lain."],
+      ["Sebuah method mengembalikan `IAsyncEnumerable<Order>`. Bagaimana cara mengonsumsinya?", ["`foreach (var o in GetOrders())`", "`await foreach (var o in GetOrders())`", "`GetOrders().Result`", "`await Task.WhenAll(GetOrders())`"], "`await foreach` menunggu tiap item berikutnya, jadi loop bisa mulai sebelum item terakhir ada. `foreach` biasa tidak bisa di-compile untuk async stream."]
     ]
   },
   modern: {
