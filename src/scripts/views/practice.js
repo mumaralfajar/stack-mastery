@@ -7,7 +7,7 @@ const GAPS = [1, 2, 4, 8, 16];
 export function review() {
   const { h, md, t: T } = window;
   const page = h('div', { class: 'page' }, h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Spaced repetition'), h('h1', {}, 'Flashcard review'),
-    h('p', { class: 'lede' }, 'Questions from lessons you have marked as learned return at growing intervals: 1, 2, 4, 8, then 16 days. Say the answer out loud before you reveal it.')));
+    h('p', { class: 'lede' }, 'Questions from lessons you have marked as learned, and any you missed in a lesson, return at growing intervals: 1, 2, 4, 8, then 16 days. Say the answer out loud before you reveal it.')));
   const stage = h('div', {}); page.append(stage);
   const queue = shuffle(dueCards()).slice(0, 20); let n = 0, got = 0;
   const show = () => {

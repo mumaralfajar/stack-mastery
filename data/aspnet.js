@@ -5,7 +5,7 @@ TRACKS.push({
     // ---------------- Beginner ----------------
     {
       id: 'http', title: 'How the web works: HTTP in 20 minutes', level: 0, mins: 25,
-      why: "ASP.NET Core is a machine that turns HTTP requests into HTTP responses. Once you can read a raw request and response, you can debug web problems in any framework. Every sample in this track is a complete `Program.cs` for .NET 10: paste it into a new project and it runs.",
+      why: "ASP.NET Core is a machine that turns HTTP requests into HTTP responses. Once you can read a raw request and response, you can debug web problems in any framework. Every sample in this track is a complete `Program.cs` for .NET 10. Start from `dotnet new web`, run the `dotnet add package` lines at the top of the sample if it has any, and paste it in. Samples with a database expect SQL Server Express on your machine (`.\\SQLEXPRESS`) unless you set a `Shop` connection string.",
       points: [
         "The browser (client) sends a **request**: a method (`GET`, `POST`, `PUT`, `DELETE`), a URL, headers, and sometimes a body.",
         "The server returns a **response**: a status code, headers, and usually a body (HTML or JSON).",
@@ -62,6 +62,8 @@ app.Run();
         "This track uses **minimal APIs** (`app.MapGet`). Controllers are the other style: `AddControllers()` plus `MapControllers()`, on the same routing engine."
       ],
       code: `
+// dotnet add package Microsoft.AspNetCore.OpenApi
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ---- 1. Services and configuration: everything the app will need ----
@@ -189,6 +191,8 @@ public record CreateProduct(string Name, decimal Price);
         "Custom middleware is just `app.Use(async (context, next) => { … })`, or a class with an `InvokeAsync` method."
       ],
       code: `
+// dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+
 using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -247,6 +251,8 @@ app.Run();
         "`TimeProvider` is .NET's built-in clock. Inject it instead of calling `DateTime.UtcNow`, and tests can swap in a fake one."
       ],
       code: `
+// dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -318,6 +324,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         "LINQ and `FromSql($\"…{value}\")` send values as SQL parameters. `FromSqlRaw` with a concatenated string does not, and is open to SQL injection."
       ],
       code: `
+// dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -408,6 +416,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         "Rules like 'names are unique' belong in the database as a `UNIQUE` index. Checking first in code and then inserting races when two requests arrive together."
       ],
       code: `
+// dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+
 using System.ComponentModel.DataAnnotations;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -495,6 +505,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         "Never store passwords yourself: use ASP.NET Core Identity (salted, slow hashes) or an identity provider over OpenID Connect."
       ],
       code: `
+// dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+// dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -650,8 +663,9 @@ public class Mailer(IOptions<SmtpOptions> options, ILogger<Mailer> log)
         "Test behavior, not implementation: assert on outputs and visible effects, not on which private method was called."
       ],
       code: `
-// Test project: dotnet new xunit, a reference to the API project,
-// and the Microsoft.AspNetCore.Mvc.Testing package.
+// Test project: dotnet new xunit, then
+// dotnet add reference ../Shop.Api
+// dotnet add package Microsoft.AspNetCore.Mvc.Testing
 // The API under test is the one from the validation lesson.
 using System.Net;
 using System.Net.Http.Json;
@@ -722,6 +736,8 @@ public class PriceCalculator
         "`ExecuteUpdateAsync` and `ExecuteDeleteAsync` run one SQL statement without loading entities. They skip the change tracker and concurrency checks, so keep them for bulk changes."
       ],
       code: `
+// dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
@@ -840,6 +856,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         "Cheap wins: response compression, pagination everywhere, `IHttpClientFactory` for outbound calls, `IAsyncEnumerable` for streaming large results."
       ],
       code: `
+// dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+// dotnet add package Microsoft.Extensions.Caching.Hybrid
+
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
@@ -947,6 +966,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         "Start as a **modular monolith**. Split into services only when team structure or scaling demands it: distribution adds failure modes, not simplicity."
       ],
       code: `
+// dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+// dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text.Json;
@@ -1103,6 +1125,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         "Deploy safely: backward-compatible database migrations, graceful shutdown, rolling or blue/green releases, and a rollback you've actually tested."
       ],
       code: `
+// dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+// dotnet add package Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore
+// dotnet add package Microsoft.Extensions.Http.Resilience
+// dotnet add package OpenTelemetry.Extensions.Hosting
+// dotnet add package OpenTelemetry.Instrumentation.AspNetCore
+// dotnet add package OpenTelemetry.Instrumentation.Http
+// dotnet add package OpenTelemetry.Instrumentation.Runtime
+// dotnet add package OpenTelemetry.Exporter.OpenTelemetryProtocol
+
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Metrics;

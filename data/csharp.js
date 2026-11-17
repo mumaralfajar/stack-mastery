@@ -643,19 +643,15 @@ Console.WriteLine(SumFast("1,2,3,40"));   // 46: same result, no new strings
 // Allocates an array plus a new string per field
 static int SumSlow(string csv) => csv.Split(',').Sum(int.Parse);
 
-// Zero allocations: slices the original string
+// Zero allocations: Split on a span (.NET 9+) yields ranges into the original string
 static int SumFast(ReadOnlySpan<char> csv)
 {
     int sum = 0;
-    while (!csv.IsEmpty)
-    {
-        int comma = csv.IndexOf(',');
-        var field = comma < 0 ? csv : csv[..comma];
-        sum += int.Parse(field);
-        csv = comma < 0 ? default : csv[(comma + 1)..];
-    }
+    foreach (Range field in csv.Split(','))
+        sum += int.Parse(csv[field]);
     return sum;
 }
+// Both behave the same on bad input: "1,2," has an empty last field, and both throw FormatException.
 
 // Rent instead of allocate
 byte[] buffer = ArrayPool<byte>.Shared.Rent(64 * 1024);

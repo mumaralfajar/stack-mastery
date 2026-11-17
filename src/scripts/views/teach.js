@@ -108,17 +108,18 @@ export function startView() {
   return h('div', { class: 'page' },
     h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Before lesson one'), h('h1', {}, 'Start here: set up your machine'),
       h('p', { class: 'lede' }, 'Reading is not learning. Every lesson ends with something to build, and that needs a handful of free tools. This takes about twenty minutes, once.')),
-    step('1. Install the tools', 'Install the **.NET SDK** (current LTS) from dotnet.microsoft.com, **Node.js LTS** from nodejs.org, **Git** from git-scm.com, and **Visual Studio Code** with the *C# Dev Kit* extension. Then confirm each one answers in a new terminal:', `
+    step('1. Install the tools', 'Install the **.NET SDK** (current LTS) from dotnet.microsoft.com, **Node.js LTS** from nodejs.org, **Git** from git-scm.com, the **Flutter SDK** from flutter.dev (it includes Dart), and **Visual Studio Code** with the C# Dev Kit and Flutter extensions. Then confirm each one answers in a new terminal:', `
 dotnet --version
 node --version
 git --version
+flutter --version
 code --version`),
     step('2. Your first C# program', 'This is where the C# track’s code goes. Open the folder in VS Code and edit `Program.cs`.', `
 dotnet new console -o hello
 cd hello
 dotnet run`),
     step('3. Your first web API', '`dotnet watch` rebuilds and restarts on every save — keep it running while you work through the ASP.NET Core track.', `
-dotnet new webapi -o shop-api
+dotnet new web -o shop-api
 cd shop-api
 dotnet watch run`),
     step('4. Your first React + TypeScript app', 'Vite gives you a dev server with instant reload. The last line adds Tailwind for the CSS + Tailwind track.', `
@@ -127,13 +128,14 @@ cd shop-web
 npm install
 npm install tailwindcss @tailwindcss/vite
 npm run dev`),
-    step('5. Your first Flutter app', 'Install the **Flutter SDK** from flutter.dev — it includes Dart. `flutter doctor` tells you what is still missing for each platform; the web target needs only Chrome, so you can start before setting up Android Studio or Xcode.', `
+    step('5. Your first Flutter app', '`flutter doctor` tells you what is still missing for each platform. The web target needs only Chrome, so you can start before setting up Android Studio or Xcode.', `
 flutter doctor
 flutter create shop_app
 cd shop_app
 flutter run -d chrome`),
-    step('6. A database', 'Start with **SQLite**: no server to install, and the SQL playground in this program already uses it. Add it to an API project with EF Core. Move to SQL Server or PostgreSQL (both free, easiest through Docker) when you reach the Advanced SQL lessons.', `
-dotnet add package Microsoft.EntityFrameworkCore.Sqlite
+    step('6. A database', 'The SQL and ASP.NET Core tracks use **SQL Server**. On Windows, install the free **SQL Server Express** edition; the samples connect to it as `.\\SQLEXPRESS`. On macOS or Linux, run SQL Server in Docker and set a `Shop` connection string. The SQL playground runs SQLite in the browser, so the first SQL lessons work before any of this.', `
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Design
 dotnet tool install --global dotnet-ef
 dotnet ef migrations add Init
 dotnet ef database update`),

@@ -2,7 +2,7 @@
 I18N.lessons('aspnet', {
   http: {
     title: 'Cara kerja web: HTTP dalam 20 menit',
-    why: "ASP.NET Core adalah mesin yang mengubah HTTP request menjadi HTTP response. Begitu kamu bisa membaca request dan response mentah, kamu bisa men-debug masalah web di framework apa pun. Setiap contoh di track ini adalah `Program.cs` lengkap untuk .NET 10: paste ke project baru, dan langsung jalan.",
+    why: "ASP.NET Core adalah mesin yang mengubah HTTP request menjadi HTTP response. Begitu kamu bisa membaca request dan response mentah, kamu bisa men-debug masalah web di framework apa pun. Setiap contoh di track ini adalah `Program.cs` lengkap untuk .NET 10. Mulai dari `dotnet new web`, jalankan baris `dotnet add package` di bagian atas contohnya kalau ada, lalu paste. Contoh yang memakai database mengharapkan SQL Server Express di komputermu (`.\\SQLEXPRESS`), kecuali kamu mengisi connection string `Shop`.",
     points: [
       "Browser (client) mengirim **request**: sebuah method (`GET`, `POST`, `PUT`, `DELETE`), URL, header, dan kadang body.",
       "Server mengembalikan **response**: status code, header, dan biasanya body (HTML atau JSON).",

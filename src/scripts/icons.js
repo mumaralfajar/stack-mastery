@@ -24,7 +24,8 @@ export const section = (title, ...kids) => window.h('section', { class: 'sec' },
 export const lessonHref = (t, l) => `#/lesson/${t.id}/${l.id}`;
 
 // One multiple-choice question. once=true locks after the first answer (exam mode).
-export function quizItem(q, { once, onResult }) {
+// onMiss runs on the first wrong answer to the question.
+export function quizItem(q, { once, onResult, onMiss }) {
   const { h, md, t: T } = window;
   const order = shuffle(q.a.map((text, i) => ({ text, ok: i === q.c })));
   const fb = h('p', { class: 'fb', 'aria-live': 'polite' });
@@ -37,6 +38,7 @@ export function quizItem(q, { once, onResult }) {
       fb.innerHTML = '<strong>' + T('Correct.') + '</strong> ' + md(q.why);
     } else {
       b.classList.add('wrong');
+      if (first && onMiss) onMiss();
       if (once) { done = true; btns[order.findIndex(x => x.ok)].classList.add('right'); fb.className = 'fb bad'; fb.innerHTML = '<strong>' + T('Not quite.') + '</strong> ' + md(q.why); }
       else { fb.className = 'fb bad'; fb.textContent = T('Not quite — think about why, then try another.'); }
     }

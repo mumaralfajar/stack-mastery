@@ -40,12 +40,17 @@ rmSync(work, { recursive: true, force: true });
 mkdirSync(appDir, { recursive: true });
 mkdirSync(testDir, { recursive: true });
 
-writeFileSync(join(appDir, 'Shop.Api.csproj'), `<Project Sdk="Microsoft.NET.Sdk.Web">
+// A project like `dotnet new web` plus the given packages. Each lesson gets only the packages its own
+// "// dotnet add package" lines name, so a sample that forgets one fails to build here too.
+const project = pkgs => writeFileSync(join(appDir, 'Shop.Api.csproj'), `<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup><TargetFramework>net10.0</TargetFramework><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings></PropertyGroup>
   <ItemGroup>
-${Object.entries(PACKAGES).map(([p, v]) => `    <PackageReference Include="${p}" Version="${v}" />`).join('\n')}
+${pkgs.map(p => `    <PackageReference Include="${p}" Version="${PACKAGES[p]}" />`).join('\n')}
   </ItemGroup>
 </Project>`);
+const packagesOf = code => [...code.matchAll(/^\/\/ dotnet add package (\S+)/gm)].map(m => m[1]);
+for (const l of lessons) for (const p of packagesOf(l.code)) if (l.id !== 'testing' && !PACKAGES[p]) throw new Error(`aspnet/${l.id} names ${p}, which has no pinned version in PACKAGES`);
+project(Object.keys(PACKAGES));   // restore everything once, so later builds come from the local cache
 
 const sh = (cmd, cwd, env) => {
   try { return { ok: true, text: execSync(cmd, { cwd, encoding: 'utf8', stdio: 'pipe', env: { ...process.env, ...env } }) }; }
@@ -80,8 +85,9 @@ let ok = 0, failures = 0, n = 0;
 for (const l of lessons) {
   if (l.id === 'testing') continue;          // a test file, checked below
   n++;
+  project(packagesOf(l.code));
   writeFileSync(join(appDir, 'Program.cs'), l.code);
-  const b = sh('dotnet build --no-restore -nologo -clp:ErrorsOnly', appDir);
+  const b = sh('dotnet build -nologo -clp:ErrorsOnly', appDir);
   if (!b.ok) { failures++; console.log(`\nLESSON aspnet/${l.id} does not build:\n  ` + (errorsOf(b.text).slice(0, 8).join('\n  ') || b.text.slice(-1500))); continue; }
   const s = await start(ENV[l.id] || {});
   if (show) console.log(`--- aspnet/${l.id} ---\n${s.out.trim().split('\n').slice(0, 12).join('\n')}\n`);
@@ -93,6 +99,7 @@ console.log(`${ok} / ${n} ASP.NET Core lesson apps build and start`);
 // ---------- testing lesson: run its tests against the validation lesson's API ----------
 const testing = lessons.find(l => l.id === 'testing'), api = lessons.find(l => l.id === 'validation');
 if (testing && api) {
+  project(packagesOf(api.code));
   writeFileSync(join(appDir, 'Program.cs'), api.code);
   writeFileSync(join(testDir, 'Shop.Tests.csproj'), `<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><TargetFramework>net10.0</TargetFramework><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><IsPackable>false</IsPackable></PropertyGroup>

@@ -4,7 +4,7 @@ I18N.add({
   'Dart + Flutter playground': 'Dart + Flutter playground',
   'Open Dart + Flutter playground': 'Buka Dart + Flutter playground',
   '5. Your first Flutter app': '5. Aplikasi Flutter pertamamu',
-  'Install the **Flutter SDK** from flutter.dev — it includes Dart. `flutter doctor` tells you what is still missing for each platform; the web target needs only Chrome, so you can start before setting up Android Studio or Xcode.': 'Install **Flutter SDK** dari flutter.dev — Dart sudah termasuk di dalamnya. `flutter doctor` memberi tahu apa saja yang masih kurang untuk tiap platform; target web cukup butuh Chrome, jadi kamu bisa mulai sebelum menyiapkan Android Studio atau Xcode.',
+  '`flutter doctor` tells you what is still missing for each platform. The web target needs only Chrome, so you can start before setting up Android Studio or Xcode.': '`flutter doctor` memberi tahu apa yang masih kurang untuk tiap platform. Target web hanya butuh Chrome, jadi kamu bisa mulai sebelum menyiapkan Android Studio atau Xcode.',
 
   // playground
   'DartPad, the official Dart playground, embedded here: it compiles and runs real Dart and Flutter in your browser. Pick a lesson sample, press Run in DartPad, then change the code and run it again.': 'DartPad, playground resmi Dart, ditanam di sini: ia meng-compile dan menjalankan Dart dan Flutter sungguhan di browsermu. Pilih contoh dari materi, tekan Run di DartPad, lalu ubah kodenya dan jalankan lagi.',

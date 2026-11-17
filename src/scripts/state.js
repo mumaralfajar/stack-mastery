@@ -27,7 +27,8 @@ export const pct = (t, lvl) => {
 export const allLessons = () => window.TRACKS.flatMap(t => t.lessons.map(l => ({ t, l, k: key(t, l) })));
 export const overall = () => { const a = allLessons(); return Math.round(a.reduce((x, e) => x + score(e.k), 0) / (a.length * 3) * 100); };
 export const allCards = () => allLessons().flatMap(e => e.l.quiz.map((q, i) => ({ id: e.k + '#' + i, q, t: e.t, l: e.l })));
-export const dueCards = () => allCards().filter(c => peek(key(c.t, c.l)).read && (!S.cards[c.id] || S.cards[c.id].due <= day()));
+// A card is in review once its lesson is marked learned, or as soon as its question was missed in the lesson.
+export const dueCards = () => allCards().filter(c => S.cards[c.id] ? S.cards[c.id].due <= day() : peek(key(c.t, c.l)).read);
 export const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 export function applyTheme() {

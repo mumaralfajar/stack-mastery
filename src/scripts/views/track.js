@@ -1,4 +1,4 @@
-import { track, key, peek, st, pct, save, touch } from '../state.js';
+import { S, track, key, peek, st, pct, save, touch, day } from '../state.js';
 import { chip, dots, bar, section, lessonHref, quizItem } from '../icons.js';
 import { renderNav } from '../nav.js';
 import { dashboard } from './dashboard.js';
@@ -46,7 +46,10 @@ export function lessonView(tid, lid) {
 
   // Check
   const results = l.quiz.map(() => false);
-  const quiz = h('div', {}, l.quiz.map((q, i) => quizItem(q, { onResult: () => { results[i] = true; if (results.every(Boolean)) set('quiz', true); } })));
+  const quiz = h('div', {}, l.quiz.map((q, i) => quizItem(q, {
+    onResult: () => { results[i] = true; if (results.every(Boolean)) set('quiz', true); },
+    onMiss: () => { S.cards[k + '#' + i] = { box: 1, due: day(1) }; save(); }   // a missed question comes back tomorrow as a flashcard
+  })));
 
   // Teach
   const s0 = peek(k);

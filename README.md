@@ -73,7 +73,7 @@ What this means in practice:
 Every lesson has the same three steps, and only counts as mastered when all three are done:
 
 1. **Learn** — why it matters, key ideas, a code example, often an interactive visualization.
-2. **Check** — quiz questions with explanations. They return later as spaced-repetition flashcards.
+2. **Check** — quiz questions with explanations. A question you miss comes back the next day as a flashcard, and once you mark the lesson learned, all its questions join the spaced-repetition review.
 3. **Teach** — write the explanation you would give a beginner and grade it against a rubric. Each lesson includes an analogy, the misconceptions to expect, and a printable 45-minute lesson plan.
 
 ### Practice tools
@@ -220,7 +220,7 @@ These are downloaded from public CDNs (cdnjs and jsDelivr). Loading them sends a
 | `tools/verify.mjs` | Compiles and tests the C# content |
 | `tools/verify-dart.mjs` | Analyzes (with flutter_lints), runs and tests the Dart + Flutter samples, plus behaviour checks |
 | `tools/verify-sql.mjs` | Runs every SQL lesson sample on a real SQL Server |
-| `tools/verify-aspnet.mjs` | Builds and starts every ASP.NET Core sample, and runs the testing lesson's tests |
+| `tools/verify-aspnet.mjs` | Builds and starts every ASP.NET Core sample with only the packages its `dotnet add package` lines name, and runs the testing lesson's tests |
 | `tools/verify-css.mjs` | Checks the CSS samples in Chrome, compiles the Tailwind classes, and type-checks the React sample |
 | `tools/verify-react.mjs` | Type-checks every TypeScript + React sample, runs the testing lesson's test, and checks the event-loop output |
 | `tools/check-i18n.mjs` | Checks that the Indonesian content matches the English structure |
