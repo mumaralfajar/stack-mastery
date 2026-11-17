@@ -91,9 +91,10 @@ Every lesson has the same three steps, and only counts as mastered when all thre
 ### Interview preparation
 
 - **Coding** — 21 classic problems across 12 patterns, judged in the browser against test cases, with hints, solutions in TypeScript and C#, complexity and follow-up questions.
-- **System design** — a 45-minute framework, 5 worked cases, a capacity estimator and a glossary of building blocks.
-- **Behavioral** — the STAR method, 32 questions in 8 themes, and a personal story bank.
-- **Rapid-fire** — 48 stack questions with model answers.
+- **System design** — a 45-minute framework, 6 worked cases, a capacity estimator and a glossary of building blocks. The sixth case is a savings-and-loan ledger, the kind of system this stack was used for.
+- **Behavioral** — the STAR method, 32 questions in 8 themes, a worked example answer, and a personal story bank.
+- **Rapid-fire** — 49 stack questions with model answers.
+- **Getting hired** — an eight-week plan (with its weekly hours), big-tech hiring advice, and notes on take-home assignments and remote or Indonesian interviews.
 - **SQL and frontend rounds** — graded SQL challenges and eight "build a component" prompts, two of them in Flutter.
 - **Mock interviews** — timed rounds with help locked until the end and a hire / no-hire scorecard.
 - **Eight-week plan** and a readiness meter.

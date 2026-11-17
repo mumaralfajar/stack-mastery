@@ -19,31 +19,32 @@ I18N.iv = {
   ],
   plan: [
     ['Minggu 1 — Fondasi', [
-      'Selesaikan semua materi Pemula di semua track, termasuk CS Fundamentals',
-      'Kerjakan 6 soal coding yang easy, sambil menjelaskan dengan lantang',
+      'Selesaikan materi Pemula di CS Fundamentals, C#, dan SQL',
+      'Kerjakan 7 soal coding yang easy, sambil menjelaskan dengan lantang',
       'Tulis résumé-mu dengan impact formula',
       'Daftar 10 pengalaman yang bisa dijadikan cerita'
     ]],
     ['Minggu 2 — Pattern inti', [
       'Pelajari pattern hash map, two pointers, sliding window, dan stack',
       'Kerjakan 5 soal medium (masing-masing 30 menit, pakai timer)',
-      'Selesaikan materi Menengah di C# dan SQL',
+      'Selesaikan materi Pemula di ASP.NET Core, CSS, React, dan Flutter',
       'Tulis 3 cerita STAR di bank cerita'
     ]],
     ['Minggu 3 — Tree, graph, search', [
       'Pelajari binary search, tree, graph, dan interval',
       'Kerjakan 5 soal medium lagi; ulangi soal yang tadi butuh hint',
-      'Selesaikan materi Menengah di ASP.NET Core, CSS, dan React',
+      'Selesaikan materi Menengah di C#, SQL, dan ASP.NET Core',
       'Mulai Capstone 2 — project portofoliomu'
     ]],
     ['Minggu 4 — DP, backtracking, dasar design', [
       'Pelajari backtracking dan dynamic programming',
       'Kerjakan soal yang tersisa, termasuk yang hard',
       'Pelajari framework system design dan building block-nya',
-      'Mock coding interview pertama, dinilai dengan rubrik'
+      'Mock coding interview pertama, dinilai dengan rubrik',
+      'Selesaikan materi Menengah di CSS, React, dan Flutter'
     ]],
     ['Minggu 5 — System design', [
-      'Kerjakan kelima kasus design: coba dulu, baru bandingkan',
+      'Kerjakan keenam kasus design: coba dulu, baru bandingkan',
       'Presentasikan satu kasus secara lisan dalam 35 menit, sambil direkam',
       'Materi Mahir: async, transaction, index, auth',
       'Lengkapi bank cerita: semua tema terisi'
@@ -74,7 +75,10 @@ I18N.iv = {
     "**Referral melipatgandakan peluang lamaranmu direspons.** Hubungi engineer di perusahaan incaranmu dengan pesan singkat yang spesifik dan link ke karyamu. Berkontribusilah ke project open source yang mereka pakai.",
     "**Level.** Junior: menyelesaikan masalah yang sudah terdefinisi dengan kode yang rapi. Mid: memegang fitur dari ujung ke ujung dan mendesain komponen. Senior: memegang sistem, menangani ambiguitas, dan membuat orang lain jadi lebih baik. Arahkan cerita dan kedalaman design-mu ke level yang kamu lamar.",
     "**Atur urutan interview-mu.** Jadwalkan perusahaan yang kurang kamu incar lebih dulu sebagai latihan, dan kumpulkan final round berdekatan supaya offer-nya datang bersamaan.",
-    "**Kredibilitas mengajar juga datang dari bukti yang bisa kamu tunjukkan:** project yang sudah dirilis, hasil yang terukur, tulisan atau talk publik, dan karya open source. Jabatan di perusahaan top memang membantu, tapi skill yang terbuktilah yang sebenarnya diuji murid dan perusahaan."
+    "**Bukti mengalahkan jabatan.** Project yang sudah dirilis, hasil yang terukur, tulisan atau talk publik, dan karya open source adalah bukti yang bisa dicek siapa saja. Nama perusahaan besar membantumu mendapat panggilan pertama; yang bisa kamu tunjukkanlah yang membuatmu lolos loop-nya.",
+    "**Perusahaan remote dan perusahaan Indonesia punya cara interview yang berbeda — siapkan keduanya.** Persiapan big tech adalah standar yang lebih ketat dan sudah mencakup sebagian besarnya, tapi banyak perusahaan melewatkan soal algoritma dan menggantinya dengan take-home assignment atau live coding fitur yang realistis, lalu interview HR dan interview “user” dengan team lead.",
+    "**Take-home dinilai seperti pull request.** Baca brief-nya dua kali, bertanya sejak awal, dan tetap dalam batas waktu yang disebutkan. README yang menjelaskan cara menjalankannya, apa yang kamu pilih dan apa yang sengaja ditinggalkan, beberapa test yang bermakna, dan commit yang rapi sama pentingnya dengan fiturnya.",
+    "**Ketahui angkamu sebelum interview HR.** Untuk posisi remote yang dibayar dari luar negeri, tanyakan juga apakah kamu karyawan atau kontraktor, bagaimana dan dalam mata uang apa kamu dibayar, dan siapa yang mengurus pajak — sebagai kontraktor, biasanya kamu sendiri yang melapor dan membayarnya."
   ],
   ui: [
     ['Autocomplete search box', 'Fetch saran saat user mengetik, tampilkan dalam list, pilih dengan mouse atau keyboard.', 'Request di-debounce; response basi diabaikan atau di-abort; tombol panah, Enter, dan Escape berfungsi; ada state loading, kosong, dan error; role combobox yang accessible.'],
@@ -347,12 +351,35 @@ I18N.iv.design = {
         'Database hanya perlu memproses write kira-kira sebanyak jumlah unit — kalau layer-layer di depannya membuang sisanya.'
       ],
       deep: [
-        ['Tidak pernah oversell', 'Pengurangan stok harus atomic: UPDATE inventory SET available = available − 1 WHERE item_id = ? AND available > 0, lalu cek jumlah baris yang terpengaruh. Demi kecepatan, muat stok ke Redis lebih dulu dan kurangi secara atomic di sana sebagai gerbang; hanya yang lolos yang lanjut ke database, yang tetap jadi source of truth.'],
+        ['Tidak pernah oversell', 'Pengurangan stok harus atomic: UPDATE inventory SET available = available - 1 WHERE item_id = @itemId AND available > 0, lalu pastikan tepat satu baris yang terpengaruh. Demi kecepatan, muat stok ke Redis lebih dulu dan kurangi secara atomic di sana sebagai gerbang; hanya yang lolos yang lanjut ke database, yang tetap jadi source of truth.'],
         ['Membuang beban', 'Sajikan halamannya dari CDN, tempatkan user di waiting room atau queue, rate-limit per user, dan langsung tolak begitu counter menyentuh nol. Lindungi database supaya ia hanya melihat traffic yang sanggup ditanganinya.'],
         ['Reservation dan pembayaran', 'Pengurangan stok yang berhasil membuat reservation dengan expiry (misalnya 10 menit). Pembayaran berjalan asynchronous dari sebuah queue; kalau gagal atau timeout, reservation dilepas dan stok dikembalikan.'],
         ['Tidak pernah menagih dua kali', 'Client mengirim Idempotency-Key; unique constraint pada key itu membuat retry mengembalikan hasil yang pertama. Pakai outbox pattern supaya record order dan message “charge” ditulis dalam satu transaction.']
       ],
       follow: ['Bagaimana mencegah bot memborong semua stok?', 'Bagaimana kalau Redis dan database tidak sepakat soal stok?', 'Bagaimana mengetes ini sebelum sale yang sesungguhnya?']
+    },
+    'savings-ledger': {
+      title: 'Ledger simpan pinjam',
+      prompt: 'Desain ledger inti aplikasi koperasi simpan pinjam: anggota menabung, menarik, meminjam, dan membayar angsuran, dan setiap saldo harus benar persis — sampai rupiah terakhir, selamanya.',
+      req: [
+        'Setor, tarik, dan transfer antar-rekening milik seorang anggota; mencatat pencairan pinjaman dan pembayaran angsuran; menampilkan saldo dan riwayat mutasi.',
+        'Job akhir bulan: bunga simpanan, denda keterlambatan, dan laporan yang cocok dengan rekening bank.',
+        'Non-functional: uang tidak pernah tercipta atau hilang, setiap perubahan bisa diaudit, request yang di-retry tidak pernah diterapkan dua kali; ketepatan jauh lebih penting daripada throughput.',
+        'Di luar scope: credit scoring, onboarding anggota (KYC).'
+      ],
+      est: [
+        '200.000 anggota × 30 transaksi sebulan ≈ 6 juta transaksi sebulan ≈ 2–3 write/detik rata-rata, dengan puncak saat gajian mungkin 20× lebih tinggi — masih kecil untuk satu SQL Server.',
+        'Double-entry berarti minimal dua entry per transaksi: sekitar 12 juta baris sebulan, kira-kira 150 juta setahun. Aman untuk satu tabel, asalkan mutasi tidak pernah men-scan seluruhnya.',
+        'Bagian tersulitnya adalah ketepatan, concurrency, dan batch akhir bulan, bukan skala.'
+      ],
+      tiers: [['Aplikasi anggota', 'Web app teller'], ['API gateway'], ['Ledger service', 'Worker batch akhir bulan'], ['SQL Server (source of truth)', 'Outbox / queue', 'Notification service']],
+      deep: [
+        ['Double-entry, append-only', 'Setiap transaksi menulis entry yang jumlahnya nol: rekening simpanan anggota +100.000 dan rekening kas −100.000. Entry tidak pernah di-update atau dihapus; kesalahan diperbaiki dengan transaksi pembalik. Hasilnya jejak audit yang lengkap dan pengecekan yang bisa dijalankan kapan saja: total semua entry sama dengan nol.'],
+        ['Saldo di bawah concurrency', 'Dua penarikan di saat yang sama tidak boleh sama-sama lolos cek saldo. Jadikan pengecekan dan perubahannya satu statement — UPDATE accounts SET balance = balance - @amount WHERE id = @id AND balance >= @amount — dan insert entry-nya di transaction yang sama; nol baris terpengaruh berarti saldo tidak cukup. Saldo yang disimpan hanyalah cache dari entry, jadi job malam menghitung ulang dan memberi alert kalau ada selisih.'],
+        ['Tipe data uang dan pembulatan', 'Simpan nominal sebagai DECIMAL(19,4), atau rupiah utuh dalam BIGINT — jangan pernah float. Tentukan aturan pembulatan sekali, sesuai aturan koperasi, dan terapkan di satu tempat supaya batch, mutasi, dan laporan selalu sama.'],
+        ['Retry dan batch akhir bulan', 'Idempotency key yang unik pada transaksi membuat request yang di-retry dari koneksi mobile yang putus-sambung mengembalikan hasil yang pertama. Batch bunga juga idempotent: satu transaksi per rekening per periode, dijaga unique key (account_id, period), jadi menjalankan ulang batch yang setengah jadi hanya mengisi yang belum ada. Notifikasi lewat outbox, jadi “setoran diterima” hanya dikirim untuk transaksi yang sudah di-commit.']
+      ],
+      follow: ['Teller memasukkan setoran yang sama dua kali. Bagaimana memperbaikinya?', 'Bagaimana mutasi tetap cepat setelah lima tahun entry?', 'Bagaimana merekonsiliasi ledger dengan rekening koran bank setiap hari?']
     }
   }
 };
@@ -403,11 +430,11 @@ I18N.iv.behavioral = {
 I18N.iv.rapid = [
   { qs: [
     ['Apa perbedaan value type dan reference type?', 'Value type menyimpan datanya langsung dan disalin saat assignment; reference type menyimpan reference ke object di heap, jadi assignment berbagi object yang sama. Sebutkan semantics-nya dulu sebelum lokasi memory, dan bahwa struct di dalam class tinggal di heap.'],
-    ['Jelaskan async/await. Apa yang terjadi di sebuah await?', 'Method-nya mengembalikan Task yang belum selesai ke pemanggilnya dan thread-nya dilepas. Saat operasi yang di-await selesai, sebuah continuation melanjutkan method itu. Ini meningkatkan scalability untuk pekerjaan I/O-bound; tidak membuat satu operasi jadi lebih cepat.'],
+    ['Jelaskan async/await. Apa yang terjadi di sebuah await?', 'Kalau task yang di-await belum selesai, method-nya mengembalikan Task yang belum selesai ke pemanggilnya dan thread-nya kembali mengerjakan hal lain; saat operasinya selesai, sebuah continuation melanjutkan method itu. Kalau sudah selesai, method-nya langsung lanjut tanpa melepas thread. Ini meningkatkan scalability untuk pekerjaan I/O-bound; tidak membuat satu operasi jadi lebih cepat.'],
     ['IEnumerable vs IQueryable?', 'IEnumerable dieksekusi di memory dengan delegate. IQueryable membawa expression tree yang diterjemahkan sebuah provider (misalnya EF Core) ke bahasa lain, biasanya SQL. Memanggil ToList terlalu awal memindahkan evaluasi dari server ke client.'],
     ['Apa perbedaan interface dan abstract class?', 'Interface adalah kontrak yang bisa diimplementasikan banyak sekaligus oleh sebuah class; abstract class adalah implementasi parsial yang hanya bisa diwarisi satu, dan bisa menyimpan state serta constructor. Pilih interface untuk kapabilitas, abstract class untuk implementasi bersama.'],
     ['Bagaimana garbage collection bekerja di .NET?', 'Collector yang generational dan tracing: object baru di Gen 0, yang selamat dipromosikan ke Gen 1 lalu Gen 2; object besar masuk LOH. Kebanyakan object mati muda, jadi collection Gen 0 itu murah. Kurangi alokasi di hot path, jangan memanggil GC.Collect.'],
-    ['Apa perbedaan record, class, dan struct?', 'Class: reference type dengan reference equality. Struct: value type, disalin. Record: class (atau record struct) dengan value-based equality, immutable secara default, dan punya with-expression — ideal untuk DTO dan message.']
+    ['Apa perbedaan record, class, dan struct?', 'Class: reference type dengan reference equality. Struct: value type, disalin. Record: class (atau record struct) dengan value-based equality dan with-expression. Positional record class mendapat property init-only; positional record struct bisa diubah kecuali dideklarasikan readonly record struct. Ideal untuk DTO dan message.']
   ] },
   { qs: [
     ['Jelaskan middleware pipeline.', 'Request melewati middleware sesuai urutan pendaftaran dan response kembali dengan urutan terbalik. Masing-masing bisa bertindak sebelum dan sesudah memanggil next, atau melakukan short-circuit. Urutan itu penting: exception handling dulu, lalu routing, authentication, authorization, endpoint.'],
@@ -422,8 +449,9 @@ I18N.iv.rapid = [
     ['Apa itu index dan apa biayanya?', 'Struktur terurut (B-tree) yang mengubah scan jadi seek. Biayanya storage dan setiap write jadi lebih lambat. Composite index mengikuti aturan leftmost-prefix; covering index menghindari lookup.'],
     ['Jelaskan ACID.', 'Atomic: semua atau tidak sama sekali. Consistent: constraint tetap terpenuhi. Isolated: transaction yang concurrent tidak saling merusak. Durable: data yang sudah di-commit selamat dari crash.'],
     ['WHERE vs HAVING?', 'WHERE memfilter baris sebelum grouping; HAVING memfilter group setelah agregasi. Urutan logisnya: FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY.'],
-    ['Apa itu isolation level?', 'Read uncommitted, read committed, repeatable read, serializable, plus snapshot. Level yang lebih tinggi mencegah lebih banyak anomali (dirty read, non-repeatable read, phantom) dengan mengorbankan concurrency.'],
-    ['Bagaimana menginvestigasi query yang lambat?', 'Ambil actual execution plan, bandingkan estimated rows dengan actual rows, cari scan, lookup, dan sort, pastikan predicate-nya sargable dan statistics-nya segar, lalu ubah satu hal dan ukur lagi.']
+    ['Apa itu isolation level?', 'Read uncommitted, read committed, repeatable read, serializable, plus snapshot. Level yang lebih tinggi mencegah lebih banyak anomali (dirty read, non-repeatable read, phantom) dengan mengorbankan concurrency. Di SQL Server, read committed bawaan memakai shared lock, jadi pembaca menunggu penulis — kecuali READ_COMMITTED_SNAPSHOT aktif (default di Azure SQL Database), sehingga pembaca melihat versi baris terakhir yang sudah di-commit.'],
+    ['Bagaimana menginvestigasi query yang lambat?', 'Ambil actual execution plan, bandingkan estimated rows dengan actual rows, cari scan, lookup, dan sort, pastikan predicate-nya sargable dan statistics-nya segar, lalu ubah satu hal dan ukur lagi.'],
+    ['Clustered vs nonclustered index di SQL Server?', 'Clustered index adalah tabel itu sendiri, disimpan terurut berdasarkan key-nya, jadi satu tabel hanya punya satu — biasanya di primary key. Nonclustered index adalah B-tree terpisah berisi kolom key-nya plus clustered key, jadi query yang butuh kolom lain membayar key lookup per baris, kecuali kolom itu ditambahkan dengan INCLUDE supaya index-nya covering.']
   ] },
   { qs: [
     ['interface vs type?', 'Dua-duanya mendeskripsikan bentuk. Interface bisa di-extend dan di-merge; type alias juga bisa mengekspresikan union, tuple, serta mapped type atau conditional type. Pilih satu konvensi untuk bentuk object dan pakai type untuk sisanya.'],
@@ -438,11 +466,11 @@ I18N.iv.rapid = [
     ['Untuk apa useEffect, dan kapan sebaiknya tidak dipakai?', 'Sinkronisasi dengan sesuatu di luar React — network, subscription, DOM. Jangan dipakai untuk menurunkan nilai dari props atau state (hitung saat render) atau untuk merespons event user (pakai handler-nya).'],
     ['Kenapa list butuh key?', 'Key memberi elemen identitas yang stabil antar-render supaya React bisa mencocokkan, memindah, atau menghapus elemen yang tepat. Key berupa index rusak saat item diurutkan ulang, disisipkan, atau dihapus.'],
     ['Controlled vs uncontrolled input?', 'Controlled: value-nya berasal dari state dan perubahan lewat onChange — single source of truth. Uncontrolled: DOM yang memegang value-nya dan kamu membacanya lewat ref atau form data.'],
-    ['Kapan useMemo, useCallback, dan memo benar-benar membantu?', 'Saat sebuah render yang sudah diukur memang mahal, atau saat child yang di-memo butuh props yang stabil. memo dikalahkan oleh props berupa object atau function baru di tiap render. Profile dulu; perbaikan struktural seperti memindahkan state ke bawah sering lebih ampuh daripada memoization.'],
+    ['Kapan useMemo, useCallback, dan memo benar-benar membantu?', 'Saat sebuah render yang sudah diukur memang mahal, atau saat child yang di-memo butuh props yang stabil. memo dikalahkan oleh props berupa object atau function baru di tiap render. Profile dulu; perbaikan struktural seperti memindahkan state ke bawah sering lebih ampuh daripada memoization. Dengan React Compiler aktif, sebagian besar memoization ini ditambahkan otomatis saat build, jadi useMemo dan useCallback yang ditulis tangan jadi pengecualian.'],
     ['Bagaimana mengelola state di aplikasi React yang besar?', 'Klasifikasikan: server state di query cache, URL state di router, local UI state di komponen, dan hanya shared client state yang benar-benar dibagi yang masuk context atau store.']
   ] },
   { qs: [
-    ['Jelaskan specificity.', 'Saat rule bertabrakan, cascade membandingkan importance, layer, lalu specificity yang dihitung sebagai (id, class, element), lalu urutan di source. Satu id mengalahkan berapa pun class. Jaga specificity tetap rendah dan rata.'],
+    ['Jelaskan specificity.', 'Saat rule bertabrakan, cascade membandingkan origin dan !important, lalu inline style, lalu cascade layer, lalu specificity yang dihitung sebagai (id, class, element), dan terakhir urutan di source. Satu id mengalahkan berapa pun class. Jaga specificity tetap rendah dan rata.'],
     ['Flexbox vs Grid?', 'Flexbox menata satu dimensi — satu baris atau satu kolom — dan ukurannya mengikuti content. Grid menata dua dimensi dengan track yang eksplisit. Pakai Grid untuk struktur halaman dan flexbox di dalam komponen.'],
     ['Apa yang dilakukan box-sizing: border-box?', 'Membuat width dan height sudah termasuk padding dan border, jadi element 300px tetap 300px berapa pun padding yang ditambahkan.'],
     ['Kenapa z-index: 9999 bisa muncul di belakang z-index: 2?', 'z-index hanya mengurutkan element di dalam stacking context yang sama. Ancestor yang punya transform, opacity, filter, atau z-index sendiri membuat context yang tidak bisa ditembus child-nya.'],
@@ -450,7 +478,7 @@ I18N.iv.rapid = [
     ['Kenapa memakai Tailwind, dan apa kekurangannya?', 'Kecepatan, konsistensi berkat scale yang terbatas, tidak perlu memikirkan nama, dan output CSS yang sangat kecil. Kekurangannya: markup yang ramai, ada learning curve, dan perlu mengekstrak komponen supaya tidak berulang. Tailwind tidak menggantikan penguasaan CSS.']
   ] },
   { area: 'Fundamental web', qs: [
-    ['Apa yang terjadi saat kamu mengetik URL lalu menekan Enter?', 'DNS lookup, handshake TCP dan TLS, HTTP request, pemrosesan di server, response, lalu browser mem-parsing HTML, mengambil subresource, menyusun DOM dan CSSOM, melakukan layout, paint, dan menjalankan script.'],
+    ['Apa yang terjadi saat kamu mengetik URL lalu menekan Enter?', 'DNS lookup, koneksi dengan handshake TLS (lewat TCP untuk HTTP/1.1 dan HTTP/2, lewat QUIC di atas UDP untuk HTTP/3), HTTP request, pemrosesan di server, response, lalu browser mem-parsing HTML, mengambil subresource, menyusun DOM dan CSSOM, melakukan layout, paint, dan menjalankan script.'],
     ['Apa itu CORS?', 'Mekanisme browser yang memblokir halaman membaca response dari origin lain kecuali server mengizinkannya lewat header Access-Control-Allow-*. Ia melindungi user; ini bukan security di sisi server.'],
     ['Cookie vs token di localStorage untuk auth?', 'Cookie yang HttpOnly, Secure, SameSite tidak bisa dibaca script, sehingga membatasi kerusakan akibat XSS, tapi butuh perlindungan CSRF. Token di localStorage mudah dipakai tapi terekspos ke XSS apa pun.'],
     ['Jelaskan XSS dan CSRF.', 'XSS: script milik penyerang berjalan di halamanmu — cegah dengan meng-escape output dan memakai Content Security Policy. CSRF: site lain memicu request yang terautentikasi — cegah dengan cookie SameSite dan anti-forgery token.'],
@@ -463,6 +491,6 @@ I18N.iv.rapid = [
     ['Untuk apa key?', 'Key memberi tahu Flutter widget mana yang mana ketika sibling ber-type sama diurutkan ulang, disisipkan, atau dihapus, supaya tiap State tetap bersama item yang benar. Tanpa key, state dicocokkan berdasarkan posisi.'],
     ['Cubit vs Bloc, dan bagaimana perbandingannya dengan Provider dan Riverpod?', 'Cubit menyediakan method yang meng-emit state; Bloc memetakan event ke state, sehingga ada log event yang bisa dilacak dan ditransformasi, dengan harga kode yang lebih banyak. Provider adalah dependency injection plus ChangeNotifier — sederhana tapi mutable. Riverpod itu compile-safe dan tidak butuh context, dengan dependency yang lebih halus.'],
     ['Bagaimana layout bekerja di Flutter?', 'Constraint turun, size naik, parent menentukan posisi. Parent meneruskan ukuran minimum dan maksimum, child memilih ukuran di dalam rentang itu, lalu parent menempatkannya. Error overflow dan unbounded height berasal dari aturan ini.'],
-    ['Bagaimana menjaga aplikasi Flutter tetap 60 fps?', 'Kurangi rebuild dengan widget const, state yang dipindah ke bawah, dan selector; build list secara lazy; pindahkan pekerjaan berat CPU ke isolate lain; dan ukur di profile mode dengan DevTools, jangan menebak.']
+    ['Bagaimana menjaga aplikasi Flutter tetap mulus?', 'Tiap frame punya jatah sekitar 16 ms di 60 Hz, dan hanya 8 ms di layar 120 Hz. Kurangi rebuild dengan widget const, state yang dipindah ke bawah, dan selector; build list secara lazy; pindahkan pekerjaan berat CPU keluar dari UI isolate dengan compute, yang juga jalan di web; dan ukur di profile mode dengan DevTools, jangan menebak.']
   ] }
 ];

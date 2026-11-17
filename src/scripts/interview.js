@@ -237,7 +237,15 @@ self.onmessage = e => {
           h('li', {}, h('b', {}, 'Action '), '— what YOU did, step by step, and why. This is 60% of the answer.'),
           h('li', {}, h('b', {}, 'Result '), '— the measurable outcome. Numbers where you have them.'),
           h('li', {}, h('b', {}, 'Reflection '), '— what you learned or would do differently. This is what separates senior answers.')),
-          h('p', { class: 'muted' }, 'Aim for two minutes per story. Six to eight strong stories, each usable for several themes, cover almost any question.')),
+          h('p', { class: 'muted' }, 'Aim for two minutes per story. Six to eight strong stories, each usable for several themes, cover almost any question.'),
+          h('details', {}, h('summary', {}, 'Example answer (made up — replace it with your own)'),
+            h('p', { class: 'muted' }, 'Question: “Tell me about a problem you noticed that nobody had asked you to fix.”'),
+            [['Situation', 'Our cooperative’s member app sometimes showed the old savings balance right after a deposit. Support was getting about 20 complaints a week, and members thought their money was missing.'],
+             ['Task', 'I was on the mobile team, so the backend was not mine, but I had the most room that sprint, so I offered to find the cause.'],
+             ['Action', 'I matched three complaints against the server logs and saw that the balance came from a cache refreshed every five minutes. I wrote a test that reproduced it, proposed clearing that member’s cached balance as soon as the deposit committed, and paired with the backend developer to ship it behind a feature flag.'],
+             ['Result', 'Balance complaints went from about 20 a week to one or two in the following month, and the flag was removed after two weeks.'],
+             ['Reflection', 'Reproducing the bug in a test before arguing about the fix ended the discussion about whose bug it was. I now do that first.']]
+              .map(([k, v]) => h('p', {}, h('b', {}, T(k) + ': '), v)))),
         sec('Practice drill', h('div', { class: 'flash' }, drillQ, drillL, h('div', { class: 'actions' }, timer(2), h('button', { type: 'button', class: 'btn ghost', onclick: next }, 'Next question')))),
         sec('Your story bank',
           h('div', { class: 'cover' }, IV.behavioral.map(t => { const n = D.stories.filter(s => s.tags.includes(t.id)).length; return h('span', { class: 'chip ' + (n ? 'diff-0' : '') }, `${t.name}: ${n}`); })),
@@ -338,7 +346,7 @@ self.onmessage = e => {
     const go = type => () => { stage.replaceChildren(...start[type]().flat(Infinity)); stage.scrollIntoView({ behavior: 'smooth' }); };
     const card = (type, title, desc, extra) => h('div', { class: 'card' }, h('strong', {}, title), h('p', {}, desc), h('div', { class: 'actions' }, extra, h('button', { type: 'button', class: 'btn sm', onclick: go(type) }, 'Start')));
     return h('div', { class: 'page wide iv' },
-      head(crumb('Mock interview'), 'Mock interview', 'Simulate one round under real conditions: timer running, talking out loud, no notes. Then score it honestly. Eight completed mocks is a reasonable minimum before real interviews.'),
+      head(crumb('Mock interview'), 'Mock interview', 'Simulate one round under real conditions: timer running, talking out loud, no notes. Then score it honestly. Keep going until your scores stop jumping from one mock to the next; for most people that takes several of each round.'),
       h('div', { class: 'grid' },
         card('coding', 'Coding round', 'One problem, 35–45 minutes, hints locked until the end.', diffSel),
         card('design', 'System design round', 'One open-ended design, 45 minutes, reference hidden.'),
@@ -371,7 +379,7 @@ self.onmessage = e => {
         h('details', {}, h('summary', {}, 'Frontend “build a component” round'), h('p', {}, 'Forty-five minutes to build a working UI component in React and TypeScript while explaining your decisions. Practise each prompt in a fresh Vite project against the clock.'),
           h('div', { class: 'rows' }, IV.ui.map(([t, build, checks]) => h('div', { class: 'row static' }, h('span', { class: 'row-t' }, h('b', {}, t), h('br'), build, h('br'), h('span', { class: 'muted', html: T('Interviewers check: ') + md(checks) })))))),
         h('p', { class: 'muted' }, 'Before any coding round, make sure the ', h('a', { href: '#/track/cs' }, 'CS Fundamentals'), ' track is solid — every pattern here assumes it.')),
-      sec('Eight-week plan', IV.plan.map(([week, items], wi) => {
+      sec('Eight-week plan', h('p', { class: 'muted' }, 'Assumes about 15–20 hours a week. With a full-time job, give each week two weeks: finishing later beats skipping the mocks.'), IV.plan.map(([week, items], wi) => {
         const done = D.plan[wi] || [];
         const el = h('details', {}, h('summary', {}, week, ' ', h('small', {}, `${items.filter((_, i) => done[i]).length} / ${items.length}`)),
           h('div', { class: 'rubric' }, items.map((it, i) => { const cb = h('input', { type: 'checkbox', onchange: e => { done[i] = e.target.checked; D.plan[wi] = done; save(); el.querySelector('small').textContent = `${items.filter((_, j) => done[j]).length} / ${items.length}`; } }); cb.checked = !!done[i]; return h('label', {}, cb, h('span', {}, it)); })));

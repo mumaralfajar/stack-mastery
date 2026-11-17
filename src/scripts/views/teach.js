@@ -41,7 +41,7 @@ export function teach() {
     section('Seven rules for teaching programmers', list([
       '**One new idea per step.** If a demo needs three unfamiliar things, teach two of them earlier or hide them.',
       '**Concrete before abstract.** Show a working example first, name the concept second, give the definition last.',
-      '**Predict, run, explain.** Before running any line, ask what will happen. A wrong prediction is the moment learning occurs.',
+      '**Predict, run, explain.** Before running any line, ask what will happen. A wrong prediction shows exactly which idea is missing, and the correction sticks better than an explanation given up front.',
       '**Their hands on the keyboard.** Watching you type feels like learning and is not. Aim for students typing at least half of the session.',
       '**Errors are the curriculum.** Cause the common error on purpose, read the message together, and fix it. Students who can read errors can teach themselves.',
       '**Ask questions that cannot be answered with yes.** Not “does that make sense?” but “what would this print if I swapped these two lines?”',
