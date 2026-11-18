@@ -13,7 +13,7 @@
   // ---------- specificity ----------
   VIZ.specificity = {
     ...meta, title: 'Cascade and specificity',
-    desc: 'Several rules all try to colour the same link. Toggle them and see which one the browser picks — and why.',
+    desc: 'Several rules all try to color the same link. Toggle them on or off to see which rule wins and why.',
     mount(el) {
       const rules = [
         { sel: 'a', color: 'gray', spec: [0, 0, 1], on: true },
@@ -39,12 +39,12 @@
         }));
         sample.style.color = win ? win.r.color : '#1b2030';
         note.textContent = !win ? T('No rule applies: the link keeps its default colour.')
-          : win.r.important ? T('!important outranks everything else — including inline styles. That is exactly why it is a last resort.')
+          : win.r.important ? T("!important outranks everything else, even inline styles. That's why it should be a last resort.")
           : win.r.inline ? T('Inline styles beat every selector, whatever its specificity.')
           : second && !second.r.inline && cmp(win.r.spec, second.r.spec) === 0 ? T('“{a}” and “{b}” have equal specificity ({s}), so the one declared later wins.', { a: win.r.sel, b: second.r.sel, s: win.r.spec.join(',') })
-          : T('“{a}” wins with specificity ({s}) — compare column by column: ids first, then classes, then elements.', { a: win.r.sel, s: win.r.spec.join(',') });
+          : T('“{a}” wins with specificity ({s}). Compare column by column: ids first, then classes, then elements.', { a: win.r.sel, s: win.r.spec.join(',') });
       };
-      el.append(h('p', { class: 'muted' }, 'Target element: ', h('code', {}, '<nav><a id="buy" class="btn primary">Buy now</a></nav>'), ' — rules are listed in source order.'),
+      el.append(h('p', { class: 'muted' }, 'Target element: ', h('code', {}, '<nav><a id="buy" class="btn primary">Buy now</a></nav>'), ' (rules are listed in source order).'),
         h('div', { class: 'viz-cols' }, list, h('div', { class: 'viz-box spec-stage' }, h('h4', {}, 'Result'), sample)), note);
       draw();
     }
@@ -62,7 +62,7 @@
         content.textContent = `content ${Math.max(bb ? w - 2 * p - 2 * b : w, 0)}px`;
         note.textContent = (bb ? T('border-box: rendered width = width = {w}px (padding and border fit inside).', { w })
           : T('content-box: rendered width = {w} + 2×{p} padding + 2×{b} border = {r}px.', { w, p, b, r: rendered })) +
-          T(' With margins it occupies {total}px', { total }) + T(total > 320 ? ' — wider than the 320px parent, so it OVERFLOWS.' : ', which fits in the 320px parent.');
+          T(' With margins it takes {total}px', { total }) + T(total > 320 ? '. That exceeds the 320px parent, so it OVERFLOWS.' : ', fitting inside the 320px parent.');
         out.set(`.box {\n  box-sizing: ${bb ? 'border-box' : 'content-box'};\n  width: ${w}px;\n  padding: ${p}px;\n  border: ${b}px solid;\n  margin: ${m}px;\n}`, `${bb ? 'box-border' : 'box-content'} w-[${w}px] p-[${p}px] border-[${b}px] m-[${m}px]`);
       };
       const [wL, wR] = range('width', 100, 300, 10, 280, draw), [pL, pR] = range('padding', 0, 40, 4, 16, draw), [bL, bR] = range('border', 0, 20, 2, 4, draw), [mL, mR] = range('margin', 0, 40, 4, 8, draw);
@@ -113,7 +113,7 @@
       };
       const notes = {
         'repeat(3, 1fr)': 'Three equal columns: the free space is split into three fractions.',
-        '200px 1fr': 'A fixed 200px column and one flexible column that takes the rest — the classic sidebar layout.',
+        '200px 1fr': 'A fixed 200px sidebar column beside one flexible column filling the remaining width.',
         '1fr 2fr 1fr': 'The middle column gets twice the share of the others.',
         'repeat(auto-fit, minmax(120px, 1fr))': 'As many columns as fit, each at least 120px, stretched to fill the row. Narrow the window and columns drop away.'
       };

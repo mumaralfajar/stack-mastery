@@ -231,7 +231,7 @@
   // ---------- 5. CSS: Stacking Context Trap ----------
   VIZ.stacking = {
     title: 'Stacking context sandbox', track: 'css', trackName: 'CSS + Tailwind',
-    desc: 'Why z-index: 9999 inside a transformed card still paints behind a z-index: 10 header: transform and opacity < 1 trap all child z-indexes inside a local stacking context.',
+    desc: 'See how transform and opacity < 1 lock child z-index values inside a card, keeping z-index: 9999 behind a z-index: 10 header.',
     mount(el) {
       let prop = 'transform';
       const stage = h('div', { class: 'stack-stage' }), note = h('p', { class: 'viz-note', 'aria-live': 'polite' });

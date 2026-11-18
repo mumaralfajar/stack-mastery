@@ -750,11 +750,11 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
     const load = name => { const x = CSS_EXAMPLES[name]; htmlTa.value = x.html; cssTa.value = x.css; twBox.checked = !!x.tw; [...chips.children].forEach(c => c.classList.toggle('on', c.dataset.k === name)); render(); };
     const chips = h('div', { class: 'chips' }, Object.keys(CSS_EXAMPLES).map(n => h('button', { type: 'button', 'data-k': n, onclick: () => load(n) }, n)));
     const wrap = h('div', { class: 'preview-wrap' }, frame);
-    if (window.ResizeObserver) new ResizeObserver(() => size.textContent = T('Preview width: {w}px — drag the right edge to test breakpoints', { w: Math.round(frame.clientWidth) })).observe(frame);
+    if (window.ResizeObserver) new ResizeObserver(() => size.textContent = T('Preview width: {w}px (drag the right edge to test breakpoints)', { w: Math.round(frame.clientWidth) })).observe(frame);
     el.style.setProperty('--tc', 'var(--css)');
     el.append(
       h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Practice'), h('h1', {}, 'CSS + Tailwind playground'),
-        h('p', { class: 'lede' }, 'Write HTML and CSS and see the result as you type. Switch on Tailwind to use utility classes and @theme — it loads the Tailwind browser build, so it needs an internet connection.')),
+        h('p', { class: 'lede' }, "Write HTML and CSS and watch the preview update live. Toggle Tailwind to try utility classes and @theme (loads Tailwind's browser build, so internet is needed).")),
       chips,
       h('div', { class: 'play' },
         h('div', {}, h('p', { class: 'ed-label' }, 'HTML'), htmlTa, h('p', { class: 'ed-label' }, 'CSS'), cssTa,

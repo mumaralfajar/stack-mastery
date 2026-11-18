@@ -62,8 +62,8 @@ I18N.add({
 
   // CSS
   'Preview': 'Preview',
-  'Preview width: {w}px — drag the right edge to test breakpoints': 'Lebar preview: {w}px — tarik tepi kanannya untuk mengetes breakpoint',
-  'Write HTML and CSS and see the result as you type. Switch on Tailwind to use utility classes and @theme — it loads the Tailwind browser build, so it needs an internet connection.': 'Tulis HTML dan CSS, hasilnya langsung terlihat saat kamu mengetik. Nyalakan Tailwind untuk memakai utility class dan @theme — fitur ini memuat browser build Tailwind, jadi butuh koneksi internet.',
+  'Preview width: {w}px (drag the right edge to test breakpoints)': 'Lebar preview: {w}px (tarik tepi kanan untuk menguji breakpoint)',
+  "Write HTML and CSS and watch the preview update live. Toggle Tailwind to try utility classes and @theme (loads Tailwind's browser build, so internet is needed).": 'Tulis HTML dan CSS lalu lihat preview berubah langsung saat mengetik. Nyalakan Tailwind untuk mencoba utility class dan @theme (memuat browser build Tailwind, jadi butuh internet).',
   ' Use Tailwind CSS': ' Pakai Tailwind CSS',
   'Schema and foreign keys (5 tables)': 'Skema dan foreign key (5 tabel)',
   'Database schema': 'Skema database',

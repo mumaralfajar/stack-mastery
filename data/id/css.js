@@ -2,412 +2,412 @@
 I18N.lessons('css', {
   html: {
     terms: [
-      ['Landmark semantik', 'Elemen seperti `<header>`, `<nav>`, `<main>`, dan `<article>` yang memberi screen reader struktur halaman secara langsung.'],
-      ['`<button>` vs `<a>`', 'Pakai `<a>` dengan `href` untuk berpindah URL; pakai `<button type="button">` untuk memicu aksi di halaman.'],
-      ['`<label for="id">`', 'Mengikat keterangan teks ke input sehingga pembaca layar membacakannya dan mengetuk label langsung memfokuskan input.']
+      ['Landmark semantik', 'Elemen seperti `<header>`, `<nav>`, `<main>`, dan `<article>` yang menunjukkan peta halaman ke pembaca layar.'],
+      ['`<button>` vs `<a>`', 'Pakai `<a href="...">` untuk pindah halaman atau URL, lalu pakai `<button type="button">` untuk aksi langsung di tempat.'],
+      ['`<label for="id">`', 'Mengaitkan teks label ke input supaya pembaca layar mengumumkannya dan klik pada label otomatis memfokuskan input.']
     ],
     title: 'Dasar HTML: struktur dan makna',
-    why: "CSS memberi gaya pada HTML, dan React me-render HTML. Memilih elemen yang tepat memberimu dukungan keyboard, aksesibilitas, dan makna untuk mesin pencari secara gratis; `div` dengan click handler tidak memberi satu pun dari itu.",
+    why: "CSS memberi gaya pada HTML, dan React me-render HTML. Memilih tag semantik memberimu fokus keyboard, dukungan pembaca layar, dan SEO gratis, sedangkan `div` tidak punya satu pun.",
     points: [
-      "HTML menjelaskan **apa isi kontennya**, bukan tampilannya: heading, paragraf, list, tombol, area navigasi.",
-      "Sebuah halaman biasanya punya satu `<h1>`, dengan heading lain tersusun berurutan di bawahnya (`h2`, `h3`…). Pengguna screen reader melompat antar heading seperti memakai daftar isi.",
-      "**Landmark** menyusun struktur halaman: `<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<aside>`, `<footer>`.",
-      "Pakai `<button>` untuk aksi dan `<a href>` untuk navigasi. Keduanya bisa difokus dan dipakai lewat keyboard secara default; `<div>` yang bisa diklik tidak. `<div>` biasa tetap boleh sebagai pembungkus layout yang tidak bermakna.",
-      "Form: setiap input butuh `<label>`; `type` (`email`, `number`, `date`) memunculkan keyboard ponsel yang tepat dan validasi bawaan; `required`, `min`, dan `pattern` memvalidasi tanpa JavaScript.",
-      "Gambar butuh teks `alt` yang menjelaskan fungsinya (`alt=\"\"` kalau murni dekorasi), ditambah `width` dan `height` supaya halaman tidak melompat saat gambar dimuat."
+      "HTML menentukan **arti konten**, bukan tampilannya: judul, paragraf, daftar, tombol, serta area navigasi.",
+      "Pasang satu `<h1>` tiap halaman lalu turunkan ke `<h2>` dan `<h3>`. Pengguna screen reader melompat antar-heading layaknya daftar isi.",
+      "**Landmark** membagi kerangka halaman lewat `<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<aside>`, dan `<footer>`.",
+      "Pakai `<button>` untuk aksi dan `<a href>` untuk navigasi tautan. Keduanya langsung mendukung keyboard, sementara `<div>` yang diberi klik tidak. Simpan `<div>` cuma untuk pembungkus tata letak.",
+      "Selalu pasangkan input bersama `<label>`. Memilih `type` (`email`, `number`, `date`) memunculkan papan ketik ponsel yang sesuai, sementara `required`, `min`, dan `pattern` memvalidasi sebelum JavaScript jalan.",
+      "Beri gambar teks `alt` yang jelas (`alt=\"\"` untuk gambar hiasan) beserta `width` dan `height` agar halaman tak melompat saat dimuat."
     ],
-    practice: "Di CSS playground, buat kerangka halaman produk dengan elemen semantik, dan pakai `div` hanya untuk pembungkus yang tidak punya makna. Lalu jelajahi halamannya hanya dengan tombol Tab: apakah semuanya bisa dicapai dan dipakai? Ganti tombolnya dengan `div` yang bisa diklik, lalu coba lagi.",
-    teach: "Jelaskan kenapa kamu sebaiknya memakai `<button>`, bukan `<div>` dengan click handler.",
-    analogy: "HTML itu denah bangunan yang diberi label: ruangan ini dapur, ini pintu masuk, ini tangga. Cat dan perabot (CSS) datang belakangan. Denah yang semua ruangannya hanya dilabeli 'ruangan' tetap bisa didekorasi, tapi tidak ada yang bisa menemukan dapurnya, apalagi tamu yang tidak bisa melihat.",
+    practice: "Di CSS playground, susun kerangka halaman produk memakai elemen semantik, lalu pakai `div` hanya untuk wadah tanpa arti khusus. Jelajahi seluruh isi lewat tombol Tab untuk memastikan semua kontrol bisa diraih, lalu ganti tombol dengan `div` klik dan rasakan bedanya.",
+    teach: "Jelaskan kenapa memilih `<button>` jauh lebih tepat daripada menaruh handler klik pada `<div>`.",
+    analogy: "HTML itu seperti denah bangunan berlabel: ruang ini dapur, yang ini ruang depan, yang sebelah tangga. Cat dan mebel (CSS) menyusul belakangan. Denah yang cuma menuliskan 'ruangan' di tiap kotak membuat tamu tunanetra tak bisa menemukan dapur.",
     pitfalls: [
-      "`div` dan `span` untuk semua yang interaktif, lalu membuat ulang fokus, penanganan keyboard, dan role secara manual.",
-      "Input yang punya placeholder tapi tidak punya label.",
-      "Memilih level heading berdasarkan ukuran font-nya, bukan berdasarkan struktur dokumen.",
-      "`<button>` di dalam form tanpa `type=\"button\"`: type default-nya `submit`, jadi mengkliknya akan men-submit form."
+      "Memakai `div` dan `span` untuk komponen interaktif lalu repot menulis ulang fokus, tombol Enter, serta role ARIA sendiri.",
+      "Menaruh placeholder di input tanpa menyertakan label asli.",
+      "Memilih tingkatan heading cuma demi ukuran font, bukan urutan struktur dokumen.",
+      "Memasang `<button>` di dalam form tanpa `type=\"button\"`, padahal bawaannya `submit` sehingga tiap klik langsung mengirim form."
     ],
     quiz: [
-      ["Elemen mana yang seharusnya memicu aksi seperti 'Add to cart'?", ["`<div onclick>`", "`<button type=\"button\">`", "`<a href=\"#\">`", "`<span role=\"button\">`"], "Button bisa difokus, berfungsi dengan Enter dan Spasi, dan diumumkan dengan benar oleh screen reader. Link itu untuk navigasi, dan `span` dengan role tetap butuh `tabindex` dan penanganan tombol yang ditulis manual."],
-      ["Untuk apa atribut `alt`?", ["Tooltip yang muncul saat hover", "Teks pengganti yang menjelaskan gambar, untuk orang dan alat yang tidak bisa melihatnya", "Keterangan yang tampil di bawah gambar", "Kata kunci untuk mesin pencari"], "Screen reader membacanya, dan teks itu muncul saat gambar gagal dimuat."],
-      ["Bagaimana `<label>` terhubung ke input-nya?", ["Dengan ditaruh di sebelahnya", "`for` pada label yang cocok dengan `id` input (atau dengan membungkus input-nya)", "Dengan memakai `class` yang sama", "Dengan `aria-label` pada label"], "Hubungan itu memberi input sebuah nama yang aksesibel dan membuat klik pada label memfokuskan input-nya."]
+      ["Elemen mana yang seharusnya memicu aksi seperti 'Add to cart'?", ["`<div onclick>`", "`<button type=\"button\">`", "`<a href=\"#\">`", "`<span role=\"button\">`"], "Button mendukung fokus, Enter, dan Spasi bawaan serta diumumkan tepat oleh screen reader. Link untuk pindah URL, sedangkan span tetap butuh tabindex dan event keyboard manual."],
+      ["Untuk apa atribut `alt`?", ["Tooltip yang muncul saat hover", "Teks pengganti yang menjelaskan gambar, untuk orang dan alat yang tidak bisa melihatnya", "Keterangan yang tampil di bawah gambar", "Kata kunci untuk mesin pencari"], "Screen reader membacakan isinya, dan teks itu tampil saat gambar gagal dimuat."],
+      ["Bagaimana `<label>` terhubung ke input-nya?", ["Dengan ditaruh di sebelahnya", "`for` pada label yang cocok dengan `id` input (atau dengan membungkus input-nya)", "Dengan memakai `class` yang sama", "Dengan `aria-label` pada label"], "Tautan ini memberi input nama aksesibel serta memfokuskan kotak isian saat label diklik."]
     ]
   },
   cascade: {
     terms: [
-      ['Specificity (`id`, `class`, `tag`)', 'Skor tiga kolom penentu rule mana yang menang saat beberapa selector menyasar elemen sama (`#id` mengalahkan `.class`, lalu `a`).'],
-      ['Source order (urutan kode)', 'Penentu seri saat dua rule memiliki specificity sama — rule yang ditulis lebih belakangan di CSS yang menang.'],
-      ['Inheritance (pewarisan)', 'Properti teks (`color`, `font`) menurun ke child kecuali ditimpa; properti layout (`border`, `padding`) tidak ikut menurun.']
+      ['Specificity (`id`, `class`, `tag`)', 'Skor tiga bagian penentu rule pemenang saat selector berbenturan (`#id` kalahkan `.class`, lalu `a`).'],
+      ['Source order (urutan kode)', 'Penentu seri kalau dua rule skornya sama. Deklarasi yang muncul lebih belakangan di CSS yang menang.'],
+      ['Inheritance (pewarisan)', 'Properti teks (`color`, `font`) menurun ke elemen anak sampai ditimpa, sedangkan properti kotak (`border`, `padding`) diam di tempat.']
     ],
     title: 'Selector, cascade, dan specificity',
-    why: "'Kenapa style-ku tidak berlaku?' hampir selalu punya jawaban yang sama: ada rule lain yang menang. Cascade adalah seperangkat aturan tetap yang menentukan rule mana, dan begitu kamu memahaminya, CSS tidak lagi terasa acak.",
+    why: "Tiap kali sebuah rule CSS terasa tak mempan, biasanya ada rule lain yang diutamakan. Cascade mengikuti aturan penentu yang pasti, dan sekali kamu menghafal urutannya, styling jadi gak bikin bingung lagi.",
     points: [
-      "Sebuah rule berbentuk `selector { property: value; }`. Selector menargetkan berdasarkan elemen (`p`), class (`.card`), id (`#header`), atribut (`[type=email]`), atau state (`:hover`, `:focus-visible`).",
-      "Combinator menyatakan hubungan: `nav a` (keturunan), `ul > li` (anak langsung), `h2 + p` (saudara berikutnya).",
-      "Saat beberapa rule mengatur property yang sama, **cascade** memilih pemenangnya dengan urutan ini: importance (`!important`), inline style, cascade layer, **specificity**, dan terakhir **urutan di source** (yang terakhir menang).",
-      "Specificity dihitung sebagai (id, class, elemen). Satu id mengalahkan berapa pun jumlah class; satu class mengalahkan berapa pun jumlah elemen.",
-      "`:where()` menambah specificity **nol**, jadi `:where(.card) a` sama mudahnya ditimpa seperti `a`. `:is()` mengambil specificity dari argumennya yang paling spesifik.",
-      "Sebagian property **diwarisi** dari parent (`color`, `font`, `line-height`); kebanyakan property layout (`margin`, `padding`, `border`, `width`) tidak.",
-      "Jaga specificity tetap rendah dan datar: beri style dengan satu class saja. Setiap id atau `!important` membuat penimpaan berikutnya makin sulit."
+      "Bentuk dasar rule adalah `selector { property: value }`. Selector membidik tag (`p`), class (`.card`), ID (`#header`), atribut (`[type=email]`), atau status (`:hover`, `:focus-visible`).",
+      "Combinator membaca hubungan elemen: `nav a` (keturunan), `ul > li` (anak langsung), dan `h2 + p` (saudara tepat setelahnya).",
+      "Saat banyak rule mengatur properti sama, **cascade** memeriksa `!important`, inline style, urutan `@layer`, **specificity**, baru **urutan baris** (yang terakhir menang).",
+      "Skor specificity dihitung `(id, class, element)`. Satu ID mengalahkan berapa pun banyaknya class, dan satu class selalu mengungguli tumpukan tag.",
+      "`:where()` bernilai **nol**, membuat `:where(.card) a` semudah `a` untuk ditimpa. `:is()` ikut mengambil skor argumennya yang paling spesifik.",
+      "Properti teks seperti `color`, `font`, dan `line-height` **diwariskan** ke anak, sementara properti kotak seperti `margin`, `padding`, dan `border` tidak.",
+      "Jaga skor tetap rendah dengan single class. Tiap kali menempelkan ID atau `!important`, timpaan berikutnya makin merepotkan."
     ],
-    practice: "Di specificity visualizer, tebak warna pemenangnya sebelum menyalakan tiap rule. Lalu buka CSS playground, tulis tiga rule yang saling bertentangan untuk satu tombol, dan buat masing-masing menang bergantian tanpa memakai `!important`.",
-    teach: "Jelaskan bagaimana browser memutuskan mana dari dua rule CSS yang bertentangan yang berlaku pada sebuah elemen.",
-    analogy: "Specificity itu permainan kartu dengan peringkat yang ketat. Id adalah as, class adalah raja, elemen adalah kartu angka, dan setumpuk raja tidak bisa mengalahkan satu as. Kalau dua pemain memegang kartu yang setara, yang terakhir bermain yang menang.",
+    practice: "Di specificity visualizer, tebak warna pemenang sebelum menekan tombol tiap rule. Lalu buka CSS playground, tulis tiga rule bentrok untuk satu tombol, dan buat ketiganya menang bergantian tanpa menyentuh `!important`.",
+    teach: "Jelaskan cara browser memutuskan rule CSS mana yang akhirnya dipakai saat dua rule berbenturan.",
+    analogy: "Specificity mirip permainan kartu berperingkat tegas. ID adalah as, class adalah raja, dan tag adalah kartu angka. Tumpukan kartu raja takkan pernah mengalahkan satu kartu as, lalu bila sama kuat yang turun terakhir menang.",
     pitfalls: [
-      "Mengira 11 class mengalahkan 1 id. Kolom-kolomnya tidak pernah saling 'menyimpan' ke kolom sebelahnya.",
-      "Memakai `!important` supaya menang. Berhasil sekali, lalu orang berikutnya juga butuh `!important`.",
-      "Menganggap semua property diwariskan. `border` dan `margin` pada parent tidak turun ke child-nya."
+      "Mengira 11 class bisa menundukkan 1 ID. Kolom skornya tak pernah bertumpuk lintas kolom.",
+      "Menempelkan `!important` demi jalan pintas, memaksa orang berikutnya menumpuk `!important` lebih banyak lagi.",
+      "Mengira semua properti otomatis menular ke anak. Properti `border` dan `margin` tak pernah diwariskan."
     ],
     quiz: [
-      ["Selector mana yang specificity-nya paling tinggi?", ["`.card .title`", "`#main`", "`div p span a`", "`.a.b.c`"], "Satu id (1,0,0) mengungguli berapa pun jumlah class atau elemen."],
-      ["Dua rule dengan specificity sama mengatur `color`. Mana yang menang?", ["Yang pertama di file", "Yang dideklarasikan belakangan", "Yang deklarasinya lebih banyak", "Yang ada di file lebih besar"], "Kalau importance, layer, dan specificity-nya sama, urutan di source yang menentukan: yang terakhir menang."],
-      ["Property mana yang diwariskan secara default?", ["`margin`", "`border`", "`color`", "`width`"], "Property teks seperti `color` dan `font` diwariskan; property box tidak."],
-      ["Berapa specificity dari `:where(#main .card) a`?", ["(1,1,1)", "(0,0,1)", "(0,1,1)", "(1,0,1)"], "Semua yang ada di dalam `:where()` dihitung nol, jadi hanya `a` yang tersisa."]
+      ["Selector mana yang specificity-nya paling tinggi?", ["`.card .title`", "`#main`", "`div p span a`", "`.a.b.c`"], "Satu ID (1,0,0) langsung menang terhadap berapa pun class atau elemen."],
+      ["Dua rule dengan specificity sama mengatur `color`. Mana yang menang?", ["Yang pertama di file", "Yang dideklarasikan belakangan", "Yang deklarasinya lebih banyak", "Yang ada di file lebih besar"], "Bila importance, layer, dan skor specificity sama persis, deklarasi yang datang paling akhir yang menang."],
+      ["Property mana yang diwariskan bawaannya?", ["`margin`", "`border`", "`color`", "`width`"], "Properti teks semacam `color` dan `font` turun ke anak, sedangkan properti layout kotak tidak."],
+      ["Berapa specificity dari `:where(#main .card) a`?", ["(1,1,1)", "(0,0,1)", "(0,1,1)", "(1,0,1)"], "Semua selector di dalam `:where()` dihitung nol, jadi tinggal `a` saja yang dihitung."]
     ]
   },
   box: {
     terms: [
-      ['`box-sizing: border-box`', 'Membuat `width` sudah mencakup padding dan border alih-alih menambahkannya di luar lalu menyebabkan overflow.'],
-      ['Padding vs Margin', 'Padding mendorong ruang ke dalam di balik border/latar elemen; margin mendorong jarak ke luar antar elemen tetangga.'],
-      ['Margin collapsing', 'Margin vertikal berdekatan pada block saling melebur mengambil yang terbesar bukan dijumlahkan (tidak pernah terjadi di flex/grid).']
+      ['`box-sizing: border-box`', 'Memasukkan padding dan border ke dalam lebar `width` supaya kotak tidak meluber melewati ukuran yang kamu tulis.'],
+      ['Padding vs Margin', 'Padding memberi ruang napas di dalam latar dan border, sedangkan margin memberi jarak antar-elemen di luar border.'],
+      ['Margin collapsing', 'Margin vertikal blok yang bersentuhan melebur mengambil yang paling besar bukan dijumlah (tak terjadi pada flex atau grid).']
     ],
     title: 'Box model',
-    why: "Setiap elemen adalah sebuah persegi panjang. Kebanyakan bug ukuran, seperti elemen selebar 100% yang meluber dari parent-nya atau celah yang tidak bisa dijelaskan, berasal dari box model, dan hilang begitu kamu bisa melihat keempat lapisannya.",
+    why: "Setiap elemen HTML dibungkus kotak persegi panjang. Sekali kamu terbiasa membayangkan keempat lapisannya, masalah seperti kotak selebar 100% yang mendadak meluber ke kanan langsung terasa masuk akal.",
     points: [
-      "Dari dalam ke luar: **content**, **padding** (ruang di dalam border), **border**, **margin** (ruang di luar, di antara elemen).",
-      "Default-nya `box-sizing: content-box`, artinya `width` hanya mengatur content; padding dan border ditambahkan di atasnya. `border-box` membuat `width` sudah termasuk padding dan border, sesuai harapan kebanyakan orang.",
-      "Mulai setiap project dengan `*, *::before, *::after { box-sizing: border-box; }`.",
-      "Elemen `display: block` mengambil lebar penuh dan bertumpuk; elemen `inline` mengalir di dalam teks dan mengabaikan `width` dan `height`; `inline-block` mengalir inline tapi menerima ukuran.",
-      "Margin vertikal blok yang bersebelahan **collapse** menjadi yang lebih besar. Padding tidak collapse, begitu juga margin antar item flex atau grid.",
-      "`overflow` mengatur konten yang tidak muat: `visible`, `hidden`, `clip`, atau `auto` (scroll hanya kalau perlu)."
+      "Dari tengah ke luar, tiap kotak tersusun atas **content**, **padding** (ruang di dalam border), **border**, dan **margin** (jarak keluar antarkotak).",
+      "Bawaan `content-box` cuma menerapkan `width` ke isi konten lalu menambah padding dan border di luarnya. Mode `border-box` memasukkan padding dan border ke dalam `width`.",
+      "Awali proyek CSS dengan reset `*, *::before, *::after { box-sizing: border-box; }`.",
+      "Elemen `block` mengisi satu baris penuh dan turun menumpuk. Elemen `inline` mengalir dalam teks tanpa memedulikan `width` dan `height`, sementara `inline-block` mengalir sebaris tapi menerima ukuran pasti.",
+      "Margin vertikal antarblok bertumpuk **melebur** menjadi satu margin terlebar. Padding tak pernah melebur, dan item flex atau grid juga tak saling melebur.",
+      "`overflow` mengatur isi berlebih: `visible`, `hidden`, `clip`, atau `auto` (scrollbar hanya muncul bila kurang muat)."
     ],
-    practice: "Pakai box model visualizer untuk membuat elemen `content-box` selebar 300px meluber dari parent selebar 320px, lalu perbaiki dengan beralih ke `border-box`. Di dev tools, inspect elemen apa saja di halaman ini dan baca diagram box-nya.",
-    teach: "Jelaskan perbedaan padding dan margin, dan apa yang diubah oleh `box-sizing: border-box`.",
-    analogy: "Lukisan berbingkai di dinding. Lukisannya adalah content, kertas putih di sekelilingnya adalah padding, bingkainya adalah border, dan dinding kosong sebelum bingkai berikutnya adalah margin. `border-box` berarti saat kamu bilang 'lukisan ini 30 cm', yang kamu ukur adalah sisi luar bingkainya.",
+    practice: "Pakai box model visualizer agar elemen `content-box` 300px meluber keluar parent 320px, lalu bereskan dengan menggantinya ke `border-box`. Cek pula diagram box salah satu elemen lewat dev tools.",
+    teach: "Jelaskan beda padding dan margin, serta efek menyalakan `box-sizing: border-box`.",
+    analogy: "Bayangkan lukisan berbingkai di dinding. Kontennya adalah lukisan, kertas putih sekelilingnya padding, bingkainya border, dan dinding kosong menuju lukisan sebelah adalah margin. Memasang `border-box` berarti ukuran 30 cm dihitung dari tepi luar bingkai.",
     pitfalls: [
-      "`width: 100%` ditambah padding dengan `content-box`, sehingga meluber dari parent.",
-      "Berharap `width` atau margin vertikal bekerja pada elemen inline seperti `span`.",
-      "Kaget dengan margin yang collapse lalu menambah margin lagi untuk mengimbanginya. Di container flex atau grid, pakai `gap`."
+      "Memasang `width: 100%` ditambah padding di mode `content-box` hingga kotak keluar dari induknya.",
+      "Menunggu `width` atau margin atas-bawah berefek pada elemen inline seperti `span`.",
+      "Kaget melihat margin melebur lalu menambah margin lebih besar lagi. Di flex atau grid, pakailah `gap`."
     ],
     quiz: [
-      ["Dengan `box-sizing: content-box`, `width: 200px; padding: 20px; border: 5px solid` di-render selebar berapa?", ["200px", "225px", "250px", "240px"], "200 + 20×2 + 5×2 = 250px. Padding dan border ditambahkan di luar lebar content."],
-      ["Apa yang ada di antara content dan border?", ["Margin", "Padding", "Outline", "Gap"], "Padding ada di dalam border; margin ada di luarnya. Outline digambar di atas tepinya dan tidak memakan ruang."],
-      ["Dua paragraf bertumpuk punya `margin-bottom: 20px` dan `margin-top: 30px`. Celahnya…", ["50px", "30px", "20px", "25px"], "Margin vertikal yang bersebelahan collapse menjadi yang lebih besar dari keduanya."]
+      ["Dengan `box-sizing: content-box`, `width: 200px; padding: 20px; border: 5px solid` di-render selebar berapa?", ["200px", "225px", "250px", "240px"], "Total lebarnya 200 + 20×2 + 5×2 = 250px karena padding dan border dihitung di luar lebar konten."],
+      ["Apa yang ada di antara content dan border?", ["Margin", "Padding", "Outline", "Gap"], "Padding berada di dalam garis border, sementara margin ada di luarnya. Outline digambar melapisi tepi tanpa memakan ruang layout."],
+      ["Dua paragraf bertumpuk punya `margin-bottom: 20px` dan `margin-top: 30px`. Celahnya…", ["50px", "30px", "20px", "25px"], "Margin vertikal yang berdekatan melebur mengambil nilai yang terbesar dari keduanya."]
     ]
   },
   units: {
     terms: [
-      ['`rem` vs `em` vs `px`', '`rem` mengikuti ukuran font root pilihan user (aksesibel); `em` mengikuti elemen lokal; `px` ukurannya tetap.'],
-      ['Lebar bacaan (`ch`)', 'Lebar baris diukur berdasar lebar karakter — membatasi paragraf sekitar `60ch–70ch` mencegah mata lelah saat membaca.'],
-      ['Rasio kontras (`4.5:1`)', 'Batas terang minimum WCAG AA antara teks isi dan latar agar mudah dibaca di bawah terik matahari maupun oleh low-vision.']
+      ['`rem` vs `em` vs `px`', '`rem` mengikuti ukuran font root pilihan browser (aksesibel), `em` mengikuti elemen tempatnya berada, sedangkan `px` nilainya kaku.'],
+      ['Lebar bacaan (`ch`)', 'Lebar baris diukur dari lebar karakter nol. Menahan panjang kalimat sekitar `60ch–70ch` menjaga mata nyaman membaca.'],
+      ['Rasio kontras (`4.5:1`)', 'Batas kontras minimum WCAG AA antara teks isi dan latar supaya tulisan jelas di bawah sinar matahari maupun bagi pengguna low-vision.']
     ],
     title: 'Unit, warna, dan tipografi',
-    why: "Teks yang mudah dibaca dan jarak yang konsisten sudah mengerjakan sebagian besar tugas membuat antarmuka terlihat profesional. Pilihan unit juga menentukan apakah desainnya menghormati setting ukuran font dan zoom milik user.",
+    why: "Tipografi yang nyaman dibaca serta spasi seragam membereskan sebagian besar tampilan UI profesional. Pilihan unit ukuran juga menentukan apakah halamanmu tetap patuh saat pengguna memperbesar huruf di browser.",
     points: [
-      "`px` itu absolut. `rem` relatif terhadap ukuran font root (default-nya 16px) dan mengikuti setting browser user, jadi pakai untuk ukuran font dan spasi.",
-      "`em` relatif terhadap ukuran font elemen itu sendiri (berguna untuk padding yang ikut membesar bersama teksnya). `%` relatif terhadap parent. `vw`, `vh`, dan `dvh` adalah unit viewport; `ch` adalah lebar satu karakter.",
-      "`clamp(min, preferred, max)` memberi ukuran yang fleksibel dengan batas. Untuk teks, campur unit di nilai tengahnya, `clamp(1.75rem, 1rem + 3vw, 2.5rem)`: bagian `rem` tetap membesar saat user melakukan zoom, sedangkan `vw` saja tidak.",
-      "Warna: hex `#3b47d6`, `rgb()`, `hsl()` (hue, saturation, lightness: mudah dinalar), dan `oklch()` (merata secara persepsi, jadi langkah yang sama terlihat sama).",
-      "Tipografi yang enak dibaca: teks body 16px atau lebih, `line-height` sekitar 1.5, panjang baris 45–75 karakter (`max-width: 65ch`), dan skala ukuran heading yang jelas.",
-      "Kontras teks harus mencapai 4.5:1 terhadap background-nya (3:1 untuk teks besar) agar memenuhi WCAG AA."
+      "`px` memakai ukuran piksel CSS tetap, sedangkan `rem` mengalikan ukuran font root (bawaannya 16px) dan mengikuti setelan aksesibilitas browser.",
+      "`em` mengikuti ukuran font elemennya sendiri, pas untuk padding tombol yang membesar bersama teks. `%` mengacu induknya, `vw`/`dvh` mengikuti viewport, dan `ch` mengukur lebar satu karakter.",
+      "`clamp(min, preferred, max)` mengukur ukuran cair di antara batas min dan maks. Mencampur `rem` di teks (`clamp(1.75rem, 1rem + 3vw, 2.5rem)`) membuat zoom browser tetap memperbesar judul.",
+      "Warna dapat ditulis lewat hex `#3b47d6`, `rgb()`, `hsl()` (hue, saturation, lightness), atau `oklch()` agar tiap langkah gelap-terangnya tampak setara di mata.",
+      "Teks isi yang nyaman dimulai dari minimal 16px dengan `line-height: 1.5`, lebar kolom `45ch–75ch` (`max-width: 65ch`), dan skala ukuran judul jelas.",
+      "Kontras teks normal harus minimal 4.5:1 terhadap latarnya (3:1 bagi judul besar) sesuai standar WCAG AA."
     ],
-    practice: "Atur ukuran font default browser-mu ke 20px lalu bandingkan halaman yang diukur dengan `px` dan yang diukur dengan `rem`. Lalu buat heading yang berukuran 1.5rem di ponsel dan 2.5rem di layar lebar dengan satu `clamp()` tanpa media query. Zoom ke 200% dan pastikan heading-nya tetap membesar.",
-    teach: "Jelaskan perbedaan `px`, `em`, dan `rem`, serta kapan kamu memilih masing-masing.",
-    analogy: "`px` itu ukuran penggaris: 2 cm tetap 2 cm untuk semua orang. `rem` itu 'dua kali ukuran tulisan tanganku yang biasa': ia mengikuti ukuran yang dipilih masing-masing pembaca sebagai ukuran normal.",
+    practice: "Setel ukuran font default browser ke 20px lalu bandingkan halaman berbasis `px` melawan halaman berbasis `rem`. Setelah itu rancang judul yang 1.5rem di ponsel dan 2.5rem di desktop memakai satu `clamp()` tanpa media query, lalu zoom 200% untuk mengujinya.",
+    teach: "Jelaskan perbedaan `px`, `em`, dan `rem`, lalu beri contoh kapan masing-masing paling cocok.",
+    analogy: "`px` itu ukuran penggaris mati: 2 cm sama bagi siapa pun. Sebaliknya, `rem` artinya dua kali ukuran tulisan normal pembacanya, jadi huruf ikut membesar saat pembaca menyetel huruf lebih besar.",
     pitfalls: [
-      "Mengatur `html { font-size: 10px }` atau mengukur teks dengan `px`, yang menimpa setting aksesibilitas milik user.",
-      "Menumpuk ukuran font `em` lalu melihat teksnya mengecil atau membesar di setiap level, seperti fotokopi dari fotokopi.",
-      "Ukuran font yang murni `vw`, yang hampir tidak berubah saat user melakukan zoom.",
-      "Teks abu-abu muda di atas putih yang gagal memenuhi kontras."
+      "Mengubah `html { font-size: 10px }` atau mengunci teks di `px`, mematikan preferensi huruf besar pengguna.",
+      "Menumpuk `em` berlapis-lapis hingga teks membengkak atau menyusut tak karuan seperti fotokopi berulang.",
+      "Menulis ukuran font pakai `vw` murni yang nyaris kebal terhadap zoom browser.",
+      "Memasang teks abu-abu pucat di atas putih sampai gagal uji kontras."
     ],
     quiz: [
       ["Ukuran font root adalah 16px. Berapa besar `1.5rem`?", ["15px", "16px", "24px", "1.5px"], "`rem` mengalikan ukuran font root: 1.5 × 16 = 24px."],
-      ["Apa yang dilakukan `clamp(1rem, 3vw, 2rem)`?", ["Selalu memakai 3vw", "Memakai 3vw, tapi tidak pernah di bawah 1rem atau di atas 2rem", "Memakai nilai terkecil dari ketiganya", "Memakai 3vw hanya di layar yang lebih sempit dari 2rem"], "`clamp` menjaga nilai fleksibel yang diinginkan tetap di antara batas minimum dan maksimum."],
-      ["Rasio kontras minimum untuk teks body biasa menurut WCAG AA?", ["2:1", "3:1", "4.5:1", "7:1"], "4.5:1 untuk teks biasa dan 3:1 untuk teks besar; 7:1 adalah level AAA yang lebih ketat."]
+      ["Apa yang dilakukan `clamp(1rem, 3vw, 2rem)`?", ["Selalu memakai 3vw", "Memakai 3vw, tapi tidak pernah di bawah 1rem atau di atas 2rem", "Memakai nilai terkecil dari ketiganya", "Memakai 3vw hanya di layar yang lebih sempit dari 2rem"], "`clamp` menjaga nilai tengah tetap bergerak di antara batas minimum dan maksimumnya."],
+      ["Rasio kontras minimum untuk teks body biasa menurut WCAG AA?", ["2:1", "3:1", "4.5:1", "7:1"], "AA mensyaratkan 4.5:1 untuk teks biasa dan 3:1 untuk teks besar, sedangkan 7:1 untuk level AAA yang lebih ketat."]
     ]
   },
   flexbox: {
     terms: [
-      ['Main axis vs Cross axis', '`flex-direction: row` berjalan mendatar sebagai sumbu utama (`justify-content`) dan tegak lurus sebagai sumbu silang (`align-items`).'],
-      ['`min-width: 0` / `min-inline-size: 0`', 'Menimpa nilai bawaan `min-width: auto` pada item flex supaya teks panjang atau blok kode bisa membungkus alih-alih menjebol baris.'],
-      ['`gap` & `flex: 1`', '`gap` hanya memberi spasi *antar* elemen anak (lebih bersih daripada margin), sedangkan `flex: 1` membagi sisa ruang kosong secara rata.']
+      ['Main axis vs Cross axis', '`flex-direction: row` menempatkan sumbu utama horizontal (`justify-content`) dan sumbu silang vertikal (`align-items`).'],
+      ['`min-width: 0` / `min-inline-size: 0`', 'Menghilangkan batas bawaan `min-width: auto` milik flex item supaya teks panjang bisa turun baris atau terpotong rapi.'],
+      ['`gap` & `flex: 1`', '`gap` memberi jarak bersih di antara anak tanpa trik margin, sementara `flex: 1` membagi sisa ruang kosong merata.']
     ],
     title: 'Flexbox: layout satu dimensi',
-    why: "Navbar, toolbar, card, konten yang di-center, dan baris form: kebanyakan layout sehari-hari adalah satu baris atau satu kolom berisi beberapa hal, dan flexbox menangani semuanya.",
+    why: "Navbar, toolbar, kartu produk, kotak rata tengah, hingga baris form hampir selalu berupa deretan satu baris atau satu kolom. Flexbox menyelesaikan semua susunan satu arah ini.",
     points: [
-      "`display: flex` pada parent mengubah child-nya menjadi flex item, yang disusun sepanjang **main axis** (`flex-direction: row` atau `column`).",
-      "`justify-content` menyebar item sepanjang main axis; `align-items` meratakannya di cross axis.",
-      "`gap` menambah jarak antar item tanpa trik margin.",
-      "Item bisa membesar dan mengecil: `flex: 1` berarti 'ambil bagian yang sama dari ruang kosong'; `flex: 0 0 200px` berarti 'tetap persis 200px'.",
-      "`flex-wrap: wrap` membuat item bisa turun ke baris baru. `margin-left: auto` pada satu item mendorongnya, dan semua yang setelahnya, ke ujung yang jauh.",
-      "Secara default, flex item tidak mau mengecil lebih kecil dari isinya; `min-width: 0` pada item membuat teks panjang bisa mengecil atau terpotong."
+      "`display: flex` mengubah elemen anak langsung menjadi flex item yang berbaris di sepanjang **main axis** (`row` atau `column`).",
+      "`justify-content` menyebar item di sumbu utama, sementara `align-items` mengatur perataan pada sumbu silang.",
+      "`gap` menyisipkan jarak antarelemen anak tanpa perlu repot menghapus margin ujung.",
+      "Ukuran item diatur lewat `flex`: `flex: 1` membagi sisa ruang merata, sedangkan `flex: 0 0 200px` mengunci lebar pas 200px.",
+      "`flex-wrap: wrap` menurunkan item ke baris baru saat penuh, dan `margin-left: auto` mendorong satu item beserta sisanya ke ujung terjauh.",
+      "Bawaannya flex item menolak menyusut di bawah lebar isinya. Pasang `min-width: 0` di item agar teks panjang atau tabel mau turun baris."
     ],
-    practice: "Di flexbox visualizer, buat ulang tiga layout: item di tengah secara horizontal dan vertikal; item pertama di kiri dan sisanya di kanan; kolom-kolom dengan lebar sama. Tuliskan CSS dan class Tailwind untuk masing-masing.",
-    teach: "Jelaskan main axis dan cross axis, serta property mana yang mengatur perataan di masing-masing.",
-    analogy: "Flexbox itu seperti menata buku di satu rak. `justify-content` menentukan bagaimana buku disebar sepanjang rak: didorong ke kiri, di tengah, atau berjarak rata. `align-items` menentukan apakah buku yang pendek duduk di bawah, di atas, atau di tengah. `flex-direction: column` memberdirikan raknya, dan arti kedua property itu di layar jadi bertukar.",
+    practice: "Di flexbox visualizer, buat tiga susunan: item rata tengah ke dua arah, item pertama kiri dan sisanya rapat kanan, serta kolom selebar sama. Catat kode CSS dan class Tailwind untuk masing-masing.",
+    teach: "Jelaskan arti main axis dan cross axis, beserta properti perataan masing-masing sumbu.",
+    analogy: "Flexbox itu seperti menata buku di satu papan rak. `justify-content` menyebar buku sepanjang papan (rapat kiri, tengah, atau renggang), sedangkan `align-items` menentukan duduk buku pendek di atas, bawah, atau tengah. Kalau papan diberdirikan (`column`), kedua arahnya ikut bertukar.",
     pitfalls: [
-      "Tertukar antara `justify-content` dan `align-items` setelah mengubah `flex-direction` menjadi `column`.",
-      "Teks panjang atau tabel lebar yang merusak layout flex. Perbaiki dengan `min-width: 0` pada item-nya.",
-      "Memakai flexbox untuk grid dua dimensi sungguhan lalu melawannya dengan lebar tetap."
+      "Tertukar antara `justify-content` dan `align-items` sesudah mengubah arah `flex-direction` ke `column`.",
+      "Judul panjang atau tabel lebar menjebol batas flex. Atasi dengan `min-width: 0` di item flex.",
+      "Memaksakan flexbox untuk membuat grid dua dimensi dengan lebar kaku."
     ],
     quiz: [
-      ["Dengan `flex-direction: row`, property mana yang membuat item di tengah secara vertikal?", ["`justify-content`", "`align-items`", "`text-align`", "`vertical-align`"], "Di sebuah baris, cross axis-nya vertikal, dan `align-items` mengatur cross axis."],
-      ["Apa yang dilakukan `flex: 1` pada setiap child?", ["Mengatur lebar tiap child menjadi 1fr", "Memberi setiap child bagian yang sama dari ruang kosong", "Membuat setiap child selebar 100%", "Mencegah child mengecil"], "Ia mengatur grow menjadi 1 dengan basis nol, jadi ruang kosongnya dibagi rata."],
-      ["Di sebuah flex row, bagaimana cara mendorong hanya item terakhir ke paling kanan?", ["`float: right` pada item itu", "`margin-left: auto` pada item itu", "`justify-content: flex-end` pada container", "`position: absolute` pada item itu"], "Margin auto menyerap semua ruang kosong di sisi itu. `justify-content: flex-end` akan memindahkan semua item ke kanan."]
+      ["Dengan `flex-direction: row`, property mana yang menengahkan item ke atas-bawah?", ["`justify-content`", "`align-items`", "`text-align`", "`vertical-align`"], "Pada baris horizontal, sumbu silangnya vertikal dan dikendalikan oleh `align-items`."],
+      ["Apa yang dilakukan `flex: 1` pada setiap child?", ["Mengatur lebar tiap child menjadi 1fr", "Memberi setiap child bagian yang sama dari ruang kosong", "Membuat setiap child selebar 100%", "Mencegah child mengecil"], "Aturan ini menyetel flex-grow ke 1 dengan basis nol, jadi ruang sisa dibagi rata."],
+      ["Di sebuah flex row, bagaimana cara mendorong hanya item terakhir ke paling kanan?", ["`float: right` pada item itu", "`margin-left: auto` pada item itu", "`justify-content: flex-end` pada container", "`position: absolute` pada item itu"], "Margin auto menyedot semua ruang kosong di sebelah kirinya. Sebaliknya, `justify-content: flex-end` menggeser semua item sekaligus."]
     ]
   },
   grid: {
     terms: [
       ['Satuan `fr`', 'Pecahan ruang kosong tersisa di container grid sesudah kolom berukuran tetap dan berbasis konten diletakkan.'],
       ['`repeat(auto-fit, minmax(min(260px, 100%), 1fr))`', 'Grid responsif tanpa media query yang otomatis menumpuk card di layar sempit tanpa horizontal overflow.'],
-      ['Track implisit vs eksplisit', 'Kolom/baris yang kamu definisikan (`grid-template-columns`) vs baris tambahan otomatis saat item turun ke bawah.']
+      ['Track implisit vs eksplisit', 'Kolom atau baris yang kamu definisikan (`grid-template-columns`) vs baris ekstra otomatis waktu item bergulir ke bawah.']
     ],
     title: 'CSS Grid: layout dua dimensi',
-    why: "Kerangka halaman, dashboard, galeri, dan desain apa pun yang baris dan kolomnya harus sejajar adalah wilayah Grid. Bersama flexbox, ia menangani hampir semua layout tanpa trik.",
+    why: "Kerangka halaman, dashboard, galeri foto, serta tata letak apa pun yang baris dan kolomnya wajib sejajar merupakan tugas CSS Grid. Bersama flexbox, hampir semua layout jadi rapi tanpa trik lama.",
     points: [
-      "`display: grid` ditambah `grid-template-columns` mendefinisikan track kolom; baris dibuat otomatis saat item mengalir masuk.",
-      "Unit `fr` adalah bagian dari ruang sisa: `1fr 2fr` membaginya sepertiga dan dua pertiga.",
-      "`repeat(3, 1fr)` adalah tiga kolom sama lebar. `repeat(auto-fit, minmax(min(220px, 100%), 1fr))` adalah grid responsif tanpa media query; `min()` mencegahnya meluber dari container yang lebih sempit dari 220px.",
-      "Item bisa membentang beberapa track: `grid-column: span 2`, atau `grid-column: 1 / -1` untuk lebar penuh.",
-      "`grid-template-areas` memberi nama pada area, sehingga layout-nya terbaca seperti gambar halamannya.",
-      "Patokan: **Grid untuk halaman dan apa pun yang dua dimensi, flexbox untuk isi setiap sel.**"
+      "`display: grid` bersama `grid-template-columns` menetapkan jalur kolomnya, sementara baris baru otomatis terbentuk seiring masuknya anak.",
+      "Satuan `fr` membagi ruang sisa berbanding lurus (`1fr 2fr` memberi bagian sepertiga dan dua pertiga).",
+      "`repeat(3, 1fr)` menghasilkan tiga kolom rata. `repeat(auto-fit, minmax(min(220px, 100%), 1fr))` menyesuaikan jumlah kolom otomatis tanpa media query sekaligus bebas meluber di bawah 220px.",
+      "Item bisa melintasi banyak kolom memakai `grid-column: span 2`, atau penuh kiri-ke-kanan lewat `grid-column: 1 / -1`.",
+      "`grid-template-areas` memetakan zona header, sidebar, dan konten utama mirip sketsa gambar langsung di CSS.",
+      "Patokan gampangnya: pakai **Grid** untuk struktur dua dimensi halaman, lalu pakai **flexbox** untuk menyusun isi di tiap kotak."
     ],
-    practice: "Di grid visualizer, berpindah-pindah antar template dan ubah ukuran jendela selagi `auto-fit` dipilih. Lalu bangun layout aplikasi ini sendiri (sidebar + main) dengan `grid-template-areas` di CSS playground, dan buat kembali ke satu kolom di ponsel.",
-    teach: "Jelaskan kapan memilih Grid dan kapan memilih flexbox, dengan satu contoh untuk masing-masing.",
-    analogy: "Flexbox itu rak; Grid itu kertas berpetak. Di kertas berpetak kamu menentukan kolom dan barisnya dulu, lalu menaruh barang ke dalam sel-selnya, dan semuanya sejajar baik ke samping maupun ke bawah.",
+    practice: "Coba beragam template di grid visualizer lalu geser lebar jendela saat mode `auto-fit` aktif. Setelah itu bangun kerangka halaman sidebar plus konten memakai `grid-template-areas` di playground yang melipat jadi satu kolom di ponsel.",
+    teach: "Jelaskan kapan memakai Grid dan kapan flexbox beserta contoh UI nyata untuk masing-masing.",
+    analogy: "Flexbox ibarat satu papan rak buku, sedangkan Grid ibarat kertas berpetak. Di kertas berpetak kamu menggambar garis kolom dan baris dulu, meletakkan kartu ke selnya, lalu semua sisi lurus sejajar atas-bawah maupun kiri-kanan.",
     pitfalls: [
-      "Memakai `auto-fill` padahal yang kamu mau `auto-fit`: `auto-fill` menyimpan track kosong, jadi item yang sedikit tidak melebar memenuhi baris.",
-      "`minmax(220px, 1fr)` tanpa `min()`, yang meluber dari container yang lebih sempit dari 220px.",
-      "Menulis jumlah kolom secara manual per breakpoint padahal `minmax()` bisa menyesuaikan sendiri.",
-      "Kolom `1fr` yang meluber karena konten panjang. Pakai `minmax(0, 1fr)`."
+      "Memilih `auto-fill` padahal butuh `auto-fit`: `auto-fill` menyisakan jalur kosong tak terlihat daripada meregangkan item yang sedikit memenuhi baris.",
+      "Menulis `minmax(220px, 1fr)` tanpa `min()`, mengakibatkan scroll ke samping di layar sempit di bawah 220px.",
+      "Menulis banyak aturan breakpoint jumlah kolom padahal `minmax()` sudah otomatis menyesuaikan.",
+      "Kolom `1fr` jebol saat diisi tabel lebar atau URL panjang. Ganti jadi `minmax(0, 1fr)`."
     ],
     quiz: [
-      ["Apa yang dihasilkan `grid-template-columns: 1fr 3fr`?", ["Dua kolom sama lebar", "Dua kolom yang berbagi ruang kosong 1:3", "Empat kolom", "Satu kolom berisi tiga baris"], "Unit `fr` membagi ruang yang tersedia secara proporsional."],
-      ["Deklarasi mana yang menghasilkan grid responsif tanpa media query?", ["`repeat(3, 1fr)`", "`repeat(auto-fit, minmax(min(200px, 100%), 1fr))`", "`200px 200px 200px`", "`grid-auto-flow: column`"], "Browser memuat sebanyak mungkin kolom dengan lebar minimal 200px lalu melebarkannya; `min()` menangani container yang lebih sempit dari itu."],
-      ["Bagaimana membuat sebuah item grid membentang selebar penuh?", ["`width: 100vw`", "`grid-column: 1 / -1`", "`grid-column: span all`", "`justify-self: stretch`"], "Dari garis 1 sampai garis -1 mencakup semua track kolom. `span all` bukan CSS yang valid."]
+      ["Apa yang dihasilkan `grid-template-columns: 1fr 3fr`?", ["Dua kolom sama lebar", "Dua kolom yang berbagi ruang kosong 1:3", "Empat kolom", "Satu kolom berisi tiga baris"], "Satuan `fr` membagi ruang tersisa sebanding dengan angkanya."],
+      ["Deklarasi mana yang menghasilkan grid responsif tanpa media query?", ["`repeat(3, 1fr)`", "`repeat(auto-fit, minmax(min(200px, 100%), 1fr))`", "`200px 200px 200px`", "`grid-auto-flow: column`"], "Browser memasukkan sebanyak mungkin kolom selebar minimal 200px lalu merentangkannya, sedangkan `min()` menyelamatkan layar yang lebih sempit."],
+      ["Bagaimana membuat sebuah item grid membentang selebar penuh?", ["`width: 100vw`", "`grid-column: 1 / -1`", "`grid-column: span all`", "`justify-self: stretch`"], "Rentang garis 1 ke -1 melingkupi semua jalur kolom (`span all` bukan sintaks CSS valid)."]
     ]
   },
   responsive: {
     terms: [
-      ['`@media` mobile-first', 'Mulai dengan tata letak satu kolom ponsel sebagai default lalu tambahkan rule `min-width` saat layar makin lebar.'],
-      ['Tipografi cair `clamp(min, pref, max)`', 'Menskalakan ukuran font dengan mulus di antara batas viewport lewat satu baris tanpa lompatan breakpoint kaku.'],
-      ['Container query (`@container`)', 'Membuat komponen beradaptasi terhadap lebar wadah induknya sendiri daripada lebar viewport browser penuh.']
+      ['`@media` mobile-first', 'Mulai dari gaya satu kolom ponsel lalu tambahkan aturan `min-width` bertahap seiring layar melebar.'],
+      ['Tipografi cair `clamp(min, pref, max)`', 'Menskalakan ukuran huruf mulus di antara dua batas viewport dalam satu baris tanpa lompatan breakpoint kaku.'],
+      ['Container query (`@container`)', 'Membuat komponen beradaptasi terhadap lebar wadah induknya sendiri ketimbang lebar jendela browser penuh.']
     ],
     title: 'Responsive design',
-    why: "Sebagian besar traffic web datang dari ponsel. Layout yang hanya berfungsi di lebar layar milik desainernya berarti rusak untuk sebagian besar user-mu.",
+    why: "Mayoritas pengunjung web membuka halaman dari ponsel. Desain yang hanya pas di monitor desainer otomatis berantakan di tangan sebagian besar pengguna.",
     points: [
-      "Sertakan meta tag viewport, kalau tidak, ponsel me-render halaman dalam keadaan di-zoom out: `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">`.",
-      "**Mobile-first**: tulis style dasar untuk layar kecil, lalu tambahkan kerumitan dengan `@media (min-width: …)`, atau sintaks range yang lebih baru, `@media (width >= 768px)`.",
-      "Utamakan layout **intrinsik** yang menyesuaikan sendiri (flex-wrap, grid `auto-fit`, `clamp()`, `max-width`), dan tambahkan breakpoint hanya di tempat desainnya benar-benar rusak.",
-      "Gambar: `max-width: 100%; height: auto;`, ditambah atribut `width`/`height` atau `aspect-ratio`, supaya tidak ada yang bergeser saat gambar dimuat.",
-      "**Container query** (`@container`) memberi style pada komponen berdasarkan lebar container-nya, bukan viewport, dan itulah yang biasanya dibutuhkan komponen yang bisa dipakai ulang.",
-      "Hormati preferensi user: `prefers-color-scheme`, `hover`, `pointer`, dan `prefers-reduced-motion`. Tulis animasi di dalam `@media (prefers-reduced-motion: no-preference)`, supaya animasi hanya ditambahkan untuk orang yang tidak meminta gerakan dikurangi."
+      "Selalu pasang `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">` supaya browser ponsel tidak mengecilkan tampilan desktop penuh.",
+      "Rancang **mobile-first** dari tampilan satu kolom dulu, lalu tambahkan aturan layar lebar lewat `@media (min-width: …)` atau `@media (width >= 768px)`.",
+      "Utamakan **ukuran intrinsik** (`flex-wrap`, grid `auto-fit`, `clamp()`, `max-width`), baru pasang breakpoint seperlunya tepat saat tata letak mulai sesak.",
+      "Jaga gambar responsif memakai `max-width: 100%` dan `height: auto`, ditambah `width`/`height` atau `aspect-ratio` untuk mencegah layar melompat.",
+      "**Container query** (`@container`) menyesuaikan komponen terhadap lebar wadah kartu induknya ketimbang ukuran layar penuh.",
+      "Patuhi preferensi pengguna lewat `prefers-color-scheme`, `hover`, `pointer`, dan `prefers-reduced-motion`. Bungkus animasi di dalam `prefers-reduced-motion: no-preference`."
     ],
-    practice: "Ambil halaman yang hanya dirancang untuk desktop dan buat berfungsi di lebar 360px tanpa scroll horizontal. Hitung berapa media query yang kamu butuhkan, lalu coba hapus satu dengan menggantinya memakai teknik intrinsik.",
-    teach: "Jelaskan arti 'mobile-first' di CSS dan kenapa media query `min-width` lebih disukai daripada `max-width`.",
-    analogy: "Mobile-first itu seperti mengepak koper kabin dulu: kamu mulai dengan yang penting saja, dan kalau nanti dapat koper yang lebih besar, kamu menambah barang ekstra. Memulai dengan koper besar lalu memaksanya masuk ke koper kabin berarti harus memutuskan dengan berat hati apa yang dibuang.",
+    practice: "Ambil halaman khusus desktop lalu ubah supaya bersih di lebar 360px tanpa scroll menyamping. Hitung jumlah media query yang terpakai, lalu coba buang satu dengan trik tata letak intrinsik.",
+    teach: "Jelaskan konsep 'mobile-first' di CSS dan kenapa media query `min-width` lebih unggul daripada `max-width`.",
+    analogy: "Mobile-first ibarat berkemas dalam tas kabin lebih dulu: muat yang pokok saja, lalu kalau tersedia koper besar baru tambahkan barang ekstra. Kebalikannya jauh lebih susah saat harus membuang barang dari koper penuh.",
     pitfalls: [
-      "Lupa meta tag viewport.",
-      "Mendesain untuk tiga lebar perangkat yang persis, alih-alih membiarkan konten yang menentukan breakpoint-nya.",
-      "Menyembunyikan konten di mobile alih-alih menyusunnya ulang.",
-      "Menambah animasi di mana-mana lalu mencoba menghapusnya untuk user reduced-motion dengan `!important`. Lebih baik tambahkan animasi hanya di tempat yang memang diinginkan."
+      "Lupa menyertakan meta tag viewport di HTML.",
+      "Merancang pas cuma untuk tiga ukuran layar ponsel dan laptop, bukannya membiarkan konten menentukan breakpoint.",
+      "Menyembunyikan konten penting di versi mobile daripada menata ulang urutannya.",
+      "Memasang animasi ke mana-mana lalu menimpanya dengan `!important` untuk reduced-motion. Cukup aktifkan hanya saat diizinkan."
     ],
     quiz: [
-      ["Di stylesheet mobile-first, style dasarnya menargetkan…", ["Layar desktop", "Layar kecil, dengan query `min-width` menambah layout untuk layar yang lebih besar", "Tablet, dengan query ke dua arah", "Cetak"], "Mulai dari yang sederhana lalu tingkatkan ke atas; layout yang lebih besar bersifat tambahan."],
-      ["Container query didasarkan pada apa?", ["Lebar viewport", "Ukuran container dari elemen itu", "Device pixel ratio", "Ukuran font user"], "Komponen merespons ruang tempat ia ditaruh, di mana pun itu."],
-      ["Rule mana yang mencegah gambar meluber dari parent-nya?", ["`width: 100vw`", "`max-width: 100%; height: auto`", "`overflow: hidden` pada gambar", "`object-fit: contain`"], "Gambar boleh mengecil supaya muat tapi tidak pernah melebihi container-nya, dan proporsinya tetap terjaga."]
+      ["Di stylesheet mobile-first, style dasarnya menargetkan…", ["Layar desktop", "Layar kecil, dengan query `min-width` menambah layout untuk layar yang lebih besar", "Tablet, dengan query ke dua arah", "Cetak"], "Kamu memulai dari susunan bertumpuk paling ringan lalu menambah perbaikan ke ukuran lebih lebar."],
+      ["Container query didasarkan pada apa?", ["Lebar viewport", "Ukuran container dari elemen itu", "Device pixel ratio", "Ukuran font user"], "Komponen merespons ruang yang ditempatinya sendiri di mana pun ia diletakkan."],
+      ["Rule mana yang mencegah gambar meluber dari parent-nya?", ["`width: 100vw`", "`max-width: 100%; height: auto`", "`overflow: hidden` pada gambar", "`object-fit: contain`"], "Gambar mengecil mengikuti lebar wadah tanpa melampaui 100% dan rasio aslinya tetap terjaga."]
     ]
   },
   position: {
     terms: [
-      ['`relative` vs `absolute`', '`position: absolute` menempel relatif terhadap leluhur terdekat yang non-`static` (biasanya `relative`).'],
-      ['`position: sticky`', 'Mengalir normal sampai menyentuh ambang `top` — diam-diam gagal bila ada parent dengan `overflow: hidden`.'],
-      ['Stacking context', 'Lapisan lukis terisolasi ciptaan `transform`, `opacity < 1`, atau `isolation: isolate` yang mengurung seluruh `z-index` anaknya di dalamnya.']
+      ['`relative` vs `absolute`', '`position: absolute` berpatokan ke leluhur terdekat yang posisinya bukan `static` (umumnya `relative`).'],
+      ['`position: sticky`', 'Mengalir normal sampai menyentuh batas `top`, lalu menempel. Akan gagal kalau ada leluhur memakai `overflow: hidden`.'],
+      ['Stacking context', 'Lapisan lukis terpisah ciptaan `transform`, `opacity < 1`, atau `isolation: isolate` yang mengurung semua `z-index` di dalamnya.']
     ],
     title: 'Positioning dan stacking context',
-    why: "Modal, dropdown, header yang sticky, tooltip, dan badge semuanya bergantung pada positioning. 'Kenapa `z-index: 9999` tidak berpengaruh?' punya jawaban yang pasti, dan mengetahuinya menghemat berjam-jam.",
+    why: "Modal, dropdown, header sticky, hingga tooltip semuanya bertumpu pada positioning. Paham cara kerjanya langsung menjawab misteri klasik kenapa `z-index: 9999` masih kalah oleh elemen bertumpuk lain.",
     points: [
-      "`position: static` adalah alur normal. `relative` mempertahankan ruang elemennya dan membuatmu bisa menggesernya sedikit, sekaligus menjadikannya titik acuan untuk child yang di-position secara absolut.",
-      "`absolute` mengeluarkan elemen dari alur dan memosisikannya terhadap **ancestor terdekat yang di-position**.",
-      "`fixed` memosisikan terhadap viewport, **kecuali** ada ancestor yang punya `transform`, `filter`, atau `will-change: transform`: maka ia jadi fixed terhadap ancestor itu. `sticky` ikut scroll seperti biasa sampai mencapai offset tertentu, lalu menempel di dalam scroll container-nya.",
-      "`z-index` hanya berlaku untuk elemen yang di-position dan item flex/grid, dan hanya mengurutkan elemen **di dalam stacking context yang sama**.",
-      "Stacking context baru dibuat oleh elemen yang di-position dan punya `z-index`, dan juga oleh `opacity` di bawah 1, `transform`, `filter`, `isolation: isolate`, dan lainnya. Sebuah child tidak pernah bisa naik di atas context milik parent-nya.",
-      "Overlay modern: elemen `<dialog>` dan Popover API di-render di **top layer**, di atas semuanya, tanpa `z-index` dan tanpa jebakan stacking context. Di React, portal adalah jalan keluar lainnya."
+      "`position: static` mengikuti alur normal. `relative` menahan tempatnya di alur sembari mengizinkan geseran tipis serta jadi acuan bagi anak yang absolut.",
+      "`absolute` mencabut elemen dari alur biasa lalu menempelkannya ke **ancestor ber-position terdekat**.",
+      "`fixed` mengacu ke viewport, **kecuali** ada leluhur memakai `transform`, `filter`, atau `will-change: transform`. `sticky` ikut scroll sampai offset tercapai lalu menempel di dalam wadah scroll-nya.",
+      "`z-index` hanya aktif di elemen ber-position maupun item flex/grid, dan cuma mengatur urutan **dalam stacking context yang sama**.",
+      "Stacking context baru tercipta oleh elemen ber-position dengan `z-index`, `opacity` di bawah 1, `transform`, `filter`, dan `isolation: isolate`. Anak tak sanggup melompati batas context induknya.",
+      "Overlay modern memakai `<dialog>` atau Popover API yang tampil di **top layer** teratas bebas jebakan `z-index`. Di React, portal memberi jalan keluar serupa."
     ],
-    practice: "Buat ulang bug-nya: taruh elemen `position: fixed; inset: 0; z-index: 9999` di dalam parent yang punya `transform`, di samping header sticky dengan `z-index: 10`. Jelaskan dua hal yang salah, lalu perbaiki dengan dua cara berbeda.",
-    teach: "Jelaskan kenapa elemen dengan `z-index: 9999` masih bisa muncul di belakang elemen dengan `z-index: 2`.",
-    analogy: "Stacking context itu seperti map berisi lembaran transparan. Di dalam satu map kamu bebas mengurutkan lembarannya dengan `z-index`. Tapi map-mapnya juga bertumpuk, dan lembaran di map paling bawah tidak akan pernah bisa naik di atas map yang di atasnya, setinggi apa pun angkanya di dalam map-nya sendiri.",
+    practice: "Buat ulang bug-nya: taruh elemen `position: fixed; inset: 0; z-index: 9999` di dalam parent ber-`transform`, di samping header sticky dengan `z-index: 10`. Jelaskan dua masalah yang timbul lalu bereskan dengan dua cara.",
+    teach: "Jelaskan kenapa elemen `z-index: 9999` tetap bisa tertutup elemen `z-index: 2`.",
+    analogy: "Bayangkan stacking context sebagai map bening bertumpuk berisi lembar transparan. Di dalam satu map kamu bebas mengurutkan lembar memakai `z-index`, tapi lembar di map bawah mustahil mendahului isi map di atasnya.",
     pitfalls: [
-      "Terus menaikkan angka z-index alih-alih mencari ancestor yang membuat stacking context.",
-      "`position: absolute` tanpa ancestor yang di-position, sehingga elemennya terbang ke pojok halaman.",
-      "`position: sticky` gagal karena ada ancestor dengan `overflow: hidden` yang sudah menjadi scroll container.",
-      "Elemen `position: fixed` yang berhenti fixed karena ada ancestor yang mendapat `transform`, misalnya dari library animasi."
+      "Menambah angka z-index setinggi-tingginya daripada mencari leluhur pembuat stacking context.",
+      "Memasang `position: absolute` tanpa leluhur ber-position hingga elemen melesat ke pojok halaman.",
+      "`position: sticky` mati gara-gara leluhurnya memasang `overflow: hidden`.",
+      "`position: fixed` mendadak ikut terseret scroll sebab induknya ketambahan `transform` dari animasi."
     ],
     quiz: [
-      ["Elemen yang di-position secara absolut ditempatkan relatif terhadap…", ["Viewport, selalu", "Ancestor terdekatnya yang di-position", "Elemen parent-nya, selalu", "`<body>`, selalu"], "Ia memakai ancestor terdekat yang position-nya bukan `static`, dan kembali ke initial containing block kalau tidak ada."],
-      ["Mana yang membuat stacking context baru?", ["`color: red`", "`transform: translateX(0)`", "`margin: 0`", "`display: block`"], "Transform, opacity di bawah 1, filter, dan `isolation: isolate` semuanya membuat stacking context."],
-      ["Kenapa `z-index` bisa tidak berpengaruh pada sebuah elemen?", ["Angkanya melebihi batas yang diizinkan browser", "Elemennya tidak di-position, dan bukan item flex atau grid", "Parent-nya punya `overflow: hidden`", "Nilai negatif diabaikan"], "`z-index` diabaikan pada elemen static yang bukan item flex atau grid."],
-      ["Elemen `position: fixed` tiba-tiba ikut scroll bersama halaman. Penyebab yang paling mungkin?", ["`z-index`-nya tidak ada", "Ada ancestor yang sekarang punya `transform`, sehingga `fixed` relatif terhadapnya", "Halamannya memakai flexbox", "Meta tag viewport-nya tidak ada"], "Ancestor yang di-transform (atau diberi filter) menjadi containing block untuk turunan yang fixed."]
+      ["Elemen yang diberi position absolut ditempatkan mengacu ke…", ["Viewport, selalu", "Ancestor terdekatnya yang di-position", "Elemen parent-nya, selalu", "`<body>`, selalu"], "Elemen ini mencari leluhur terdekat selain `static`, baru jatuh ke initial containing block kalau tak ketemu."],
+      ["Mana yang membuat stacking context baru?", ["`color: red`", "`transform: translateX(0)`", "`margin: 0`", "`display: block`"], "Transform, opacity di bawah 1, filter, serta `isolation: isolate` sama-sama menciptakan stacking context baru."],
+      ["Kenapa `z-index` bisa tidak berpengaruh pada sebuah elemen?", ["Angkanya melebihi batas yang diizinkan browser", "Elemennya tidak di-position, dan bukan item flex atau grid", "Parent-nya punya `overflow: hidden`", "Nilai negatif diabaikan"], "Properti `z-index` dilewati begitu saja di elemen `static` di luar flex atau grid."],
+      ["Elemen `position: fixed` tiba-tiba ikut scroll bersama halaman. Penyebab yang paling mungkin?", ["`z-index`-nya tidak ada", "Ada ancestor yang sekarang punya `transform`, sehingga `fixed` relatif terhadapnya", "Halamannya memakai flexbox", "Meta tag viewport-nya tidak ada"], "Leluhur yang memiliki `transform` atau `filter` otomatis berubah jadi batas acuan bagi keturunan `fixed`."]
     ]
   },
   modern: {
     terms: [
-      ['CSS custom property (`--bg`)', 'Variabel pewarisan langsung di browser waktu run time — ubah `data-theme="dark"` dan seluruh permukaan ikut berubah.'],
-      ['Selector induk `:has()`', 'Mewarnai parent berdasar kondisi elemen turunannya (`label:has(input:invalid)`) tanpa bantuan JavaScript.'],
-      ['Kontrol cascade `@layer`', 'Mengelompokkan stylesheet ke lapisan prioritas eksplisit agar gaya pihak ketiga tidak pernah mengalahkan override komponenmu.']
+      ['CSS custom property (`--bg`)', 'Variabel pewarisan langsung yang dihitung browser saat runtime. Mengubah `data-theme="dark"` ikut mewarnai ulang seluruh layar seketika.'],
+      ['Selector induk `:has()`', 'Memberi gaya pada wadah parent berdasarkan kondisi elemen di dalamnya (`label:has(input:invalid)`) cukup dengan CSS murni.'],
+      ['Kontrol cascade `@layer`', 'Mengurutkan stylesheet ke lapisan prioritas tegas supaya aturan library luar berhenti menabrak komponenmu.']
     ],
     title: 'Custom property, theming, dan CSS modern',
-    why: "Design token, dark mode, dan variant komponen dibangun di atas custom property. CSS modern juga sudah bisa melakukan sebagian besar hal yang dulu membutuhkan preprocessor, jadi menguasainya membuat toolchain-mu tetap ramping.",
+    why: "Design token, dark mode, serta varian komponen bertumpu pada custom property. CSS modern pun kini menanggung hampir semua fitur preprocessor lama, menjaga konfigurasi build tetap ringkas.",
     points: [
-      "**Custom property** (`--brand: #3b47d6`) adalah variabel yang ikut cascade dan diwariskan, dibaca dengan `var(--brand, fallback)`. Tidak seperti variabel Sass, ia tetap hidup di browser dan bisa berubah saat runtime.",
-      "Definisikan **design token** di `:root` (warna, spasi, radius) lalu pakai di mana-mana. Mengganti tema berarti mendefinisikan ulang token-tokennya.",
-      "Dark mode dengan tombol manual butuh tiga kasus: ikuti sistem kalau user belum memilih, dan patuhi `data-theme=\"light\"` atau `data-theme=\"dark\"` kalau sudah. Media query-nya harus melewati halaman yang user-nya memilih light.",
-      "`color-scheme: light dark` membuat kontrol form dan scrollbar ikut menyesuaikan tema. `light-dark(#fff, #0e1117)` memilih value berdasarkan itu, alternatif ringkas untuk tema yang sederhana.",
-      "**Nesting** bawaan (`.card { &:hover { … } }`) serta `:is()` / `:where()` mempersingkat selector.",
-      "`:has()` adalah parent selector: `.field:has(input:user-invalid)` memberi style pada pembungkus berdasarkan isinya.",
-      "Transition menganimasikan perubahan property; animasikan `transform` dan `opacity` sebisa mungkin."
+      "**Custom property** (`--brand: #3b47d6`) ikut mengalir dan diwariskan di runtime lewat `var(--brand, fallback)`. Tidak seperti variabel Sass, nilainya dapat diubah langsung di browser.",
+      "Pasang **design token** di `:root` untuk warna, spasi, dan sudut lengkung. Berganti tema cukup dengan menukar isi variabel itu.",
+      "Tombol dark mode manual perlu tiga jalur: ikut OS saat belum dipilih, lalu patuhi `data-theme=\"light\"` atau `data-theme=\"dark\"` sesudahnya. Jangan sampai media query menimpa pilihan light.",
+      "`color-scheme: light dark` menyelaraskan checkbox dan scrollbar bawaan ke mode gelap, sedangkan `light-dark(#fff, #0e1117)` mengganti nilai warna sesuai mode.",
+      "**Nesting** asli CSS (`.card { &:hover { … } }`), `:is()`, dan `:where()` meringkas selector berulang.",
+      "`:has()` memberi style ke elemen induk melihat kondisinya di dalam, misalnya `.field:has(input:user-invalid)` menyorot wadah input yang salah tanpa JS.",
+      "Transition menganimasikan perubahan gaya antar-state. Utamakan menganimasikan `transform` dan `opacity` supaya tetap ringan."
     ],
-    practice: "Buat tombol tema dengan tiga state: sistem, light, dan dark. Tombol itu mengatur `data-theme` di `<html>` (atau menghapusnya untuk 'sistem') dan mengingat pilihannya. Test keenam kombinasi setting sistem dan pilihan user. Lalu tambahkan tema high-contrast hanya dengan mendefinisikan ulang token; tidak boleh ada rule komponen yang menyebut warna mentah.",
-    teach: "Jelaskan bagaimana custom property di CSS memungkinkan dark mode tanpa menulis ulang style setiap komponen.",
-    analogy: "Custom property itu seperti nama-nama warna cat di bagan milik dekorator: 'dinding', 'list', 'aksen'. Instruksi untuk setiap ruangan berbunyi 'cat list-nya dengan warna list'. Untuk mendekorasi ulang seluruh rumah, kamu cukup mengubah tiga entri di bagan, bukan instruksi untuk setiap ruangan.",
+    practice: "Buat tombol ganti tema tiga mode (sistem, light, dark) yang mengatur `data-theme` di `<html>` lalu menyimpannya. Uji keenam kombinasi setelan OS dan pilihan pengguna, lalu tambah tema high-contrast cukup dengan mengubah token.",
+    teach: "Jelaskan bagaimana custom property memungkinkan dark mode tanpa merombak gaya tiap komponen.",
+    analogy: "Custom property itu nama cat di bagan dekorator seperti 'dinding' atau 'list'. Tiap instruksi ruangan cuma menyebut nama cat itu, jadi saat rumah berganti nuansa kamu tinggal mengganti tiga kaleng di bagan.",
     pitfalls: [
-      "Warna yang ditulis langsung di mana-mana dalam komponen, sehingga ganti tema berubah jadi kerja cari-dan-ganti.",
-      "Media query dark mode yang mengabaikan pilihan user, sehingga 'light' tidak bisa dipilih di sistem yang gelap.",
-      "Lupa `color-scheme`, sehingga field form dan scrollbar tetap putih di halaman gelap.",
-      "Menganimasikan `width`, `height`, atau `top`, yang memaksa layout di setiap frame."
+      "Menulis kode warna mentah berulang di banyak rule sehingga ganti palet tema berujung cari-ganti manual.",
+      "Aturan media query dark mode yang memaksa tampil gelap biarpun user memilih mode terang.",
+      "Lupa `color-scheme`, meninggalkan input dan scrollbar putih menyilaukan di latar gelap.",
+      "Menganimasikan `width`, `height`, atau `top` hingga browser mengulang kalkulasi layout di setiap frame."
     ],
     quiz: [
-      ["Apa bedanya custom property dengan variabel Sass?", ["Lebih cepat diketik", "Ada di browser, ikut cascade dan diwariskan, dan bisa berubah per elemen atau per media query", "Hanya bisa menyimpan warna", "Butuh build step"], "Variabel Sass hilang setelah di-compile; custom property adalah value yang hidup di browser."],
-      ["Apa yang dipilih oleh `.card:has(img)`?", ["Gambar di dalam card", "Card yang berisi gambar", "Card tanpa gambar", "Gambar pertama di setiap card"], "`:has()` memilih elemen berdasarkan turunannya."],
-      ["Sistemnya gelap, user memilih light, dan halamannya tetap gelap. Penyebab yang paling mungkin?", ["Browser meng-cache CSS lama", "Rule `prefers-color-scheme: dark` tidak mengecualikan `[data-theme=\"light\"]`", "`color-scheme` tidak ada", "Custom property tidak bisa diubah setelah halaman dimuat"], "Media query-nya tetap menerapkan token gelap. Lindungi dengan `:root:not([data-theme=\"light\"])`."],
-      ["Property mana yang paling murah untuk dianimasikan?", ["`width` dan `height`", "`transform` dan `opacity`", "`margin` dan `padding`", "`top` dan `left`"], "Compositor bisa menanganinya tanpa layout atau paint."]
+      ["Apa bedanya custom property dengan variabel Sass?", ["Lebih cepat diketik", "Ada di browser, ikut cascade dan diwariskan, dan bisa berubah per elemen atau per media query", "Hanya bisa menyimpan warna", "Butuh build step"], "Variabel Sass lenyap saat build, sedangkan custom property tetap hidup dan reaktif di browser."],
+      ["Apa yang dipilih oleh `.card:has(img)`?", ["Gambar di dalam card", "Card yang berisi gambar", "Card tanpa gambar", "Gambar pertama di setiap card"], "`:has()` membidik elemen berdasarkan keturunan yang ada di dalamnya."],
+      ["Sistemnya gelap, user memilih light, dan halamannya tetap gelap. Penyebab yang paling mungkin?", ["Browser meng-cache CSS lama", "Rule `prefers-color-scheme: dark` tidak mengecualikan `[data-theme=\"light\"]`", "`color-scheme` tidak ada", "Custom property tidak bisa diubah setelah halaman dimuat"], "Aturan media query terus menimpa token gelap. Jaga dengan `:root:not([data-theme=\"light\"])`."],
+      ["Property mana yang paling murah untuk dianimasikan?", ["`width` dan `height`", "`transform` dan `opacity`", "`margin` dan `padding`", "`top` dan `left`"], "Compositor GPU menanganinya langsung tanpa perlu menghitung ulang layout maupun paint."]
     ]
   },
   tailwind: {
     terms: [
-      ['Class utilitas (`px-4`, `gap-3`)', 'Class atomik satu fungsi yang langsung terikat ke design token alih-alih file CSS `.card-wrapper` terpisah.'],
-      ['Token `@theme`', 'Definisi token berbasis CSS di Tailwind v4 yang membentuk utility class langsung dari CSS custom properties.'],
-      ['Prefiks responsif / state (`md:`, `hover:`)', 'Modifier tersusun sebaris langsung pada elemen tempat kamu membaca dan mengubah markup.']
+      ['Class utilitas (`px-4`, `gap-3`)', 'Class kecil satu tujuan yang langsung memetakan design token, menggantikan file CSS `.card-wrapper` dadakan.'],
+      ['Token `@theme`', 'Definisi design token berbasis CSS di Tailwind v4 yang langsung melahirkan class utilitas dari variabel CSS.'],
+      ['Prefiks responsif / state (`md:`, `hover:`)', 'Pengubah bersyarat sebaris tepat pada elemen markup tempat kamu membaca kodenya.']
     ],
     title: 'Tailwind CSS: dasar utility-first',
-    why: "Tailwind adalah salah satu cara paling umum untuk memberi style pada aplikasi React saat ini. Ia mengganti urusan memberi nama dan merawat stylesheet dengan class kecil yang bisa dirangkai, dan setiap class-nya adalah CSS biasa yang sudah kamu pahami.",
+    why: "Tailwind kini jadi andalan populer untuk mewarnai aplikasi React. Daripada mengarang nama class dan bolak-balik file stylesheet, kamu merangkai utilitas ringkas yang masing-masing adalah properti CSS murni.",
     points: [
-      "**Utility-first**: setiap class melakukan satu hal (`p-4`, `flex`, `text-lg`, `bg-blue-600`). Kamu merangkainya di markup alih-alih mengarang nama class dan menulis CSS terpisah.",
-      "Value-nya berasal dari **skala desain**: spasi (`p-4` = 1rem, dengan kelipatan 0.25rem), tipografi `text-sm`…`text-4xl`, warna `slate-50`…`slate-950`. Batasan menghasilkan konsistensi. Di v4, angka spasi berapa pun bisa dipakai (`p-13`) tanpa konfigurasi.",
-      "**Variant** memberi awalan kondisi pada utility: `hover:`, `focus-visible:`, `disabled:`, `dark:`, dan breakpoint `sm:` `md:` `lg:` (mobile-first, min-width).",
-      "Layout dipetakan satu-satu ke yang sudah kamu kenal: `flex items-center justify-between gap-4`, `grid grid-cols-3`, `absolute inset-0`.",
-      "Jalan keluar: arbitrary value `w-[37rem]`, `bg-[#1da1f2]`, dan arbitrary variant. Pakai seperlunya; utamakan skala.",
-      "Tailwind memindai file-filemu dan hanya menghasilkan **class yang kamu pakai**, jadi CSS-nya tetap kecil. Library komponen seperti Bootstrap bekerja sebaliknya: komponen yang sudah diberi style lalu kamu timpa."
+      "Gaya **utility-first** merangkai class kecil bertugas tunggal (`p-4`, `flex`, `text-lg`, `bg-blue-600`) langsung di markup tanpa repot mengarang nama `.card-header`.",
+      "Jarak spasi (`p-4` = 1rem per kelipatan 0.25rem), skala huruf `text-sm`–`text-4xl`, dan palet warna terjaga seragam dari satu **skala desain**. Di v4 semua angka spasi (`p-13`) langsung jalan.",
+      "**Variant** menambah awalan syarat ke utilitas: `hover:`, `focus-visible:`, `disabled:`, `dark:`, beserta breakpoint `min-width` (`sm:` `md:` `lg:`).",
+      "Utilitas layout memetakan CSS satu banding satu (`flex items-center justify-between gap-4`, `grid grid-cols-3`, `absolute inset-0`).",
+      "Pakai nilai bebas (`w-[37rem]`, `bg-[#1da1f2]`) seperlunya saja agar tata letak tetap menempel ke skala standar.",
+      "Tailwind memindai file kode dan menghasilkan **hanya class yang dipakai**, sehingga file CSS produksi kecil dibanding menimpa komponen kit bawaan."
     ],
-    practice: "Buka CSS playground, nyalakan Tailwind, dan bangun ulang card-nya dari ingatan. Lalu terjemahkan lima class-nya kembali ke CSS biasa yang dihasilkannya. Kalau tidak bisa, ulangi lagi materi CSS yang terkait.",
-    teach: "Jelaskan arti 'utility-first' dan jawab keberatan yang umum: 'bukankah ini sama saja dengan inline style?'",
-    analogy: "CSS tradisional itu seperti memesan perabot custom: beri nama tiap barang, jelaskan, lalu tunggu dibuat. Tailwind itu sekotak balok bangunan standar dengan ukuran dan warna tetap: kamu merangkai apa yang kamu butuhkan saat itu juga, dan karena semua orang memakai balok yang sama, semua yang dibangun di rumah itu jadi serasi.",
+    practice: "Buka CSS playground, nyalakan Tailwind, dan bangun ulang card-nya dari ingatan. Lalu terjemahkan lima class-nya kembali ke CSS biasa. Kalau bingung, buka lagi pelajaran CSS terkait.",
+    teach: "Jelaskan konsep 'utility-first' beserta jawaban atas anggapan 'bukankah ini mirip inline style?'",
+    analogy: "CSS klasik mirip memesan mebel kustom: beri nama, catat ukuran, lalu rakit terpisah. Tailwind memberi kotak balok ukuran seragam sehingga siapa pun di tim merakit bagian yang tetap nyambung tampilannya.",
     pitfalls: [
-      "Belajar Tailwind alih-alih belajar CSS. Setiap utility adalah deklarasi CSS; tanpa dasarnya kamu tidak bisa men-debug-nya.",
-      "Menyusun nama class secara dinamis (`'text-' + color + '-500'`). Tailwind hanya menemukan nama class lengkap yang tertulis di source-mu.",
-      "Menyebutnya 'inline style'. Utility mendukung hover, fokus, breakpoint, dan dark mode, serta diambil dari skala yang terbatas; inline style tidak bisa satu pun dari itu.",
-      "Menulis CSS sendiri di luar cascade layer pada project Tailwind v4: CSS itu mengalahkan semua utility Tailwind, berapa pun specificity-nya. Materi arsitektur menjelaskan sebabnya."
+      "Menghafal nama utilitas Tailwind tanpa paham dasar CSS. Tiap class cuma singkatan deklarasi CSS, jadi debugging tetap butuh CSS.",
+      "Merangkai nama class dinamis (`'text-' + color + '-500'`). Pemindai Tailwind butuh nama class utuh tertulis nyata di kode.",
+      "Menganggapnya sama dengan inline style, padahal inline style tak mendukung `:hover`, fokus, dark mode, breakpoint, atau skala token.",
+      "Menaruh aturan CSS sendiri di luar `@layer` di proyek Tailwind v4, membuatnya tak sengaja menimpa seluruh class utilitas."
     ],
     quiz: [
-      ["Apa arti `md:grid-cols-2`?", ["Dua kolom hanya di layar sedang", "Dua kolom mulai dari breakpoint `md` ke atas", "Dua kolom di bawah `md`", "Kolom berukuran sedang"], "Variant breakpoint adalah query `min-width` yang mobile-first: berlaku di lebar itu dan yang lebih lebar."],
-      ["Kenapa CSS Tailwind tetap kecil di production?", ["Ia mengirim stylesheet tetap yang sudah di-minify", "Hanya class yang ditemukan di file source-mu yang dihasilkan", "Ia menghapus class yang tidak terpakai di browser saat runtime", "Ia memakai inline style"], "Tailwind memindai source-mu dan hanya menghasilkan utility yang benar-benar kamu pakai."],
-      ["Kenapa `className={'bg-' + color + '-500'}` sering tidak berfungsi?", ["React melarang penyambungan string di `className`", "Tailwind tidak bisa melihat nama class lengkapnya di source, jadi class itu tidak pernah dihasilkan", "Warna harus berupa nilai hex", "Template string itu lambat"], "Class dideteksi sebagai string utuh saat build; petakan value ke nama class yang lengkap."]
+      ["Apa arti `md:grid-cols-2`?", ["Dua kolom hanya di layar sedang", "Dua kolom mulai dari breakpoint `md` ke atas", "Dua kolom di bawah `md`", "Kolom berukuran sedang"], "Prefiks breakpoint memakai query `min-width` mobile-first, berlaku dari `md` ke atas."],
+      ["Kenapa CSS Tailwind tetap kecil di production?", ["Ia mengirim stylesheet tetap yang sudah di-minify", "Hanya class yang ditemukan di file source-mu yang dihasilkan", "Ia menghapus class yang tidak terpakai di browser saat runtime", "Ia memakai inline style"], "Tailwind memindai kode sumber lalu hanya merakit class utilitas yang benar-benar ditulis."],
+      ["Kenapa `className={'bg-' + color + '-500'}` sering tidak berfungsi?", ["React melarang penyambungan string di `className`", "Tailwind tidak bisa melihat nama class lengkapnya di source, jadi class itu tidak pernah dihasilkan", "Warna harus berupa nilai hex", "Template string itu lambat"], "Pemindaian build mendeteksi kata utuh di file, jadi petakan nilai varian ke nama class lengkap."]
     ]
   },
   twreact: {
     terms: [
-      ['Abstraksi komponen', 'Memakai ulang `<Button variant="danger">` di React daripada `@apply` menjaga ukuran CSS kecil dan bertipe aman.'],
-      ['Peta variant eksplisit', 'Memetakan key (`primary: "bg-indigo-600..."`) ketimbang merakit string dinamis supaya pemindai Tailwind menemukan semua class.'],
-      ['`twMerge(...)`', 'Menyelesaikan bentrokan utilitas yang saling menimpa (`twMerge("px-4", "px-8")` menghasilkan tepat `px-8`).']
+      ['Abstraksi komponen', 'Memakai ulang `<Button variant="danger">` di React daripada `@apply` CSS menjaga bundel kecil dan ber-type aman.'],
+      ['Peta variant eksplisit', 'Memetakan key (`primary: "bg-indigo-600..."`) ketimbang menyambung string dinamis supaya pemindai Tailwind menemukan tiap class.'],
+      ['`twMerge(...)`', 'Membuang class utilitas yang saling menimpa sehingga `twMerge("px-4", "px-8")` menyisakan `px-8` saja.']
     ],
     title: 'Tailwind di React: komponen, variant, dan theming',
-    why: "Utility di markup hanya bisa berkembang kalau pengulangan dihilangkan dengan cara yang benar. Di codebase React, satuan untuk dipakai ulang adalah komponen, bukan class CSS, dan variant yang ber-type mengubah design system menjadi API yang dicek oleh compiler.",
+    why: "Utilitas baru terasa rapi saat perulangannya dipecah ke tempat yang tepat. Di React, komponen menyimpan daftar class satu kali saja, dan varian ber-type membuat TypeScript langsung menegur gaya yang salah ketik.",
     points: [
-      "Hilangkan duplikasi dengan mengekstrak **komponen**, bukan dengan memakai `@apply`. Sebuah `<Button>` memiliki class-nya satu kali saja.",
-      "Setup dengan Vite: install `tailwindcss` dan `@tailwindcss/vite`, tambahkan plugin-nya, lalu tulis `@import \"tailwindcss\";` di file CSS utamamu.",
-      "Sesuaikan design system di CSS dengan `@theme`: mendefinisikan `--color-brand-500` membuat `bg-brand-500`, `text-brand-500`, dan seterusnya.",
-      "Gabungkan class dengan aman memakai `clsx` + `tailwind-merge` (helper `cn()` yang umum), supaya `className` dari pemanggil bisa menimpa default tanpa konflik.",
-      "Modelkan variant (ukuran, intent) sebagai prop ber-type, secara manual dengan object lookup atau dengan `class-variance-authority`. Variant yang tidak valid menjadi compile error.",
-      "Komponen tombol sebaiknya default ke `type=\"button\"`. Default HTML-nya `submit`, jadi tanpa itu setiap tombol di dalam form akan men-submit form-nya.",
-      "Beri style pada state tanpa JavaScript: `group-hover:`, `peer-invalid:`, `data-[state=open]:`, `aria-expanded:`. Dark mode memakai `dark:`; ubah ke class atau atribut dengan `@custom-variant` untuk tombol manual."
+      "Hindari duplikasi dengan mengekstrak **komponen React** ketimbang mengandalkan `@apply`. Cukup `<Button>` yang menyimpan class-nya.",
+      "Di Vite, pasang `tailwindcss` dan `@tailwindcss/vite`, daftarkan plugin-nya, lalu muat `@import \"tailwindcss\";` di entri CSS.",
+      "Perluas token lewat `@theme` di CSS: menulis `--color-brand-500` otomatis melahirkan `bg-brand-500`, `text-brand-500`, dan seterusnya.",
+      "Gabungkan class lewat `clsx` plus `tailwind-merge` (`cn()`) supaya `className` dari pemanggil menang aman tanpa bentrok urutan.",
+      "Bungkus varian seperti `size` atau `intent` sebagai union type lewat object peta atau helper `cva`.",
+      "Pasang `type=\"button\"` sebagai bawaan komponen `<Button>` agar tombol di dalam form tak langsung men-submit tanpa sengaja.",
+      "Warnai state tanpa JS (`group-hover:`, `peer-invalid:`, `aria-expanded:`), lalu pasang `@custom-variant` kalau `dark:` diatur lewat atribut HTML."
     ],
-    practice: "Bangun komponen `Button`, `Input`, dan `Card` dengan variant ber-type di project Vite + React + Tailwind. Tambahkan warna brand lewat `@theme` dan tombol dark mode yang mengatur `data-theme` di `<html>`. Taruh sebuah `Button` di dalam form dan pastikan mengkliknya tidak men-submit. Tidak boleh ada file halaman yang berisi lebih dari utility layout.",
-    teach: "Jelaskan kenapa, di project React + Tailwind, kamu mengekstrak komponen alih-alih class CSS untuk menghindari pengulangan utility.",
-    analogy: "Komponen itu stempel karet yang sudah membawa tintanya sendiri. Kamu tidak memberi semua orang daftar dua belas warna tinta lalu berharap mereka mencampurnya dengan cara yang sama setiap kali; kamu memberi mereka stempelnya. Variant adalah putaran di stempel itu: kecil, sedang, besar; primary, danger.",
+    practice: "Bangun `Button`, `Input`, dan `Card` dengan varian ber-type di proyek Vite + React + Tailwind. Tambah warna merek lewat `@theme` serta sakelar dark mode di `data-theme` pada `<html>`, lalu cek menekan `Button` dalam form tak men-submit.",
+    teach: "Jelaskan alasan proyek React + Tailwind mengekstrak komponen ketimbang membuat class CSS berulang.",
+    analogy: "Komponen itu stempel karet yang tintanya sudah terisi pas. Kamu tak lagi membagikan dua belas botol tinta ke tim sambil berharap campurannya sama, melainkan cukup memutar pengatur ukuran dan warna pada stempelnya.",
     pitfalls: [
-      "Terlalu sering memakai `@apply` dan membangun ulang arsitektur stylesheet yang justru ingin dihilangkan Tailwind.",
-      "Menyambung string class sehingga `px-2 px-4` sama-sama berlaku dan hasilnya bergantung pada urutan CSS. Gabungkan dengan `tailwind-merge`.",
-      "Variant berupa string bebas alih-alih union yang ber-type.",
-      "Komponen `Button` tanpa `type` default, yang men-submit form mana pun tempat ia ditaruh."
+      "Keseringan memakai `@apply` sampai akhirnya membangun ulang arsitektur stylesheet manual lagi.",
+      "Menggabung string class mentah hingga `px-2 px-4` sama-sama masuk dan hasilnya bergantung urutan CSS, bukannya memakai `tailwind-merge`.",
+      "Menerima nama varian berupa string bebas ketimbang union ber-type.",
+      "Membuat `<Button>` tanpa bawaan `type=\"button\"` sehingga tiap klik di dalam form memicu submit."
     ],
     quiz: [
-      ["Apa yang terjadi kalau `--color-brand-500` didefinisikan di dalam `@theme`?", ["Tidak ada, sampai kamu menulis CSS yang memakainya", "Menghasilkan utility seperti `bg-brand-500` dan `text-brand-500`", "Mengganti semua warna bawaan", "Membuat komponen React"], "Variabel theme adalah design token yang menentukan class utility apa saja yang ada."],
-      ["Masalah apa yang diselesaikan `tailwind-merge`?", ["Ukuran bundle", "Utility yang bertabrakan seperti `px-2 px-4`: ia menyimpan yang terakhir", "Dark mode yang tidak ada", "Build yang lambat"], "Ia menyelesaikan konflik, jadi `className` dari pemanggil bisa diandalkan untuk menimpa default."],
-      ["Sebuah `<Button>` yang reusable ditaruh di dalam `<form>`. Mengkliknya men-submit form. Kenapa?", ["React men-submit form di setiap klik", "`type`-nya default ke `submit` kalau tidak diatur", "`tailwind-merge` menghapus type-nya", "Form-nya tidak punya `action`"], "Button HTML secara default adalah `type=\"submit\"`; komponennya seharusnya default ke `\"button\"`."],
-      ["Cara terbaik memakai ulang sekumpulan utility di seluruh aplikasi React?", ["Copy-paste", "`@apply` di stylesheet global", "Ekstrak sebuah komponen", "Object `style` inline"], "Komponen adalah satuan untuk dipakai ulang; ia menyatukan struktur, perilaku, dan class sekaligus."]
+      ["Apa yang terjadi kalau `--color-brand-500` didefinisikan di dalam `@theme`?", ["Tidak ada, sampai kamu menulis CSS yang memakainya", "Menghasilkan utility seperti `bg-brand-500` dan `text-brand-500`", "Mengganti semua warna bawaan", "Membuat komponen React"], "Variabel tema berfungsi sebagai design token yang menentukan class utilitas keluaran Tailwind."],
+      ["Masalah apa yang diselesaikan `tailwind-merge`?", ["Ukuran bundle", "Utility yang bertabrakan seperti `px-2 px-4`: ia menyimpan yang terakhir", "Dark mode yang tidak ada", "Build yang lambat"], "Utilitas ini menyelesaikan bentrokan sehingga `className` dari luar menimpa default dengan pasti."],
+      ["Sebuah `<Button>` yang reusable ditaruh di dalam `<form>`. Mengkliknya men-submit form. Kenapa?", ["React men-submit form di setiap klik", "`type`-nya default ke `submit` kalau tidak diatur", "`tailwind-merge` menghapus type-nya", "Form-nya tidak punya `action`"], "Tombol HTML bawaannya berjenis `submit`, jadi komponen reusable mesti menetapkan `type=\"button\"`."],
+      ["Cara terbaik memakai ulang sekumpulan utility di seluruh aplikasi React?", ["Copy-paste", "`@apply` di stylesheet global", "Ekstrak sebuah komponen", "Object `style` inline"], "Komponen menyatukan struktur HTML, aksesibilitas, perilaku, sekaligus daftar class utilitasnya."]
     ]
   },
   arch: {
     terms: [
-      ['Token semantik vs primitif', 'Komponen memakai `--surface` / `--accent` (semantik), bukan `--blue-500` mentah (primitif), supaya ganti tema aman tanpa ubah komponen.'],
-      ['Pembatasan cakupan gaya (CSS Modules / Layers)', 'Mencegah rule CSS antar halaman saling tabrakan seiring tim dan komponen bertambah besar.'],
-      ['Skala spasi modular', 'Membatasi margin dan padding ke tangga kelipatan tetap (`4, 8, 12, 16, 24, 32px`) agar antarmuka terasa rapi konsisten.']
+      ['Token semantik vs primitif', 'Komponen memakai nama peran `--surface` atau `--accent` (semantik), bukan `--blue-500`, agar ganti tema aman tanpa ubah komponen.'],
+      ['Pembatasan cakupan gaya (CSS Modules / Layers)', 'Mencegah aturan CSS antarhalaman saling tabrakan saat banyak engineer menyentuh stylesheet bersama.'],
+      ['Skala spasi modular', 'Membatasi jarak margin dan padding ke tangga kelipatan tetap (`4, 8, 12, 16, 24, 32px`) bikin UI terlihat selaras otomatis.']
     ],
     title: 'Arsitektur CSS dan design system',
-    why: "CSS bersifat global secara default, jadi ia lebih cepat membusuk dibanding kode lain seiring tim bertambah besar. Tugasnya adalah memilih cara membatasi cakupannya dengan sengaja, dan bisa menjelaskan kenapa alternatifnya ditolak.",
+    why: "Karena semua rule CSS bawaannya global, kode gaya jauh lebih cepat berantakan dibanding logika lain seiring membesarnya tim. Memilih batas cakupan dengan sadar menjaga gaya tetap bersih dan tahan lama.",
     points: [
-      "Masalah intinya adalah **scope global + specificity + urutan di source**: rule mana pun bisa memengaruhi elemen mana pun, dan penimpaan terus menumpuk.",
-      "Strategi pembatasan cakupan: konvensi penamaan (**BEM**: `.card__title--large`), **CSS Modules** (nama class unik yang dibuat saat build), **utility-first** (Tailwind), CSS-in-JS, dan **`@scope`** bawaan.",
-      "**Cascade layer** (`@layer reset, base, components, utilities;`) membuat urutan prioritas jadi eksplisit: layer yang belakangan mengalahkan yang lebih awal, berapa pun specificity-nya.",
-      "CSS yang ditulis **di luar layer mana pun mengalahkan semua layer**. Tailwind v4 menaruh style-nya sendiri di dalam layer (`theme`, `base`, `components`, `utilities`), jadi CSS biasa yang kamu tulis di luar layer diam-diam menimpa utility Tailwind. Taruh CSS-mu sendiri di dalam layer juga.",
-      "**Design system** adalah token (warna, spasi, tipografi, radius) → primitive (Button, Input) → pattern. Token punya tingkatan: nilai mentah, alias semantik (`--color-danger`), dan token komponen.",
-      "Komponen sebaiknya tidak mengatur margin luarnya sendiri; layout parent yang mengatur jarak (dengan `gap`). Itu membuat komponen bisa dipakai ulang di mana saja.",
-      "Pertimbangan untung-rugi: utility-first memberi kecepatan dan bundle CSS yang kecil tapi markup yang ramai; CSS Modules memberi CSS biasa dan isolasi tapi lebih banyak file dan penamaan; CSS-in-JS di runtime memakan performance dan tidak cocok dengan React Server Components."
+      "CSS tanpa batas berbagi satu **ruang nama global**, tempat perang specificity dan bentrokan urutan baris gampang terjadi.",
+      "Pilihan pembatasnya meliputi aturan penamaan (**BEM** `.card__title--large`), **CSS Modules**, **utility-first** (Tailwind), CSS-in-JS, serta `@scope`.",
+      "**Cascade layer** (`@layer reset, base, components, utilities;`) mengunci prioritas tetap: layer yang ditulis belakangan mengalahkan layer awal tanpa peduli skor specificity.",
+      "Aturan **di luar `@layer` menang melawan seluruh layer**. Di Tailwind v4 yang meletakkan utilitas ke `@layer utilities`, CSS polos tanpa layer langsung menimpa utilitas Tailwind kecuali masuk ke sebuah layer juga.",
+      "Susun **design system** dari token (warna, jarak, lengkung) → komponen dasar (`Button`, `Input`) → pola layar, berbekal alias semantik seperti `--color-danger`.",
+      "Komponen reusable sebaiknya tak membawa margin luar sendiri. Biarkan wadah induk mengatur jarak lewat `gap` agar komponen cocok di segala tempat.",
+      "Timbang plus-minus tiap cara. Utility cepat dan ringkas walau HTML ramai, CSS Modules terisolasi meski butuh ekstra file, dan runtime CSS-in-JS membebani Server Components."
     ],
-    practice: "Audit stylesheet yang kamu kenal: hitung `!important`, temukan selector dengan specificity tertinggi, dan daftarkan setiap nilai warna mentah. Lalu tulis proposal satu halaman tentang pembatasan cakupan dan token untuk tim berisi lima orang, sebutkan alternatif yang kamu tolak dan alasannya.",
-    teach: "Jelaskan bagaimana cascade layer menyelesaikan urutan prioritas, pakai contoh class utility yang harus menimpa style komponen, dan kenapa CSS di luar layer mengalahkan semuanya.",
-    analogy: "Tanpa layer, prioritas CSS itu seperti adu teriak: yang paling keras (paling spesifik) menang, jadi semua orang terus menaikkan suaranya. Cascade layer adalah urutan bicara yang disepakati dalam rapat: ketua rapat selalu punya kata terakhir, sepelan apa pun ia bicara.",
+    practice: "Audit salah satu stylesheet proyekmu: hitung jumlah `!important`, temukan selector terberat, dan catat semua warna mentah. Setelah itu susun proposal strategi token serta batas CSS untuk tim lima orang beserta alasan memilihnya.",
+    teach: "Jelaskan cara cascade layer menyelesaikan prioritas gaya antara class utilitas dan rule komponen, termasuk bahaya CSS di luar layer.",
+    analogy: "Tanpa cascade layer, prioritas CSS itu seperti lomba teriak: yang skornya paling kencang selalu menang sampai semua orang terus berteriak. Cascade layer menetapkan giliran bicara di rapat, sehingga giliran akhir selalu menang sepelan apa pun suaranya.",
     pitfalls: [
-      "Mencampur tiga strategi pembatasan cakupan dalam satu codebase tanpa aturan mana yang berlaku di mana.",
-      "Token yang dinamai sesuai nilainya (`--blue`) alih-alih tujuannya (`--color-action`), sehingga rebranding jadi menyakitkan.",
-      "Komponen yang membawa margin luar dan rusak di setiap konteks baru.",
-      "CSS di luar layer pada project Tailwind v4, yang diam-diam mengalahkan utility-nya."
+      "Mencampur tiga gaya styling dalam satu repo tanpa kesepakatan batas pemakaiannya.",
+      "Menamai token menurut warna mentahnya (`--blue`) bukan perannya (`--color-action`), menyulitkan saat rebrand.",
+      "Menempelkan margin luar di komponen hingga letaknya miring tiap dipakai di layar baru.",
+      "Menulis CSS biasa di luar `@layer` pada proyek Tailwind v4 lalu tanpa sadar menimpa class utilitas."
     ],
     quiz: [
-      ["Dengan `@layer components, utilities;` rule mana yang menang: `#app .btn` di `components` atau `.hidden` di `utilities`?", ["`#app .btn`: specificity-nya lebih tinggi", "`.hidden`: layer yang belakangan menang, berapa pun specificity-nya", "Yang posisinya lebih akhir di file", "Tidak ada"], "Urutan layer dibandingkan sebelum specificity."],
-      ["`.hidden { display: none }` ada di `@layer utilities`; `.card { display: block }` tidak ada di layer mana pun. Pada `<div class=\"card hidden\">`, mana yang menang?", ["`.hidden`: utilities adalah layer terakhir", "`.card`: style di luar layer mengalahkan semua layer", "Yang posisinya lebih akhir di file", "Tidak ada yang berlaku"], "Deklarasi biasa di luar layer mana pun mengungguli semua deklarasi yang ada di layer. Itulah kenapa CSS biasa bisa menimpa utility Tailwind v4."],
-      ["Apa yang diberikan CSS Modules?", ["Theming saat runtime", "Nama class dengan cakupan lokal yang dibuat saat build", "Library class utility", "Dukungan `@scope` bawaan di browser lama"], "Nama class di setiap file dibuat unik, jadi style tidak bisa bertabrakan antar komponen."],
-      ["Kenapa komponen yang reusable sebaiknya tidak mengatur margin luarnya sendiri?", ["Margin lambat di-render", "Jarak bergantung pada konteks, jadi layout parent yang seharusnya mengaturnya", "Margin tidak berfungsi di dalam grid", "Merusak dark mode"], "Komponen dengan margin bawaan hanya cocok di konteks tempat ia pertama kali dirancang."]
+      ["Dengan `@layer components, utilities;` rule mana yang menang: `#app .btn` di `components` atau `.hidden` di `utilities`?", ["`#app .btn`: specificity-nya lebih tinggi", "`.hidden`: layer yang belakangan menang, berapa pun specificity-nya", "Yang posisinya lebih akhir di file", "Tidak ada"], "Urutan layer diperiksa duluan sebelum membandingkan skor specificity."],
+      ["`.hidden { display: none }` berada di `@layer utilities`, sementara `.card { display: block }` di luar layer. Pada `<div class=\"card hidden\">`, mana yang menang?", ["`.hidden`: utilities adalah layer terakhir", "`.card`: style di luar layer mengalahkan semua layer", "Yang posisinya lebih akhir di file", "Tidak ada yang berlaku"], "Deklarasi di luar layer mengungguli seluruh isi layer. Itulah sebab CSS biasa bisa mengalahkan utilitas Tailwind v4."],
+      ["Apa yang diberikan CSS Modules?", ["Theming saat runtime", "Nama class dengan cakupan lokal yang dibuat saat build", "Library class utility", "Dukungan `@scope` bawaan di browser lama"], "Nama class tiap file di-hash menjadi unik agar gaya antar-komponen tak pernah bertabrakan."],
+      ["Kenapa komponen yang reusable sebaiknya tidak mengatur margin luarnya sendiri?", ["Margin lambat di-render", "Jarak bergantung pada konteks, jadi layout parent yang seharusnya mengaturnya", "Margin tidak berfungsi di dalam grid", "Merusak dark mode"], "Komponen yang membawa margin bawaan cuma pas di layar pertama tempat ia dirancang."]
     ]
   },
   render: {
     terms: [
-      ['CLS (Cumulative Layout Shift)', 'Lompatan tata letak mendadak akibat gambar/font terlambat dimuat tanpa ukuran pasti — kunci aspek rasio lebih dulu.'],
-      ['Animasi compositor-only (`transform`, `opacity`)', 'Berjalan langsung di GPU tanpa mengulang layout atau paint (animasi `width`/`top` tersendat di ponsel).'],
-      ['`:focus-visible` & `prefers-reduced-motion`', 'Menjaga indikator fokus keyboard tetap tajam sekaligus menonaktifkan gerak berat bagi pengguna sensitif gerakan.']
+      ['CLS (Cumulative Layout Shift)', 'Lompatan layar tiba-tiba gara-gara gambar atau font telat dimuat tanpa ukuran pasti. Kunci ukuran atau `aspect-ratio` sejak awal.'],
+      ['Animasi compositor-only (`transform`, `opacity`)', 'Diproses langsung di GPU bebas hitung ulang layout atau paint, jauh lebih halus ketimbang animasi `width` atau `top`.'],
+      ['`:focus-visible` & `prefers-reduced-motion`', 'Mempertahankan garis fokus keyboard yang tajam sekaligus meredam animasi berat bagi user yang sensitif terhadap gerak.']
     ],
     title: 'Rendering performance dan aksesibilitas',
-    why: "CSS menentukan seberapa cepat halaman muncul dan apakah semua orang bisa memakainya. Artinya memahami rendering pipeline dengan cukup baik untuk menemukan jank dan layout shift, serta menganggap aksesibilitas sebagai bagian dari kebenaran kode.",
+    why: "CSS ikut menentukan seberapa cepat layar muncul dan seberapa nyaman dipakai semua orang. Mengerti alur render browser membantu menyingkirkan layar tersendat, lompatan layout, serta celah aksesibilitas.",
     points: [
-      "Pipeline-nya: **Style → Layout → Paint → Composite**. Mengubah geometri (`width`, `top`, `margin`) memicu layout; mengubah warna memicu paint; `transform` dan `opacity` bisa langsung loncat ke composite.",
-      "**Layout thrashing**: membaca layout (`offsetHeight`) setelah menulis style, di dalam loop, memaksa layout sinkron berulang kali. Kumpulkan pembacaan dulu, baru penulisannya.",
-      "CSS itu **render-blocking**: jaga tetap kecil, inline-kan CSS kritis untuk layar pertama kalau perlu, dan hindari rantai `@import`.",
-      "Cegah **layout shift (CLS)**: siapkan ruang dengan dimensi atau `aspect-ratio`, jangan menyisipkan konten di atas yang sudah tampil, dan pakai `font-display: swap` dengan font cadangan yang ukurannya disesuaikan.",
-      "`content-visibility: auto` dan `contain` membuat browser bisa melewati pekerjaan untuk bagian halaman yang di luar layar atau terisolasi.",
-      "Aksesibilitas di CSS: jangan pernah menghapus outline fokus tanpa pengganti (`:focus-visible`), jaga kontras, jangan menyampaikan makna hanya lewat warna, dan sembunyikan secara visual dengan pola `.sr-only`, bukan `display: none`, kalau screen reader masih harus bisa menemukannya.",
-      "Reduced motion: tambahkan animasi hanya di bawah `prefers-reduced-motion: no-preference`, seperti di materi responsive. Kalau kamu juga butuh pengaman untuk CSS pihak ketiga, pendekkan durasinya menjadi `0.01ms` alih-alih `none`, supaya JavaScript yang menunggu `transitionend` tetap mendapat event-nya."
+      "Browser bekerja lewat urutan **Style → Layout → Paint → Composite**. Mengubah ukuran (`width`, `top`, `margin`) memicu ulang layout, mengubah warna memicu paint, sedangkan `transform` dan `opacity` langsung ke composite.",
+      "**Layout thrashing** terjadi waktu loop bergantian menulis gaya lalu membaca `offsetHeight`, memaksa hitung layout sinkron terus-menerus. Kelompokkan pembacaan lebih dulu sebelum menulis gaya.",
+      "CSS menghambat render awal (**render-blocking**). Jaga ukurannya ramping, inline CSS kritis bila perlu, dan jauhi rantai `@import`.",
+      "Cegah **layout shift (CLS)** dengan menyiapkan dimensi `width`/`height` atau `aspect-ratio`, hindari menyisip banner di atas konten tampil, dan gunakan `font-display: swap`.",
+      "`content-visibility: auto` dan `contain` memberi sinyal agar browser melewati hitung layout dan paint bagi bagian di luar layar.",
+      "Pertahankan cincin fokus lewat `:focus-visible`, penuhi rasio kontras, dan jangan cuma pakai warna untuk membedakan status. Sembunyikan teks khusus pembaca layar memakai `.sr-only` ketimbang `display: none`.",
+      "Kunci animasi di dalam `prefers-reduced-motion: no-preference`. Bila perlu meredam CSS pihak ketiga tanpa memutus event `transitionend`, ubah durasinya ke `0.01ms` bukan `none`."
     ],
-    practice: "Rekam performance trace dari animasi yang mengubah `left`, lalu yang mengubah `transform`, dan bandingkan entri Layout dan Paint-nya. Lalu jelajahi salah satu halamanmu dengan tombol Tab tanpa menyentuh mouse, dan perbaiki setiap tempat di mana kamu kehilangan jejak fokus.",
-    teach: "Jelaskan kenapa menganimasikan `transform` lebih mulus daripada menganimasikan `left`, dari sudut pandang rendering pipeline.",
-    analogy: "Me-render halaman itu seperti mementaskan sandiwara. Layout adalah membangun set panggung, paint adalah mengecat dekorasinya, composite adalah menggeser panel yang sudah jadi di atas rel. Menganimasikan `left` berarti membangun ulang set setiap frame; menganimasikan `transform` hanya menggeser panel yang sudah jadi, yang bisa dilakukan kru panggung enam puluh kali per detik tanpa memanggil tukang kayu.",
+    practice: "Rekam trace performa animasi `left` dibanding animasi `transform` lalu bedakan beban Layout dan Paint-nya. Setelah itu jelajahi salah satu halaman memakai tombol Tab penuh tanpa mouse lalu benahi titik fokus yang hilang.",
+    teach: "Jelaskan alasan animasi `transform` terasa jauh lebih mulus dibanding `left` dari alur rendering pipeline.",
+    analogy: "Me-render web mirip menyiapkan panggung sandiwara. Layout membangun rangka kayunya, paint mengecat papan panggung, dan composite menggeser panel jadi di atas rel. Menganimasikan `left` membongkar rangka tiap frame, sementara `transform` cuma menggeser panel jadi enam puluh kali sedetik.",
     pitfalls: [
-      "`outline: none` tanpa pengganti, yang membuat halaman tidak bisa dipakai lewat keyboard.",
-      "`will-change` di mana-mana, memakan memory tanpa manfaat.",
-      "Gambar dan iklan tanpa ruang yang disiapkan, sehingga konten melompat saat semuanya dimuat.",
-      "`transition: none !important` untuk reduced motion, yang merusak kode yang menunggu `transitionend`."
+      "Menulis `outline: none` tanpa pengganti hingga pengguna keyboard tersesat tak tahu di mana fokus berada.",
+      "Memasang `will-change` ke semua elemen sehingga menguras memori GPU tanpa manfaat nyata.",
+      "Memasang gambar atau iklan tanpa jatah ruang kosong hingga halaman melompat-lompat waktu dimuat.",
+      "Menimpa `transition: none !important` yang mematahkan pendengar event `transitionend` di JavaScript."
     ],
     quiz: [
-      ["Perubahan mana yang bisa ditangani compositor saja?", ["`width`", "`margin-top`", "`transform`", "`font-size`"], "Transform dan opacity tidak butuh layout maupun paint kalau elemennya berada di layer sendiri."],
-      ["Apa yang paling langsung mengurangi layout shift dari gambar?", ["Lazy loading", "Menyiapkan ruang dengan dimensi atau `aspect-ratio`", "File yang lebih kecil", "Menyajikannya dari CDN"], "Kalau browser sudah tahu ukurannya sebelum gambar dimuat, tidak ada yang bergeser saat gambarnya datang."],
-      ["Bagaimana menyembunyikan konten secara visual tapi tetap tersedia untuk screen reader?", ["`display: none`", "`visibility: hidden`", "Pola visually-hidden (`.sr-only`)", "`aria-hidden=\"true\"`"], "`display: none`, `visibility: hidden`, dan `aria-hidden` semuanya menghapus konten dari apa yang diumumkan screen reader."]
+      ["Perubahan mana yang bisa ditangani compositor saja?", ["`width`", "`margin-top`", "`transform`", "`font-size`"], "Transform dan opacity dilewati tahap layout maupun paint selama berada di lapisan sendiri."],
+      ["Apa yang paling langsung mengurangi layout shift dari gambar?", ["Lazy loading", "Menyiapkan ruang dengan dimensi atau `aspect-ratio`", "File yang lebih kecil", "Menyajikannya dari CDN"], "Begitu browser tahu ukurannya sejak awal, teks di bawah tak ikut terdorong waktu gambar selesai turun."],
+      ["Bagaimana menyembunyikan konten dari layar tapi tetap terbaca oleh screen reader?", ["`display: none`", "`visibility: hidden`", "Pola visually-hidden (`.sr-only`)", "`aria-hidden=\"true\"`"], "`display: none`, `visibility: hidden`, dan `aria-hidden` sama-sama menyingkirkan teks tersebut dari pohon aksesibilitas."]
     ]
   }
-}, { tagline: 'Tampilannya: cascade, layout, responsive design, dan Tailwind CSS dalam skala besar.' });
+}, { tagline: 'Tampilannya: cascade, layout, desain responsif, dan Tailwind CSS.' });

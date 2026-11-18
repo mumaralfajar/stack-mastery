@@ -1,23 +1,23 @@
 TRACKS.push({
   id: 'css', name: 'CSS + Tailwind', lang: 'css',
-  tagline: 'The look: the cascade, layout, responsive design, and Tailwind CSS at scale.',
+  tagline: 'Visual styling: the cascade, layout systems, responsive design, and Tailwind CSS.',
   lessons: [
     // ---------------- Beginner ----------------
     {
       id: 'html', title: 'HTML essentials: structure and meaning', level: 0, mins: 30, lang: 'html',
       terms: [
-        ['Semantic landmarks', 'Elements such as `<header>`, `<nav>`, `<main>`, and `<article>` giving screen readers direct page structure.'],
-        ['`<button>` vs `<a>`', 'Use `<a>` with `href` for navigating URLs; use `<button type="button">` for triggering actions in place.'],
-        ['`<label for="id">`', 'Explicitly binds a text caption to an input so screen readers announce it and tapping the label focuses the field.']
+        ['Semantic landmarks', 'Elements like `<header>`, `<nav>`, `<main>`, and `<article>` that tell screen readers how the page is structured.'],
+        ['`<button>` vs `<a>`', 'Use `<a href="...">` to navigate between URLs, and use `<button type="button">` for actions right on the page.'],
+        ['`<label for="id">`', 'Links a visible text label to a form input so screen readers announce it and clicking focuses the field.']
       ],
-      why: "CSS styles HTML, and React renders HTML. Picking the right element gives you keyboard support, accessibility and search-engine meaning for free; a `div` with a click handler gives you none of it.",
+      why: "CSS styles HTML, and React renders HTML. Using semantic tags gives you keyboard focus, screen-reader meaning, and better SEO for free, while a clickable `div` gives you none of that.",
       points: [
-        "HTML describes **what content is**, not how it looks: a heading, a paragraph, a list, a button, a navigation region.",
-        "A page usually has one `<h1>`, with headings nested in order below it (`h2`, `h3`…). Screen-reader users jump between headings like a table of contents.",
-        "**Landmarks** structure the page: `<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<aside>`, `<footer>`.",
-        "Use `<button>` for actions and `<a href>` for navigation. Both are focusable and work with the keyboard by default; a clickable `<div>` is neither. A plain `<div>` is fine as a layout wrapper that means nothing.",
-        "Forms: every input needs a `<label>`; `type` (`email`, `number`, `date`) gives the right phone keyboard and built-in validation; `required`, `min` and `pattern` validate without JavaScript.",
-        "Images need `alt` text describing their purpose (`alt=\"\"` if purely decorative), plus `width` and `height` so the page doesn't jump when they load."
+        "HTML defines **what content means**, not its layout: headings, paragraphs, lists, buttons, and landmarks.",
+        "Keep one `<h1>` per page with nested `<h2>` and `<h3>` headings underneath. Screen readers jump between headings like a table of contents.",
+        "**Landmarks** carve up the page into `<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<aside>`, and `<footer>`.",
+        "Use `<button>` for actions and `<a href>` for links. Both get keyboard focus out of the box, whereas a clickable `<div>` doesn't. Keep `<div>` for pure layout wrappers.",
+        "Always pair inputs with `<label>`. Setting `type` (`email`, `number`, `date`) picks the phone keypad, while `required`, `min`, and `pattern` validate inputs before JavaScript runs.",
+        "Give content images helpful `alt` text (`alt=\"\"` for decorative images), plus `width` and `height` so images don't shift text as they load."
       ],
       code: `
 <!doctype html>
@@ -59,7 +59,7 @@ TRACKS.push({
 `,
       practice: "In the CSS playground, build a product page skeleton with semantic elements, using `div` only for wrappers that carry no meaning. Then navigate it with the Tab key alone: can you reach and use everything? Replace the button with a clickable `div` and try again.",
       teach: "Explain why you should use a `<button>` instead of a `<div>` with a click handler.",
-      analogy: "HTML is the labelled floor plan of a building: this room is the kitchen, this is the entrance, this is the staircase. Paint and furniture (CSS) come later. A plan where every room is labelled 'room' can still be decorated, but nobody, least of all a visitor who can't see, can find the kitchen.",
+      analogy: "HTML works like a labelled building floor plan: this room is the kitchen, that's the front hall, here are the stairs. CSS adds paint and furniture later. If every room only says 'room', a visitor who can't see will never find the kitchen.",
       pitfalls: [
         "`div` and `span` for everything interactive, then re-creating focus, keyboard handling and roles by hand.",
         "Inputs with a placeholder but no label.",
@@ -75,19 +75,19 @@ TRACKS.push({
     {
       id: 'cascade', title: 'Selectors, the cascade and specificity', level: 0, mins: 30, viz: 'specificity',
       terms: [
-        ['Specificity (`id`, `class`, `tag`)', 'Three-column score deciding which rule wins when selectors target the same element (`#id` beats `.class`, which beats `a`).'],
-        ['Source order', 'Tie-breaker when two matching rules have equal specificity — whichever rule appears later in CSS wins.'],
-        ['Inheritance', 'Text properties (`color`, `font`) flow down to children unless overridden; layout properties (`border`, `padding`) do not.']
+        ['Specificity (`id`, `class`, `tag`)', 'Three-part score picking the winning rule when selectors clash (`#id` beats `.class`, which beats `a`).'],
+        ['Source order', 'Tie-breaker when two matching rules share equal specificity. Whichever declaration appears later in the stylesheet wins.'],
+        ['Inheritance', 'Text rules (`color`, `font`) trickle down to children unless overridden, while box rules (`border`, `padding`) stay on the element.']
       ],
-      why: "'Why isn't my style applying?' almost always has the same answer: another rule won. The cascade is the fixed set of rules that decides which one, and once you know it, CSS stops feeling random.",
+      why: "Whenever a CSS rule fails to show up, another rule beat it. The cascade follows clear tie-breaking rules, and once you learn that order, styling stops feeling random.",
       points: [
-        "A rule is `selector { property: value; }`. Selectors target by element (`p`), class (`.card`), id (`#header`), attribute (`[type=email]`) or state (`:hover`, `:focus-visible`).",
-        "Combinators express relationships: `nav a` (descendant), `ul > li` (direct child), `h2 + p` (next sibling).",
-        "When several rules set the same property, the **cascade** picks a winner in this order: importance (`!important`), inline styles, cascade layers, **specificity**, and finally **source order** (last wins).",
-        "Specificity is counted as (ids, classes, elements). One id beats any number of classes; one class beats any number of elements.",
-        "`:where()` adds **zero** specificity, so `:where(.card) a` is as easy to override as `a`. `:is()` takes the specificity of its most specific argument.",
-        "Some properties **inherit** from the parent (`color`, `font`, `line-height`); most layout properties (`margin`, `padding`, `border`, `width`) don't.",
-        "Keep specificity low and flat: style with single classes. Every id or `!important` makes the next override harder."
+        "A rule writes `selector { property: value }`. Selectors match tags (`p`), classes (`.card`), IDs (`#header`), attributes (`[type=email]`), or states (`:hover`, `:focus-visible`).",
+        "Combinators link elements by tree structure: `nav a` (any descendant), `ul > li` (direct child), and `h2 + p` (next sibling).",
+        "When rules compete on the same property, the **cascade** checks importance (`!important`), inline styles, `@layer` order, **specificity**, and **source order** (latest wins).",
+        "Specificity scores count `(ids, classes, elements)`. One ID outranks any pile of classes, and one class outranks any pile of tag selectors.",
+        "`:where()` adds **zero** specificity, making `:where(.card) a` just as easy to override as `a`. `:is()` adopts its heaviest selector's score.",
+        "Text properties like `color`, `font`, and `line-height` **inherit** down to children, whereas layout boxes like `margin`, `padding`, and `border` don't.",
+        "Keep specificity flat with single classes. Adding an ID selector or `!important` makes every future override harder."
       ],
       code: `
 /* For this markup:
@@ -127,25 +127,25 @@ body { font-family: system-ui, sans-serif; color: #1b2030; }
       quiz: [
         { q: "Which selector has the highest specificity?", a: ["`.card .title`", "`#main`", "`div p span a`", "`.a.b.c`"], c: 1, why: "One id (1,0,0) outranks any number of classes or elements." },
         { q: "Two rules with identical specificity set `color`. Which wins?", a: ["The first in the file", "The one declared later", "The one with more declarations", "The one in the bigger file"], c: 1, why: "With equal importance, layer and specificity, source order decides: last wins." },
-        { q: "Which property is inherited by default?", a: ["`margin`", "`border`", "`color`", "`width`"], c: 2, why: "Text properties such as `color` and `font` inherit; box properties don't." },
+        { q: "Which property is inherited by default?", a: ["`margin`", "`border`", "`color`", "`width`"], c: 2, why: "Text properties such as `color` and `font` inherit automatically, while box properties don't." },
         { q: "What is the specificity of `:where(#main .card) a`?", a: ["(1,1,1)", "(0,0,1)", "(0,1,1)", "(1,0,1)"], c: 1, why: "Everything inside `:where()` counts as zero, so only the `a` is left." }
       ]
     },
     {
       id: 'box', title: 'The box model', level: 0, mins: 25, viz: 'boxmodel',
       terms: [
-        ['`box-sizing: border-box`', 'Makes declared `width` include padding and border instead of adding them on top and causing overflow.'],
-        ['Padding vs Margin', 'Padding pushes inward inside the element’s background/border; margin pushes outward between neighboring elements.'],
-        ['Margin collapsing', 'Adjacent vertical block margins merge into the larger of the two instead of adding together (never happens inside flex/grid).']
+        ['`box-sizing: border-box`', 'Includes padding and border inside declared `width` rather than tacking them on top and causing overflow.'],
+        ['Padding vs Margin', 'Padding creates inner breathing room inside backgrounds and borders, while margin pushes neighboring elements apart outside.'],
+        ['Margin collapsing', 'Touching vertical block margins merge into the larger margin instead of adding up (never happens in flex or grid).']
       ],
-      why: "Every element is a rectangle. Most sizing bugs, such as a 100%-wide element that overflows its parent or a gap you can't explain, come from the box model, and they go away once you can see its four layers.",
+      why: "Every HTML element sits inside a rectangular box. Once you picture its four layers, confusing bugs like a 100%-wide box overflowing its container stop happening.",
       points: [
-        "From the inside out: **content**, **padding** (space inside the border), **border**, **margin** (space outside, between elements).",
-        "The default `box-sizing: content-box` means `width` sets only the content; padding and border are added on top. `border-box` makes `width` include padding and border, which is what most people expect.",
-        "Start every project with `*, *::before, *::after { box-sizing: border-box; }`.",
-        "`display: block` elements take the full width and stack; `inline` elements flow inside text and ignore `width` and `height`; `inline-block` flows inline but accepts sizes.",
-        "Vertical margins of neighbouring blocks **collapse** into the larger one. Padding doesn't collapse, and neither do margins between flex or grid items.",
-        "`overflow` controls content that doesn't fit: `visible`, `hidden`, `clip`, or `auto` (scroll only when needed)."
+        "From the center outward, each box has **content**, **padding** (inside the border), **border**, and **margin** (outside spacing).",
+        "Default `content-box` applies `width` only to the inner content, then adds padding and border outside. `border-box` keeps padding and border inside `width`.",
+        "Start CSS resets with `*, *::before, *::after { box-sizing: border-box; }`.",
+        "`block` elements fill available width and stack vertically. `inline` elements wrap inside text ignoring `width` and `height`, while `inline-block` accepts explicit sizes.",
+        "Adjacent vertical block margins **collapse** into whichever margin is bigger. Padding never collapses, and flex or grid items don't collapse either.",
+        "`overflow` sets how overflowing content behaves: `visible`, `hidden`, `clip`, or `auto` (scrollbars appear only when needed)."
       ],
       code: `
 *, *::before, *::after { box-sizing: border-box; }
@@ -167,7 +167,7 @@ p  { margin-top: 32px; }
 `,
       practice: "Use the box model visualizer to make a 300px `content-box` element overflow a 320px parent, then fix it by switching to `border-box`. In dev tools, inspect any element on this page and read its box diagram.",
       teach: "Explain the difference between padding and margin, and what `box-sizing: border-box` changes.",
-      analogy: "A framed picture on a wall. The picture is the content, the white mat around it is padding, the frame is the border, and the empty wall before the next frame is margin. `border-box` means that when you say 'this is a 30 cm picture', you're measuring the outside of the frame.",
+      analogy: "Think of a framed picture on a wall. Content is the art, padding is the white mat, border is the frame, and margin is the bare wall before the next frame. Setting `border-box` means measuring 30 cm from the outer frame edges.",
       pitfalls: [
         "`width: 100%` plus padding under `content-box`, overflowing the parent.",
         "Expecting `width` or vertical margin to work on an inline element such as `span`.",
@@ -175,25 +175,25 @@ p  { margin-top: 32px; }
       ],
       quiz: [
         { q: "With `box-sizing: content-box`, `width: 200px; padding: 20px; border: 5px solid` renders how wide?", a: ["200px", "225px", "250px", "240px"], c: 2, why: "200 + 20×2 + 5×2 = 250px. Padding and border are added outside the content width." },
-        { q: "Which sits between the content and the border?", a: ["Margin", "Padding", "Outline", "Gap"], c: 1, why: "Padding is inside the border; margin is outside it. An outline is drawn over the edge and takes no space." },
+        { q: "Which sits between the content and the border?", a: ["Margin", "Padding", "Outline", "Gap"], c: 1, why: "Padding lives inside the border while margin sits outside. Outlines draw over edges without adding layout size." },
         { q: "Two stacked paragraphs have `margin-bottom: 20px` and `margin-top: 30px`. The gap is…", a: ["50px", "30px", "20px", "25px"], c: 1, why: "Neighbouring vertical margins collapse to the larger of the two." }
       ]
     },
     {
       id: 'units', title: 'Units, colour and typography', level: 0, mins: 25,
       terms: [
-        ['`rem` vs `em` vs `px`', '`rem` scales with the user’s root font setting (accessible); `em` scales with the local element; `px` stays fixed.'],
-        ['Measure (`ch`)', 'Line width measured in character widths — capping prose around `60ch–70ch` prevents reading fatigue.'],
-        ['Contrast ratio (`4.5:1`)', 'WCAG AA minimum luminance gap between body text and background so low-vision and sunlit screens remain readable.']
+        ['`rem` vs `em` vs `px`', '`rem` scales with browser root font preferences (accessible), `em` scales with the current element, and `px` stays fixed.'],
+        ['Measure (`ch`)', 'Line width counted in zero character widths. Keeping prose near `60ch–70ch` makes long text comfortable to scan.'],
+        ['Contrast ratio (`4.5:1`)', 'WCAG AA minimum contrast between body text and background so screens stay readable in bright light or low vision.']
       ],
-      why: "Readable text and consistent spacing do most of the work of making an interface look professional. Your choice of units also decides whether the design respects a user's font-size and zoom settings.",
+      why: "Clear typography and steady spacing do most of the work in making a UI look sharp. Your choice of CSS units also decides whether browser zoom and custom font sizes still work.",
       points: [
-        "`px` is absolute. `rem` is relative to the root font size (16px by default) and follows the user's browser setting, so use it for font sizes and spacing.",
-        "`em` is relative to the element's own font size (useful for padding that grows with the text). `%` is relative to the parent. `vw`, `vh` and `dvh` are viewport units; `ch` is the width of a character.",
-        "`clamp(min, preferred, max)` gives fluid sizes with limits. For text, mix units in the middle value, `clamp(1.75rem, 1rem + 3vw, 2.5rem)`: the `rem` part keeps growing when the user zooms, which plain `vw` doesn't.",
-        "Colours: hex `#3b47d6`, `rgb()`, `hsl()` (hue, saturation, lightness: easy to reason about) and `oklch()` (perceptually even, so equal steps look equal).",
-        "Typography that reads well: body text 16px or more, `line-height` about 1.5, lines of 45–75 characters (`max-width: 65ch`), and a clear size scale for headings.",
-        "Text contrast must reach 4.5:1 against its background (3:1 for large text) to meet WCAG AA."
+        "`px` uses fixed CSS pixels, while `rem` multiplies the root font size (16px by default) and respects browser accessibility settings.",
+        "`em` follows the element's own font size, great for button padding that scales with text. `%` sizes from the parent, `vw`/`dvh` match viewport edges, and `ch` measures one character.",
+        "`clamp(min, preferred, max)` creates smooth sizing between bounds. Mixing `rem` into text like `clamp(1.75rem, 1rem + 3vw, 2.5rem)` ensures browser zoom keeps enlarging headlines.",
+        "Colours can use hex `#3b47d6`, `rgb()`, `hsl()` (hue, saturation, lightness), or `oklch()` where equal numeric steps look visually even.",
+        "Good body text starts at 16px+ with `line-height: 1.5`, line widths of `45ch–75ch` (`max-width: 65ch`), and clear heading hierarchy.",
+        "Body text needs at least 4.5:1 contrast against its surface (3:1 for large headings) under WCAG AA."
       ],
       code: `
 :root {
@@ -232,7 +232,7 @@ p  { max-width: 65ch; margin-block: 0 1rem; }
       quiz: [
         { q: "The root font size is 16px. How big is `1.5rem`?", a: ["15px", "16px", "24px", "1.5px"], c: 2, why: "`rem` multiplies the root font size: 1.5 × 16 = 24px." },
         { q: "What does `clamp(1rem, 3vw, 2rem)` do?", a: ["Always uses 3vw", "Uses 3vw, but never below 1rem or above 2rem", "Uses the smallest of the three values", "Uses 3vw only on screens narrower than 2rem"], c: 1, why: "`clamp` keeps a fluid preferred value between a minimum and a maximum." },
-        { q: "Minimum contrast ratio for normal body text under WCAG AA?", a: ["2:1", "3:1", "4.5:1", "7:1"], c: 2, why: "4.5:1 for normal text and 3:1 for large text; 7:1 is the stricter AAA level." }
+        { q: "Minimum contrast ratio for normal body text under WCAG AA?", a: ["2:1", "3:1", "4.5:1", "7:1"], c: 2, why: "AA requires 4.5:1 for body text and 3:1 for large headings, whereas 7:1 targets stricter AAA." }
       ]
     },
     // ---------------- Intermediate ----------------
@@ -245,12 +245,12 @@ p  { max-width: 65ch; margin-block: 0 1rem; }
       ],
       why: "Navbars, toolbars, cards, centred content and form rows: most everyday layout is a single row or column of things, and flexbox handles all of it.",
       points: [
-        "`display: flex` on a parent turns its children into flex items, laid out along a **main axis** (`flex-direction: row` or `column`).",
-        "`justify-content` spreads items along the main axis; `align-items` aligns them on the cross axis.",
-        "`gap` adds space between items without margin tricks.",
-        "Items can grow and shrink: `flex: 1` means 'take an equal share of the free space'; `flex: 0 0 200px` means 'stay exactly 200px'.",
-        "`flex-wrap: wrap` lets items flow onto new lines. `margin-left: auto` on one item pushes it, and everything after it, to the far end.",
-        "Flex items won't shrink below their content by default; `min-width: 0` on the item lets long text shrink or truncate."
+        "`display: flex` turns direct children into flex items arranged along a **main axis** (`row` or `column`).",
+        "`justify-content` aligns items along the main axis, while `align-items` positions them across the cross axis.",
+        "`gap` separates child items without messy margin hacks.",
+        "Items grow and shrink with `flex`: `flex: 1` shares free space equally, while `flex: 0 0 200px` locks an item at 200px.",
+        "`flex-wrap: wrap` lets items wrap across lines, and `margin-left: auto` on an item pushes it and trailing siblings to the far end.",
+        "Flex children won't shrink narrower than their content by default. Add `min-width: 0` on a flex child so long text wraps or truncates."
       ],
       code: `
 /* Navbar: logo left, links right, vertically centred */
@@ -279,7 +279,7 @@ p  { max-width: 65ch; margin-block: 0 1rem; }
 .cards { display: flex; flex-wrap: wrap; gap: 1rem; }
 .cards > * { flex: 1 1 220px; }
 `,
-      practice: "In the flexbox visualizer, reproduce three layouts: items centred both ways; first item left and the rest right; equal-width columns. Write down the CSS and the Tailwind classes for each.",
+      practice: "In the flexbox visualizer, build three layouts: items centered both ways, first item left with others pushed right, and equal-width columns. Write the CSS and Tailwind classes for each.",
       teach: "Explain the main axis and the cross axis, and which property controls alignment on each.",
       analogy: "Flexbox is arranging books on one shelf. `justify-content` decides how they're spread along the shelf: pushed left, centred, or spaced evenly. `align-items` decides whether short books sit at the bottom, the top, or the middle. `flex-direction: column` stands the shelf on its end, and the two properties swap what they mean on screen.",
       pitfalls: [
@@ -302,12 +302,12 @@ p  { max-width: 65ch; margin-block: 0 1rem; }
       ],
       why: "Page shells, dashboards, galleries, and any design whose rows and columns must line up belong to Grid. Together with flexbox, it covers almost every layout without hacks.",
       points: [
-        "`display: grid` plus `grid-template-columns` defines the column tracks; rows are created automatically as items flow in.",
-        "The `fr` unit is a share of the leftover space: `1fr 2fr` splits it one-third and two-thirds.",
-        "`repeat(3, 1fr)` is three equal columns. `repeat(auto-fit, minmax(min(220px, 100%), 1fr))` is a responsive grid with no media queries; the `min()` stops it overflowing a container narrower than 220px.",
-        "Items can span tracks: `grid-column: span 2`, or `grid-column: 1 / -1` for the full width.",
-        "`grid-template-areas` names regions, so the layout reads like a picture of the page.",
-        "Rule of thumb: **Grid for the page and anything two-dimensional, flexbox for the contents of each cell.**"
+        "`display: grid` with `grid-template-columns` sets column tracks, and rows appear automatically as children fill in.",
+        "The `fr` unit divides leftover grid space proportionally (`1fr 2fr` creates one-third and two-thirds columns).",
+        "`repeat(3, 1fr)` builds three equal columns. `repeat(auto-fit, minmax(min(220px, 100%), 1fr))` responds automatically without media queries while stopping overflow below 220px.",
+        "Children can span columns with `grid-column: span 2` or stretch edge to edge with `grid-column: 1 / -1`.",
+        "`grid-template-areas` lets you map out header, sidebar, and main zones visually right inside CSS.",
+        "Rule of thumb: use **Grid** for overall two-dimensional structure and **flexbox** for arranging items inside each cell."
       ],
       code: `
 /* Responsive card gallery, no media queries */
@@ -337,19 +337,19 @@ p  { max-width: 65ch; margin-block: 0 1rem; }
 /* Centring with grid: two declarations */
 .center { display: grid; place-items: center; }
 `,
-      practice: "In the grid visualizer, switch between the templates and resize the window while `auto-fit` is selected. Then build this app's own layout (sidebar + main) with `grid-template-areas` in the CSS playground, and make it fall back to one column on a phone.",
-      teach: "Explain when to choose Grid and when to choose flexbox, with one example of each.",
-      analogy: "Flexbox is a shelf; Grid is a sheet of graph paper. On graph paper you decide the columns and rows first, then place things into cells, and everything lines up both across and down.",
+      practice: "Try different templates in the grid visualizer and resize the viewport on `auto-fit`. Next, recreate a sidebar-plus-main page shell using `grid-template-areas` in the playground, stacking to one column on mobile.",
+      teach: "Explain when to choose Grid versus flexbox with one concrete UI example for each.",
+      analogy: "Flexbox is arranging books along a single shelf, while Grid works like graph paper. You sketch rows and columns upfront, drop cards into cells, and everything lines up both vertically and horizontally.",
       pitfalls: [
-        "Using `auto-fill` when you want `auto-fit`: `auto-fill` keeps empty tracks, so a few items don't stretch to fill the row.",
-        "`minmax(220px, 1fr)` without `min()`, which overflows a container narrower than 220px.",
-        "Hard-coding column counts per breakpoint when `minmax()` would adapt on its own.",
-        "`1fr` columns overflowing with long content. Use `minmax(0, 1fr)`."
+        "Picking `auto-fill` instead of `auto-fit`: `auto-fill` leaves invisible empty columns instead of expanding fewer items to fill the row.",
+        "Writing `minmax(220px, 1fr)` without `min()`, causing horizontal overflow on screens under 220px.",
+        "Hard-coding column counts at every breakpoint when `minmax()` adapts automatically.",
+        "`1fr` tracks blowing past boundaries on wide tables or long URLs. Switch to `minmax(0, 1fr)`."
       ],
       quiz: [
-        { q: "What does `grid-template-columns: 1fr 3fr` create?", a: ["Two equal columns", "Two columns sharing the free space 1:3", "Four columns", "One column of three rows"], c: 1, why: "`fr` units divide the available space proportionally." },
-        { q: "Which declaration gives a responsive grid without media queries?", a: ["`repeat(3, 1fr)`", "`repeat(auto-fit, minmax(min(200px, 100%), 1fr))`", "`200px 200px 200px`", "`grid-auto-flow: column`"], c: 1, why: "The browser fits as many columns of at least 200px as it can and stretches them; `min()` handles containers narrower than that." },
-        { q: "How do you make a grid item span the full width?", a: ["`width: 100vw`", "`grid-column: 1 / -1`", "`grid-column: span all`", "`justify-self: stretch`"], c: 1, why: "Line 1 to line -1 covers every column track. `span all` isn't valid CSS." }
+        { q: "What does `grid-template-columns: 1fr 3fr` create?", a: ["Two equal columns", "Two columns sharing the free space 1:3", "Four columns", "One column of three rows"], c: 1, why: "`fr` units divide leftover track space proportionally." },
+        { q: "Which declaration gives a responsive grid without media queries?", a: ["`repeat(3, 1fr)`", "`repeat(auto-fit, minmax(min(200px, 100%), 1fr))`", "`200px 200px 200px`", "`grid-auto-flow: column`"], c: 1, why: "The browser packs as many 200px+ columns as fit and stretches them, while `min()` shrinks safely on small screens." },
+        { q: "How do you make a grid item span the full width?", a: ["`width: 100vw`", "`grid-column: 1 / -1`", "`grid-column: span all`", "`justify-self: stretch`"], c: 1, why: "Spanning line 1 to line -1 covers every column track (`span all` is invalid CSS)." }
       ]
     },
     {
@@ -361,12 +361,12 @@ p  { max-width: 65ch; margin-block: 0 1rem; }
       ],
       why: "Most web traffic comes from phones. A layout that only works at the designer's screen width is broken for most of your users.",
       points: [
-        "Include the viewport meta tag, or phones render the page zoomed out: `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">`.",
-        "**Mobile-first**: write the base styles for small screens, then add complexity with `@media (min-width: …)`, or the newer range syntax `@media (width >= 768px)`.",
-        "Prefer **intrinsic** layouts that adapt on their own (flex-wrap, `auto-fit` grids, `clamp()`, `max-width`), and add breakpoints only where the design actually breaks.",
-        "Images: `max-width: 100%; height: auto;`, plus `width`/`height` attributes or `aspect-ratio`, so nothing shifts while they load.",
-        "**Container queries** (`@container`) style a component by the width of its container instead of the viewport, which is what a reusable component usually needs.",
-        "Respect user preferences: `prefers-color-scheme`, `hover`, `pointer`, and `prefers-reduced-motion`. Write motion inside `@media (prefers-reduced-motion: no-preference)`, so it's only added for people who haven't asked for less."
+        "Always add `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">` so phones don't zoom the whole desktop layout out.",
+        "Build **mobile-first** by setting single-column defaults first, then layering wider rules with `@media (min-width: …)` or `@media (width >= 768px)`.",
+        "Lean on **intrinsic sizing** (`flex-wrap`, `auto-fit` grids, `clamp()`, `max-width`) and only introduce breakpoints where content starts cramping.",
+        "Keep images responsive with `max-width: 100%` and `height: auto`, plus `width`/`height` or `aspect-ratio` to stop layout jumps.",
+        "**Container queries** (`@container`) adapt components based on their parent card width rather than the full browser viewport.",
+        "Honor user settings like `prefers-color-scheme`, `hover`, `pointer`, and `prefers-reduced-motion`. Gate animations inside `prefers-reduced-motion: no-preference`."
       ],
       code: `
 /* Mobile first: one column by default */
@@ -407,7 +407,7 @@ img, video { max-width: 100%; height: auto; }
         "Adding motion everywhere and then trying to remove it for reduced-motion users with `!important`. Add it only where it's wanted instead."
       ],
       quiz: [
-        { q: "In a mobile-first stylesheet, the base styles target…", a: ["Desktop screens", "Small screens, with `min-width` queries adding layout for larger ones", "Tablets, with queries both ways", "Print"], c: 1, why: "Start simple and enhance upward; larger layouts are opt-in." },
+        { q: "In a mobile-first stylesheet, the base styles target…", a: ["Desktop screens", "Small screens, with `min-width` queries adding layout for larger ones", "Tablets, with queries both ways", "Print"], c: 1, why: "You start with the simplest stacked styles and layer enhancements upward." },
         { q: "What is a container query based on?", a: ["The viewport width", "The size of the element's container", "The device pixel ratio", "The user's font size"], c: 1, why: "Components respond to the space they're placed in, wherever that is." },
         { q: "Which rule keeps images from overflowing their parent?", a: ["`width: 100vw`", "`max-width: 100%; height: auto`", "`overflow: hidden` on the image", "`object-fit: contain`"], c: 1, why: "The image may shrink to fit but never exceeds its container, and keeps its proportions." }
       ]
@@ -416,9 +416,9 @@ img, video { max-width: 100%; height: auto; }
     {
       id: 'position', title: 'Positioning and stacking contexts', level: 2, mins: 30, viz: 'stacking',
       terms: [
-        ['`relative` vs `absolute`', '`position: absolute` positions relative to the nearest ancestor with non-`static` positioning (usually `relative`).'],
-        ['`position: sticky`', 'Flows normally until reaching its `top` threshold — fails silently if any ancestor uses `overflow: hidden`.'],
-        ['Stacking context', 'Isolated paint layer created by `transform`, `opacity < 1`, or `isolation: isolate` that confines all child `z-index` values inside it.']
+        ['`relative` vs `absolute`', '`position: absolute` aligns itself against the nearest ancestor whose position is not `static` (usually `relative`).'],
+        ['`position: sticky`', 'Scrolls with the page until hitting its `top` offset, then sticks. Breaks if any ancestor sets `overflow: hidden`.'],
+        ['Stacking context', 'An isolated paint group created by `transform`, `opacity < 1`, or `isolation: isolate` that traps child `z-index` values inside.']
       ],
       why: "Modals, dropdowns, sticky headers, tooltips and badges all depend on positioning. 'Why does `z-index: 9999` do nothing?' has a precise answer, and knowing it saves hours.",
       points: [
@@ -452,7 +452,7 @@ img, video { max-width: 100%; height: auto; }
 `,
       practice: "Reproduce the bug: put a `position: fixed; inset: 0; z-index: 9999` element inside a parent with `transform`, next to a sticky header with `z-index: 10`. Explain both things that go wrong, then fix it two different ways.",
       teach: "Explain why an element with `z-index: 9999` can still appear behind an element with `z-index: 2`.",
-      analogy: "Stacking contexts are folders of transparent sheets. Inside one folder you can reorder the sheets freely with `z-index`. But the folders are stacked too, and a sheet in the bottom folder can never rise above the folder on top, however high its number is inside its own folder.",
+      analogy: "Think of stacking contexts as stacked folders full of clear sheets. Within one folder you reorder sheets freely with `z-index`. Yet a sheet inside the bottom folder can't climb above the folder sitting on top.",
       pitfalls: [
         "Raising z-index numbers instead of finding the ancestor that created a stacking context.",
         "`position: absolute` with no positioned ancestor, so the element flies to the corner of the page.",
@@ -469,19 +469,19 @@ img, video { max-width: 100%; height: auto; }
     {
       id: 'modern', title: 'Custom properties, theming and modern CSS', level: 2, mins: 35,
       terms: [
-        ['CSS custom property (`--bg`)', 'Live inherited variable evaluated in the browser at run time — flip `data-theme="dark"` and every surface re-paints.'],
-        ['`:has()` parent selector', 'Applies styles to a parent based on descendant state (`label:has(input:invalid)`) without JavaScript.'],
-        ['`@layer` cascade control', 'Groups stylesheets into explicit priority layers so third-party defaults never fight component overrides.']
+        ['CSS custom property (`--bg`)', 'A live inherited CSS variable evaluated in the browser at runtime. Flipping `data-theme="dark"` updates every theme color immediately.'],
+        ['`:has()` parent selector', 'Styles a parent wrapper based on a child state (`label:has(input:invalid)`) using pure CSS.'],
+        ['`@layer` cascade control', 'Sorts stylesheets into explicit priority layers so third-party CSS stops clashing with your component overrides.']
       ],
       why: "Design tokens, dark mode and component variants are built on custom properties. Modern CSS also does most of what preprocessors used to be needed for, so knowing it keeps your toolchain small.",
       points: [
-        "**Custom properties** (`--brand: #3b47d6`) are variables that cascade and inherit, read with `var(--brand, fallback)`. Unlike Sass variables, they live on in the browser and can change at run time.",
-        "Define **design tokens** on `:root` (colours, spacing, radii) and use them everywhere. Changing the theme then means redefining the tokens.",
-        "Dark mode with a manual toggle needs three cases: follow the system when the user hasn't chosen, and obey `data-theme=\"light\"` or `data-theme=\"dark\"` when they have. The media query must skip pages where the user picked light.",
-        "`color-scheme: light dark` makes form controls and scrollbars match the theme too. `light-dark(#fff, #0e1117)` picks a value based on it, a compact alternative for simple themes.",
-        "Native **nesting** (`.card { &:hover { … } }`) and `:is()` / `:where()` shorten selectors.",
-        "`:has()` is the parent selector: `.field:has(input:user-invalid)` styles a wrapper based on what's inside it.",
-        "Transitions animate property changes; animate `transform` and `opacity` where you can."
+        "**Custom properties** (`--brand: #3b47d6`) cascade and inherit at runtime, read via `var(--brand, fallback)`. Unlike Sass variables, you can update them live in the browser.",
+        "Define **design tokens** on `:root` for colors, spacing, and radii. Switching themes only changes those variable values.",
+        "Manual dark mode toggles handle three states: follow OS preference by default, or force `data-theme=\"light\"` or `data-theme=\"dark\"` when picked. Keep media queries from overriding an explicit light choice.",
+        "`color-scheme: light dark` syncs native checkboxes and scrollbars with dark mode, and `light-dark(#fff, #0e1117)` flips values per theme.",
+        "Native CSS **nesting** (`.card { &:hover { … } }`), `:is()`, and `:where()` trim long repetitive selectors.",
+        "`:has()` styles ancestors based on descendants, like `.field:has(input:user-invalid)` highlighting invalid wrappers without JS.",
+        "Transitions animate property changes over time. Favor `transform` and `opacity` so animations stay smooth."
       ],
       code: `
 :root {
@@ -524,7 +524,7 @@ body { background: var(--bg); color: var(--text); }
 /* Parent selector: style the field wrapper once its input is invalid */
 .field:has(input:user-invalid) { color: #c0362c; }
 `,
-      practice: "Build a theme toggle with three states: system, light and dark. It sets `data-theme` on `<html>` (or removes it for 'system') and remembers the choice. Test all six combinations of system setting and choice. Then add a high-contrast theme by redefining only tokens; no component rule should mention a raw colour.",
+      practice: "Build a three-state theme toggle (system, light, dark) toggling `data-theme` on `<html>` and saving the preference. Test all six combinations of OS setting and user pick, then add a high-contrast theme by swapping only tokens.",
       teach: "Explain how CSS custom properties make dark mode possible without rewriting every component's styles.",
       analogy: "Custom properties are the paint colours named on a decorator's chart: 'wall', 'trim', 'accent'. Every room's instructions say 'paint the trim in trim'. To redecorate the whole house, you change three entries on the chart, not the instructions for every room.",
       pitfalls: [
@@ -534,7 +534,7 @@ body { background: var(--bg); color: var(--text); }
         "Animating `width`, `height` or `top`, which forces layout on every frame."
       ],
       quiz: [
-        { q: "How do custom properties differ from Sass variables?", a: ["They're faster to type", "They exist in the browser, cascade and inherit, and can change per element or media query", "They can only hold colours", "They need a build step"], c: 1, why: "Sass variables are compiled away; custom properties are live values in the browser." },
+        { q: "How do custom properties differ from Sass variables?", a: ["They're faster to type", "They exist in the browser, cascade and inherit, and can change per element or media query", "They can only hold colours", "They need a build step"], c: 1, why: "Sass variables vanish at build time, while CSS custom properties stay live inside the browser." },
         { q: "What does `.card:has(img)` select?", a: ["Images inside cards", "Cards that contain an image", "Cards without images", "The first image in each card"], c: 1, why: "`:has()` selects an element based on its descendants." },
         { q: "The system is dark, the user picks light, and the page stays dark. Most likely cause?", a: ["The browser cached the old CSS", "The `prefers-color-scheme: dark` rule doesn't exclude `[data-theme=\"light\"]`", "`color-scheme` is missing", "Custom properties can't be changed after load"], c: 1, why: "The media query still applies the dark tokens. Guard it with `:root:not([data-theme=\"light\"])`." },
         { q: "Which properties are cheapest to animate?", a: ["`width` and `height`", "`transform` and `opacity`", "`margin` and `padding`", "`top` and `left`"], c: 1, why: "The compositor can handle them without layout or paint." }
@@ -549,12 +549,12 @@ body { background: var(--bg); color: var(--text); }
       ],
       why: "Tailwind is one of the most common ways to style React apps today. It replaces naming things and maintaining stylesheets with small composable classes, and every class is plain CSS you already understand.",
       points: [
-        "**Utility-first**: each class does one thing (`p-4`, `flex`, `text-lg`, `bg-blue-600`). You compose them in the markup instead of inventing class names and writing separate CSS.",
-        "Values come from a **design scale**: spacing (`p-4` = 1rem, in steps of 0.25rem), type `text-sm`…`text-4xl`, colours `slate-50`…`slate-950`. Constraints produce consistency. In v4 any spacing number works (`p-13`) without configuration.",
-        "**Variants** prefix a utility with a condition: `hover:`, `focus-visible:`, `disabled:`, `dark:`, and breakpoints `sm:` `md:` `lg:` (mobile-first, min-width).",
-        "Layout maps one-to-one to what you know: `flex items-center justify-between gap-4`, `grid grid-cols-3`, `absolute inset-0`.",
-        "Escape hatches: arbitrary values `w-[37rem]`, `bg-[#1da1f2]`, and arbitrary variants. Use them sparingly; prefer the scale.",
-        "Tailwind scans your files and generates **only the classes you use**, so the CSS stays small. Component libraries such as Bootstrap work the other way round: pre-styled components that you then override."
+        "With **utility-first** CSS, tiny single-purpose classes (`p-4`, `flex`, `text-lg`, `bg-blue-600`) compose directly in markup instead of inventing `.card-header` names.",
+        "Spacing (`p-4` = 1rem in 0.25rem steps), typography (`text-sm`–`text-4xl`), and colors come from one **design scale**. In v4, any spacing step (`p-13`) works automatically.",
+        "**Variants** prefix utilities with states or breakpoints: `hover:`, `focus-visible:`, `disabled:`, `dark:`, and `sm:`/`md:`/`lg:` (`min-width`).",
+        "Layout utilities mirror standard CSS properties (`flex items-center justify-between gap-4`, `grid grid-cols-3`, `absolute inset-0`).",
+        "Reach for arbitrary escapes (`w-[37rem]`, `bg-[#1da1f2]`) sparingly, keeping most spacing and colors on your scale.",
+        "Tailwind scans source files and compiles **only the classes you actually use**, keeping CSS tiny compared to full UI kits you have to override."
       ],
       code: `
 <!-- A responsive product card -->
@@ -590,35 +590,35 @@ body { background: var(--bg); color: var(--text); }
 `,
       practice: "Open the CSS playground, switch on Tailwind, and rebuild the card from memory. Then translate five of its classes back into the plain CSS they generate. If you can't, revisit that CSS lesson.",
       teach: "Explain what 'utility-first' means and answer the common objection: 'isn't this just inline styles?'",
-      analogy: "Traditional CSS is ordering custom furniture: name each piece, describe it, wait for it to be built. Tailwind is a box of standard building bricks in fixed sizes and colours: you snap together what you need on the spot, and because everyone uses the same bricks, everything in the house matches.",
+      analogy: "Traditional CSS feels like ordering custom furniture: pick names, write specs, then build sheets. Tailwind gives you standardized bricks in fixed sizes so any screen teammates snap together still looks cohesive.",
       pitfalls: [
-        "Learning Tailwind instead of CSS. Every utility is a CSS declaration; without the fundamentals you can't debug it.",
-        "Building class names dynamically (`'text-' + color + '-500'`). Tailwind only finds complete class names written in your source.",
-        "Calling it 'inline styles'. Utilities support hover, focus, breakpoints and dark mode, and draw from a constrained scale; inline styles do none of that.",
-        "Writing your own CSS outside a cascade layer in a Tailwind v4 project: it beats every Tailwind utility, whatever the specificity. The architecture lesson explains why."
+        "Memorizing Tailwind names without CSS basics. Each class maps to CSS declarations, so debugging layout still relies on CSS.",
+        "Building class names dynamically (`'text-' + color + '-500'`). Tailwind's scanner only spots whole class strings written out in source.",
+        "Dismissing utilities as inline styles. Utilities handle `:hover`, focus, dark mode, breakpoints, and design scales, which inline styles can't.",
+        "Adding custom CSS outside `@layer` in Tailwind v4, which accidentally overrides utility classes everywhere."
       ],
       quiz: [
-        { q: "What does `md:grid-cols-2` mean?", a: ["Two columns only on medium screens", "Two columns from the `md` breakpoint upward", "Two columns below `md`", "Medium-sized columns"], c: 1, why: "Breakpoint variants are mobile-first `min-width` queries: they apply at that width and wider." },
-        { q: "Why does Tailwind's CSS stay small in production?", a: ["It ships a fixed, pre-minified stylesheet", "Only the classes found in your source files are generated", "It removes unused classes in the browser at run time", "It uses inline styles"], c: 1, why: "Tailwind scans your source and generates just the utilities you actually use." },
-        { q: "Why does `className={'bg-' + color + '-500'}` often not work?", a: ["React forbids string concatenation in `className`", "Tailwind can't see the full class name in the source, so it never generates it", "Colours need hex values", "Template strings are slow"], c: 1, why: "Classes are detected as whole strings at build time; map values to complete class names instead." }
+        { q: "What does `md:grid-cols-2` mean?", a: ["Two columns only on medium screens", "Two columns from the `md` breakpoint upward", "Two columns below `md`", "Medium-sized columns"], c: 1, why: "Breakpoint prefixes use mobile-first `min-width` queries, matching from `md` upward." },
+        { q: "Why does Tailwind's CSS stay small in production?", a: ["It ships a fixed, pre-minified stylesheet", "Only the classes found in your source files are generated", "It removes unused classes in the browser at run time", "It uses inline styles"], c: 1, why: "Tailwind scans your files and builds only the utility classes you used." },
+        { q: "Why does `className={'bg-' + color + '-500'}` often not work?", a: ["React forbids string concatenation in `className`", "Tailwind can't see the full class name in the source, so it never generates it", "Colours need hex values", "Template strings are slow"], c: 1, why: "Static build scanning needs whole literal strings, so map variant values to complete utility classes." }
       ]
     },
     {
       id: 'twreact', title: 'Tailwind in React: components, variants and theming', level: 2, mins: 40, lang: 'tsx',
       terms: [
-        ['Component abstraction', 'Reusing `<Button variant="danger">` in React rather than `@apply` classes keeps bundles small and typed.'],
-        ['Explicit variant map', 'Mapping keys (`primary: "bg-indigo-600..."`) instead of building dynamic Tailwind strings so build purging finds every class.'],
-        ['`twMerge(...)`', 'Deduplicates overriding utility classes cleanly (`twMerge("px-4", "px-8")` resolves strictly to `px-8`).']
+        ['Component abstraction', 'Reusing `<Button variant="danger">` components instead of `@apply` CSS classes keeps bundles small and typed.'],
+        ['Explicit variant map', 'Mapping keys (`primary: "bg-indigo-600..."`) instead of concatenating strings so Tailwind finds every class at build time.'],
+        ['`twMerge(...)`', 'Deduplicates conflicting utility classes automatically so `twMerge("px-4", "px-8")` resolves to `px-8`.']
       ],
-      why: "Utilities in markup only scale if you remove repetition the right way. In a React codebase the unit of reuse is the component, not a CSS class, and typed variants turn a design system into an API that the compiler checks.",
+      why: "Utilities scale nicely once repetition stays inside components. In React, extract components holding classes once, and use typed variants so TypeScript catches invalid styles.",
       points: [
-        "Remove duplication by extracting **components**, not by reaching for `@apply`. A `<Button>` owns its classes once.",
-        "Setup with Vite: install `tailwindcss` and `@tailwindcss/vite`, add the plugin, and write `@import \"tailwindcss\";` in your CSS entry file.",
-        "Customize the design system in CSS with `@theme`: defining `--color-brand-500` creates `bg-brand-500`, `text-brand-500` and so on.",
-        "Merge classes safely with `clsx` + `tailwind-merge` (the common `cn()` helper), so a caller's `className` can override the defaults without conflicts.",
-        "Model variants (size, intent) as typed props, by hand with a lookup object or with `class-variance-authority`. An invalid variant becomes a compile error.",
-        "A button component should default to `type=\"button\"`. The HTML default is `submit`, so without it every button inside a form submits the form.",
-        "Style state without JavaScript: `group-hover:`, `peer-invalid:`, `data-[state=open]:`, `aria-expanded:`. Dark mode uses `dark:`; switch it to a class or attribute with `@custom-variant` for a manual toggle."
+        "Eliminate repeated classes by extracting **React components** rather than writing `@apply`. Put a button's styling inside `<Button>` once.",
+        "In Vite, install `tailwindcss` and `@tailwindcss/vite`, enable the plugin, and import Tailwind with `@import \"tailwindcss\";`.",
+        "Extend design tokens in CSS via `@theme`: adding `--color-brand-500` unlocks `bg-brand-500`, `text-brand-500`, and matching utilities.",
+        "Combine classes with `clsx` plus `tailwind-merge` (`cn()`) so caller overrides via `className` win without specificity clashes.",
+        "Represent variants like `size` and `intent` with typed union props backed by a lookup map or `cva`.",
+        "Default custom `<Button>` wrappers to `type=\"button\"` so placing them inside forms doesn't trigger accidental form submits.",
+        "Style states without JS (`group-hover:`, `peer-invalid:`, `aria-expanded:`), and configure `@custom-variant` when driving `dark:` manually via attributes."
       ],
       code: `
 // vite.config.ts:  plugins: [react(), tailwindcss()]   (tailwindcss from "@tailwindcss/vite")
@@ -673,18 +673,18 @@ export function Button({ intent = "primary", size = "md", type = "button", class
 `,
       practice: "Build `Button`, `Input` and `Card` components with typed variants in a Vite + React + Tailwind project. Add a brand colour through `@theme` and a dark-mode toggle that sets `data-theme` on `<html>`. Put a `Button` inside a form and check that clicking it doesn't submit. No page file should contain more than layout utilities.",
       teach: "Explain why, in a React + Tailwind project, you extract a component rather than a CSS class to avoid repeating utilities.",
-      analogy: "A component is a rubber stamp that already carries its ink. You don't hand everyone a list of twelve ink colours and hope they mix them the same way each time; you hand them the stamp. Variants are the dial on the stamp: small, medium, large; primary, danger.",
+      analogy: "A UI component is a pre-inked rubber stamp. Instead of handing teammates twelve ink bottles hoping they match shades, you pass one stamp with preset dials for size and intent.",
       pitfalls: [
-        "Overusing `@apply` and rebuilding the stylesheet architecture Tailwind was meant to remove.",
-        "Joining class strings so that `px-2 px-4` both apply and the result depends on CSS order. Merge them with `tailwind-merge`.",
-        "Variants as free-form strings instead of a typed union.",
-        "A `Button` component without a default `type`, which submits any form it's placed in."
+        "Overusing `@apply` until you end up maintaining traditional CSS stylesheets all over again.",
+        "Concatenating raw class strings so `px-2 px-4` both render and compete by CSS source order instead of merging with `tailwind-merge`.",
+        "Accepting unvalidated variant strings instead of typed unions.",
+        "Forgetting a default `type=\"button\"` on reusable buttons, causing surprise submits inside forms."
       ],
       quiz: [
-        { q: "What does defining `--color-brand-500` inside `@theme` do?", a: ["Nothing until you write CSS that uses it", "Generates utilities such as `bg-brand-500` and `text-brand-500`", "Replaces every built-in colour", "Creates a React component"], c: 1, why: "Theme variables are design tokens that decide which utility classes exist." },
-        { q: "What problem does `tailwind-merge` solve?", a: ["Bundle size", "Conflicting utilities such as `px-2 px-4`: it keeps the last one", "Missing dark mode", "Slow builds"], c: 1, why: "It resolves conflicts, so a caller's `className` can reliably override the defaults." },
-        { q: "A reusable `<Button>` is placed inside a `<form>`. Clicking it submits the form. Why?", a: ["React submits forms on every click", "Its `type` defaults to `submit` unless set", "`tailwind-merge` removed the type", "The form has no `action`"], c: 1, why: "HTML buttons are `type=\"submit\"` by default; the component should default to `\"button\"`." },
-        { q: "Preferred way to reuse a set of utilities across a React app?", a: ["Copy and paste", "`@apply` in a global stylesheet", "Extract a component", "Inline `style` objects"], c: 2, why: "The component is the unit of reuse; it bundles structure, behavior and classes together." }
+        { q: "What does defining `--color-brand-500` inside `@theme` do?", a: ["Nothing until you write CSS that uses it", "Generates utilities such as `bg-brand-500` and `text-brand-500`", "Replaces every built-in colour", "Creates a React component"], c: 1, why: "Theme variables are design tokens deciding which utility classes Tailwind emits." },
+        { q: "What problem does `tailwind-merge` solve?", a: ["Bundle size", "Conflicting utilities such as `px-2 px-4`: it keeps the last one", "Missing dark mode", "Slow builds"], c: 1, why: "It deduplicates conflicting classes so a caller's `className` overrides defaults predictably." },
+        { q: "A reusable `<Button>` is placed inside a `<form>`. Clicking it submits the form. Why?", a: ["React submits forms on every click", "Its `type` defaults to `submit` unless set", "`tailwind-merge` removed the type", "The form has no `action`"], c: 1, why: "Native `<button>` elements default to `submit`, so reusable components should set `type=\"button\"`." },
+        { q: "Preferred way to reuse a set of utilities across a React app?", a: ["Copy and paste", "`@apply` in a global stylesheet", "Extract a component", "Inline `style` objects"], c: 2, why: "Components bundle markup, accessibility behavior, and classes into one reusable unit." }
       ]
     },
     // ---------------- Expert ----------------
@@ -697,13 +697,13 @@ export function Button({ intent = "primary", size = "md", type = "button", class
       ],
       why: "CSS is global by default, so it decays faster than other code as a team grows. The job is to choose a way of scoping it on purpose, and to be able to say why you rejected the alternatives.",
       points: [
-        "The core problem is **global scope + specificity + source order**: any rule can affect any element, and overrides pile up.",
-        "Scoping strategies: naming conventions (**BEM**: `.card__title--large`), **CSS Modules** (unique class names generated at build time), **utility-first** (Tailwind), CSS-in-JS, and native **`@scope`**.",
-        "**Cascade layers** (`@layer reset, base, components, utilities;`) make precedence explicit: a later layer beats an earlier one regardless of specificity.",
-        "CSS written **outside any layer beats every layer**. Tailwind v4 puts its own styles in layers (`theme`, `base`, `components`, `utilities`), so plain CSS you write outside a layer silently overrides Tailwind utilities. Put your own CSS in a layer too.",
-        "A **design system** is tokens (colour, space, type, radius) → primitives (Button, Input) → patterns. Tokens come in tiers: raw values, semantic aliases (`--color-danger`), component tokens.",
-        "Components shouldn't set their own outer margin; the parent layout owns spacing (with `gap`). That keeps components reusable anywhere.",
-        "Trade-offs: utility-first gives speed and a small CSS bundle but busy markup; CSS Modules give plain CSS and isolation but more files and naming; runtime CSS-in-JS costs performance and doesn't suit React Server Components."
+        "Unscoped CSS shares one **global namespace**, so specificity wars and source-order surprises creep in as styles pile up.",
+        "Common scoping options include naming rules (**BEM** `.card__title--large`), **CSS Modules** (build-hashed names), **utility-first** (Tailwind), CSS-in-JS, and `@scope`.",
+        "**Cascade layers** (`@layer reset, base, components, utilities;`) set a fixed priority order where later layers beat earlier ones regardless of specificity.",
+        "Styles written **outside any `@layer` beat every layer**. Because Tailwind v4 puts utilities inside `@layer utilities`, unlayered custom CSS overrides them unexpectedly unless wrapped in a layer.",
+        "Build a **design system** bottom-up: tokens (color, spacing, radii) → UI primitives (`Button`, `Input`) → page patterns, split into raw and semantic aliases (`--color-danger`).",
+        "Keep reusable components free of outer margins. Let the parent layout handle spacing via `gap` so components work anywhere.",
+        "Weigh the trade-offs. Utility CSS ships fast and small with busier HTML. CSS Modules keep CSS clean with extra files, while runtime CSS-in-JS slows Server Components."
       ],
       code: `
 /* Layer order is declared once; later layers win regardless of specificity */
@@ -748,14 +748,14 @@ export function Button({ intent = "primary", size = "md", type = "button", class
       teach: "Explain how cascade layers settle precedence, using a utility class that must override a component style, and why unlayered CSS beats them all.",
       analogy: "Without layers, CSS precedence is a shouting match: whoever is loudest (most specific) wins, so everyone keeps raising their voice. Cascade layers are an agreed speaking order in a meeting: the chair always has the final word, however quietly they speak.",
       pitfalls: [
-        "Mixing three scoping strategies in one codebase with no rule for which applies where.",
-        "Tokens named after their values (`--blue`) instead of their purpose (`--color-action`), which makes a rebrand painful.",
-        "Components that carry outer margins and break in every new context.",
-        "Unlayered CSS in a Tailwind v4 project, quietly beating the utilities."
+        "Mixing three scoping styles in one codebase with no rule on which layer owns what.",
+        "Naming tokens by raw colors (`--blue`) instead of roles (`--color-action`), breaking rebrands later.",
+        "Baking outer margins onto components so they misalign wherever reused.",
+        "Writing unlayered custom CSS in Tailwind v4 and overriding utility classes by accident."
       ],
       quiz: [
         { q: "With `@layer components, utilities;` which rule wins: `#app .btn` in `components` or `.hidden` in `utilities`?", a: ["`#app .btn`: higher specificity", "`.hidden`: the later layer wins regardless of specificity", "Whichever is later in the file", "Neither"], c: 1, why: "Layer order is compared before specificity." },
-        { q: "`.hidden { display: none }` is in `@layer utilities`; `.card { display: block }` is in no layer. On `<div class=\"card hidden\">`, which wins?", a: ["`.hidden`: utilities is the last layer", "`.card`: unlayered styles beat every layer", "Whichever comes later in the file", "Neither applies"], c: 1, why: "Normal declarations outside any layer outrank all layered ones. That's why plain CSS can override Tailwind v4 utilities." },
+        { q: "`.hidden { display: none }` is in `@layer utilities`, while `.card { display: block }` sits outside layers. On `<div class=\"card hidden\">`, which wins?", a: ["`.hidden`: utilities is the last layer", "`.card`: unlayered styles beat every layer", "Whichever comes later in the file", "Neither applies"], c: 1, why: "Normal declarations outside any layer outrank all layered ones. That's why plain CSS can override Tailwind v4 utilities." },
         { q: "What do CSS Modules provide?", a: ["Runtime theming", "Locally scoped class names generated at build time", "A utility class library", "Native `@scope` support in older browsers"], c: 1, why: "Each file's class names are made unique, so styles can't collide across components." },
         { q: "Why should a reusable component avoid setting its own outer margin?", a: ["Margins are slow to render", "Spacing depends on context, so the parent layout should own it", "Margins don't work inside grid", "It breaks dark mode"], c: 1, why: "A component with built-in margin fits only the context it was first designed for." }
       ]
@@ -763,19 +763,19 @@ export function Button({ intent = "primary", size = "md", type = "button", class
     {
       id: 'render', title: 'Rendering performance and accessibility', level: 3, mins: 40,
       terms: [
-        ['CLS (Cumulative Layout Shift)', 'Visual page jumping caused by late images/fonts without explicit dimensions — reserve aspect ratios beforehand.'],
-        ['Compositor-only animation (`transform`, `opacity`)', 'Runs directly on the GPU without re-running layout or paint (`width`/`top` animations stall on low-end phones).'],
-        ['`:focus-visible` & `prefers-reduced-motion`', 'Preserves sharp keyboard navigation outlines while disabling heavy animations for motion-sensitive users.']
+        ['CLS (Cumulative Layout Shift)', 'Sudden page jumping caused by late images or web fonts without reserved dimensions. Set explicit sizes or `aspect-ratio` upfront.'],
+        ['Compositor-only animation (`transform`, `opacity`)', 'Runs on the GPU without re-running layout or paint, keeping motion smooth where `width` or `top` animations stutter.'],
+        ['`:focus-visible` & `prefers-reduced-motion`', 'Keeps sharp keyboard focus rings visible while toning down heavy motion for users who prefer less movement.']
       ],
-      why: "CSS decides how fast a page appears and whether everyone can use it. That means understanding the rendering pipeline well enough to find jank and layout shift, and treating accessibility as part of correctness.",
+      why: "CSS governs how fast screens draw and whether every user can operate them. Knowing the rendering pipeline helps you fix layout shifts, cut jank, and build in accessibility.",
       points: [
-        "The pipeline: **Style → Layout → Paint → Composite**. Changing geometry (`width`, `top`, `margin`) triggers layout; changing colour triggers paint; `transform` and `opacity` can skip straight to composite.",
-        "**Layout thrashing**: reading layout (`offsetHeight`) after writing styles, in a loop, forces repeated synchronous layout. Batch the reads, then the writes.",
-        "CSS is **render-blocking**: keep it small, inline the critical CSS for the first screen when needed, and avoid `@import` chains.",
-        "Prevent **layout shift (CLS)**: reserve space with dimensions or `aspect-ratio`, don't insert content above what's already shown, and use `font-display: swap` with size-matched fallback fonts.",
-        "`content-visibility: auto` and `contain` let the browser skip work for off-screen or isolated parts of the page.",
-        "Accessibility in CSS: never remove focus outlines without a replacement (`:focus-visible`), keep contrast, don't carry meaning by colour alone, and hide things visually with an `.sr-only` pattern rather than `display: none` when screen readers should still find them.",
-        "Reduced motion: add motion only under `prefers-reduced-motion: no-preference`, as the responsive lesson shows. If you also need a safety net for third-party CSS, shorten durations to `0.01ms` rather than setting `none`, so JavaScript waiting for `transitionend` still gets the event."
+        "Browsers follow **Style → Layout → Paint → Composite**. Editing size (`width`, `top`, `margin`) re-runs layout, changing color re-paints, while `transform` and `opacity` jump straight to composite.",
+        "**Layout thrashing** happens when a loop alternates writing styles and reading `offsetHeight`, forcing sync layout passes. Batch reads together before writing styles.",
+        "CSS is **render-blocking**. Keep stylesheets small, inline critical CSS if needed, and avoid chained `@import` waterfalls.",
+        "Prevent **layout shifts (CLS)** by reserving space with `width`/`height` or `aspect-ratio`, avoiding injections above visible content, and using `font-display: swap`.",
+        "`content-visibility: auto` and `contain` let browsers skip layout and paint for off-screen or self-contained sections.",
+        "Keep focus rings intact with `:focus-visible`, verify contrast ratios, and don't convey status by color alone. Hide off-screen text for screen readers using `.sr-only` instead of `display: none`.",
+        "Gate animations behind `prefers-reduced-motion: no-preference`. To tame third-party animations without breaking `transitionend` listeners, shorten durations to `0.01ms` instead of `none`."
       ],
       code: `
 /* Compositor-only animation: no layout, no paint */
@@ -818,7 +818,7 @@ export function Button({ intent = "primary", size = "md", type = "button", class
 `,
       practice: "Record a performance trace of an animation that changes `left`, then one that changes `transform`, and compare the Layout and Paint entries. Then tab through one of your pages without touching the mouse, and fix every place where you lose track of focus.",
       teach: "Explain why animating `transform` is smoother than animating `left`, in terms of the rendering pipeline.",
-      analogy: "Rendering a page is putting on a play. Layout is building the set, paint is painting the scenery, composite is sliding finished panels around on rails. Animating `left` rebuilds the set every frame; animating `transform` only slides a finished panel, which the stagehands can do sixty times a second without calling the carpenters.",
+      analogy: "Rendering a page is like staging a play. Layout builds the wooden set, paint colors the boards, and composite slides finished panels on rails. Animating `left` rebuilds the set every frame, whereas animating `transform` just glides a finished panel sixty times a second.",
       pitfalls: [
         "`outline: none` with no replacement, which makes the page unusable by keyboard.",
         "`will-change` on everything, using memory for no gain.",
@@ -828,7 +828,7 @@ export function Button({ intent = "primary", size = "md", type = "button", class
       quiz: [
         { q: "Which change can be handled by the compositor alone?", a: ["`width`", "`margin-top`", "`transform`", "`font-size`"], c: 2, why: "Transforms and opacity don't require layout or paint when the element is on its own layer." },
         { q: "What most directly reduces layout shift from images?", a: ["Lazy loading", "Reserving space with dimensions or `aspect-ratio`", "Smaller files", "Serving them from a CDN"], c: 1, why: "If the browser knows the size before the image loads, nothing moves when it arrives." },
-        { q: "How should content be hidden visually but kept for screen readers?", a: ["`display: none`", "`visibility: hidden`", "A visually-hidden (`.sr-only`) pattern", "`aria-hidden=\"true\"`"], c: 2, why: "`display: none`, `visibility: hidden` and `aria-hidden` all remove the content from what screen readers announce." }
+        { q: "How should content be hidden visually but kept for screen readers?", a: ["`display: none`", "`visibility: hidden`", "A visually-hidden (`.sr-only`) pattern", "`aria-hidden=\"true\"`"], c: 2, why: "`display: none`, `visibility: hidden`, and `aria-hidden` all strip content out of the accessibility tree." }
       ]
     }
   ]

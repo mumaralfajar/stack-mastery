@@ -75,7 +75,7 @@ I18N.add({
   'Slow Fetch #1 arrives late and overwrites Product #2 with Product #1. Classic race condition!': 'Fetch #1 yang lambat datang belakangan lalu menimpa Produk #2 dengan Produk #1. Ini contoh klasik race condition!',
 
   'Stacking context sandbox': 'Sandbox stacking context',
-  'Why z-index: 9999 inside a transformed card still paints behind a z-index: 10 header: transform and opacity < 1 trap all child z-indexes inside a local stacking context.': 'Kenapa z-index: 9999 di dalam card yang diberi transform tetap tampil di belakang header z-index: 10: transform dan opacity < 1 mengurung semua z-index child ke dalam stacking context lokal.',
+  'See how transform and opacity < 1 lock child z-index values inside a card, keeping z-index: 9999 behind a z-index: 10 header.': 'Lihat cara transform dan opacity < 1 mengurung z-index anak di dalam card sehingga z-index: 9999 kalah oleh header z-index: 10.',
   'none (normal flow)': 'none (aliran normal)',
   'Card has {p}, creating a local stacking context with implicit root priority 0. Its child z-index: 9999 cannot escape to beat the Header (z-index: 10).': 'Card memiliki {p}, sehingga membentuk stacking context lokal dengan prioritas akar 0. Child z-index: 9999 miliknya tidak bisa keluar mengalahkan Header (z-index: 10).',
   'With no transform/opacity on Card, the Tooltip participates in the root stacking context and z-index: 9999 paints on top of Header (z-index: 10).': 'Tanpa transform/opacity pada Card, Tooltip ikut di stacking context root sehingga z-index: 9999 tampil di atas Header (z-index: 10).',

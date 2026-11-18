@@ -8,7 +8,7 @@ A free, self-paced program that takes you from beginner to expert in a complete 
 
 No account, no installation, no cost. It is a static site built with Astro that runs entirely in your browser.
 
-Available in **English** and **Bahasa Indonesia** — switch with the **ID / EN** language button at the top-right of the screen.
+Available in **English** and **Bahasa Indonesia** — switch with the **ID / EN** language button at the top of the screen.
 
 ---
 
