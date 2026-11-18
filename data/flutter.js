@@ -2,24 +2,24 @@
 // Inside these template literals a Dart "${" must be written "\${".
 TRACKS.push({
   id: 'flutter', name: 'Dart + Flutter', lang: 'dart',
-  tagline: 'The mobile app: the Dart language, widgets, state with Bloc, testing and shipping to real devices.',
+  tagline: 'Mobile apps from scratch: Dart, widgets, Bloc state management, testing, and shipping to real devices.',
   lessons: [
     // ---------------- Beginner ----------------
     {
       id: 'dart', title: 'Dart essentials: types, null safety and functions', level: 0, mins: 30,
       terms: [
-        ['Sound null safety (`String` vs `String?`)', 'Non-nullable types guarantee a real value; nullable types (`String?`) require handling `null` (`??`, `?.`) before use.'],
-        ['`final` vs `const`', '`final` is assigned once at run time; `const` is fixed at compile time so Flutter can reuse widget instances safely.'],
-        ['Named parameters (`{required String id}`)', 'Readable configuration arguments wrapped in `{}` used throughout every Flutter widget constructor.']
+        ['Sound null safety (`String` vs `String?`)', 'Non-nullable types guarantee a real value. Nullable types (`String?`) require handling `null` (`??`, `?.`) before use.'],
+        ['`final` vs `const`', '`final` is assigned once at run time, while `const` is fixed at compile time so Flutter can reuse widget instances.'],
+        ['Named parameters (`{required String id}`)', 'Readable configuration arguments wrapped in `{}` used across Flutter widget constructors.']
       ],
-      why: "Flutter apps are written in Dart, and Dart was designed for exactly that job. If you know C# or TypeScript, most of it will look familiar — the parts that differ (sound null safety, named parameters, `final` versus `const`) are the parts every Flutter file uses.",
+      why: "Flutter apps are written in Dart. If you know C# or TypeScript, most of the syntax will feel familiar. The main differences you'll see in every Flutter file are sound null safety, named parameters, and `final` versus `const`.",
       points: [
-        "Dart is statically typed with inference: `var age = 30` is an `int` forever. Core types are `int`, `double`, `num`, `bool`, `String`, `List`, `Map`, `Set`.",
-        "`final` can be assigned once at run time; `const` is a compile-time constant. Default to `final`; Flutter uses `const` widgets heavily to skip work.",
-        "**Sound null safety**: `String` can never be null; `String?` may be. The compiler refuses to use a nullable value until you have handled the null case.",
-        "Null-aware operators: `a ?? b` (fallback), `a?.length` (access if not null), `a ??= b` (assign if null). Avoid `a!` — it throws at run time if you were wrong.",
-        "Functions are values. **Named parameters** in `{}` are optional unless marked `required`, and they are how every Flutter widget is configured: `Text('Hi', maxLines: 2)`.",
-        "String interpolation uses `$name` and `\${expression}`. `/` always returns a `double`; use `~/` for integer division."
+        "Dart is statically typed with inference, so `var age = 30` stays an `int` forever. Core types are `int`, `double`, `num`, `bool`, `String`, `List`, `Map`, and `Set`.",
+        "Assign `final` variables once at run time and use `const` for compile-time constants. Default to `final`; Flutter relies on `const` widgets to skip extra rebuild work.",
+        "Under **sound null safety**, `String` can never be null while `String?` might be. The compiler blocks using a nullable value until you handle the null case.",
+        "Null-aware operators include `a ?? b` (fallback), `a?.length` (read if non-null), and `a ??= b` (assign if null). Avoid `a!`, because it crashes at run time if the value is null.",
+        "Functions are first-class values. **Named parameters** inside `{}` are optional unless marked `required`, which is how widgets take options like `Text('Hi', maxLines: 2)`.",
+        "String interpolation uses `$name` and `\${expression}`. Division with `/` always returns a `double`, so use `~/` for integer division."
       ],
       code: `
 String? findNickname(String name) => name == 'Budi' ? 'Bud' : null;
@@ -47,17 +47,17 @@ void main() {
   print(7 / 2);     // 3.5 — "/" always returns a double
   print(7 ~/ 2);    // 3   — integer division
 }`,
-      practice: "Open DartPad (the Dart playground in this program). Write `String describe(String name, {int? age, String city = 'unknown'})` that returns a sentence, handling a missing age without using `!`. Call it three ways. Then change a `String` variable to hold `null` and read the compiler's message.",
+      practice: "Open DartPad and write `String describe(String name, {int? age, String city = 'unknown'})` that returns a sentence, handling a missing age without `!`. Call it three ways, then try storing `null` in a `String` variable and read the compiler error.",
       teach: "Explain the difference between `String` and `String?`, and why Dart refuses to compile `nickname.length` when `nickname` is a `String?`.",
-      analogy: "A non-nullable type is a parking space that is guaranteed to hold a car. A nullable type is a space that might be empty — and the attendant (the compiler) will not let you open the car door until you have looked and confirmed a car is actually there.",
+      analogy: "A non-nullable type is a parking space guaranteed to hold a car. A nullable type is a space that might be empty, so the compiler won't let you open the door until you check that a car is there.",
       pitfalls: [
-        "Scattering `!` to silence the compiler. Each one is a possible crash; handle the null case with `??`, `?.` or an `if`.",
-        "Confusing `final` and `const`: `final now = DateTime.now()` is fine, `const now = DateTime.now()` is not — the value is not known at compile time.",
-        "Expecting `7 / 2` to be `3` as in C#. In Dart `/` always produces a `double`."
+        "Adding `!` everywhere to silence the compiler. Each one is a potential crash; handle null with `??`, `?.`, or an `if` check.",
+        "Mixing up `final` and `const`: `final now = DateTime.now()` works, but `const now = DateTime.now()` fails because the value isn't known at compile time.",
+        "Expecting `7 / 2` to equal `3` like in C#. In Dart, `/` always returns a `double`."
       ],
       quiz: [
-        { q: "What is the type of `x` in `var x = 5;`?", a: ["`dynamic`", "`int`, inferred and fixed", "`num`", "`Object?`"], c: 1, why: "Dart infers `int` from the initializer; the variable can never hold another type." },
-        { q: "What does `name ?? 'Guest'` evaluate to when `name` is null?", a: ["null", "`'Guest'`", "It throws", "`name`"], c: 1, why: "`??` returns its right side when the left side is null." },
+        { q: "What is the type of `x` in `var x = 5;`?", a: ["`dynamic`", "`int`, inferred and fixed", "`num`", "`Object?`"], c: 1, why: "Dart infers `int` from the initial value, and the variable can't hold another type later." },
+        { q: "What does `name ?? 'Guest'` evaluate to when `name` is null?", a: ["null", "`'Guest'`", "It throws", "`name`"], c: 1, why: "`??` returns the right side when the left side is null." },
         { q: "Which declaration is a compile-time constant?", a: ["`final a = DateTime.now();`", "`var a = 3;`", "`const a = 3;`", "`late int a;`"], c: 2, why: "`const` values must be known at compile time and are canonicalized." }
       ]
     },
@@ -65,17 +65,17 @@ void main() {
       id: 'dartoop', title: 'Classes, collections and immutability', level: 0, mins: 30,
       terms: [
         ['Constructor initializers & `required`', 'Shaping valid objects in one expression (`const Product({required this.id, required this.name})`).'],
-        ['Collection `if` / `for` & Spread (`...`)', 'Building conditional widget lists inline inside `[ ... ]` cleanly without imperatively `.add()`-ing items.'],
-        ['Immutable value copy (`copyWith`)', 'Creating modified copies of state objects instead of mutating fields in place so Bloc/Riverpod detect changes reliably.']
+        ['Collection `if` / `for` & Spread (`...`)', 'Building conditional widget lists right inside `[ ... ]` instead of calling `.add()` step by step.'],
+        ['Immutable value copy (`copyWith`)', 'Returning a modified copy of state instead of mutating fields in place so Bloc and Riverpod spot changes.']
       ],
-      why: "Every Flutter widget is a class and every screen is built from lists and maps of data. Immutable model classes with value equality are also what make state management — and Bloc in particular — predictable.",
+      why: "Every Flutter widget is a class, and every screen builds from lists and maps of data. Immutable model classes with value equality make state management, especially Bloc, predictable.",
       points: [
-        "A class has `final` fields and a constructor. **Initializing formals** (`this.name`) and **named, required parameters** keep constructors short and call sites readable.",
-        "A `const` constructor lets instances be created at compile time. There is no `public`/`private` keyword: a leading underscore (`_count`) makes a member private to its library.",
-        "Model objects should be **immutable**: all fields `final`, changes made by creating a copy with `copyWith`.",
-        "Dart compares objects by identity unless you override `==` and `hashCode`. Value equality is required for state comparison; the `equatable` package or code generation removes the boilerplate.",
-        "Collections: `List` (ordered), `Set` (unique), `Map` (key → value). `where` and `map` are lazy like LINQ: they return an `Iterable` that does nothing until you loop over it or call `toList()`. `fold`, `any` and `firstWhere` run straight away and return a value.",
-        "**Collection `if` and `for`** build lists declaratively — `[for (final p in items) if (p.inStock) p.name]` — and are the idiomatic way to build widget lists."
+        "A class has `final` fields and a constructor. Initializing formals (`this.name`) and named `required` parameters keep constructors short and call sites readable.",
+        "A `const` constructor lets instances be built at compile time. Dart doesn't have `public` or `private` keywords; a leading underscore (`_count`) marks a member private to its library.",
+        "Keep model objects **immutable** by marking fields `final` and creating updated copies with `copyWith`.",
+        "Dart compares objects by identity unless you override `==` and `hashCode`. State comparison depends on value equality, which packages like `equatable` or code generation automate.",
+        "Core collections are `List` (ordered), `Set` (unique), and `Map` (key to value). Like LINQ, `where` and `map` return a lazy `Iterable` until you iterate or call `toList()`, while `fold`, `any`, and `firstWhere` run right away.",
+        "**Collection `if` and `for`** build lists inline (`[for (final p in items) if (p.inStock) p.name]`), which is how Flutter code constructs conditional widget lists."
       ],
       code: `
 class Product {
@@ -119,35 +119,35 @@ void main() {
   print(discounted);
   print(products[1] == const Product(id: 2, name: 'Mouse', price: 25));   // true: value equality
 }`,
-      practice: "Write an immutable `CartItem` (product, quantity) with `copyWith` and value equality, and a function that returns a new list with one item's quantity increased. Prove the original list is unchanged, and that two equal items are `==`.",
-      teach: "Explain why two `Product` objects with the same field values are not equal by default, and what you must write to change that.",
-      analogy: "An immutable object is a printed receipt: nobody edits it, they issue a corrected copy. Because the old receipt never changes, anyone holding it — a widget, a test, a log — can trust what it says. `copyWith` is the till printing that corrected copy.",
+      practice: "Write an immutable `CartItem` (`product`, `quantity`) with `copyWith` and value equality, plus a function returning a new list with one item's quantity incremented. Verify the original list stays unchanged and two equal items satisfy `==`.",
+      teach: "Explain why two `Product` objects with matching field values aren't equal by default, and what you need to write to change that.",
+      analogy: "An immutable object is a printed receipt: nobody edits it in place; they issue a corrected copy. Because the old receipt never changes, any widget, test, or log holding it can trust its contents, and `copyWith` prints the updated receipt.",
       pitfalls: [
-        "Overriding `==` without `hashCode`. Equal objects must have equal hash codes or they misbehave in sets and maps.",
-        "Mutating a list that is part of state (`items.add(x)`) instead of creating a new one — nothing that compares old and new state can see the change.",
-        "Forgetting that `where` and `map` are lazy: the work is repeated every time you loop over the result, unless you call `toList()` once."
+        "Overriding `==` without overriding `hashCode`. Equal objects must share hash codes or sets and maps break.",
+        "Mutating a state list in place (`items.add(x)`) instead of creating a new list, so code comparing old and new state misses the change.",
+        "Forgetting that `where` and `map` are lazy: looping over the result twice runs the work twice unless you call `toList()` once."
       ],
       quiz: [
-        { q: "How do you make a member private in Dart?", a: ["The `private` keyword", "Start its name with an underscore", "Put it in a `#region`", "Mark it `@hidden`"], c: 1, why: "Privacy is per library and is signalled by a leading underscore." },
-        { q: "Two instances of a class with identical fields, created with `new`-style calls (not `const`), are compared with `==`. By default the result is…", a: ["true", "false, unless they are the same instance", "a compile error", "true if the class has a `toString`"], c: 1, why: "Default equality is identity. Override `==` and `hashCode` for value equality. (Two identical `const` expressions are the same instance, so they would compare equal even without an override.)" },
-        { q: "What does `[for (final n in [1, 2, 3]) if (n.isOdd) n * 10]` produce?", a: ["`[10, 20, 30]`", "`[10, 30]`", "`[1, 3]`", "A syntax error"], c: 1, why: "Collection `for` and `if` build the list from the odd elements, transformed." }
+        { q: "How do you make a member private in Dart?", a: ["The `private` keyword", "Start its name with an underscore", "Put it in a `#region`", "Mark it `@hidden`"], c: 1, why: "Privacy is scoped per library and marked by a leading underscore." },
+        { q: "Two instances of a class with identical fields, created with `new`-style calls (not `const`), are compared with `==`. By default the result is…", a: ["true", "false, unless they are the same instance", "a compile error", "true if the class has a `toString`"], c: 1, why: "Default equality checks identity. Override `==` and `hashCode` for value equality (identical `const` expressions reuse one instance, so they compare equal without an override)." },
+        { q: "What does `[for (final n in [1, 2, 3]) if (n.isOdd) n * 10]` produce?", a: ["`[10, 20, 30]`", "`[10, 30]`", "`[1, 3]`", "A syntax error"], c: 1, why: "Collection `for` and `if` collect and transform only the odd items." }
       ]
     },
     {
       id: 'widgets', title: 'Flutter: widgets and the widget tree', level: 0, mins: 30,
       terms: [
-        ['`StatelessWidget` vs `StatefulWidget`', 'Immutable configuration blueprints rebuilt freely (`build(context)`) paired with persistent `State` objects when needed.'],
-        ['`BuildContext`', 'A handle locating where your widget sits in the tree so it can look up `Theme.of(context)` or `Navigator.of(context)`.'],
-        ['Composition over monolithic widgets', 'Extracting small named widgets instead of helper methods gives Flutter clear rebuild boundaries and `const` optimization.']
+        ['`StatelessWidget` vs `StatefulWidget`', 'Immutable configuration blueprints rebuilt often (`build(context)`), paired with long-lived `State` objects when needed.'],
+        ['`BuildContext`', 'A handle marking your widget\'s spot in the tree so it can look up `Theme.of(context)` or `Navigator.of(context)`.'],
+        ['Composition over monolithic widgets', 'Splitting small named widgets out instead of helper methods gives Flutter clear rebuild boundaries and `const` reuse.']
       ],
-      why: "In Flutter everything on screen is a widget, and the UI is a tree of them described in code. Once you see `build` as a function from data to a description of the screen — the same idea as a React component — the framework stops being mysterious.",
+      why: "Everything on a Flutter screen is a widget, arranged in a tree in code. Once you view `build` as a function turning data into a UI description, much like a React component, the framework makes sense right away.",
       points: [
-        "A **widget** is an immutable description of part of the UI. Flutter turns the tree of widgets into pixels; you never modify the screen directly.",
-        "A `StatelessWidget` has final fields (its inputs) and a `build` method that returns more widgets. It is the equivalent of a React function component with props.",
-        "`runApp` attaches the root widget. `MaterialApp` provides theming and navigation; `Scaffold` provides the page skeleton: app bar, body, floating button.",
-        "**Composition over inheritance**: you build UIs by nesting small widgets — `Padding`, `Center`, `Text`, `Icon` — not by subclassing big ones.",
-        "Mark widgets `const` wherever possible. A `const` widget is created once and Flutter can skip rebuilding it.",
-        "`BuildContext` is a widget's location in the tree. It is how you look things up from above: `Theme.of(context)`, `MediaQuery.sizeOf(context)`, `Navigator.of(context)`."
+        "A **widget** is an immutable description of part of the UI. Flutter turns that widget tree into pixels; you never mutate the screen directly.",
+        "A `StatelessWidget` holds `final` inputs and a `build` method returning child widgets, similar to a React function component with props.",
+        "`runApp` mounts the root widget. `MaterialApp` handles theming and navigation, while `Scaffold` gives a page its app bar, body, and floating button.",
+        "Flutter favors **composition over inheritance**, so you nest small widgets like `Padding`, `Center`, `Text`, and `Icon` rather than subclassing large ones.",
+        "Mark widgets `const` wherever you can. A `const` widget is created once and Flutter skips rebuilding it.",
+        "`BuildContext` tracks where a widget sits in the tree so you can read ancestors via `Theme.of(context)`, `MediaQuery.sizeOf(context)`, or `Navigator.of(context)`."
       ],
       code: `
 import 'package:flutter/material.dart';
@@ -191,35 +191,35 @@ class ProductTile extends StatelessWidget {
     );
   }
 }`,
-      practice: "Run `flutter create shop` and replace `lib/main.dart` with this code. Add a third product, then extract the price text into its own `PriceLabel` widget. Use hot reload after each change and note what is preserved.",
-      teach: "Explain what a widget is and what `build` returns, to someone who knows HTML or React.",
-      analogy: "A widget is a blueprint, not a building. Every time something changes you hand Flutter a fresh set of blueprints; Flutter compares them with the previous set and only rebuilds the rooms that actually differ. Blueprints are cheap, which is why you can redraw them constantly.",
+      practice: "Run `flutter create shop` and replace `lib/main.dart` with this code. Add a third product, extract the price text into a `PriceLabel` widget, and use hot reload after each edit to see what stays intact.",
+      teach: "Explain what a widget is and what `build` returns to someone who already knows HTML or React.",
+      analogy: "A widget is a blueprint, not the building itself. Whenever data changes, you hand Flutter fresh blueprints; Flutter diffs them against the previous set and updates only the parts that changed. Blueprints are cheap to redraw.",
       pitfalls: [
-        "Trying to change a widget after creating it. Widgets are immutable; you describe a new tree instead.",
-        "One enormous `build` method. Extract small widget classes — it is clearer and lets Flutter rebuild less.",
-        "Extracting UI into helper *methods* instead of widgets: methods cannot be `const` and always rebuild with their parent."
+        "Trying to mutate a widget after creating it. Widgets are immutable, so you return a new tree instead.",
+        "Writing one huge `build` method. Extract small widget classes for clearer code and smaller rebuild scopes.",
+        "Extracting UI into helper *methods* instead of widgets: helper methods can't be `const` and always rebuild with the parent."
       ],
       quiz: [
-        { q: "What does a `StatelessWidget`'s `build` method return?", a: ["A `RenderObject` that paints itself", "A widget (a description of UI)", "A `State` object", "An `Element`"], c: 1, why: "`build` returns another widget tree that describes this part of the screen. Flutter creates the elements and render objects from it." },
-        { q: "Why add `const` to a widget constructor call?", a: ["It makes the widget immutable", "The instance is canonical, so Flutter can skip rebuilding it", "It's required for widgets with no fields", "It keeps the widget's State across hot reload"], c: 1, why: "Identical `const` widgets are the same object, so the framework knows nothing changed. Widgets are immutable either way." },
-        { q: "What is `BuildContext`?", a: ["The app's global state", "A handle to the widget's position in the tree", "The device screen", "A network client"], c: 1, why: "It lets a widget look up ancestors such as the theme, media query and navigator." }
+        { q: "What does a `StatelessWidget`'s `build` method return?", a: ["A `RenderObject` that paints itself", "A widget (a description of UI)", "A `State` object", "An `Element`"], c: 1, why: "`build` returns a widget tree describing this part of the UI, and Flutter manages the elements and render objects." },
+        { q: "Why add `const` to a widget constructor call?", a: ["It makes the widget immutable", "The instance is canonical, so Flutter can skip rebuilding it", "It's required for widgets with no fields", "It keeps the widget's State across hot reload"], c: 1, why: "Identical `const` instances refer to the same object, letting Flutter skip diffs on that subtree." },
+        { q: "What is `BuildContext`?", a: ["The app's global state", "A handle to the widget's position in the tree", "The device screen", "A network client"], c: 1, why: "It lets a widget look up ancestors like the theme, media query, and navigator." }
       ]
     },
     {
       id: 'layout', title: 'Layout: rows, columns and constraints', level: 0, mins: 35, viz: 'constraints',
       terms: [
-        ['Constraints go down, sizes go up', 'Parent passes min/max bounds down; child picks a fitting size; parent chooses the child’s final x/y position.'],
-        ['Unbounded constraint (`∞`)', 'Happens inside scrollable axes or bare `Row`/`Column` children — putting `Expanded` or unbounded `ListView` inside triggers layout overflow errors.'],
-        ['`Expanded` vs `Flexible`', '`Expanded` fills remaining axis space strictly (`flex`); `Flexible` lets children take up to remaining space cleanly.']
+        ['Constraints go down, sizes go up', 'Parent passes min and max bounds down, the child picks a fitting size, and the parent sets the child\'s final x/y position.'],
+        ['Unbounded constraint (`∞`)', 'Happens on scroll axes or bare `Row`/`Column` children; nesting `Expanded` or an unbounded `ListView` inside triggers overflow errors.'],
+        ['`Expanded` vs `Flexible`', '`Expanded` forces a child to fill remaining axis space (`flex`), while `Flexible` lets a child grow up to that remaining limit.']
       ],
-      why: "Almost every Flutter layout bug — the yellow-and-black overflow stripes, 'unbounded height', a widget that ignores its size — is one rule misunderstood. Once you know the rule, the error messages start to make sense.",
+      why: "Most Flutter layout bugs, including yellow-and-black overflow stripes, 'unbounded height' errors, and widgets ignoring size hints, come from one rule. Learn that rule and layout errors become easy to read.",
       points: [
-        "The one rule: **constraints go down, sizes go up, the parent sets the position**. A parent tells each child its minimum and maximum size; the child picks a size within them; the parent places it.",
-        "`Row` lays children out horizontally, `Column` vertically. `mainAxisAlignment` works along that direction, `crossAxisAlignment` across it — the same model as flexbox.",
-        "`Expanded` makes a child fill the remaining space on the main axis; `Flexible` lets it take up to that much. Without one, a too-wide child overflows.",
-        "`SizedBox` gives a fixed size or a gap, `Padding` adds space inside, `Container` combines size, padding, decoration and alignment.",
-        "`ListView` and `GridView` scroll and build lazily with `.builder`. Inside a `Column` they need bounded height — wrap them in `Expanded`.",
-        "Responsive layouts use `LayoutBuilder` (the space this widget was given) or `MediaQuery.sizeOf(context)` (the whole screen) to choose a layout."
+        "One rule drives layout: **constraints go down, sizes go up, parent sets position**. Parents pass min and max bounds down, each child picks a size inside those bounds, and the parent places it.",
+        "`Row` lays out children horizontally and `Column` lays them out vertically. Just like flexbox, `mainAxisAlignment` aligns along that axis and `crossAxisAlignment` aligns across it.",
+        "`Expanded` forces a child to fill remaining main-axis space, while `Flexible` lets it take up to that amount. Without either, oversized children overflow.",
+        "Use `SizedBox` for fixed dimensions or gaps, `Padding` for inner spacing, and `Container` when you need size, padding, decoration, and alignment together.",
+        "`ListView` and `GridView` scroll and build lazily with `.builder`. Inside a `Column`, give them bounded height by wrapping them in `Expanded`.",
+        "Build responsive layouts with `LayoutBuilder` (bounds given to this widget) or `MediaQuery.sizeOf(context)` (full screen size)."
       ],
       code: `
 import 'package:flutter/material.dart';
@@ -275,19 +275,19 @@ class ResponsiveGrid extends StatelessWidget {
     );
   }
 }`,
-      practice: "Remove the `Expanded` around the `Column` and give the card a very long description: read the overflow error. Put it back. Then place a `ListView` directly inside a `Column`, read the 'unbounded height' error, and fix it with `Expanded`.",
-      teach: "Explain 'constraints go down, sizes go up, parent sets position' using a `Row` that contains a `Text` wrapped in `Expanded`.",
-      analogy: "Layout is packing a suitcase with a fussy traveller. The parent says 'you may be between 0 and 300 wide'. The child answers 'I will be 120'. The parent then decides where in the suitcase to put it. A child never chooses its own position, and never gets more room than it was offered.",
+      practice: "Remove `Expanded` around the `Column`, add a very long card description, and read the overflow error before putting `Expanded` back. Then put a `ListView` straight inside a `Column`, read the 'unbounded height' error, and fix it with `Expanded`.",
+      teach: "Explain 'constraints go down, sizes go up, parent sets position' using a `Row` holding a `Text` inside `Expanded`.",
+      analogy: "Layout is like packing a suitcase for a picky traveler. The parent says 'you can be between 0 and 300 wide', the child replies 'I'll take 120', and the parent decides where to put it. Children never pick their own coordinates or exceed offered bounds.",
       pitfalls: [
-        "A `Row` with a long `Text` and no `Expanded` or `Flexible` — the text is given infinite width and overflows.",
-        "A scrollable (`ListView`) inside a `Column` without `Expanded`: the column offers unbounded height and the list cannot size itself.",
-        "Reaching for fixed pixel sizes everywhere instead of letting flexible widgets adapt to the screen.",
-        "An `IconButton` with no `tooltip`: screen readers just say 'button', and there's no hint on long-press or hover."
+        "Putting a long `Text` inside a `Row` without `Expanded` or `Flexible`. The text gets infinite width and overflows.",
+        "Nesting a scrollable (`ListView`) inside a `Column` without `Expanded`: the column gives unbounded height, so the list can't size itself.",
+        "Hardcoding pixel dimensions everywhere instead of letting flexible widgets adapt to different screens.",
+        "Adding an `IconButton` without a `tooltip`: screen readers announce only 'button', and hover or long-press shows no hint."
       ],
       quiz: [
-        { q: "In a `Row`, which property aligns children vertically?", a: ["`mainAxisAlignment`", "`crossAxisAlignment`", "`textAlign`", "`alignment`"], c: 1, why: "A row's main axis is horizontal, so the cross axis is vertical." },
-        { q: "What does `Expanded` do inside a `Row`?", a: ["Makes the child scroll", "Makes the child fill the remaining main-axis space", "Adds padding", "Centers the child"], c: 1, why: "It gives the child a tight constraint equal to the leftover space." },
-        { q: "Which statement describes Flutter layout?", a: ["Children choose their own position", "Constraints go down, sizes go up, the parent sets the position", "Sizes go down, constraints go up", "Everything is absolutely positioned"], c: 1, why: "A single pass passes constraints down and sizes back up; parents position children." }
+        { q: "In a `Row`, which property aligns children vertically?", a: ["`mainAxisAlignment`", "`crossAxisAlignment`", "`textAlign`", "`alignment`"], c: 1, why: "A `Row`'s main axis is horizontal, so `crossAxisAlignment` controls vertical alignment." },
+        { q: "What does `Expanded` do inside a `Row`?", a: ["Makes the child scroll", "Makes the child fill the remaining main-axis space", "Adds padding", "Centers the child"], c: 1, why: "It passes a tight constraint equal to the remaining width." },
+        { q: "Which statement describes Flutter layout?", a: ["Children choose their own position", "Constraints go down, sizes go up, the parent sets the position", "Sizes go down, constraints go up", "Everything is absolutely positioned"], c: 1, why: "Constraints travel down and sizes travel back up in one pass; the parent places each child." }
       ]
     },
 
@@ -295,18 +295,18 @@ class ResponsiveGrid extends StatelessWidget {
     {
       id: 'async', title: 'Async Dart: Future, Stream and the event loop', level: 1, mins: 35,
       terms: [
-        ['`Future<T>` & `async`/`await`', 'Represents one asynchronous value or error arriving later without blocking Flutter’s 60/120 fps UI isolate.'],
-        ['`Stream<T>`', 'Emits zero, one, or many values over time (WebSocket ticks, scroll offsets, Bloc states) subscribed cleanly until cancelled.'],
-        ['Microtask vs Event queue', 'Dart’s single-threaded event loop drains all scheduled microtasks completely before pulling the next UI/timer event.']
+        ['`Future<T>` & `async`/`await`', 'Holds one async value or error arriving later without stalling Flutter\'s 60/120 fps UI isolate.'],
+        ['`Stream<T>`', 'Emits zero or more values over time (WebSocket frames, scroll positions, Bloc states) until cancelled.'],
+        ['Microtask vs Event queue', 'Dart\'s single-threaded event loop drains the entire microtask queue before pulling the next UI or timer event.']
       ],
-      why: "Network calls, file access, user input and Bloc itself are all asynchronous in Flutter. `Future` is one value later; `Stream` is many values over time — and state management is built on streams.",
+      why: "Network calls, file access, user input, and Bloc all run asynchronously. A `Future` produces one value later, while a `Stream` emits values over time and powers state management.",
       points: [
-        "A `Future<T>` is a value that arrives later. `await` pauses the `async` function without blocking the UI thread, exactly like C# and TypeScript.",
-        "Start independent work first, then await it together: `Future.wait([...])` for a list, or a record, `await (fetchUser(1), fetchOrders()).wait`, which keeps each result's own type. Handle failures with `try`/`catch`, and give network calls a `.timeout(...)`: it stops you *waiting*, though the request itself carries on.",
-        "A `Stream<T>` delivers a sequence of values over time: taps, WebSocket messages, state changes. Consume with `await for` or `listen`; produce with `async*` and `yield` or a `StreamController`.",
-        "Always cancel a `StreamSubscription` and close a `StreamController` when you are done — a forgotten subscription is a memory leak.",
-        "Dart runs your code on **one thread with an event loop**: finish the current synchronous code, drain the **microtask queue**, then take one **event** (timer, I/O, tap).",
-        "Long synchronous work therefore freezes the UI. CPU-heavy work belongs in another **isolate** — covered in the rendering lesson."
+        "A `Future<T>` represents a value arriving later. `await` pauses an `async` function without blocking the UI thread, just like in C# and TypeScript.",
+        "Start independent calls before awaiting them with `Future.wait([...])`, or keep per-item types using record syntax `await (fetchUser(1), fetchOrders()).wait`. Catch failures with `try`/`catch`, and note that `.timeout(...)` stops you waiting without aborting the underlying HTTP call.",
+        "A `Stream<T>` delivers values over time such as taps, WebSocket frames, or state updates. Read them with `await for` or `listen`, and produce them with `async*` + `yield` or a `StreamController`.",
+        "Always cancel every `StreamSubscription` and close every `StreamController` when done, or leaked subscriptions keep running in memory.",
+        "Dart executes code on **one thread with an event loop**: finish the active synchronous block, empty the **microtask queue**, then pull one **event** (timer, I/O, or tap).",
+        "Long synchronous loops freeze the UI. Move heavy CPU tasks onto another **isolate**, covered in the rendering lesson."
       ],
       code: `
 import 'dart:async';
@@ -352,36 +352,36 @@ Future<void> main() async {
   scheduleMicrotask(() => print('3 microtask'));
   print('2 sync');
 }`,
-      practice: "Predict the last four lines of output before running this in DartPad. Then write a `Stream<String>` that emits a search query only after the user has stopped typing for 300 ms (a debounce), using a `StreamController` and a `Timer`.",
-      teach: "Explain the difference between a `Future` and a `Stream`, with one real example of each from a mobile app.",
-      analogy: "A `Future` is a parcel delivery: one box, arriving once, possibly with a failure notice instead. A `Stream` is a magazine subscription: issues keep arriving until someone cancels — and if you move house without cancelling, they pile up on a doorstep forever.",
+      practice: "Predict the last four output lines before running the sample in DartPad. Then build a debounced `Stream<String>` using a `StreamController` and `Timer` that emits only after 300 ms of typing silence.",
+      teach: "Explain the difference between a `Future` and a `Stream`, giving one mobile app example of each.",
+      analogy: "A `Future` is a single parcel delivery that arrives once with an item or a failure slip. A `Stream` is a magazine subscription that keeps delivering issues until you cancel, and forgetting to cancel leaves them piling up at the door.",
       pitfalls: [
-        "Forgetting `await`: the function continues immediately and errors are lost.",
-        "Awaiting independent calls one after another when `Future.wait` would overlap them.",
-        "Listening to a stream and never cancelling the subscription when the widget is disposed.",
-        "Expecting `.timeout()` to cancel the work. It only stops the waiting; the HTTP request still runs to the end in the background."
+        "Leaving out `await`, which lets the function continue right away and swallows async errors.",
+        "Awaiting independent calls sequentially instead of overlapping them with `Future.wait`.",
+        "Subscribing to a stream and forgetting to cancel the subscription on widget dispose.",
+        "Assuming `.timeout()` aborts the remote request. It only stops your `await`; the request keeps running in the background."
       ],
       quiz: [
-        { q: "A `Future` completes ___; a `Stream` can emit ___.", a: ["many times; once", "once; many values over time", "once; one value, but later than a future", "once per listener; once per listener"], c: 1, why: "A future is a single asynchronous result; a stream is a sequence of them." },
-        { q: "In what order do `scheduleMicrotask` and `Timer.run` callbacks execute after the current synchronous code?", a: ["Timer first", "Microtask first", "Whichever was scheduled first", "In parallel"], c: 1, why: "The microtask queue is drained completely before the next event is taken." },
-        { q: "Two independent 300 ms calls. Fastest correct approach?", a: ["`await` each in turn", "`await Future.wait([a(), b()])`", "Call them without `await` and hope they finish", "`await` each one inside a `for` loop"], c: 1, why: "Both futures are started before awaiting, so the waits overlap. Without `await` at all, you never see the results or the errors." }
+        { q: "A `Future` completes ___; a `Stream` can emit ___.", a: ["many times; once", "once; many values over time", "once; one value, but later than a future", "once per listener; once per listener"], c: 1, why: "A `Future` resolves once, whereas a `Stream` delivers zero or more values over time." },
+        { q: "In what order do `scheduleMicrotask` and `Timer.run` callbacks execute after the current synchronous code?", a: ["Timer first", "Microtask first", "Whichever was scheduled first", "In parallel"], c: 1, why: "Dart drains the microtask queue completely before pulling the next timer or I/O event." },
+        { q: "Two independent 300 ms calls. Fastest correct approach?", a: ["`await` each in turn", "`await Future.wait([a(), b()])`", "Call them without `await` and hope they finish", "`await` each one inside a `for` loop"], c: 1, why: "Both futures start before awaiting so waits overlap; omitting `await` altogether hides results and errors." }
       ]
     },
     {
       id: 'state', title: 'State: StatefulWidget, setState and lifecycle', level: 1, mins: 35, viz: 'frebuild',
       terms: [
-        ['`mounted` check', 'Prevents calling `setState()` after the widget has left the tree while an async `Future` was still running in flight.'],
-        ['`initState()` & `dispose()`', 'Setup once at mount (subscribe controllers/timers) and matching cleanup (`controller.dispose()`) when permanently unmounted.'],
-        ['Pushing state down', 'Keeping ephemeral input/hover state inside leaf widgets with `const` siblings limits `build()` calls to the changing subtree.']
+        ['`mounted` check', 'Guards against calling `setState()` after a widget leaves the tree while an async `Future` was still running.'],
+        ['`initState()` & `dispose()`', 'One-time setup at mount (controllers and listeners) paired with cleanup (`controller.dispose()`) on unmount.'],
+        ['Pushing state down', 'Keeping local input or hover state in leaf widgets alongside `const` siblings limits `build()` calls to the changing subtree.']
       ],
-      why: "State is what changes while the app runs. `setState` is the simplest tool and the foundation every state management library is built on — you cannot understand Bloc's rebuilds without understanding these.",
+      why: "State is anything that changes while your app runs. `setState` is the simplest way to update it and sits underneath every state library, so you'll understand Bloc rebuilds much better once you know how `State` works.",
       points: [
-        "A `StatefulWidget` is still immutable; the mutable data lives in a separate **`State` object** that survives rebuilds.",
-        "`setState(() { ... })` changes the data and marks the widget dirty; Flutter calls `build` again for that widget **and its whole subtree**.",
-        "Lifecycle: `initState` (once, set up), `didUpdateWidget` (the parent passed new inputs), `dispose` (once, clean up controllers, timers and subscriptions).",
-        "**Lifting state up**: when two widgets need the same data, the common parent owns it, passes the value down and receives changes through a callback (`ValueChanged<T>`).",
-        "Keep state as low in the tree as possible so a change rebuilds as little as possible. Extract the changing part into its own small widget.",
-        "A **`Key`** tells Flutter which State belongs to which widget when siblings are reordered or removed. Lists of stateful items need a `ValueKey`."
+        "A `StatefulWidget` stays immutable while its mutable data lives in a separate **`State` object** that persists across rebuilds.",
+        "Calling `setState(() { ... })` updates state and marks the widget dirty, prompting Flutter to re-run `build` for that widget **and its subtree**.",
+        "Key lifecycle hooks are `initState` (runs once at mount), `didUpdateWidget` (parent passed new arguments), and `dispose` (runs once to clean up controllers, timers, and subscriptions).",
+        "**Lift state up** when two widgets share the same data: their common parent holds the value, passes it down, and takes updates via callbacks (`ValueChanged<T>`).",
+        "Keep state as low in the tree as possible so changes trigger minimal rebuilds, extracting changing pieces into small widgets.",
+        "Give items a **`Key`** (`ValueKey`) when stateful siblings can reorder or be removed, so Flutter matches each `State` to the right item."
       ],
       code: `
 import 'package:flutter/material.dart';
@@ -444,17 +444,17 @@ class Quantity extends StatelessWidget {
     );
   }
 }`,
-      practice: "Build a screen with two `Quantity` widgets and a total. Decide where the two values must live and wire them up. Then change `_count++` to run outside `setState` and explain why the screen stops updating.",
-      teach: "Explain why the mutable data lives in a `State` object rather than in the `StatefulWidget` itself.",
-      analogy: "The widget is a job description; the State is the employee doing the job. Management reissues the job description constantly — new title, new instructions — but the same employee stays at the desk with everything they remember. `dispose` is the employee's last day: hand back the keys.",
+      practice: "Build a screen with two `Quantity` widgets and a total. Decide where those counts should live and wire them up, then move `_count++` outside `setState` and explain why the UI stops updating.",
+      teach: "Explain why mutable data lives in a `State` object instead of inside the `StatefulWidget` itself.",
+      analogy: "The widget is a job description, while `State` is the employee doing the work. Management keeps handing out fresh job descriptions with updated notes, yet the same employee stays at the desk with everything they remember. When `dispose` runs, it's the employee's last day: hand back the keys.",
       pitfalls: [
-        "Changing a field without calling `setState` — the data changes but nothing rebuilds.",
-        "Forgetting `dispose` for controllers, animation controllers and stream subscriptions.",
-        "Calling `setState` after the widget is gone (after an `await`). Check `mounted` first."
+        "Changing a field without calling `setState`: the field changes, but Flutter never rebuilds.",
+        "Forgetting `dispose` for controllers, animation controllers, and stream subscriptions.",
+        "Calling `setState` after a widget leaves the screen (after an `await`). Check `mounted` first."
       ],
       quiz: [
         { q: "What does calling `setState` cause?", a: ["The whole app restarts", "`build` runs again for that widget and its subtree", "Only the changed `Text` is redrawn by hand", "`initState` runs again"], c: 1, why: "The element is marked dirty and rebuilt on the next frame; Flutter then updates only what differs." },
-        { q: "Where should a `TextEditingController` be disposed?", a: ["In `build`", "In `dispose` of the State", "Never", "In `initState`"], c: 1, why: "`dispose` runs once when the State is removed permanently — the place to release resources." },
+        { q: "Where should a `TextEditingController` be disposed?", a: ["In `build`", "In `dispose` of the State", "Never", "In `initState`"], c: 1, why: "`dispose` runs once when `State` is permanently unmounted, so release resources there." },
         { q: "Why give list items a `ValueKey`?", a: ["For styling", "So Flutter matches each State to the right item when the list is reordered", "To make them `const`", "It is required by `ListView`"], c: 1, why: "Without keys, state is matched by position and sticks to the wrong item after a reorder." }
       ]
     },
@@ -466,15 +466,15 @@ class Quantity extends StatelessWidget {
         ['`GlobalKey<FormState>`', 'Coordinates `validator` callbacks across all `TextFormField` descendants in one `.validate()` pass.'],
         ['Controller disposal', 'Every `TextEditingController` holds listeners and must be released in `dispose()` to avoid memory leaks.']
       ],
-      why: "Real apps are several screens with data entered on some of them. Declarative routing gives you deep links and a working back button; validated forms are where data quality starts.",
+      why: "Most apps span several screens and collect user input along the way. Declarative routing handles deep links and working Back buttons, while validated forms catch bad input early.",
       points: [
-        "Flutter keeps screens on a **stack**: `push` puts a new one on top, `pop` removes it. The basic API is `Navigator.of(context).push(MaterialPageRoute(...))`.",
-        "For anything beyond a few screens use a declarative router — **go_router** maps URL-like paths to screens, handles path parameters, deep links, redirects and browser history on the web.",
-        "`context.go('/products/42')` replaces the stack to match the location; `context.push(...)` adds on top; `context.pop(result)` returns a value to the caller.",
-        "**Nesting decides what sits underneath.** With `products/:id` declared inside the `/` route, `go('/products/42')` builds Home with the product on top, so there's a back button. As a separate top-level route, the product page would be alone on the stack, and Back would close the app.",
-        "A `Form` with a `GlobalKey<FormState>` groups `TextFormField`s. `validate()` runs each field's `validator` — returning a string shows the error, returning null means valid.",
-        "`save()` runs each `onSaved`. Choose `keyboardType`, `textInputAction` and `autofillHints` so the right keyboard appears. For prices, `TextInputType.numberWithOptions(decimal: true)`: plain `number` has no decimal point on iOS.",
-        "Validation on the client is for the user's convenience, and should match the API's rules (here, a price of at least 0.01, as in the ASP.NET Core validation lesson). The API must validate again — never trust the app."
+        "Flutter keeps screens on a **stack**: `push` places a new route on top and `pop` removes it. The low-level call is `Navigator.of(context).push(MaterialPageRoute(...))`.",
+        "For apps with more than a couple of screens, use **go_router** to map URL-like paths to screens with path parameters, deep links, redirects, and browser history on web.",
+        "`context.go('/products/42')` replaces the stack to match that location, `context.push(...)` layers a screen on top, and `context.pop(result)` returns a value to the caller.",
+        "**Nesting decides what sits underneath.** Declaring `products/:id` inside `/` makes `go('/products/42')` stack Home underneath the product page so Back works. Defining it as a top-level sibling puts it alone on the stack, so Back exits the app.",
+        "A `Form` paired with `GlobalKey<FormState>` groups several `TextFormField` widgets. Calling `validate()` runs each field's `validator`: returning a string displays an error, while returning null marks it valid.",
+        "`save()` triggers each `onSaved` callback. Pick `keyboardType`, `textInputAction`, and `autofillHints` so mobile keyboards match the field, using `TextInputType.numberWithOptions(decimal: true)` for prices since plain `number` lacks a decimal key on iOS.",
+        "Client validation helps users spot typos early and should match your backend rules (here a minimum price of 0.01). Always validate again on the API server rather than trusting client checks."
       ],
       code: `
 import 'package:flutter/material.dart';
@@ -571,40 +571,40 @@ class _NewProductPageState extends State<NewProductPage> {
     );
   }
 }`,
-      practice: "Add an edit route `/products/:id/edit` that reuses the form with initial values, and return the saved product to the previous screen with `context.pop(product)`. Run the app on the web target and check that the browser's back button and a pasted URL both work.",
-      teach: "Explain the navigation stack: what do `push`, `pop` and `go` each do to it?",
-      analogy: "Navigation is a stack of cards on a table. `push` lays a new card on top, `pop` takes the top card off to reveal the one beneath. `go` is clearing the table and dealing exactly the cards that a given address describes — which is why a pasted link can open the right screen with the right screens underneath it.",
+      practice: "Add an edit route `/products/:id/edit` reusing the form with initial values, and pass the saved product back with `context.pop(product)`. Run it on web and verify both browser Back and a pasted URL work.",
+      teach: "Explain the navigation stack and what `push`, `pop`, and `go` each do to it.",
+      analogy: "Navigation works like a deck of cards on a table. `push` puts a card on top, and `pop` lifts the top card to show the one underneath. `go` clears the table and deals the exact stack described by a URL, so a pasted link opens the target page with the right screens below it.",
       pitfalls: [
-        "Passing whole objects between routes and breaking deep links: pass an id in the path and load the data.",
-        "Using `context` after an `await` without checking `mounted` — the screen may be gone.",
-        "Declaring every route at the top level. `go` then leaves the new page alone on the stack, with no back button.",
-        "`double.parse` on what the user typed: `19,99` throws on a keyboard that uses a comma. Normalize it first.",
-        "Validating only on the device, or with different rules from the server. The server must enforce the same rules."
+        "Passing whole objects between routes, which breaks deep links. Put the ID in the path and load from there.",
+        "Using `context` after an `await` without checking `mounted`, because the user might have left that screen.",
+        "Defining every route at top level, which makes `go` leave the destination screen alone on the stack with no Back button.",
+        "Running `double.parse` straight on typed text: `19,99` throws on comma locales, so normalize the decimal separator first.",
+        "Validating only on the device or using different limits than the backend. Enforce the same rules on the server."
       ],
       quiz: [
-        { q: "What does a `validator` return when the input is valid?", a: ["`true`", "An empty string", "`null`", "The value"], c: 2, why: "A non-null string is shown as the error; null means the field passed." },
-        { q: "What is the difference between `context.go` and `context.push` in go_router?", a: ["None", "`go` replaces the stack to match the location; `push` adds a screen on top", "`push` is for the web only", "`go` cannot take parameters"], c: 1, why: "`go` is declarative navigation to a location; `push` is imperative stacking." },
-        { q: "Why prefer a path parameter such as `/products/42` over passing a `Product` object?", a: ["It is faster", "The location can be restored from a link or a restart", "Objects cannot be passed", "It avoids rebuilds"], c: 1, why: "A URL is serializable; an in-memory object is lost when the app is opened from a link." },
-        { q: "`/products/:id` is a top-level route, a sibling of `/`. After `context.go('/products/42')`, what is under the product page?", a: ["The home page", "Nothing: it's alone on the stack, so there's no back button", "Whatever page was open before", "A copy of the product page"], c: 1, why: "`go` builds the stack from the route hierarchy. Nest the route under `/` to get Home underneath." }
+        { q: "What does a `validator` return when the input is valid?", a: ["`true`", "An empty string", "`null`", "The value"], c: 2, why: "A non-null string displays as the error; null means the field passed." },
+        { q: "What is the difference between `context.go` and `context.push` in go_router?", a: ["None", "`go` replaces the stack to match the location; `push` adds a screen on top", "`push` is for the web only", "`go` cannot take parameters"], c: 1, why: "`go` swaps the stack declaratively for a URL, whereas `push` pushes one route on top." },
+        { q: "Why prefer a path parameter such as `/products/42` over passing a `Product` object?", a: ["It is faster", "The location can be restored from a link or a restart", "Objects cannot be passed", "It avoids rebuilds"], c: 1, why: "A URL can be serialized; an in-memory object disappears if the app opens from a link." },
+        { q: "`/products/:id` is a top-level route, a sibling of `/`. After `context.go('/products/42')`, what is under the product page?", a: ["The home page", "Nothing: it's alone on the stack, so there's no back button", "Whatever page was open before", "A copy of the product page"], c: 1, why: "`go` builds the stack from the route tree, so nest the route under `/` to keep Home underneath." }
       ]
     },
     {
       id: 'network', title: 'Networking: HTTP, JSON and your ASP.NET Core API', level: 1, mins: 40,
       splits: [['1 · Model & ApiException', "import 'dart:convert';"], ['2 · ProductApi client', 'class ProductApi'], ['3 · ProductList screen', 'class ProductList']],
       terms: [
-        ['Typed `fromJson` factory', 'Maps dynamic decoded JSON explicitly into Dart types cleanly right at the HTTP boundary.'],
-        ['`ApiException` & `ProblemDetails`', 'Parses structured RFC 9457 backend errors safely without exposing raw HTML/stack traces in UI widgets.'],
-        ['Async snapshot / loading states', 'Tracks loading, empty, error-retry, and populated states explicitly rather than assuming requests always succeed fast.']
+        ['Typed `fromJson` factory', 'Turns dynamic decoded JSON into typed Dart classes right at the HTTP boundary.'],
+        ['`ApiException` & `ProblemDetails`', 'Parses RFC 9457 error responses from the server so the UI never displays raw HTML or stack traces.'],
+        ['Async snapshot / loading states', 'Tracks loading, empty, error-retry, and data states directly rather than assuming requests succeed.']
       ],
-      why: "This is where the mobile app meets the rest of the stack: a Flutter screen calling the same ASP.NET Core endpoints as the React app. Typed models, honest loading and error states, and an injectable client are what make it testable.",
+      why: "Here the mobile app talks to the same ASP.NET Core endpoints as the web frontend. Typed models, complete loading and error states, and an injectable HTTP client keep networking testable.",
       points: [
-        "Use the `http` package (or `dio`) with an `http.Client` you **inject** — never a global — so tests can substitute a fake.",
-        "JSON arrives as `Map<String, dynamic>`. Convert it at the boundary into a typed model with a `fromJson` factory; for many models, generate the code with `json_serializable`.",
-        "JSON numbers may be `int` or `double`: read them as `num` and convert. Dart types, like TypeScript types, do not validate data at run time.",
-        "Check `statusCode`, throw a typed exception for failures, and always set a timeout. Turn ASP.NET Core's ProblemDetails into a message that's safe to show (`title`) and per-field errors (`errors`), never the raw response body.",
-        "Android blocks plain `http://` by default, and iOS does too. For a local API, use its HTTPS address, or allow cleartext for your dev host only in a debug network-security config. Shipped apps should only talk HTTPS.",
-        "A screen has at least four states: **loading, data, empty, error**. `FutureBuilder` handles the simple case; create the future once, not inside `build`.",
-        "Keep networking out of widgets: widget → repository → API client. Send the auth token in a header from one place, and store tokens with `flutter_secure_storage`, not plain preferences."
+        "Use the `http` package (or `dio`) with an injected `http.Client` instead of a global client, so tests can pass in a fake.",
+        "JSON arrives as `Map<String, dynamic>`. Convert it at the boundary with a `fromJson` factory, or generate that code with `json_serializable` when you have many models.",
+        "JSON numbers decode as either `int` or `double`, so cast them as `num` first before calling `.toDouble()`. Like TypeScript, Dart types don't validate runtime JSON shapes on their own.",
+        "Check `statusCode`, throw a typed exception on failures, and set timeouts. Map ASP.NET Core `ProblemDetails` into a safe `title` message and per-field `errors` instead of showing the raw response body.",
+        "Android and iOS block plain `http://` traffic by default. Connect over HTTPS locally, or whitelist your dev host in a debug-only network-security config, keeping production apps HTTPS-only.",
+        "Handle at least four screen states: **loading, data, empty, and error**. For simple reads with `FutureBuilder`, create the future once outside `build`.",
+        "Keep networking out of widgets via `widget -> repository -> API client`. Attach auth tokens in one place, and store tokens in `flutter_secure_storage` instead of plain preferences."
       ],
       code: `
 import 'dart:convert';
@@ -702,17 +702,17 @@ class _ProductListState extends State<ProductList> {
     );
   }
 }`,
-      practice: "Point this at your ASP.NET Core products API (on the Android emulator the host machine is `10.0.2.2`). Add `create(Product)` with a POST and show validation errors from the ProblemDetails response next to the form fields. Turn the API off and confirm the error state appears.",
-      teach: "Explain why the `http.Client` is passed into `ProductApi` instead of being created inside it.",
-      analogy: "`fromJson` is the customs desk at a border: loosely described cargo (`Map<String, dynamic>`) arrives, gets inspected and relabelled once, and from then on travels through the country as a properly documented `Product`. Without the desk, every part of the app has to open the crates and guess.",
+      practice: "Point `ProductApi` at your local ASP.NET Core products API (`10.0.2.2` on the Android emulator). Add `create(Product)` via POST, show `ProblemDetails` field errors beside form inputs, and stop the API server to confirm the error state shows up.",
+      teach: "Explain why `http.Client` is passed into `ProductApi` rather than created inside it.",
+      analogy: "`fromJson` acts like customs at the border: untyped cargo (`Map<String, dynamic>`) comes in, gets checked and labeled once, and travels through your app as a `Product` with known fields instead of forcing every widget to guess.",
       pitfalls: [
-        "Creating the future inside `build`, which fires a new request on every rebuild.",
-        "Casting a JSON number straight to `double` — a value such as `25` arrives as an `int` and the cast throws.",
-        "Showing a spinner forever because errors and timeouts were never handled.",
-        "Calling `http://10.0.2.2:5000` from the Android emulator and getting a cleartext error before the request ever reaches your API."
+        "Creating the `Future` inside `build`, which fires a fresh HTTP request on every rebuild.",
+        "Casting JSON numbers straight to `double`: a whole number like `25` arrives as an `int` and fails the cast.",
+        "Leaving a spinner stuck forever because errors and timeouts aren't handled.",
+        "Calling `http://10.0.2.2:5000` from an Android emulator and hitting a cleartext block before the call leaves the device."
       ],
       quiz: [
-        { q: "Why inject `http.Client` into the API class?", a: ["One client per class is faster", "Tests can pass a fake client and no real network is needed", "The `http` package requires it", "It makes the client a singleton"], c: 1, why: "Dependencies passed in from outside can be replaced — the basis of testable code." },
+        { q: "Why inject `http.Client` into the API class?", a: ["One client per class is faster", "Tests can pass a fake client and no real network is needed", "The `http` package requires it", "It makes the client a singleton"], c: 1, why: "Injected dependencies can be swapped with fakes in tests." },
         { q: "JSON contains `\"price\": 25`. Safest way to read it as a double?", a: ["`json['price'] as double`", "`(json['price'] as num).toDouble()`", "`double(json['price'])`", "`json.price`"], c: 1, why: "`25` decodes as an `int`; `num` accepts both and `toDouble` converts." },
         { q: "Where should the `Future` used by a `FutureBuilder` be created?", a: ["Inside `build`", "Once, in the State (a field or `initState`)", "In `dispose`", "In `main`"], c: 1, why: "`build` can run many times; creating the future there restarts the request each time." }
       ]
@@ -723,20 +723,20 @@ class _ProductListState extends State<ProductList> {
       id: 'bloc', title: 'State management with Bloc and Cubit', level: 2, mins: 45,
       splits: [['1 · Sealed ProductsState', "import 'package:flutter/foundation.dart';"], ['2 · ProductsCubit', '// ---- Cubit'], ['3 · CartBloc events', '// ---- Bloc'], ['4 · ProductsPage UI', 'class ProductsPage']],
       terms: [
-        ['`Cubit` vs `Bloc`', '`Cubit` exposes simple methods (`load()`); `Bloc` adds an explicit `Event` stream for debouncing, switching, and audit trails.'],
-        ['Sealed state classes', 'Models mutually exclusive states (`Loading | Loaded | Failed`) so `switch (state)` enforces handling every screen state cleanly.'],
-        ['`BlocSelector`', 'Rebuilds ONLY when the selected slice of state changes instead of re-running `build()` on unrelated fields.']
+        ['`Cubit` vs `Bloc`', '`Cubit` exposes methods like `load()`; `Bloc` uses an explicit `Event` stream for debouncing, cancelling, and logging.'],
+        ['Sealed state classes', 'Models mutually exclusive states (`Loading | Loaded | Failed`) so `switch (state)` checks every screen state at compile time.'],
+        ['`BlocSelector`', 'Rebuilds UI only when the selected field of state changes, skipping unrelated updates.']
       ],
-      why: "`setState` stops scaling the moment several screens share data or logic needs testing without a UI. Bloc is one of the most common answers in professional Flutter teams: state changes become explicit, traceable and unit-testable, and it's worth being able to say how it compares with the alternatives.",
+      why: "Once multiple screens share data or you want to unit-test business logic without UI, `setState` becomes hard to maintain. Bloc keeps state transitions in their own testable layer with traceable outputs, and it helps to understand how it compares to Provider and Riverpod.",
       points: [
-        "The idea: UI sends **intent in**, receives **immutable states out** through a stream. Business logic lives outside widgets and has no `BuildContext`.",
-        "A **Cubit** exposes methods that call `emit(newState)` — the simplest form, right for most features. A **Bloc** receives **events** and maps them to states with `on<Event>` handlers: more ceremony, but every change is a named, loggable event and events can be transformed (debounce, drop, restart).",
-        "Model state as a **sealed class** (loading / loaded / failed) or one class with `copyWith`. States must be immutable with value equality: emitting an equal state does nothing, and mutating a list in place means no rebuild. Write `==` by hand as below, or use the `equatable` package.",
-        "A cubit can outlive its request: the user leaves, the screen closes the cubit, and then the response arrives. Calling `emit` after `close` throws, so check `isClosed` after every `await`.",
-        "Event transformers come from the `bloc_concurrency` package: `restartable()` for search-as-you-type, `droppable()` to ignore taps while busy, `sequential()` for one-at-a-time.",
-        "`BlocProvider` creates and disposes a bloc and exposes it to the subtree. `BlocBuilder` rebuilds UI, `BlocListener` runs one-off side effects (snackbar, navigation), `BlocSelector` and `buildWhen` narrow rebuilds.",
-        "`context.read<T>()` gets the bloc to call it (in callbacks); `context.watch<T>()` also subscribes (in `build`). Blocs depend on **repositories**, injected through the constructor.",
-        "By comparison: **Provider** is plain dependency injection plus `ChangeNotifier` — little code, but mutable and implicit. **Riverpod** is compile-safe providers with no `BuildContext` and fine-grained dependencies — less boilerplate, different mental model. **Bloc** costs more code and buys predictability, tooling and team-wide consistency."
+        "UI widgets send user **intents in** and receive **immutable states out** from a stream, keeping business logic outside widgets with no `BuildContext`.",
+        "A **Cubit** exposes plain methods that call `emit(newState)` and fits most screens. A **Bloc** takes **events** in `on<Event>` handlers, adding boilerplate while giving you named logs and transformers to debounce, drop, or restart requests.",
+        "Model states as a **sealed class** (`loading`, `loaded`, `failed`) or one class with `copyWith` and value equality. If an emitted state equals the previous one, nothing rebuilds, and mutating a list in place hides the change. Write `==` yourself or use `equatable`.",
+        "A user can leave a screen before an async fetch finishes and `BlocProvider` closes the cubit. Calling `emit` after `close` throws, so check `isClosed` after every `await`.",
+        "Event transformers from `bloc_concurrency` tune concurrency per event type: `restartable()` for live search, `droppable()` to ignore double-taps while busy, and `sequential()` to queue writes in order.",
+        "`BlocProvider` creates and closes a bloc for a subtree. `BlocBuilder` rebuilds widgets, `BlocListener` runs one-off effects like snackbars or navigation, and `BlocSelector` plus `buildWhen` narrow rebuild scope.",
+        "Call `context.read<T>()` inside callbacks to dispatch actions, and `context.watch<T>()` inside `build` to subscribe to updates. Blocs take injected **repositories** through their constructor.",
+        "For comparison: **Provider** pairs dependency injection with mutable `ChangeNotifier` objects and less code. **Riverpod** avoids `BuildContext` with compile-safe dependencies and less boilerplate. **Bloc** writes more code up front in exchange for predictable transitions, dev tooling, and consistent conventions."
       ],
       code: `
 import 'package:flutter/foundation.dart';
@@ -854,15 +854,15 @@ class ProductsPage extends StatelessWidget {
     );
   }
 }`,
-      practice: "Rebuild your product list with a `ProductsCubit` backed by the API class from the networking lesson. Add a search box whose events are debounced with an event transformer in a `SearchBloc`. Show a snackbar on failure with `BlocListener`, and write down which widgets rebuild when one item is added to the cart.",
-      teach: "Explain the difference between a Cubit and a Bloc, and when the extra ceremony of events is worth it.",
-      analogy: "A Cubit is a vending machine: you press a labelled button and a result comes out. A Bloc is a restaurant with written order tickets: every request is recorded on a ticket before the kitchen acts, so you can read back exactly what was asked and in what order, hold tickets, or cancel a ticket when a newer one replaces it. More paperwork; a complete audit trail.",
+      practice: "Rebuild the product list using `ProductsCubit` backed by `ProductApi`. Add a search field debounced by an event transformer in `SearchBloc`, display failures with `BlocListener`, and check which widgets rebuild when adding an item to the cart.",
+      teach: "Explain the difference between a Cubit and a Bloc, and when the extra event layer pays off.",
+      analogy: "A Cubit is a vending machine: press a button and get an output. A Bloc is a kitchen with paper order tickets: every request is written down before cooking starts, so you can log history, pause tickets, or replace an older search ticket when a newer one arrives.",
       pitfalls: [
-        "Mutating state and emitting the same object (`state.add(x); emit(state)`) — it is equal to the previous state, so nothing rebuilds.",
-        "Using `context.watch` in a callback or `context.read` in `build` to drive UI: the first subscribes pointlessly, the second never updates.",
-        "Putting navigation and snackbars in `BlocBuilder`. Builders may run many times; one-off effects belong in `BlocListener`.",
-        "`emit` after an `await` with no `isClosed` check: 'Cannot emit new states after calling close' the first time a user leaves mid-request.",
-        "Showing `'$e'` to the user. Exception text is for logs; the state should carry a message written for people."
+        "Mutating state in place (`state.add(x); emit(state)`) because Bloc treats the identical reference as unchanged and skips rebuilding.",
+        "Using `context.watch` inside a callback (subscribes unnecessarily) or `context.read` inside `build` (never updates when state changes).",
+        "Putting navigation or snackbars in `BlocBuilder`. Builders run on every frame rebuild; one-off effects belong in `BlocListener`.",
+        "Calling `emit` after `await` without checking `isClosed`, causing 'Cannot emit new states after calling close' when a user navigates back early.",
+        "Displaying raw `'$e'` exception text in the UI. Keep raw exceptions in logs and store user-friendly messages in state."
       ],
       quiz: [
         { q: "What is the difference between a Cubit and a Bloc?", a: ["A Cubit can't be unit tested", "A Cubit exposes methods; a Bloc receives events and maps them to states", "A Bloc can only hold one state type", "A Cubit rebuilds the whole screen on every change"], c: 1, why: "Both emit states; a Bloc adds an event layer that makes every change traceable and transformable." },
@@ -875,18 +875,18 @@ class ProductsPage extends StatelessWidget {
       id: 'dartdeep', title: 'Dart in depth: generics, mixins, records and patterns', level: 2, mins: 40,
       splits: [['1 · Generics, extensions & mixins', '// Generics with a bound'], ['2 · Sealed Result pattern', '// Sealed classes + patterns'], ['3 · Records & main()', '// Records: lightweight']],
       terms: [
-        ['Extension methods & Mixins (`with`)', 'Extensions add helpers (`context.theme`) onto existing types; mixins share reusable behavior cleanly across unrelated classes.'],
-        ['Sealed Result pattern', 'Encodes `Success<T> | Failure<T>` exhaustively at compile time so callers handle failures without surprise unchecked throws.'],
-        ['Records & destructuring', 'Lightweight typed tuples (`(double lat, double lng)`) returning multiple named values cleanly without ceremony classes.']
+        ['Extension methods & Mixins (`with`)', 'Extensions add helper methods like `context.theme` onto existing types, while mixins share behavior across unrelated classes without inheritance.'],
+        ['Sealed Result pattern', 'Encodes `Success<T> | Failure<T>` exhaustively at compile time so callers handle failures without unchecked exceptions.'],
+        ['Records & destructuring', 'Lightweight typed tuples (`(double lat, double lng)`) that return multiple named values without extra wrapper classes.']
       ],
-      why: "Modern Dart has sealed classes, pattern matching, records and extensions — the features that make state modelling exhaustive and JSON handling safe. They are also what separates code written by someone who knows Dart from code translated out of another language.",
+      why: "Modern Dart includes sealed classes, pattern matching, records, and extensions. They make state handling exhaustive at compile time and JSON parsing safe without excessive boilerplate.",
       points: [
-        "**Generics** keep code reusable and typed: `T largest<T extends Comparable<T>>(List<T> items)`. Bounds (`extends`) say what the body may rely on.",
-        "**Extension methods** add members to types you do not own — `'flutter'.capitalized` — resolved statically, with no runtime cost.",
-        "**Mixins** (`with`) share behavior across unrelated classes without inheritance. Flutter uses them constantly: `SingleTickerProviderStateMixin`, `ChangeNotifier`.",
-        "**Sealed classes** have a closed set of subtypes, so a `switch` over them is checked for **exhaustiveness** — add a state and every unhandled `switch` fails to compile.",
-        "**Patterns** destructure and test in one step: `Success(:final value)`, guards with `when`, list and map patterns, and `if (json case {...})` for validating decoded JSON.",
-        "**Records** `(double, double)` or `({int x, int y})` are immutable, typed tuples with value equality — ideal for returning several values without a class."
+        "**Generics** keep helpers reusable and type-safe, such as `T largest<T extends Comparable<T>>(List<T> items)`. Bounds (`extends`) declare what operations the function can use.",
+        "**Extension methods** add getters and methods to types you don't own, like `'flutter'.capitalized`, resolved statically with zero runtime overhead.",
+        "**Mixins** (`with`) reuse behavior across unrelated classes without inheritance, such as `SingleTickerProviderStateMixin` or `ChangeNotifier`.",
+        "**Sealed classes** restrict all subtypes to one file, so `switch` expressions check **exhaustiveness**. Add a new state subtype and every unhandled `switch` breaks the build until updated.",
+        "**Patterns** match shapes and unpack values in one step: `Success(:final value)`, `when` guards, list and map patterns, and `if (json case {...})` for checking decoded JSON.",
+        "**Records** like `(double, double)` or `({int x, int y})` are immutable typed tuples with value equality, letting functions return several values without defining a class."
       ],
       code: `
 // Generics with a bound
@@ -959,13 +959,13 @@ void main() {
     print('$name, first tag $first');              // shape and types checked in one step
   }
 }`,
-      practice: "Model a request state as a sealed class with `Idle`, `Loading`, `Loaded<T>` and `Failed`, and write a `switch` expression that handles all four. Add a fifth subtype and watch the compiler find every `switch` you must update. Then parse a nested JSON map with a single `case` pattern.",
-      teach: "Explain how a sealed class makes a `switch` exhaustive, and what happens at compile time when you add a new subtype.",
-      analogy: "A sealed class is a menu with a fixed list of dishes printed on it. Because the kitchen knows the list is complete, it can check that there is a recipe for every dish — and if the owner adds a dish, the missing recipe is noticed before opening time rather than when a customer orders it.",
+      practice: "Model a request state as a sealed class with `Idle`, `Loading`, `Loaded<T>`, and `Failed`, and write a `switch` expression covering all four. Add a fifth subtype so the compiler flags every `switch` to update, then parse nested JSON with one `case` pattern.",
+      teach: "Explain how a `sealed` class makes a `switch` exhaustive and what happens at compile time when you add a new subtype.",
+      analogy: "A sealed class is a printed menu with a fixed dish list. Because the kitchen knows the full menu, it checks every item has a recipe, and adding a new dish flags missing recipes before opening instead of when a customer orders.",
       pitfalls: [
-        "Adding a `default` / wildcard `_` branch to a `switch` over a sealed class — it silences exactly the exhaustiveness error you wanted.",
-        "Using records for domain concepts that deserve a name. A record is for a small, local grouping.",
-        "Expecting extension methods to be dynamic: they are chosen by the static type, so they do not apply to a `dynamic` value."
+        "Adding a `default` or wildcard `_` branch to a `switch` over a sealed class, which hides the exact compiler errors that protect you when new states appear.",
+        "Using records for domain models that deserve real class names. Records work best for small local groups.",
+        "Expecting extension methods to dispatch at run time: Dart picks them from the static type, so they don't work on `dynamic` values."
       ],
       quiz: [
         { q: "What does marking a class `sealed` enable?", a: ["Faster instantiation", "Exhaustive `switch` over its direct subtypes", "Private fields", "Multiple inheritance"], c: 1, why: "All direct subtypes must be in the same library, so the compiler knows the complete set." },
@@ -976,18 +976,18 @@ void main() {
     {
       id: 'testing', title: 'Testing: unit, widget and integration tests', level: 2, mins: 40,
       terms: [
-        ['Unit vs Widget test (`WidgetTester`)', 'Unit tests check plain Dart/Cubit logic without UI; widget tests pump UI frames fast in headless VM without an emulator.'],
-        ['`pump()` vs `pumpAndSettle()`', '`pump()` advances one frame (revealing spinners); `pumpAndSettle()` ticks until animations/microtasks settle cleanly.'],
-        ['Fake repository injection', 'Swaps network clients for deterministic fakes returning instant fixtures or controlled errors without hitting HTTP.']
+        ['Unit vs Widget test (`WidgetTester`)', 'Unit tests verify plain Dart and Cubit logic without UI; widget tests run frames fast in a headless VM without an emulator.'],
+        ['`pump()` vs `pumpAndSettle()`', '`pump()` advances one frame (useful for inspecting spinners); `pumpAndSettle()` ticks until animations finish.'],
+        ['Fake repository injection', 'Replaces real HTTP clients with deterministic fakes returning canned fixtures or errors offline.']
       ],
-      why: "Flutter's test tools are strong: widget tests run a real widget tree in milliseconds, without a device. Blocs with injected repositories make the business logic easy to test, which is the practical payoff of the architecture.",
+      why: "Widget tests render a live Flutter tree in milliseconds without spinning up an emulator or phone. Moving logic into Blocs with injected repositories lets you test business rules straight from unit tests.",
       points: [
-        "**Unit tests** (`test`) check plain Dart: models, repositories, cubits. Fast and numerous.",
-        "**Widget tests** (`testWidgets`) pump a widget into a test environment, find elements, tap, and assert on what is shown — no emulator.",
-        "`pumpWidget` builds, `pump()` advances one frame, `pumpAndSettle()` runs until animations finish. Forgetting to pump after an action is the classic mistake.",
-        "Find the way a user would: `find.text`, `find.byTooltip`, `find.bySemanticsLabel`, or a `Key` when nothing better exists.",
-        "Test blocs through their **stream of states**: `expectLater(cubit.stream, emitsInOrder([...]))`, or the `bloc_test` package. Replace repositories with hand-written fakes or `mocktail`.",
-        "**Integration tests** (`integration_test`) drive the whole app on a device or emulator — few, slow, for critical flows. Golden tests compare rendered pixels to a reference image."
+        "**Unit tests** (`test`) verify pure Dart code such as models, repositories, and cubits, so you can run lots of them fast.",
+        "**Widget tests** (`testWidgets`) mount a widget in memory, locate elements, simulate taps, and assert on what renders with no emulator needed.",
+        "Use `pumpWidget` to mount, `pump()` to advance one frame, and `pumpAndSettle()` to wait for finite animations. Forgetting to pump after a tap is the most common mistake.",
+        "Locate elements the way users find them: `find.text`, `find.byTooltip`, `find.bySemanticsLabel`, or a `Key` when labels don't apply.",
+        "Test cubits and blocs via their **state stream** using `expectLater(cubit.stream, emitsInOrder([...]))` or `bloc_test`, passing hand-written fake repositories or `mocktail` mocks.",
+        "**Integration tests** (`integration_test`) run the full app on a device or emulator for critical journeys. Golden tests diff rendered pixels against saved reference screenshots."
       ],
       code: `
 import 'package:flutter/material.dart';
@@ -1047,16 +1047,16 @@ void main() {
     expect(find.text('Count: 0'), findsNothing);
   });
 }`,
-      practice: "Save this as `test/counter_test.dart` and run `flutter test`. Then test your `ProductsCubit` with a fake repository for three cases — success, empty and failure — and write one widget test that shows the error state and taps retry.",
-      teach: "Explain what `pump` does in a widget test and why a test fails if you forget it after a tap.",
-      analogy: "A widget test is a stage rehearsal with a remote control for time. Nothing moves unless you press 'next frame' (`pump`). Tap a button and the actors stay frozen in their old positions until you advance the clock — which is exactly why you can inspect every moment precisely.",
+      practice: "Save this as `test/counter_test.dart` and run `flutter test`. Next, test `ProductsCubit` with a fake repository across success, empty, and error cases, and write a widget test that verifies the error UI and taps Retry.",
+      teach: "Explain what `pump()` does in a widget test and why a test fails if you skip it after tapping a button.",
+      analogy: "A widget test is a stage rehearsal with a remote control for frames. Actors stay frozen until you press 'next frame' (`pump`), letting you inspect the UI right after a tap or mid-animation.",
       pitfalls: [
-        "Asserting immediately after `tap` without `pump` — the rebuild has not happened yet.",
-        "`pumpAndSettle` with an endless animation (a spinner): it never settles and the test times out.",
-        "Finding widgets by type or deep structure, so tests break on every refactor. Find by what the user sees."
+        "Asserting right after `tap` without calling `pump()`, before the rebuild has run.",
+        "Calling `pumpAndSettle` while an infinite loading spinner is spinning, which hangs until the test times out.",
+        "Querying widgets by internal types or deep nesting, so minor UI refactors break tests. Query by visible text or semantics instead."
       ],
       quiz: [
-        { q: "What does `await tester.pump()` do?", a: ["Starts the app", "Advances the test clock by one frame so pending rebuilds happen", "Takes a screenshot", "Waits for the network"], c: 1, why: "Test time is manual; a frame is only processed when you pump." },
+        { q: "What does `await tester.pump()` do?", a: ["Starts the app", "Advances the test clock by one frame so pending rebuilds happen", "Takes a screenshot", "Waits for the network"], c: 1, why: "Test time moves only when you pump frames." },
         { q: "How do you test what a cubit emits?", a: ["Read private fields", "Assert on its `stream` of states, for example with `emitsInOrder`", "Use a widget test only", "It cannot be tested"], c: 1, why: "A cubit's public output is its state stream, which can be asserted directly." },
         { q: "Which test type needs a device or emulator?", a: ["Unit test", "Widget test", "Integration test", "Golden test"], c: 2, why: "Integration tests run the real app; unit and widget tests run in the Dart VM test environment." }
       ]
@@ -1065,19 +1065,19 @@ void main() {
       id: 'platform', title: 'Persistence, platform channels and adaptive UI', level: 2, mins: 40,
       splits: [['1 · Storage adapter', "import 'package:flutter/foundation.dart';"], ['2 · MethodChannel Battery', '// Talking to native code'], ['3 · AdaptiveShell', 'class AdaptiveShell']],
       terms: [
-        ['Repository wrapper over plugins', 'Shields UI/Cubits behind your own `SettingsStore` interface so swapping `shared_preferences` or secure storage affects one file.'],
-        ['`MethodChannel`', 'Typed async bridge passing serialized messages between Dart and native Kotlin/Swift platform APIs cleanly.'],
-        ['Adaptive breakpoints (`LayoutBuilder`)', 'Renders bottom `NavigationBar` on phones and `NavigationRail` on wider tablets from the same widget tree.']
+        ['Repository wrapper over plugins', 'Hides plugins behind your own `SettingsStore` interface so replacing `shared_preferences` or secure storage touches one file.'],
+        ['`MethodChannel`', 'Typed async bridge sending serialized messages between Dart and native Kotlin/Swift code.'],
+        ['Adaptive breakpoints (`LayoutBuilder`)', 'Renders a bottom `NavigationBar` on narrow phones and a side `NavigationRail` on wider screens from the same widget tree.']
       ],
-      why: "A real app remembers things between launches, talks to device features that Flutter does not cover, and looks right on a phone, a tablet and a browser. This is the gap between a demo and something you can put in a store.",
+      why: "Real apps persist data between launches, talk to device features Flutter doesn't include by default, and adjust their layout for phones, tablets, and web browsers.",
       points: [
-        "Storage by purpose: `shared_preferences` for small settings (use its `SharedPreferencesAsync` API; the older `SharedPreferences` API is being phased out), `flutter_secure_storage` (Keychain / Keystore) for tokens, a local database (`sqflite`, `drift`) for structured offline data.",
-        "Secure storage is only as secure as the platform: on the web there is no keystore, so it ends up in browser storage. Don't keep long-lived tokens in a web build.",
-        "Wrap storage in your own class so the rest of the app depends on *your* interface, not on a plugin.",
-        "**Platform channels** send messages between Dart and native Kotlin/Swift. `MethodChannel.invokeMethod` is asynchronous and can fail — catch `PlatformException` and `MissingPluginException`. Prefer an existing plugin on pub.dev before writing your own.",
-        "**Adaptive layout**: branch on available width, not on device type — a bottom `NavigationBar` on narrow screens, a `NavigationRail` on wide ones. `SafeArea` avoids notches and system bars.",
-        "Respect the platform: `defaultTargetPlatform` and `kIsWeb` for behavior differences, text scaling and dark mode from `MediaQuery` and `ThemeData`.",
-        "Apps are paused and resumed by the OS. Use `AppLifecycleListener` to save work, pause streams and refresh stale data on resume. Request permissions only at the moment they are needed."
+        "Pick storage for the job: `shared_preferences` (`SharedPreferencesAsync` API, since legacy `SharedPreferences` is deprecated) for small settings, `flutter_secure_storage` (Keychain/Keystore) for tokens, and `sqflite` or `drift` for structured offline data.",
+        "Secure storage depends on platform hardware. Web builds lack a native keystore and fall back to browser storage, so avoid keeping long-lived secrets in web clients.",
+        "Wrap storage plugins inside your own class so UI and cubit code depend on *your* interface rather than third-party plugin APIs.",
+        "**Platform channels** send messages between Dart and native Kotlin or Swift code. Calling `MethodChannel.invokeMethod` is async and can fail, so catch `PlatformException` and `MissingPluginException` and check pub.dev before writing custom channels.",
+        "**Adaptive layouts** switch based on available width rather than OS checks, pairing `NavigationBar` on narrow screens with `NavigationRail` on wider ones and wrapping screens in `SafeArea` to clear notches and system bars.",
+        "Check `defaultTargetPlatform` and `kIsWeb` for platform-specific behavior, and read text scaling and dark mode from `MediaQuery` and `ThemeData`.",
+        "Operating systems pause and resume mobile apps. Use `AppLifecycleListener` to flush unsaved state, pause streams, and refresh stale data on resume, and request permissions only when the feature needs them."
       ],
       code: `
 import 'package:flutter/foundation.dart';
@@ -1160,13 +1160,13 @@ String platformName() => kIsWeb
         TargetPlatform.android => 'android',
         _ => 'desktop',
       };`,
-      practice: "Persist a dark-mode setting and the cart between launches. Make the app's navigation switch between a bottom bar and a rail at 600 px, and test it by resizing the web build. Then find a plugin on pub.dev for one device feature (camera, location) and read how it declares permissions on each platform.",
+      practice: "Persist dark mode and cart items across app restarts. Switch navigation between a bottom bar and a side rail at 600 px width and test by resizing the web build, then inspect a camera or location plugin on pub.dev to see its iOS and Android permission setup.",
       teach: "Explain what a platform channel is and why calling one is asynchronous and can fail.",
-      analogy: "A platform channel is an interpreter between two offices that speak different languages. You hand over a short written request ('battery level?'), the interpreter carries it next door, and an answer comes back a moment later — or a note saying nobody in that office handles that request. You never walk into the other office yourself.",
+      analogy: "A platform channel is a courier between two offices speaking different languages. You hand over a note asking for battery level, wait asynchronously for a reply, or get a note back saying nobody handles that request.",
       pitfalls: [
-        "Storing access tokens in `shared_preferences`, which is plain text on disk. Use secure storage (and remember the web has none).",
-        "Choosing layouts by `Platform.isAndroid` instead of available width — tablets, foldables and resizable windows break it.",
-        "Asking for every permission at first launch. Ask in context, and handle refusal."
+        "Saving access tokens in `shared_preferences`, which stores plain text on disk. Use secure storage on mobile (and avoid storing long-lived secrets on web).",
+        "Choosing layouts from `Platform.isAndroid` instead of available width, which breaks tablets, foldables, and resized desktop windows.",
+        "Prompting for every device permission at startup instead of asking in context and handling denial."
       ],
       quiz: [
         { q: "Where should an auth token be stored on the device?", a: ["`shared_preferences`", "Secure storage backed by Keychain / Keystore", "A global variable", "A text file in documents"], c: 1, why: "Preferences are unencrypted; the platform keystores are designed for secrets." },
@@ -1180,25 +1180,25 @@ String platformName() => kIsWeb
       id: 'render', title: 'Rendering internals, performance and isolates', level: 3, mins: 45, viz: 'threetrees',
       splits: [['1 · Isolate worker', "import 'package:flutter/foundation.dart';"], ['2 · CustomPainter Sparkline', '// Custom painting'], ['3 · Feed & Keys', 'class Feed']],
       terms: [
-        ['Three trees (Widget / Element / RenderObject)', 'Widgets are cheap throwaway configs; Elements hold tree identity + `State`; RenderObjects measure and paint pixels cleanly.'],
-        ['Isolate (`Isolate.run(...)`)', 'Offloads heavy JSON parsing or cryptography to separate worker memory so the UI isolate stays under its 8–16 ms frame budget.'],
-        ['`Key` identity (`ValueKey(id)`)', 'Preserves stateful elements cleanly when list rows are reordered, inserted, or dismissed instead of mixing up element states.']
+        ['Three trees (Widget / Element / RenderObject)', 'Widgets are disposable configs, Elements hold tree identity and `State`, and RenderObjects compute layout and paint pixels.'],
+        ['Isolate (`Isolate.run(...)`)', 'Runs heavy JSON parsing or cryptography in separate worker memory so the UI isolate stays under its 8–16 ms frame budget.'],
+        ['`Key` identity (`ValueKey(id)`)', 'Keeps stateful elements tied to their matching data item when list rows reorder, insert, or get dismissed.']
       ],
       predict: {
         prompt: 'A `StatefulWidget` list shows items `[A, B, C]` without `Key`s, and you insert `X` at index 0 (`[X, A, B, C]`). Which `State` object does `A` end up paired with?',
-        options: ['`A` keeps its own `State` automatically by text value', '`A` inherits `B`’s old slot/State (`index` shifted without keys)', 'Flutter throws an error unless `UniqueKey` is present'],
+        options: ['`A` keeps its own `State` automatically by text value', '`A` inherits `B`\'s old slot/State (`index` shifted without keys)', 'Flutter throws an error unless `UniqueKey` is present'],
         answer: 1,
-        explain: 'Without explicit keys, Flutter matches Element slots by widget type and index (`[0, 1, 2]`). Inserting at index 0 pairs old slot states to shifted items unless each row carries `ValueKey(item.id)`.'
+        explain: 'Without keys, Flutter matches Element slots by widget type and index (`[0, 1, 2]`). Inserting at index 0 shifts old slot state down the list unless each row carries `ValueKey(item.id)`.'
       },
-      why: "Smooth means a frame every 16 ms — or 8 ms on a 120 Hz screen. This lesson is about what happens inside a frame, reading DevTools, and knowing which of the three trees a problem lives in.",
+      why: "Smooth scrolling demands finishing each frame in 16 ms on 60 Hz screens, or 8 ms at 120 Hz. Knowing what runs inside a frame, how to read DevTools, and which of the three trees owns a bug helps you fix frame drops.",
       points: [
-        "Flutter keeps **three trees**: **widgets** (immutable configuration, rebuilt freely), **elements** (the long-lived instances that hold State and match old widgets to new ones) and **render objects** (layout and paint).",
-        "On rebuild, an element compares the new widget with the old one: same `runtimeType` and `key` means **update in place**, otherwise the subtree is discarded and its State lost. This is why keys and `const` matter.",
-        "A frame runs **build → layout → paint → composite** on the UI thread, then the raster thread draws it with **Impeller**, the default engine on iOS and Android, which compiles its shaders ahead of time so first-run animations no longer stutter. Jank is a frame that misses its deadline on either thread.",
-        "Rebuild less: `const` constructors, state pushed down, `BlocSelector` / `buildWhen`, and `ListView.builder` so only visible items are built. `RepaintBoundary` isolates an area that repaints often; list builders already add one per item.",
-        "Dart isolates have **separate memory** and communicate by messages. `compute` (or `Isolate.run`) moves CPU-heavy work — parsing large JSON, image processing — off the UI isolate so animations keep running. The input is copied to the other isolate, so send what it needs, not your whole app state.",
-        "The web has no isolates: `Isolate.run` throws there, while `compute` falls back to running on the main thread (it works, but blocks while it does).",
-        "Measure in **profile mode** on a real device, never in debug. Use DevTools: the performance overlay, the frame chart, 'Track widget rebuilds' and the memory view."
+        "Flutter manages **three trees**: **widgets** (cheap immutable configs rebuilt often), **elements** (long-lived nodes holding `State` and pairing old widgets to new ones), and **render objects** (layout and painting).",
+        "On rebuild, an element compares `runtimeType` and `key` between the old and new widget. When both match, it updates in place; otherwise Flutter discards that subtree and its `State`.",
+        "Each frame runs **build -> layout -> paint -> composite** on the UI thread, then the raster thread draws it using **Impeller** (default on iOS and Android), which precompiles shaders to avoid first-frame stutter. Frames missing the deadline on either thread cause jank.",
+        "Cut rebuilds with `const` constructors, pushing state down, `BlocSelector`/`buildWhen`, and lazy `ListView.builder`. Use `RepaintBoundary` only around fast-changing custom areas (list builders already wrap each item).",
+        "Dart isolates don't share memory and talk by message passing. Move heavy parsing or image work onto a background isolate with `compute` or `Isolate.run`, passing only the payload it needs rather than whole app state.",
+        "Browsers don't have Dart isolates: `Isolate.run` throws on web, whereas `compute` falls back to the main thread so the app keeps working (though heavy work still blocks UI frames during it).",
+        "Always profile in **profile mode** on real hardware, never debug mode, using Flutter DevTools' performance overlay, frame chart, 'Track widget rebuilds', and memory tab."
       ],
       code: `
 import 'package:flutter/foundation.dart';
@@ -1283,17 +1283,17 @@ class Feed extends StatelessWidget {
     );
   }
 }`,
-      practice: "On an Android emulator or a desktop build, run the checksum on the UI isolate first (call `slowChecksum` directly) while a spinner is animating, and watch it freeze; then move it to `compute`. Try the same on the web build and explain the difference. Open DevTools in profile mode, enable 'Track widget rebuilds', scroll a long list, and remove one unnecessary rebuild.",
-      teach: "Explain the widget, element and render object trees: what each one is for, and which one holds the State.",
-      analogy: "Widgets are the architect's drawings, redrawn every time anything changes. Elements are the site managers who stay on site, compare each new drawing with the last one and decide what really has to change. Render objects are the actual walls: expensive, so they are only touched when a manager says the drawing genuinely differs.",
+      practice: "On an Android emulator or desktop build, run `slowChecksum` straight on the UI isolate while a spinner animates and watch it freeze, then move it to `compute` and compare with a web build. Open DevTools in profile mode, toggle 'Track widget rebuilds', scroll a long list, and eliminate one redundant rebuild.",
+      teach: "Explain the roles of the widget, element, and render object trees, and identify which one holds `State`.",
+      analogy: "Widgets are architect drawings redrawn after every edit. Elements are site supervisors who stay on site comparing new drawings to old ones and keeping state intact. Render objects are concrete walls, touched only when a supervisor finds a real change.",
       pitfalls: [
-        "Judging performance in debug mode, which is many times slower than profile or release.",
-        "Doing heavy parsing or image work in `build` or on the UI isolate, then adding `const` everywhere to compensate.",
-        "Wrapping everything in `RepaintBoundary` — each one costs a layer and memory. Add them where the profiler shows repaint cost; list items already have one.",
-        "Using `Isolate.run` in an app that also targets the web, where it throws. Use `compute`, or check `kIsWeb`."
+        "Benchmarking performance in debug mode, which runs much slower than profile or release builds.",
+        "Running heavy JSON parsing or image work inside `build` or on the UI isolate while sprinkling `const` around to compensate.",
+        "Wrapping every widget in `RepaintBoundary`. Each boundary adds a GPU layer and memory, so place them only where the profiler flags repaint hotspots.",
+        "Using `Isolate.run` in an app targeting web, where it throws. Use `compute` or branch on `kIsWeb`."
       ],
       quiz: [
-        { q: "Which tree holds a `StatefulWidget`'s State across rebuilds?", a: ["The widget tree", "The element tree", "The render tree", "None — State is global"], c: 1, why: "Elements are long-lived and own the State; widgets are thrown away and recreated." },
+        { q: "Which tree holds a `StatefulWidget`'s `State` across rebuilds?", a: ["The widget tree", "The element tree", "The render tree", "None (State is global)"], c: 1, why: "Elements outlive individual rebuilds and own `State`, whereas widgets are recreated often." },
         { q: "When does an element reuse its State for a new widget?", a: ["Always", "When the new widget has the same runtime type and key", "Never", "Only for `const` widgets"], c: 1, why: "Matching type and key means update in place; otherwise the old subtree is unmounted." },
         { q: "Why use `compute` for a large JSON parse?", a: ["It parses on the GPU", "It runs on another isolate, so the UI isolate keeps rendering frames", "It caches the parsed result for next time", "It streams the JSON instead of parsing it"], c: 1, why: "Isolates don't share memory or a thread, so the UI stays responsive while the work runs (except on the web, where `compute` runs on the main thread)." }
       ]
@@ -1302,18 +1302,18 @@ class Feed extends StatelessWidget {
       id: 'arch', title: 'Architecture, flavors and release', level: 3, mins: 45,
       splits: [['1 · Config & Domain', "import 'package:flutter/foundation.dart';"], ['2 · Data & Cubit layers', '// Data: one implementation'], ['3 · Error boundary & main()', 'void main()']],
       terms: [
-        ['`--dart-define` environment config', 'Injects staging/production API URLs cleanly via `const String.fromEnvironment(...)` at compile time without shipping secrets in git.'],
-        ['Feature-first layered boundary', 'Separates pure Dart Domain entities from Data API implementations and Presentation Cubits cleanly per feature.'],
-        ['Zone / `PlatformDispatcher.onError`', 'Global error hook logging uncaught async and framework exceptions to crash reporting services reliably.']
+        ['`--dart-define` environment config', 'Passes staging or production API URLs into `const String.fromEnvironment(...)` at compile time instead of putting secrets in git.'],
+        ['Feature-first layered boundary', 'Separates pure Dart Domain entities from Data API clients and Presentation Cubits within each feature folder.'],
+        ['Zone / `PlatformDispatcher.onError`', 'Global error hook forwarding uncaught async and framework exceptions to crash reporting services.']
       ],
-      why: "Shipping a mobile app is different from shipping a website: you cannot fix a bug with a redeploy, users keep old versions for months, and stores review your binary. So structure, configuration and release discipline matter more here than on the web.",
+      why: "Mobile releases work differently from web deploys. You can't push a hotfix in seconds, users stay on older app versions for months, and app stores review every binary. Clear layering, build flavors, and release checks matter much more.",
       points: [
-        "Layer the app: **presentation** (widgets + blocs) → **domain** (plain Dart models and repository interfaces) → **data** (API clients, databases). Dependencies point inward; the domain imports no Flutter.",
-        "Organize by **feature** (`features/cart/…`) with the layers inside each. Choose implementations in one place — the composition root — with `RepositoryProvider` or a locator such as `get_it`.",
-        "Configuration per environment: `--dart-define` values or **flavors** (dev / staging / prod) with separate app ids, icons and API URLs. No secrets in the binary — anything shipped can be extracted.",
-        "Catch what escapes: `FlutterError.onError` for framework errors and `PlatformDispatcher.instance.onError` for uncaught async errors, both reporting to a crash service.",
-        "Release: build signed release artifacts (`flutter build appbundle`, `flutter build ipa`) in CI, run tests and analysis, version every build, and roll out in stages. Obfuscate with `--obfuscate --split-debug-info` and keep the symbols.",
-        "Plan for old versions: keep the API backward compatible, add a minimum-version check, and gate risky features with remote flags. Accessibility — semantics labels, contrast, text scaling — is part of done."
+        "Layer each feature as **presentation** (widgets and blocs) -> **domain** (plain Dart models and repository interfaces) -> **data** (API clients and databases). Dependencies point inward, and domain imports zero Flutter packages.",
+        "Group code by **feature** (`features/cart/...`) containing those layers. Wire concrete implementations once in your composition root using `RepositoryProvider` or `get_it`.",
+        "Configure environments via `--dart-define` or **flavors** (`dev`, `staging`, `prod`) with distinct app IDs, icons, and API URLs. Never embed secrets inside the binary, because shipped binaries can be unpacked.",
+        "Catch uncaught crashes globally: wire both `FlutterError.onError` (framework errors) and `PlatformDispatcher.instance.onError` (async errors) to your crash reporting service.",
+        "For release builds, sign `flutter build appbundle` or `flutter build ipa` in CI after tests and analysis pass, bump build numbers, ship in staged rollouts, and save symbol files when using `--obfuscate --split-debug-info`.",
+        "Design for older installed versions with backward-compatible APIs, minimum-version gates, and remote feature flags. Verify accessibility labels, contrast, and text scaling before marking a feature finished."
       ],
       code: `
 import 'package:flutter/foundation.dart';
@@ -1396,16 +1396,16 @@ void main() {
     ),
   );
 }`,
-      practice: "Restructure your app into `features/<name>/{data,domain,presentation}`. Add dev and prod configurations with different API URLs and app names. Set up a CI job that runs `flutter analyze`, `flutter test` and a release build. Then write the checklist you would follow to ship version 1.0.1 with a database schema change.",
-      teach: "Explain why a mobile app must stay compatible with old versions of itself in a way a website does not.",
-      analogy: "A website is a restaurant: change the menu tonight and every guest sees it. A mobile app is a printed cookbook already in thousands of kitchens: you can publish a second edition, but the first edition is still on the shelf and people will keep cooking from it — so the ingredients the shop sells (your API) must still work for both.",
+      practice: "Reorganize your app into `features/<name>/{data,domain,presentation}` and wire dev and prod configs with separate API URLs and app names. Add CI steps running `flutter analyze`, `flutter test`, and a release build, then write a rollout checklist for shipping v1.0.1 with a schema change.",
+      teach: "Explain why a mobile app must remain compatible with older versions of itself when a website doesn't have to.",
+      analogy: "A website is a restaurant menu you can swap before dinner service. A mobile app is a printed cookbook already sitting in thousands of kitchens: you can publish a second edition, but readers keep cooking from the first, so your API has to keep serving older editions.",
       pitfalls: [
-        "API keys or secrets compiled into the app. Anything in the binary can be read; keep secrets on the server.",
-        "A backend change that breaks app versions still installed on users' phones.",
-        "Losing the debug symbols for an obfuscated build, making production stack traces unreadable."
+        "Compiling API secrets into client binaries. Anyone can extract constants from a shipped bundle, so keep secrets on the server.",
+        "Shipping breaking backend changes that crash older app versions still installed on users' phones.",
+        "Misplacing debug symbol files for obfuscated builds, leaving production crash logs unreadable."
       ],
       quiz: [
-        { q: "In a layered Flutter app, what may the domain layer import?", a: ["Flutter widgets", "The HTTP client", "Only plain Dart — no Flutter, no data sources", "Everything"], c: 2, why: "Dependencies point inward; the domain defines models and interfaces that the outer layers implement." },
+        { q: "In a layered Flutter app, what may the domain layer import?", a: ["Flutter widgets", "The HTTP client", "Only plain Dart (no Flutter, no data sources)", "Everything"], c: 2, why: "Dependencies point inward; the domain defines models and interfaces that outer layers implement." },
         { q: "Why must secrets not be placed in `--dart-define` values for a release build?", a: ["They slow the app down", "They are compiled into the binary and can be extracted", "The stores scan for them and reject the app", "They're only available in debug builds"], c: 1, why: "Client binaries are public; real secrets belong on the server. Obfuscation makes them harder to find, not hidden." },
         { q: "What does `PlatformDispatcher.instance.onError` catch?", a: ["Layout overflow only", "Uncaught asynchronous errors outside the Flutter framework's callbacks", "Compile errors", "HTTP 500 responses"], c: 1, why: "`FlutterError.onError` covers framework-caught errors; the dispatcher hook covers the rest." }
       ]

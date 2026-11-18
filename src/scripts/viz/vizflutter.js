@@ -27,10 +27,10 @@
         [3, ['', 'w = 360', '0 ≤ w ≤ 328', '0 ≤ w ≤ ∞', '', '0 ≤ w ≤ ∞'], ['', '', '', '40 × 40', '', '48 × 48'], 'Row lays out its non-flexible children first, with unbounded width. Icon answers 40, IconButton answers 48. Sizes go up.'],
         expanded
           ? [4, ['', 'w = 360', '0 ≤ w ≤ 328', '0 ≤ w ≤ ∞', 'w = 240', '0 ≤ w ≤ ∞'], ['', '', '', '40 × 40', '240 × 40', '48 × 48'], 'Space left: 328 − 40 − 48 = 240. Expanded gives Text a tight width of exactly 240, so it wraps onto two lines and reports 240 × 40.']
-          : [4, ['', 'w = 360', '0 ≤ w ≤ 328', '0 ≤ w ≤ ∞', '0 ≤ w ≤ ∞', '0 ≤ w ≤ ∞'], ['', '', '', '40 × 40', '520 × 20', '48 × 48'], 'Without Expanded, Text is also asked with unbounded width. It lays out on one long line and reports 520 × 20 — more than the Row has.'],
+          : [4, ['', 'w = 360', '0 ≤ w ≤ 328', '0 ≤ w ≤ ∞', '0 ≤ w ≤ ∞', '0 ≤ w ≤ ∞'], ['', '', '', '40 × 40', '520 × 20', '48 × 48'], 'Without Expanded, Text also gets unbounded width. It lays out on one long line at 520 × 20, which exceeds what Row has.'],
         expanded
           ? [2, ['', 'w = 360', '0 ≤ w ≤ 328', '0 ≤ w ≤ ∞', 'w = 240', '0 ≤ w ≤ ∞'], ['', '360 × 80', '328 × 48', '40 × 40', '240 × 40', '48 × 48'], 'Row reports 328 × 48 (the tallest child), Padding adds its 16 and reports 360 × 80. Finally parents set positions: Icon at x = 0, Text at x = 40, IconButton at x = 280.']
-          : [2, ['', 'w = 360', '0 ≤ w ≤ 328', '0 ≤ w ≤ ∞', '0 ≤ w ≤ ∞', '0 ≤ w ≤ ∞'], ['', '360 × 80', '328 × 48', '40 × 40', '520 × 20', '48 × 48'], 'Children need 40 + 520 + 48 = 608 but the Row is 328 wide: “RenderFlex overflowed by 280 pixels”. The Row cannot grow — its parent set the limit. Wrap Text in Expanded or Flexible.']
+          : [2, ['', 'w = 360', '0 ≤ w ≤ 328', '0 ≤ w ≤ ∞', '0 ≤ w ≤ ∞', '0 ≤ w ≤ ∞'], ['', '360 × 80', '328 × 48', '40 × 40', '520 × 20', '48 × 48'], 'Children need 40 + 520 + 48 = 608, while the Row is only 328 wide: “RenderFlex overflowed by 280 pixels”. The Row can\'t grow because its parent set the limit, so wrap Text in Expanded or Flexible.']
       ];
       const [exLab, ex] = check(' Wrap Text in Expanded', true, () => s.reset());
       const body = h('div', {}), bar = h('div', { class: 'cx-bar' }), note = h('p', { class: 'viz-note' });
@@ -73,7 +73,7 @@
         const hit = [], skipped = [];
         build(name, true, hit, skipped);
         note.textContent = T('setState in {name} → {n} build() call(s)', { name, n: hit.length }) +
-          T(skipped.length ? '; {n} const subtree(s) skipped — the same widget instance means nothing to rebuild.' : hit.length > 1 ? ' — the widget and its whole subtree. Push state down, or narrow it with BlocSelector, to shrink this.' : '. Parents and siblings never rebuild.', { n: skipped.length });
+          T(skipped.length ? '; {n} const subtree(s) skipped because the widget instance didn\'t change.' : hit.length > 1 ? ': this widget and its subtree. Push state down or use BlocSelector to rebuild less.' : '. Parents and siblings never rebuild.', { n: skipped.length });
       };
       const mk = name => { count[name] = 1; return nodes[name] = h('button', { type: 'button', class: 'comp', onclick: () => tap(name) }, name, h('small', {}, T('builds:') + ' 1')); };
       const reset = () => { Object.keys(nodes).forEach(n => { count[n] = 1; label(n); nodes[n].classList.remove('skip'); }); note.textContent = T('Tap any widget.'); };
@@ -98,7 +98,7 @@
         },
         {
           w: [['Column', 'new'], ['Text("1")', 'new'], ['Counter', 'new']], e: [['ColumnElement', ''], ['TextElement', 'upd'], ['CounterElement + State(count 1)', 'upd']], r: [['RenderFlex', ''], ['RenderParagraph "1"', 'upd'], ['RenderBox', '']],
-          note: 'setState. Every widget is a brand-new object — but each element sees the same type at the same position, so it keeps itself, keeps its State, and only updates the render object that changed. Rebuilding widgets is cheap.'
+          note: 'setState: every widget is a new object, yet each element sees the same type in the same slot. It stays alive, keeps its State, and updates only the changed render object.'
         },
         {
           w: [['Column', 'new'], ['Icon(star)', 'new'], ['Counter', 'new']], e: [['ColumnElement', ''], ['IconElement', 'new'], ['CounterElement + State(count 1)', '']], r: [['RenderFlex', ''], ['RenderIcon', 'new'], ['RenderBox', '']],
@@ -110,7 +110,7 @@
         },
         {
           w: [['Column', 'new'], ['Counter B (key: b)', 'new'], ['Counter A (key: a)', 'new']], e: [['ColumnElement', ''], ['Element b + State(B’s count)', 'upd'], ['Element a + State(A’s count)', 'upd']], r: [['RenderFlex', ''], ['RenderBox', 'upd'], ['RenderBox', 'upd']],
-          note: 'The same swap WITH keys. Elements are matched by key, so each element — and its State and render object — moves with its widget. Keys tell Flutter which widget is which.'
+          note: 'The same swap WITH keys: elements match by key, so each element moves with its widget alongside its State and render object. Keys tell Flutter which widget is which.'
         }
       ];
       const cols = [['w', 'Widget tree', 'immutable configuration'], ['e', 'Element tree', 'long-lived, holds State'], ['r', 'Render tree', 'layout and paint']];
