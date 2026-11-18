@@ -2,448 +2,448 @@
 I18N.lessons('react', {
   js: {
     terms: [
-      ['`const` vs `let`', '`const` mencegah pengikatan ulang nama variabel (pilihan default); isi object tetap disalin secara immutable (`{ ...x }`).'],
-      ['`===` vs `==`', '`===` membandingkan nilai dan type secara ketat tanpa konversi tersembunyi (`0 == ""` adalah jebakan klasik `==`).'],
-      ['Array `.map()` / `.filter()`', 'Menghasilkan array baru yang ditransformasi atau disaring tanpa memutasi daftar asli — dasar update React.']
+      ['`const` vs `let`', '`const` mencegah nama variabel di-assign ulang (pakai sebagai default). Isi object tetap perlu disalin (`{ ...x }`) agar tidak ikut berubah.'],
+      ['`===` vs `==`', '`===` mengecek nilai sekaligus tipenya tanpa konversi diam-diam (`0 == ""` adalah jebakan klasik `==`).'],
+      ['Array `.map()` / `.filter()`', 'Membuat array baru hasil transformasi atau penyaringan tanpa mengubah array aslinya, yang diandalkan React untuk update state.']
     ],
     title: 'Dasar JavaScript untuk TypeScript',
-    why: "TypeScript adalah JavaScript plus type. Kebanyakan bug React yang membingungkan pemula — value yang basi, array yang termutasi, `undefined` — adalah masalah JavaScript, bukan masalah React.",
+    why: "TypeScript itu JavaScript yang ditambah tipe. Mayoritas bug React yang bikin pemula bingung, seperti nilai lama, array termutasi, atau `undefined`, sebenarnya berasal dari JavaScript.",
     points: [
-      "`const` tidak bisa di-assign ulang, `let` bisa. Pakai `const` sebagai default, dan jangan pakai `var`.",
-      "Function adalah value. Arrow function `(x) => x * 2` adalah bentuk yang dipakai sehari-hari.",
-      "Object dan array adalah **reference**: `const b = a` memakai array yang sama. Salin dengan spread: `[...a]`, `{ ...obj }`.",
-      "`map`, `filter`, dan `reduce` mengembalikan value **baru** dan tidak mengubah array-nya. `sort`, `reverse`, dan `splice` mengubahnya di tempat; versi yang menyalin adalah `toSorted`, `toReversed`, dan `toSpliced`.",
-      "Destructuring membongkar isi: `const { name, age } = user;` dan `const [first, ...rest] = list;`.",
-      "`===` membandingkan secara ketat. `?.` berhenti di `null`/`undefined`, dan `??` memberi fallback hanya untuk `null`/`undefined`. `||` memberi fallback untuk value falsy apa pun: `0`, `''`, `null`, `undefined`, `NaN`, `false`."
+      "`const` tidak bisa di-assign ulang, sedangkan `let` bisa. Biasakan pakai `const` dan hindari `var`.",
+      "Function diperlakukan seperti nilai biasa. Arrow function seperti `(x) => x * 2` paling sering kamu pakai sehari-hari.",
+      "Object dan array dioper lewat **reference**, jadi `const b = a` menunjuk array yang sama. Salin dulu pakai spread (`[...a]`, `{ ...obj }`).",
+      "`map`, `filter`, dan `reduce` menghasilkan array **baru** tanpa menyentuh aslinya. Sebaliknya `sort`, `reverse`, dan `splice` mengubah array di tempat, jadi pakai `toSorted`, `toReversed`, atau `toSpliced`.",
+      "Destructuring langsung membongkar isi object atau array: `const { name, age } = user` dan `const [first, ...rest] = list`.",
+      "`===` mengecek nilai dan tipe persisnya. `?.` berhenti di `null` atau `undefined`, sementara `??` cuma memberi cadangan untuk keduanya. `||` jatuh ke cadangan untuk semua nilai falsy (`0`, `''`, `null`, `undefined`, `NaN`, `false`)."
     ],
-    practice: "Di TypeScript playground: dari sebuah array `{ name, price, inStock }`, hasilkan nama item yang tersedia dengan harga di bawah 100, diurutkan berdasarkan harga, tanpa mengubah array aslinya. Pakai `toSorted`, lalu log array aslinya untuk membuktikan bahwa ia tidak berubah.",
-    teach: "Jelaskan kenapa `const b = a; b.push(1);` juga mengubah `a`, dan cara menghindarinya.",
-    analogy: "`const` pada object itu seperti anjing dengan tali yang terikat mati: talinya tidak bisa dipindah ke anjing lain, tapi anjingnya tetap bisa kotor kena lumpur.",
+    practice: "Di TypeScript playground, ambil array `{ name, price, inStock }` lalu hasilkan nama produk yang stoknya ada dan harganya di bawah 100, urut harga termurah. Pakai `toSorted`, lalu log array asli untuk membuktikan isinya tak berubah.",
+    teach: "Jelaskan kenapa menulis `const b = a` lalu `b.push(1)` ikut mengubah `a`, dan bagaimana menghindarinya.",
+    analogy: "`const` pada object itu seperti mengikat anjing ke tali paten. Talinya tak bisa dipindah ke anjing lain, tapi anjingnya tetap bisa bermain lumpur.",
     pitfalls: [
-      "Mengira `const` membuat object jadi immutable. Ia hanya mengunci object mana yang ditunjuk oleh nama itu.",
-      "Memanggil `sort` atau `splice` pada state; keduanya mengubah array di tempat. Pakai `toSorted` dan `toSpliced`.",
-      "Menulis `count || 10` padahal `0` adalah jumlah yang valid. Pakai `??`.",
-      "Tertukar antara `map` (mengembalikan array baru) dan `forEach` (tidak mengembalikan apa-apa)."
+      "Mengira `const` bikin object kebal perubahan. Kata kunci itu hanya mengunci object mana yang ditunjuk variabel tersebut.",
+      "Memanggil `sort` atau `splice` langsung pada state akan mengubah array aslinya di tempat. Pakai `toSorted` dan `toSpliced`.",
+      "Menulis `count || 10` padahal `0` adalah angka yang sah. Pakai `??`.",
+      "Tertukar antara `map` (mengembalikan array baru) dan `forEach` (tidak mengembalikan nilai)."
     ],
     quiz: [
-      ["Apa yang dikembalikan `[1, 2, 3].map(n => n * 2)`?", ["`undefined`", "`[2, 4, 6]`, dan array aslinya juga jadi `[2, 4, 6]`", "`[2, 4, 6]`, tanpa mengubah array aslinya", "`6`"], "`map` mengembalikan array baru berisi elemen yang sudah diubah dan tidak menyentuh array aslinya."],
-      ["`const a = { n: 1 }; const b = a; b.n = 2;` Berapa `a.n`?", ["1", "2", "undefined", "Error: `a` itu const"], "`a` dan `b` menunjuk object yang sama; `const` hanya mencegah variabelnya di-assign ulang."],
-      ["Berapa hasil `0 ?? 10`?", ["`0`", "`10`", "`null`", "`false`"], "`??` hanya mengganti `null` dan `undefined`. `0 || 10` akan menghasilkan `10`, karena `0` itu falsy."]
+      ["Apa yang dikembalikan `[1, 2, 3].map(n => n * 2)`?", ["`undefined`", "`[2, 4, 6]`, dan array aslinya juga jadi `[2, 4, 6]`", "`[2, 4, 6]`, tanpa mengubah array aslinya", "`6`"], "`map` membuat array baru berisi hasil transformasi tanpa menyentuh array aslinya."],
+      ["Jika `const a = { n: 1 }`, `const b = a`, lalu `b.n = 2`, berapa `a.n`?", ["1", "2", "undefined", "Error: `a` itu const"], "`a` dan `b` menunjuk ke object yang sama. `const` hanya melarang variabelnya di-assign ulang."],
+      ["Berapa hasil `0 ?? 10`?", ["`0`", "`10`", "`null`", "`false`"], "`??` hanya mengganti `null` dan `undefined`. Kalau `0 || 10` baru keluar `10`, karena `0` dianggap falsy."]
     ]
   },
   ts: {
     terms: [
-      ['Discriminated union', 'Gabungan bentuk object dengan tag literal (`{ ok: true; data: T } | { ok: false; error: string }`) yang menyempit otomatis di blok `if`.'],
-      ['Type narrowing', 'Compiler melacak alur kontrol (`typeof x === "string"`, `in`, `switch`) untuk mengetahui sub-type persisnya di tiap cabang.'],
-      ['`unknown` vs `any`', '`unknown` mewajibkanmu mengecek bentuk data saat runtime sebelum membaca properti; `any` mematikan pemeriksa type sepenuhnya.']
+      ['Discriminated union', 'Bentuk object berbeda yang berbagi penanda literal (`ok: true` dengan `data: T`, atau `ok: false` dengan `error: string`) sehingga otomatis menyempit di blok `if`.'],
+      ['Type narrowing', 'TypeScript melacak pengecekan seperti `typeof x === "string"`, `in`, dan `switch` agar tahu sub-tipe persisnya di tiap cabang.'],
+      ['`unknown` vs `any`', '`unknown` memaksamu mengecek bentuk nilai saat runtime sebelum membaca propertinya, sedangkan `any` mematikan pemeriksa tipe.']
     ],
     title: 'TypeScript: type yang menangkap bug',
-    why: "TypeScript memindahkan satu kelompok bug dari 'ditemukan user' menjadi 'digarisbawahi editor'. Ia juga menjadi kontrak antara frontend React-mu dan backend C#-mu.",
+    why: "TypeScript memindahkan banyak bug dari temuan pengguna di produksi menjadi garis bawah merah di editor. Tipe-tipe ini juga menjadi kontrak bersama antara frontend React dan backend API.",
     points: [
-      "Beri anotasi di tempat data masuk: parameter, return type, response API. Biarkan inference mengurus sisanya.",
-      "`interface` atau `type` menggambarkan bentuk sebuah object. TypeScript itu **struktural**: kalau bentuknya cocok, ia diterima.",
-      "**Union type** memodelkan 'salah satu dari': `string | number`, `'idle' | 'loading' | 'error'`.",
-      "**Narrowing**: setelah `if (typeof x === 'string')` atau `if (user)`, TypeScript tahu type yang lebih spesifik di dalam blok itu.",
-      "Property opsional `age?: number` berarti `number | undefined`. Dengan `strict` aktif, seperti di template Vite, kamu wajib menangani `undefined`-nya.",
-      "Hindari `any`: ia mematikan pengecekan. Pakai `unknown` lalu lakukan narrowing. Type hilang saat runtime, jadi type tidak mengecek data yang datang dari network."
+      "Tulis tipe di pintu masuk data seperti parameter, nilai kembali, dan respons API. Biarkan compiler menebak sisanya.",
+      "`interface` atau `type` menjelaskan bentuk sebuah object. TypeScript memakai pengecekan **struktural**, artinya object apa pun yang bentuknya cocok langsung diterima.",
+      "**Union type** memodelkan pilihan seperti `string | number` atau `'idle' | 'loading' | 'error'`.",
+      "**Narrowing** terjadi sesudah pengecekan seperti `if (typeof x === 'string')` atau `if (user)`, jadi TypeScript tahu tipe lebih spesifik di dalam blok itu.",
+      "Properti opsional seperti `age?: number` berarti `number | undefined`. Saat mode `strict` aktif seperti di template Vite, kamu harus menangani kemungkinan `undefined`.",
+      "Hindari `any` karena mematikan pengecekan. Pakai `unknown` lalu persempit dulu. Ingat bahwa tipe lenyap saat runtime, jadi TypeScript tidak mengecek data yang datang dari jaringan."
     ],
-    practice: "Di playground, definisikan type `Todo` dan function `toggle(todos: Todo[], id: string): Todo[]` yang mengembalikan array baru. Lalu modelkan state sebuah request sebagai discriminated union berisi `idle`, `loading`, `success`, dan `error`, dan tulis function yang menangani keempatnya.",
-    teach: "Jelaskan apa itu union type dan bagaimana TypeScript melakukan 'narrowing' di dalam `if`.",
-    analogy: "Type itu seperti mainan pencocok bentuk: balok persegi hanya masuk ke lubang persegi, dan kamu langsung tahu saat mencobanya, bukan setelah kotaknya dikirim. Union adalah lubang yang menerima persegi atau lingkaran, dan narrowing adalah mengecek mana yang sedang kamu pegang sebelum memakainya.",
+    practice: "Di playground, definisikan tipe `Todo` dan fungsi `toggle(todos: Todo[], id: string): Todo[]` yang menghasilkan array baru. Setelah itu, modelkan status request sebagai discriminated union (`idle`, `loading`, `success`, `error`) dan tulis handler untuk keempatnya.",
+    teach: "Jelaskan apa itu union type dan bagaimana TypeScript mempersempit tipenya di dalam `if`.",
+    analogy: "Tipe data itu mirip mainan pencocok bentuk. Balok persegi cuma muat di lubang persegi, dan salahnya ketahuan detik itu juga sebelum kotaknya dikirim. Union itu lubang yang mau menerima persegi atau lingkaran, lalu narrowing mengecek mana yang sedang kamu pegang sebelum dipakai.",
     pitfalls: [
-      "Langsung memakai `any` saat checker protes. Protesnya biasanya menunjuk bug sungguhan.",
-      "Mengira TypeScript mengecek data API saat runtime. `as Product` adalah janji yang kamu buat, bukan pengecekan.",
-      "Memberi anotasi pada hal yang sudah bisa disimpulkan compiler."
+      "Asal menempel `any` tiap kali TypeScript protes. Biasanya keluhan compiler memang menunjuk bug nyata.",
+      "Mengira TypeScript ikut memvalidasi respons API saat runtime. Menulis `as Product` cuma janji dari kamu, bukan pengecekan sungguhan.",
+      "Menulis anotasi tipe di setiap variabel lokal padahal compiler sudah otomatis mengetahuinya."
     ],
     quiz: [
-      ["Apa yang diizinkan oleh `type Size = 'S' | 'M' | 'L'`?", ["String apa pun", "Tepat salah satu dari ketiga string itu", "Array berisi ketiga string itu", "String apa pun yang diawali S, M, atau L"], "Itu adalah union dari string literal type."],
-      ["Type TypeScript saat runtime itu…", ["dicek oleh engine JavaScript", "dihapus: hanya ada saat compile time", "diubah menjadi class", "disimpan sebagai komentar di output"], "Compiler menghapus semua type; outputnya JavaScript biasa."],
-      ["Alternatif yang lebih aman daripada `any` untuk value yang bentuknya tidak diketahui?", ["`object`", "`unknown`, lalu narrowing", "`never`", "`{}`"], "`unknown` memaksamu mengecek type-nya sebelum memakai value itu."]
+      ["Apa yang diizinkan oleh `type Size = 'S' | 'M' | 'L'`?", ["String apa pun", "Tepat salah satu dari ketiga string itu", "Array berisi ketiga string itu", "String apa pun yang diawali S, M, atau L"], "Itu union dari string literal type."],
+      ["Type TypeScript saat runtime…", ["dicek oleh engine JavaScript", "dihapus: hanya ada saat compile time", "diubah menjadi class", "disimpan sebagai komentar di output"], "Compiler menghapus semua tipe, sehingga file jadinya murni JavaScript biasa."],
+      ["Alternatif yang lebih aman daripada `any` untuk value yang bentuknya tidak diketahui?", ["`object`", "`unknown`, lalu narrow", "`never`", "`{}`"], "`unknown` memaksamu mengecek tipe nilainya dulu sebelum dipakai."]
     ]
   },
   components: {
     terms: [
-      ['Ekspresi JSX', 'Sintaks ekspresi JavaScript (`<Card price={p.price} />`) yang dikompilasi menjadi pemanggilan fungsi `jsx(...)` — bukan parser template terpisah.'],
-      ['Props (satu arah ke bawah)', 'Input read-only dari parent ke child; perubahan di child tidak pernah memutasi props parent secara langsung.'],
-      ['Prop `key` yang stabil', 'Membuat React mengenali item berdasarkan ID database saat diurutkan atau ditambah — memakai indeks array sering memicu bug state saat urutan bergeser.']
+      ['Ekspresi JSX', 'Sintaks JavaScript seperti `<Card price={p.price} />` yang dikompilasi menjadi pemanggilan fungsi `jsx(...)`, bukan parser template terpisah.'],
+      ['Props (satu arah ke bawah)', 'Input read-only dari parent ke child. Mengubah tampilan di child tidak pernah mengubah props milik parent langsung.'],
+      ['Prop `key` yang stabil', 'Membantu React mengenali baris list lewat ID database saat ditambah atau diurutkan. Memakai index array bikin bug state ketika urutan bergeser.']
     ],
     title: 'React: komponen, JSX, dan props',
-    why: "Ide utama React muat dalam satu kalimat: UI adalah function dari data. Begitu kamu melihat komponen sebagai function yang mengembalikan deskripsi layar, sisanya tinggal mengikuti. Track ini memakai React 19, versi yang di-install project Vite baru.",
+    why: "Inti React muat dalam satu kalimat: tampilan UI adalah hasil fungsi dari data. Begitu kamu memandang komponen sebagai fungsi yang menggambarkan layar untuk data saat ini, semuanya jadi masuk akal. Materi ini memakai React 19 sesuai template Vite terbaru.",
     points: [
-      "**Komponen** adalah function yang mengembalikan JSX. Namanya diawali huruf kapital.",
-      "**JSX** adalah JavaScript yang terlihat seperti HTML. Kurung kurawal `{ }` menyisipkan ekspresi apa pun.",
-      "**Props** adalah input sebuah komponen, dikirim seperti atribut. Props itu read-only: komponen tidak pernah mengubah props-nya sendiri.",
-      "Render list dengan `map` dan beri setiap item `key` yang stabil dan unik.",
-      "Conditional rendering memakai JavaScript biasa: `cond && <X />` atau `cond ? <A /> : <B />`.",
-      "Susun komponen-komponen kecil menjadi yang lebih besar; `children` membuat komponen bisa membungkus konten apa pun."
+      "**Komponen** adalah fungsi yang mengembalikan JSX, dan namanya selalu diawali huruf kapital.",
+      "**JSX** itu JavaScript yang ditulis mirip HTML. Kurung kurawal `{ }` menyisipkan ekspresi JS apa pun langsung ke dalamnya.",
+      "**Props** adalah input read-only sebuah komponen yang dikirim layaknya atribut HTML. Komponen tidak boleh mengubah props yang ia terima.",
+      "Render daftar item memakai `map` dan pasang `key` yang unik serta stabil di setiap item.",
+      "Tampilan bersyarat cukup memakai logika JavaScript biasa seperti `cond && <X />` atau `cond ? <A /> : <B />`.",
+      "Susun layar besar dari komponen-komponen kecil. Prop `children` membuat komponen bisa membungkus konten apa pun di dalamnya."
     ],
-    practice: "Buat project dengan `npm create vite@latest shop -- --template react-ts`. Bangun `ProductList` yang me-render `ProductCard` dari sebuah array, menampilkan pesan saat array-nya kosong, dan menyorot item di atas 1000.",
-    teach: "Jelaskan apa itu komponen React dan apa itu props, kepada orang yang paham HTML dan JavaScript dasar.",
-    analogy: "Komponen itu seperti stempel karet dengan bagian kosong: desainnya tetap, dan props mengisi bagian kosong itu setiap kali kamu menstempel. Halaman dibangun dengan menstempel stempel-stempel kecil di dalam stempel yang lebih besar.",
+    practice: "Buat project Vite lewat `npm create vite@latest shop -- --template react-ts`. Bangun `ProductList` yang menampilkan barisan `ProductCard`, munculkan pesan kosong saat array `[]`, lalu beri sorotan khusus untuk harga di atas 1000.",
+    teach: "Jelaskan apa itu komponen React dan props kepada teman yang baru paham HTML dan JS dasar.",
+    analogy: "Komponen bekerja seperti stempel karet dengan bagian kosong. Desain cetakannya tetap, sedangkan props mengisi bagian kosong itu tiap kali kamu mencap. Halaman disusun dari stempel kecil di dalam stempel yang lebih besar.",
     pitfalls: [
-      "Memakai index array sebagai `key` untuk list yang urutannya bisa berubah.",
-      "Mencoba mengubah props dari dalam child.",
-      "Muncul angka `0` nyasar karena `items.length && <List />`. Pakai `items.length > 0 &&`."
+      "Memakai index array sebagai `key` pada list yang itemnya bisa ditambah, dihapus, atau diacak ulang.",
+      "Mencoba mengubah nilai props langsung dari dalam child component.",
+      "Tanpa sengaja mencetak angka `0` ke layar gara-gara `items.length && <List />`. Pakai `items.length > 0 &&`."
     ],
     quiz: [
-      ["Apa itu function component React?", ["Class yang meng-extend `HTMLElement`", "Function yang menerima props dan mengembalikan JSX", "Template string berisi HTML", "Deskripsi halaman dalam JSON"], "Komponen adalah function biasa yang menggambarkan UI untuk props yang diberikan."],
-      ["Kenapa setiap item list butuh `key`?", ["Untuk styling CSS", "Supaya React bisa mencocokkan item antar render", "Untuk mengurutkan list", "Supaya React bisa melewati render list-nya"], "Key memberi elemen identitas yang stabil, sehingga React meng-update, memindahkan, atau menghapus elemen yang tepat."],
-      ["Bisakah child component mengubah props yang diterimanya?", ["Bisa, bebas", "Tidak: props itu read-only; ia meminta ke parent lewat callback", "Hanya kalau prop-nya object", "Bisa, tapi hanya dengan `useState`"], "Data mengalir ke bawah; perubahan diminta ke atas lewat function yang dikirim sebagai props."]
+      ["Apa itu function component React?", ["Class yang meng-extend `HTMLElement`", "Function yang menerima props dan mengembalikan JSX", "Template string berisi HTML", "Deskripsi halaman dalam JSON"], "Komponen itu fungsi biasa yang mendeskripsikan UI berdasarkan props yang masuk."],
+      ["Kenapa setiap item list butuh `key`?", ["Untuk styling CSS", "Supaya React bisa mencocokkan item antar render", "Untuk mengurutkan list", "Supaya React bisa melewati render list-nya"], "Key memberi identitas stabil agar React meng-update, memindahkan, atau menghapus baris yang tepat."],
+      ["Bisakah child component mengubah props yang diterimanya?", ["Bisa, bebas", "Tidak, props itu read-only. Ia meminta ke parent lewat callback", "Hanya kalau prop-nya object", "Bisa, tapi hanya dengan `useState`"], "Data mengalir ke bawah, dan child meminta perubahan ke atas melalui fungsi callback di props."]
     ]
   },
   jsdeep: {
     terms: [
-      ['Lexical closure', 'Fungsi yang membawa serta variabel dari lingkup tempatnya dibuat — menjelaskan bagaimana hook React mengingat state antar render.'],
-      ['Microtask queue (`Promise.then`)', 'Dikosongkan tuntas segera setelah call stack kosong dan *sebelum* browser menjalankan timer `setTimeout` atau menggambar frame berikutnya.'],
-      ['Kesetaraan Nilai vs Referensi (`===`)', 'Dua object dengan isi sama `{ a: 1 } === { a: 1 }` bernilai `false` kecuali keduanya menunjuk satu object memori yang sama.']
+      ['Lexical closure', 'Fungsi yang terbawa bersama variabel dari lingkup tempatnya dibuat, cara hook React menyimpan state di antara render.'],
+      ['Microtask queue (`Promise.then`)', 'Dikosongkan tuntas tepat setelah call stack kosong, sebelum browser mengambil timer `setTimeout` berikutnya atau menggambar layar.'],
+      ['Kesetaraan Nilai vs Referensi (`===`)', 'Object seperti `{ a: 1 } === { a: 1 }` bernilai `false` kecuali kedua variabel menunjuk ke satu object yang sama di memori.']
     ],
     predict: {
-      prompt: 'Dengan urutan apa konsol mencetak ini? `console.log(1); setTimeout(() => console.log(2), 0); Promise.resolve().then(() => console.log(3)); console.log(4);`',
+      prompt: 'Apa urutan log dari `console.log(1)`, `setTimeout(() => console.log(2), 0)`, `Promise.resolve().then(() => console.log(3))`, `console.log(4)`?',
       options: ['`1, 2, 3, 4`', '`1, 4, 3, 2` (microtask diselesaikan sebelum timer)', '`1, 4, 2, 3` (timer berjalan lebih dulu dari promise)'],
-      explain: 'Panggilan sinkron (`1`, `4`) berjalan lebih dulu di call stack, lalu seluruh antrean microtask dikuras (`3`), dan barulah antrean macrotask (`setTimeout` `2`) dieksekusi.'
+      explain: 'Panggilan sinkron (`1`, `4`) jalan duluan di call stack. Berikutnya seluruh antrean microtask dikuras (`3`), baru giliran `setTimeout` (`2`) dijalankan.'
     },
     title: 'JavaScript lebih dalam: closure, this, dan event loop',
-    why: "Ketiga ide ini menjelaskan kebanyakan perilaku JavaScript yang 'aneh': value basi di hook React, `this` yang hilang, dan kode yang berjalan dengan urutan tak terduga.",
+    why: "Tiga aturan ini menjawab banyak perilaku 'aneh' JavaScript. Misalnya nilai lama nyangkut di hook, `this` jadi `undefined`, atau callback async tak sesuai urutan baris.",
     points: [
-      "**Closure** adalah function beserta variabel-variabel yang bisa dilihatnya saat ia dibuat. Variabel itu tetap hidup selama function-nya hidup. Setiap hook dan event handler React bergantung pada ini.",
-      "**Stale closure** adalah function yang masih melihat variabel lama: penyebab effect dan timer React yang membaca state usang.",
-      "`this` ditentukan oleh **cara function dipanggil**, bukan tempat ia ditulis: `obj.method()` membuat `this` menjadi `obj`; pemanggilan yang dilepas kehilangan itu. **Arrow function** tidak punya `this` sendiri dan memakai milik kode di sekitarnya.",
-      "JavaScript berjalan di **satu thread** dengan **event loop**: selesaikan kode synchronous yang sedang jalan, lalu jalankan **semua microtask** (callback promise, kode setelah `await`), lalu ambil **satu task** (timer, event, response network), dan ulangi. Browser bisa menggambar ulang layar di antara task, tidak pernah di tengah-tengahnya.",
-      "Jadi `.then` dari promise yang sudah resolve selalu jalan sebelum `setTimeout(…, 0)`, dan pekerjaan synchronous yang panjang memblokir rendering dan input sepenuhnya.",
-      "`Promise.all` menunggu beberapa promise yang sudah berjalan, dan langsung reject begitu salah satunya gagal; `Promise.allSettled` menunggu semua hasilnya. Selalu tangani rejection: rejection yang tidak ditangani adalah bug yang diam-diam."
+      "**Closure** memasangkan fungsi dengan variabel di sekitarnya saat fungsi dibuat. Selama fungsi itu masih ada, variabel tersebut ikut bertahan hidup. Semua hook dan handler bekerja dengan cara ini.",
+      "**Stale closure** menyimpan nilai variabel dari giliran lama, penyebab timer atau effect membaca state yang sudah ketinggalan.",
+      "`this` ditentukan oleh **cara fungsi dipanggil**, bukan tempatnya ditulis. Menulis `obj.method()` mengikat `this` ke `obj`, sedangkan melepas metodenya bikin `this` hilang. **Arrow function** meminjam `this` dari lingkup luarnya.",
+      "JavaScript berjalan di **satu thread** lewat **event loop**. Kode sinkron dirampungkan dulu, lalu **semua microtask** (`Promise.then`, kode setelah `await`) dibereskan, baru satu **task** (timer, klik, respons) diambil lalu diulang. Browser hanya menggambar ulang layar di sela task.",
+      "Itu sebabnya `.then` selalu mendahului `setTimeout(..., 0)`, dan loop sinkron yang berat langsung membekukan scroll dan klik.",
+      "`Promise.all` langsung gagal begitu salah satu promise gagal, sementara `Promise.allSettled` menunggu semua hasil selesai. Selalu tangani rejection supaya bug tidak hilang diam-diam."
     ],
-    practice: "Tebak urutan output contoh event loop, lalu jalankan visualisasinya langkah demi langkah untuk mengecek. Di TypeScript playground, tulis function `debounce(fn, ms)` memakai closure, dan jelaskan variabel mana yang dijaga tetap hidup oleh closure itu.",
-    teach: "Jelaskan kenapa `Promise.resolve().then(...)` jalan sebelum `setTimeout(..., 0)` padahal keduanya sama-sama 'asynchronous'.",
-    analogy: "Event loop itu seperti seorang koki dengan dua rel pesanan. Setelah menyelesaikan masakan di tangannya, ia menghabiskan seluruh rel 'mendesak' (microtask) sebelum mengambil hanya satu tiket dari rel biasa (task), lalu mengecek rel mendesak lagi.",
+    practice: "Tebak dulu urutan output contoh event loop, lalu cek dengan visualisasinya langkah demi langkah. Setelah itu, buat `debounce(fn, ms)` memakai closure dan jelaskan variabel timer mana yang tetap disimpan.",
+    teach: "Jelaskan kenapa `Promise.resolve().then(...)` mendahului `setTimeout(..., 0)` padahal keduanya sama-sama asinkron.",
+    analogy: "Bayangkan event loop sebagai satu koki dengan dua rel pesanan. Sehabis menuntaskan satu piring, koki itu menghabiskan semua tiket di rel prioritas (microtask), memasak satu tiket di rel biasa (task), lalu mengecek rel prioritas lagi.",
     pitfalls: [
-      "Mengirim `obj.method` sebagai callback lalu kehilangan `this`. Pakai arrow function atau `bind`.",
-      "Mengira `setTimeout(fn, 0)` langsung jalan. Ia jalan setelah kode saat ini dan semua microtask yang tertunda.",
-      "Stale closure di effect atau interval React yang membaca state yang ditangkap saat render pertama.",
-      "Loop `while` yang butuh 300 ms: halaman tidak bisa menggambar ulang atau merespons klik sampai loop-nya selesai."
+      "Mengoper `obj.method` mentah-mentah sebagai callback lalu kehilangan `this`. Bungkus dalam arrow function atau `bind`.",
+      "Mengira `setTimeout(fn, 0)` jalan seketika. Callback tetap harus menunggu kode saat ini dan semua microtask selesai.",
+      "Stale closure di dalam effect atau `setInterval` yang terus membaca state dari render pertama.",
+      "Memblokir thread utama dengan loop sinkron yang lama sehingga klik dan animasi macet total."
     ],
     quiz: [
-      ["Mana yang di-log lebih dulu: callback `setTimeout(…, 0)` atau callback `.then` dari promise yang sudah resolve, keduanya dijadwalkan di kode synchronous yang sama?", ["Timeout-nya", "Callback promise-nya", "Yang ditulis lebih dulu", "Tergantung browser-nya"], "Semua microtask dijalankan sebelum event loop mengambil task berikutnya."],
-      ["Apa yang ditangkap oleh closure?", ["Salinan value saat closure dibuat", "Variabelnya itu sendiri, yang tetap hidup bersama function-nya", "Hanya variabel global", "Tidak ada apa-apa setelah function luarnya selesai"], "Function itu menyimpan reference yang hidup ke scope di sekitarnya."],
-      ["`const f = user.hi; f();` gagal membaca `this.name` karena…", ["`hi` sudah dihapus", "`this` bergantung pada cara pemanggilan, dan `f()` tidak punya object di depan titik", "`hi` adalah arrow function", "`name` itu private"], "Melepas method membuatnya kehilangan receiver; di strict mode, `this` bernilai `undefined`."]
+      ["Antara `setTimeout(…, 0)` dan `.then` dari promise yang sudah resolved di kode sinkron yang sama, mana yang log duluan?", ["Timeout-nya", "Callback promise-nya", "Yang ditulis lebih dulu", "Tergantung browser-nya"], "Semua microtask dijalankan sampai habis sebelum event loop mengambil task berikutnya."],
+      ["Apa yang ditangkap oleh closure?", ["Salinan value saat closure dibuat", "Variabelnya itu sendiri, yang tetap hidup bersama function-nya", "Hanya variabel global", "Tidak ada apa-apa setelah function luarnya selesai"], "Fungsi menyimpan referensi hidup ke variabel di lingkup luarnya."],
+      ["Menyimpan `const f = user.hi` lalu memanggil `f()` gagal membaca `this.name` karena…", ["`hi` sudah dihapus", "`this` bergantung pada cara pemanggilan, dan `f()` tidak punya object di depan titik", "`hi` adalah arrow function", "`name` itu private"], "Melepas method menghilangkan penerimanya, sehingga `this` menjadi `undefined` di strict mode."]
     ]
   },
   state: {
     terms: [
-      ['Snapshot render', 'State (`count`) bersifat tetap sepanjang satu giliran render; `setCount(c => c + 1)` membaca antrean state terbaru dengan aman.'],
-      ['Update state immutable', 'Membuat array/object baru (`setItems([...items, x])`) agar `Object.is(prev, next)` melihat referensi berubah lalu memicu re-render.'],
-      ['Derived state', 'Menghitung total terfilter langsung saat render alih-alih menyalin nilai ke `useState` tambahan yang rawan tidak sinkron.']
+      ['Snapshot render', 'State seperti `count` tetap konstan selama satu giliran render. Memberi updater `c => c + 1` membaca antrean state terbaru dengan aman.'],
+      ['Update state immutable', 'Membuat array atau object baru (`setItems([...items, x])`) agar `Object.is(prev, next)` melihat referensi berubah lalu memicu render.'],
+      ['Derived state', 'Menghitung total atau daftar terfilter langsung saat render, ketimbang menyimpan salinan di `useState` lain yang mudah tidak sinkron.']
     ],
     title: 'State dan re-rendering',
-    why: "State adalah cara komponen mengingat sesuatu, dan cara React tahu bahwa layar harus berubah. 'Kenapa layarnya tidak ter-update?' dan 'kenapa render-nya sering sekali?' sama-sama berasal dari cara kerja ini.",
+    why: "State membuat komponen mampu mengingat nilai sekaligus memberi tahu React kapan layar harus digambar ulang. Memahami mekanismenya menjelaskan kenapa layar kadang tak mau berubah atau malah terlalu sering render.",
     points: [
-      "**State** adalah data yang diingat komponen di antara render: `const [count, setCount] = useState(0)`.",
-      "Memanggil setter menjadwalkan **re-render**: React memanggil function-mu lagi dan meng-update DOM agar sesuai dengan JSX yang baru.",
-      "Saat sebuah komponen re-render, **semua child-nya ikut re-render** secara default, entah props-nya berubah atau tidak.",
-      "State adalah **snapshot**: di dalam satu render, `count` tidak pernah berubah. Pakai bentuk updater `setCount(c => c + 1)` kalau value berikutnya bergantung pada value sebelumnya.",
-      "**Jangan pernah memutasi state.** Buat array atau object baru supaya React melihat reference baru: `setItems([...items, x])`.",
-      "Jangan simpan sesuatu yang bisa dihitung. Hitung total dan list yang difilter saat render."
+      "**State** menyimpan data yang bertahan antar render: `const [count, setCount] = useState(0)`.",
+      "Memanggil setter menjadwalkan **re-render**, memanggil fungsi komponen lagi lalu menyesuaikan DOM dengan bagian JSX yang berubah.",
+      "Bawaannya, me-render ulang parent ikut **me-render semua child**, biarpun props mereka tidak berubah.",
+      "State bekerja seperti **snapshot**. Di dalam satu render, nilai `count` terkunci tetap, jadi kirim updater (`c => c + 1`) kalau nilai baru bergantung pada nilai sebelumnya.",
+      "**Jangan mutasi state langsung.** Beri salinan baru (`setItems([...items, x])`) supaya React mendeteksi referensi object yang baru.",
+      "Hindari menyimpan hasil hitungan di state. Hitung total dan list terfilter langsung di badan fungsi saat render."
     ],
     practice: "Bangun komponen todo-nya. Lalu rusak dengan sengaja: ganti isi `add` dengan `todos.push(...)` diikuti `setTodos(todos)`. Lihat bahwa tidak ada yang ter-update, lalu jelaskan kenapa dari sisi reference.",
-    teach: "Jelaskan langkah demi langkah apa yang terjadi di antara mengklik tombol yang memanggil `setCount(count + 1)` dan layar menampilkan angka baru.",
-    analogy: "Setiap render adalah foto komponen pada satu momen, dan `count` di dalam foto itu membeku. Memanggil `setCount` tidak mengedit fotonya; ia meminta React mengambil foto baru. Memutasi state sama dengan mencoret foto lama dengan spidol: React membandingkan kedua cetakan, melihat lembar kertas yang sama, dan tidak mengubah apa-apa.",
+    teach: "Jelaskan langkah demi langkah apa yang terjadi sejak tombol `setCount(count + 1)` diklik sampai angka baru tampil di layar.",
+    analogy: "Setiap render itu ibarat foto komponen pada satu detik tertentu, dan angka `count` di dalam foto itu membeku. Memanggil `setCount` berarti meminta React memotret ulang, bukan mengedit foto lama. Memutasi state sama seperti mencoret foto lama pakai spidol: React melihat kertas foto yang sama dan tak mengubah apa pun.",
     pitfalls: [
-      "Memanggil `setCount(count + 1)` tiga kali dan berharap bertambah 3. Ketiganya membaca snapshot yang sama.",
-      "Memutasi array atau object di dalam state.",
-      "Menyimpan juga data turunan di state, lalu membiarkannya tidak sinkron.",
-      "Id dari `Date.now()`, yang bisa kembar kalau dua item ditambahkan di milidetik yang sama. Pakai `crypto.randomUUID()`."
+      "Memanggil `setCount(count + 1)` tiga kali dalam satu handler sambil berharap naik 3. Semuanya membaca snapshot yang sama.",
+      "Memutasi langsung isi array atau object yang tersimpan di state.",
+      "Menaruh data turunan ke hook state tambahan lalu kewalahan menjaganya tetap cocok.",
+      "Membuat ID pakai `Date.now()`, yang bisa kembar di loop cepat. Pakai `crypto.randomUUID()`."
     ],
     quiz: [
-      ["`count` bernilai 0. Sebuah handler menjalankan `setCount(count + 1); setCount(count + 1);`. Berapa `count` di render berikutnya?", ["0", "1", "2", "Melempar error"], "Kedua pemanggilan menghitung 0 + 1 dari snapshot yang sama. Pakai `setCount(c => c + 1)` untuk mendapat 2."],
-      ["State sebuah parent berubah. Komponen mana yang re-render secara default?", ["Hanya parent-nya", "Parent beserta semua turunannya", "Seluruh aplikasi", "Hanya child yang props-nya berubah"], "Me-render ulang sebuah komponen ikut me-render ulang subtree-nya, kecuali ada yang melewatinya seperti `memo` atau React Compiler."],
-      ["Kenapa `items.push(x); setItems(items);` tidak meng-update UI?", ["`push` tidak mengubah array-nya", "Reference array-nya tidak berubah, jadi React tidak melihat state baru", "`setItems` harus di-await", "React hanya melacak object, bukan array"], "React membandingkan berdasarkan reference; object array yang sama berarti 'tidak ada yang berubah'."]
+      ["`count` bernilai 0, lalu handler klik memanggil `setCount(count + 1)` dua kali berturut-turut. Berapa `count` pada render berikutnya?", ["0", "1", "2", "Terjadi error"], "Keduanya menghitung 0 + 1 dari snapshot render yang sama. Pakai `setCount(c => c + 1)` kalau mau jadi 2."],
+      ["State sebuah parent berubah. Komponen mana yang ikut re-render?", ["Hanya parent-nya", "Parent beserta semua turunannya", "Seluruh aplikasi", "Hanya child yang props-nya berubah"], "Me-render ulang komponen akan me-render subtree di bawahnya, kecuali dilewati oleh `memo` atau React Compiler."],
+      ["Kenapa `items.push(x)` diikuti `setItems(items)` gagal memperbarui layar?", ["`push` tidak mengubah array-nya", "Reference array-nya tidak berubah, jadi React tidak melihat state baru", "`setItems` harus di-await", "React hanya melacak object, bukan array"], "React membandingkan state lewat referensi object, jadi memberi array yang sama terbaca seperti tidak ada perubahan."]
     ]
   },
   effects: {
     terms: [
-      ['Array dependensi (`[userId]`)', 'Semua nilai reaktif yang dibaca di dalam `useEffect` harus dicantumkan di sini supaya React menjalankan ulang effect saat input berubah.'],
-      ['Fungsi cleanup (`return () => ...`)', 'Berjalan sebelum effect berikutnya dan saat unmount — wajib untuk `AbortController`, timer, dan mengabaikan respons async usang.'],
-      ['Sinkronisasi, bukan handler event', '`useEffect` menyinkronkan React dengan sistem luar (jaringan, WebSocket, DOM API); aksi simpan saat klik tombol cukup di event handler.']
+      ['Array dependensi (`[userId]`)', 'Cantumkan semua nilai reaktif yang dibaca di dalam `useEffect` agar React menjalankannya ulang tiap kali input itu berubah.'],
+      ['Fungsi cleanup (`return () => ...`)', 'Berjalan sebelum effect berikutnya dan saat unmount, berguna untuk membersihkan timer, membatalkan request, atau mengabaikan respons lama.'],
+      ['Sinkronisasi, bukan handler event', '`useEffect` menyelaraskan React dengan sistem luar seperti jaringan, WebSocket, atau DOM API. Aksi simpan saat klik tombol cukup di event handler.']
     ],
     predict: {
-      prompt: 'Pengguna berpindah cepat dari `userId = 1` (request lambat 700 ms) ke `userId = 2` (cepat 100 ms) di `useEffect` polos tanpa cleanup. Apa yang tampil di layar pada t = 700 ms?',
-      options: ['User #2 tetap tampil rapi', 'User #1 menimpa User #2 (race condition)', 'React otomatis membatalkan `fetch` tanpa perlu `AbortController`'],
-      explain: 'React tidak otomatis membatalkan promise `fetch()`. Saat request #1 selesai belakangan pada 700 ms tanpa cleanup pengecek abort/ignore, `setState` usangnya menimpa layar User #2.'
+      prompt: 'Tanpa cleanup di `useEffect`, user berpindah cepat dari `userId = 1` (request 700 ms) ke `userId = 2` (100 ms). Apa yang tampil pada t = 700 ms?',
+      options: ['User #2 tetap tampil di layar', 'User #1 menimpa User #2 (race condition)', 'React otomatis membatalkan `fetch` tanpa perlu `AbortController`'],
+      explain: 'React tidak membatalkan promise `fetch()` yang masih jalan. Tanpa tanda abort atau ignore di cleanup, request #1 selesai belakangan lalu menimpa tampilan User #2.'
     },
     title: 'Effect dan data fetching',
-    why: "`useEffect` membuat lebih banyak orang bingung daripada hook lain mana pun. Memahami untuk apa ia dipakai (menjaga agar tetap selaras dengan sesuatu di luar React) dan untuk apa ia tidak dipakai mencegah infinite loop, race, dan banyak bug yang susah dilacak.",
+    why: "`useEffect` paling sering bikin bingung dibanding hook mana pun. Mengerti kapan hook ini cocok untuk menyinkronkan sistem luar dan kapan salah tempat menyelamatkanmu dari infinite loop dan race condition.",
     points: [
-      "Rendering harus **pure**: props dan state yang sama menghasilkan JSX yang sama, tanpa side effect.",
-      "`useEffect` jalan **setelah** render untuk menjaga agar tetap selaras dengan dunia luar: network, timer, subscription, DOM.",
-      "**Dependency array** menentukan kapan effect dijalankan ulang: `[]` sekali setelah mount, `[id]` setiap kali `id` berubah, tanpa array sama sekali setelah setiap render.",
-      "Kembalikan **cleanup function** untuk membatalkan effect-nya: unsubscribe, hapus timer, batalkan request.",
-      "Fetching di dalam effect butuh tiga state (loading, error, data) dan perlindungan dari **race condition**: batalkan atau abaikan response yang sudah basi. Di aplikasi sungguhan, library data yang mengerjakannya untukmu; materi server state memakai TanStack Query.",
-      "Sering kali kamu **tidak butuh effect**: value turunan tempatnya di render, dan respons terhadap aksi user tempatnya di event handler."
+      "Proses render harus **pure**, artinya props dan state yang sama harus menghasilkan JSX yang sama tanpa efek samping.",
+      "`useEffect` jalan **sesudah** render untuk berinteraksi dengan dunia luar React seperti timer, socket, fetch jaringan, atau DOM manual.",
+      "**Dependency array** mengatur kapan effect diulang: `[]` sekali saat mount, `[id]` setiap kali `id` berubah, dan tanpa array berarti jalan tiap render.",
+      "Kembalikan **cleanup function** untuk membereskan efek sebelumnya, misalnya membersihkan timer, berhenti langganan, atau membatalkan fetch.",
+      "Fetch manual di dalam effect butuh status loading, error, dan data plus penangkal **race condition**. Di proyek nyata, pakai TanStack Query daripada menulis fetch sendiri.",
+      "Sering kali kamu **tidak butuh effect**. Hitung nilai turunan saat render, dan tangani klik langsung di event handler."
     ],
-    practice: "Bangun komponennya dengan memakai API ASP.NET Core-mu. Dengan network yang diperlambat di dev tools, klik cepat bergantian antar produk; hapus cleanup-nya dan lihat produk yang salah muncul. Kembalikan cleanup-nya dan jelaskan race-nya.",
-    teach: "Jelaskan apa yang dilakukan dependency array pada `useEffect` dan untuk apa cleanup function.",
-    analogy: "Effect itu instruksi tetap untuk kru panggung: 'setiap kali adegan berganti ke adegan N, siapkan properti untuk N, dan sebelum adegan berikutnya, bereskan yang lama.' Dependency array adalah daftar hal yang dianggap sebagai pergantian adegan.",
+    practice: "Sambungkan komponennya ke API ASP.NET Core lalu lambatkan jaringan lewat dev tools. Klik cepat bergantian antar produk, hapus cleanup-nya sampai muncul bug data tertukar, lalu pasang lagi dan jelaskan penyebabnya.",
+    teach: "Jelaskan apa fungsi dependency array di `useEffect` dan masalah apa yang dicegah fungsi cleanup.",
+    analogy: "Effect itu seperti perintah buat kru panggung. Setiap adegan pindah ke N, siapkan properti adegan N, lalu bereskan properti lama sebelum adegan berikutnya mulai. Dependency array adalah daftar pemicu pergantian adegan.",
     pitfalls: [
-      "Melewatkan sebuah dependency lalu membaca value yang basi; atau mengubah state yang juga menjadi dependency sehingga loop tanpa akhir.",
-      "Memakai effect untuk menghitung sesuatu dari props atau state. Hitung saja saat render.",
-      "Tanpa cleanup: response yang datang tidak berurutan menimpa data yang lebih baru."
+      "Melupakan dependensi lalu membaca nilai lama, atau meng-update state yang masuk daftar dependensi hingga berputar tanpa henti.",
+      "Memakai `useEffect` untuk menghitung nilai dari props atau state padahal bisa dihitung langsung saat render.",
+      "Tanpa cleanup, respons request lebih awal yang datang lambat menimpa data yang lebih baru."
     ],
     quiz: [
-      ["`useEffect(() => { … }, [])` dijalankan…", ["Di setiap render", "Sekali setelah render pertama (mount)", "Tidak pernah", "Sebelum render pertama"], "Dependency array kosong berarti tidak ada yang bisa berubah untuk memicu effect jalan lagi. (Saat development, Strict Mode sengaja menjalankannya dua kali.)"],
-      ["Untuk apa function yang dikembalikan dari sebuah effect?", ["Mengembalikan data ke komponen", "Cleanup sebelum effect jalan lagi dan saat unmount", "Menangani error", "Memoize effect-nya"], "Ia membatalkan effect-nya: unsubscribe, menghapus timer, membatalkan request."],
-      ["Kamu butuh `fullName` dari props `first` dan `last`. Pendekatan terbaik?", ["`useEffect` yang mengatur state", "Hitung saat render: `const fullName = first + ' ' + last`", "`useRef` yang di-update setiap render", "`useMemo` di sekeliling string-nya"], "Value turunan tidak butuh effect maupun state; state tambahan berarti render dan bug tambahan. `useMemo` tidak ada gunanya untuk hal semurah ini."]
+      ["`useEffect(() => { … }, [])` dijalankan…", ["Di setiap render", "Sekali setelah render pertama (mount)", "Tidak pernah", "Sebelum render pertama"], "Dengan dependency array kosong, tidak ada nilai yang memicu pengulangan (di mode dev, Strict Mode sengaja menjalankannya dua kali)."],
+      ["Untuk apa function yang dikembalikan dari sebuah effect?", ["Mengembalikan data ke komponen", "Cleanup sebelum effect jalan lagi dan saat unmount", "Menangani error", "Memoize effect-nya"], "Fungsi itu membereskan giliran sebelumnya: cabut listener, hapus timer, atau batalkan request."],
+      ["Kamu butuh `fullName` dari props `first` dan `last`. Pendekatan terbaik?", ["`useEffect` yang mengatur state", "Hitung saat render: `const fullName = first + ' ' + last`", "`useRef` yang di-update setiap render", "`useMemo` di sekeliling string-nya"], "Nilai turunan tak butuh effect maupun state tambahan yang cuma menambah render. `useMemo` untuk penggabungan string sekecil ini juga tak perlu."]
     ]
   },
   forms: {
     terms: [
-      ['Controlled input', 'Elemen `<input value={val} onChange={...} />` yang sumber kebenarannya berada di state React bukan baru dibaca saat submit.'],
-      ['Lifting state up', 'Memindahkan state bersama ke parent terdekat yang sama agar dua komponen bersaudara tetap sinkron lewat props.'],
-      ['Komposisi (`children`)', 'Mengirim slot JSX (`<Modal>{content}</Modal>`) daripada menumpuk boolean/konfigurasi props menjaga parent tetap longgar.']
+      ['Controlled input', 'Elemen `<input value={val} onChange={...} />` yang dikendalikan state React daripada baru membaca isi DOM saat submit.'],
+      ['Lifting state up', 'Memindah state bersama ke parent bersama terdekat agar dua komponen bersaudara tetap sinkron lewat props.'],
+      ['Komposisi (`children`)', 'Mengoper JSX via `<Modal>{content}</Modal>` daripada menumpuk banyak props konfigurasi agar komponen parent tetap renggang.']
     ],
     title: 'Form, lifting state, dan komposisi',
-    why: "Antarmuka sungguhan berisi form dan list yang berbagi data. Tahu di mana state seharusnya tinggal, dan bagaimana komponen yang bersebelahan saling bicara, membuat aplikasi tetap rapi alih-alih kusut.",
+    why: "Aplikasi nyata banyak berisi form dan daftar yang berbagi state. Mengetahui di mana state seharusnya berada dan bagaimana komponen saudara saling sinkron bikin struktur kode tetap bersih dan mudah dirawat.",
     points: [
-      "Form di React 19 bisa memakai **Action**: kirim sebuah function ke `<form action={…}>`, dan `useActionState` memberimu state yang dikembalikan (misalnya error) beserta flag `isPending`. Value-nya datang sebagai `FormData`.",
-      "Setelah sebuah action, React me-reset field form yang uncontrolled. Kembalikan value yang di-submit di dalam state dan pakai sebagai `defaultValue`, supaya submit yang gagal tidak menghapus ketikan user.",
-      "**Controlled input** mengambil `value`-nya dari state dan melaporkan perubahan lewat `onChange`. Pakai saat kamu butuh value-nya di setiap ketikan, seperti pencarian langsung.",
-      "Kalau dua komponen butuh data yang sama, **angkat state-nya** ke parent bersama terdekat lalu kirim ke bawah. Child mengubahnya dengan memanggil **callback** yang dikirim sebagai props: data ke bawah, event ke atas.",
-      "Hubungkan setiap error dengan field-nya: `aria-invalid` di input, dan `aria-describedby` yang menunjuk ke pesannya, supaya screen reader mengumumkannya bersama field itu.",
-      "Untuk form besar, pakai library (React Hook Form) dengan validator schema (Zod), supaya aturan yang sama memvalidasi sekaligus memberi type pada datanya."
+      "Form React 19 mendukung **Action** lewat `<form action={…}>`. Memanggil `useActionState` memberi hasil error dan status `isPending`, sementara isi input masuk sebagai `FormData`.",
+      "React otomatis mengosongkan input uncontrolled setelah action beres. Kembalikan nilai kiriman lalu pasang di `defaultValue` supaya error validasi tak menghapus ketikan user.",
+      "**Controlled input** menerima `value` dari state dan melapor perubahan lewat `onChange`. Pakai ini kalau perlu bereaksi di tiap ketikan, misalnya pencarian langsung.",
+      "Saat dua komponen saudara butuh data sama, **angkat state-nya** ke parent bersama terdekat. Child meminta pembaruan lewat callback props (data ke bawah, event ke atas).",
+      "Hubungkan pesan error ke input-nya lewat `aria-invalid` dan `aria-describedby` supaya pembaca layar membacakan error bersama field terkait.",
+      "Untuk form besar, gabungkan React Hook Form dengan library validasi schema seperti Zod agar satu aturan mengurus validasi sekaligus tipe TypeScript."
     ],
-    practice: "Tambahkan kotak pencarian dan sebuah list sebagai komponen yang bersebelahan. Tentukan di mana teks pencarian harus tinggal, sambungkan dengan controlled input, lalu tulis satu kalimat yang membenarkan lokasinya. Lalu submit form produk dengan nama kosong dan pastikan harga yang sudah kamu ketik masih ada.",
-    teach: "Jelaskan 'lifting state up' dengan dua komponen bersebelahan yang perlu menampilkan data yang sama.",
-    analogy: "Dua anak berbagi satu kotak krayon. Kalau masing-masing menyimpan kotak sendiri, gambar mereka tidak akan pernah cocok. Serahkan kotaknya ke orang tua, yang membagikan krayon ke bawah dan menerima permintaan ('boleh minta yang biru?') dari bawah. Satu kotak, satu kebenaran.",
+    practice: "Tambahkan kotak pencarian dan daftar produk sebagai dua komponen bersaudara. Tentukan di mana teks pencarian harus disimpan, hubungkan dengan controlled input, lalu tulis satu kalimat alasannya. Setelah itu, submit form dengan nama kosong dan pastikan harga yang sudah diketik tak ikut hilang.",
+    teach: "Jelaskan konsep 'lifting state up' memakai contoh dua komponen saudara yang butuh menampilkan data sama.",
+    analogy: "Dua anak memakai satu kotak krayon yang sama. Kalau tiap anak memegang kotak masing-masing, gambar mereka tak akan cocok. Berikan kotaknya ke orang tua yang membagikan krayon ke bawah dan menerima permintaan warna dari bawah. Satu kotak, satu sumber kebenaran.",
     pitfalls: [
-      "Menyalin prop ke state lalu bingung kenapa ia tidak ter-update.",
-      "Mengangkat semuanya ke atas 'jaga-jaga', sehingga seluruh aplikasi re-render di setiap ketikan.",
-      "Mencampur controlled dan uncontrolled di satu input (`value` kadang `undefined`), yang memicu peringatan React 'changing an uncontrolled input'.",
-      "Pesan error ditampilkan dekat field tapi tidak dihubungkan dengan `aria-describedby`, sehingga pengguna screen reader tidak pernah mendengarnya."
+      "Menyalin props ke `useState` lalu bingung saat pembaruan dari parent tidak ikut tampil.",
+      "Mengangkat semua state ke root aplikasi 'buat jaga-jaga', akibatnya seluruh layar re-render di tiap ketikan.",
+      "Berubah-ubah antara `value={undefined}` dan string pada satu input yang sama, memicu peringatan controlled vs uncontrolled.",
+      "Menaruh teks error di dekat input tanpa menyambung `aria-describedby`, membuat pengguna screen reader tidak pernah mendengarnya."
     ],
     quiz: [
-      ["Dua komponen bersebelahan harus menampilkan value yang sama. Di mana state-nya seharusnya tinggal?", ["Di kedua komponen", "Di parent bersama terdekat mereka", "Di variabel level module", "Di `localStorage`"], "Satu pemilik mengirim value ke keduanya, jadi keduanya otomatis tetap sinkron."],
-      ["Bagaimana child meng-update state milik parent-nya?", ["Mengubah prop-nya", "Memanggil callback function yang dikirim sebagai prop", "Membaca state parent dengan `useContext`", "Tidak bisa"], "Parent mengirim sebuah function dan child memanggilnya: event mengalir ke atas."],
-      ["Sebuah form action mengembalikan error validasi, dan field-nya kembali kosong. Kenapa?", ["Action-nya melempar error", "React me-reset field uncontrolled setelah action; kembalikan value-nya dan pakai sebagai `defaultValue`", "`useActionState` hanya menyimpan field terakhir", "Form-nya butuh `method=\"post\"`"], "Reset otomatis memakai `defaultValue` tiap field, jadi mengisinya dengan value yang di-submit menjaga ketikan user."],
-      ["Input yang 'controlled' adalah input yang…", ["value-nya berasal dari state React", "value-nya hanya ada di DOM", "type-nya `password`", "perubahannya dinonaktifkan"], "State adalah sumber kebenaran: `onChange` meng-update state, dan state mengatur `value`."]
+      ["Dua komponen bersebelahan harus menampilkan value yang sama. Di mana state-nya seharusnya tinggal?", ["Di kedua komponen", "Di parent bersama terdekat mereka", "Di variabel level module", "Di `localStorage`"], "Satu pemilik menyalurkan nilai ke keduanya supaya otomatis selalu seragam."],
+      ["Bagaimana child meng-update state milik parent-nya?", ["Mengubah prop-nya", "Memanggil callback function yang dikirim sebagai prop", "Membaca state parent dengan `useContext`", "Tidak bisa"], "Parent memberi fungsi callback lewat props dan child memanggilnya agar event naik ke atas."],
+      ["Sebuah form action mengembalikan error validasi, dan field-nya kembali kosong. Kenapa?", ["Action-nya memicu error", "React mengosongkan input uncontrolled sesudah action, jadi kembalikan datanya lalu pasang sebagai `defaultValue`", "`useActionState` hanya menyimpan field terakhir", "Form-nya butuh `method=\"post\"`"], "Reset otomatis membaca `defaultValue` tiap input, jadi memberi nilai kiriman sebelumnya menjaga ketikan user tetap ada."],
+      ["Input yang 'controlled' adalah input yang…", ["value-nya berasal dari state React", "value-nya hanya ada di DOM", "type-nya `password`", "perubahannya dinonaktifkan"], "State menjadi sumber utama: `onChange` mengubah state, lalu state mengisi `value`."]
     ]
   },
   generics: {
     terms: [
-      ['Batasan generik (`<T extends { id: number }>`)', 'Mengharuskan parameter type generik minimal memiliki struktur tertentu sembari mempertahankan tipe lengkap aslinya saat kembali.'],
-      ['`Pick` / `Omit` / `Partial`', 'Utility type bawaan yang menurunkan `CreateProduct` (`Omit<Product, "id">`) atau `UpdateProduct` dari satu interface sumber.'],
-      ['`keyof T` & Akses terindeks (`T[K]`)', 'Memastikan helper (`groupBy(items, key)`) menolak nama properti fiktif dan tahu persis type properti yang dikembalikan.']
+      ['Batasan generik (`<T extends { id: number }>`)', 'Membatasi parameter tipe agar minimal punya struktur tertentu sembari mempertahankan tipe penuhnya saat kembali.'],
+      ['`Pick` / `Omit` / `Partial`', 'Utility type bawaan untuk menurunkan `CreateProduct` (`Omit<Product, "id">`) atau `UpdateProduct` langsung dari satu interface utama.'],
+      ['`keyof T` & Akses terindeks (`T[K]`)', 'Menjamin helper (`groupBy(items, key)`) menolak nama properti sembarangan dan tahu persis tipe nilai yang kembali.']
     ],
     title: 'Generics dan utility type di TypeScript',
-    why: "Generics membuatmu bisa menulis satu function, hook, atau komponen yang reusable dan tetap ber-type penuh. Utility type membuatmu bisa menurunkan type alih-alih menyalinnya, yang menjaga frontend tetap selaras dengan API.",
+    why: "Generics membuat satu function, hook, atau komponen bisa dipakai ulang untuk bermacam data tanpa kehilangan keamanan tipe. Utility type menurunkan bentuk baru dari tipe yang ada supaya frontend dan API tetap kompak.",
     points: [
-      "**Generic** adalah parameter type: `function first<T>(items: T[]): T | undefined`. Type dari pemanggil mengalir sampai ke hasilnya.",
-      "Batasi dengan `extends`: `<T extends { id: number }>` berarti 'type apa pun yang punya id'.",
-      "`keyof T` adalah union dari nama-nama property T; `T[K]` adalah type dari property K.",
-      "Utility type menurunkan bentuk baru: `Partial<T>`, `Required<T>`, `Pick<T, K>`, `Omit<T, K>`, `Record<K, V>`, `ReturnType<F>`, `Awaited<T>`.",
-      "Komponen generic: `function List<T>({ items, render }: ListProps<T>)` bekerja untuk type item apa pun.",
-      "Turunkan, jangan duplikasi: `type CreateProduct = Omit<Product, 'id'>` tidak mungkin melenceng dari `Product`."
+      "**Generic** adalah parameter tipe seperti `function first<T>(items: T[]): T | undefined`. Tipe konkret dari pemanggil ikut terbawa sampai ke hasil kembalian.",
+      "Tambahkan batasan lewat `extends`: `<T extends { id: number }>` menerima tipe apa pun selama punya `id` bertipe number.",
+      "`keyof T` membentuk union dari semua nama properti `T`, sementara `T[K]` mengambil tipe milik properti `K`.",
+      "Utility type menghasilkan bentuk turunan: `Partial<T>`, `Required<T>`, `Pick<T, K>`, `Omit<T, K>`, `Record<K, V>`, `ReturnType<F>`, dan `Awaited<T>`.",
+      "Komponen generic seperti `function List<T>({ items, render }: ListProps<T>)` cocok untuk bentuk item apa saja.",
+      "Turunkan tipe baru daripada menyalin manual: `type CreateProduct = Omit<Product, 'id'>` takkan melenceng dari `Product`."
     ],
-    practice: "Di playground, tulis `groupBy<T, K extends keyof T>(items: T[], key: K)` yang mengembalikan `Map<T[K], T[]>`. Lalu tulis signature hook generic `useLocalStorage<T>(key, initial)` dan sebutkan apa `T`-nya di dua tempat pemanggilan yang berbeda.",
-    teach: "Jelaskan arti `<T>` dalam `function first<T>(items: T[]): T` dan kenapa itu lebih baik daripada `any`.",
-    analogy: "Generic itu amplop berlabel: 'apa pun yang masuk ke sini, keluar dengan bentuk yang sama'. `any` adalah amplop tanpa label: kamu memasukkan cek, dan penerimanya bisa saja menganggapnya daftar belanja.",
+    practice: "Di playground, tulis `groupBy<T, K extends keyof T>(items: T[], key: K)` yang mengembalikan `Map<T[K], T[]>`. Lalu tulis signature hook `useLocalStorage<T>(key, initial)` dan sebutkan tipe `T` di dua tempat pemanggilan berbeda.",
+    teach: "Jelaskan arti `<T>` pada `function first<T>(items: T[]): T` dan kenapa cara ini jauh lebih baik dari `any`.",
+    analogy: "Generic itu amplop berlabel: apa pun jenis surat yang kamu masukkan, keluarnya terjamin masih jenis yang sama. Sebaliknya, `any` adalah amplop polos yang bisa membuat penerima mengira selembar cek adalah daftar belanja.",
     pitfalls: [
-      "Menambah parameter type yang hanya dipakai sekali. Generic seharusnya menghubungkan dua hal, misalnya input dan output.",
-      "Menulis tangan salinan type yang hampir sama alih-alih menurunkannya.",
-      "Mengira `getJson<Product[]>` mengecek response-nya. Itu asersi yang tidak dicek; validasi di batas sistem (misalnya dengan Zod) kalau itu penting."
+      "Menambah parameter tipe yang cuma dipakai sekali. Generic baru berguna saat menghubungkan dua hal, misalnya input dan nilai kembali.",
+      "Menulis ulang tipe yang nyaris kembar ketimbang menurunkannya pakai `Pick`, `Omit`, atau `Partial`.",
+      "Mengira `getJson<Product[]>` ikut mengecek isi respons API. Itu cuma asersi tipe, jadi tetap validasi data dari jaringan memakai Zod."
     ],
     quiz: [
-      ["Apa itu `Omit<Product, 'id'>`?", ["Product yang hanya berisi `id`", "Product tanpa property `id`", "Product dengan `id` yang dijadikan opsional", "Function yang menghapus `id` saat runtime"], "`Omit` membangun type dengan key yang disebut dihapus. Type tidak pernah dijalankan, jadi tidak ada yang dihapus dari object sungguhan."],
-      ["Di `<T, K extends keyof T>`, `K` boleh berisi apa?", ["String apa pun", "Hanya nama property dari `T`", "Type apa pun", "Type dari salah satu value T"], "`keyof T` adalah union dari key-key T, dan `K` harus muat di dalamnya."],
-      ["Apa yang dilakukan `Partial<T>`?", ["Menjadikan setiap property opsional", "Menjadikan setiap property wajib", "Menjadikan setiap property nullable", "Menjadikan `T` readonly"], "Setiap property mendapat `?`, cocok untuk payload patch atau update."]
+      ["Apa itu `Omit<Product, 'id'>`?", ["Product yang hanya berisi `id`", "Product tanpa property `id`", "Product dengan `id` yang dijadikan opsional", "Function yang menghapus `id` saat runtime"], "`Omit` membuat tipe tanpa key yang disebut. Tipe tidak pernah jalan saat runtime, jadi object aslinya tidak berubah."],
+      ["Di `<T, K extends keyof T>`, `K` boleh berisi apa?", ["String apa pun", "Hanya nama property dari `T`", "Type apa pun", "Type dari salah satu value T"], "`keyof T` berisi gabungan semua nama properti `T`, dan `K` wajib termasuk di situ."],
+      ["Apa yang dilakukan `Partial<T>`?", ["Menjadikan setiap property opsional", "Menjadikan setiap property wajib", "Menjadikan setiap property nullable", "Menjadikan `T` readonly"], "Semua properti mendapat tanda `?`, pas untuk payload update sebagian."]
     ]
   },
   hooks: {
     terms: [
-      ['Custom hook (`useX`)', 'Fungsi TypeScript biasa pengekstrak logika + hook agar beberapa komponen berbagi perilaku tanpa pembungkus DOM tambahan.'],
-      ['`useReducer`', 'Menggabungkan transisi state kompleks di balik state machine `switch (action.type)` terpisah dari JSX komponen.'],
-      ['Context (`createContext`)', 'Menyalurkan tema atau auth ke pohon komponen dalam tanpa harus mengoper props manual melewati lapisan tengah.']
+      ['Custom hook (`useX`)', 'Fungsi TypeScript biasa berisi logika hook stateful agar komponen lain bisa memakainya ulang tanpa elemen pembungkus tambahan.'],
+      ['`useReducer`', 'Mengumpulkan transisi state kompleks ke satu fungsi `switch (action.type)` di luar JSX komponen.'],
+      ['Context (`createContext`)', 'Menyalurkan data tema atau user jauh ke dalam pohon komponen tanpa harus mengoper props di tiap lapis tengah.']
     ],
     title: 'Custom hook, context, dan reducer',
-    why: "Seiring aplikasi bertambah besar, logika harus bisa dibagi tanpa copy-paste, dan data harus bisa sampai ke komponen yang dalam tanpa mengoper props melewati sepuluh lapis. Ketiga alat ini adalah jawaban React.",
+    why: "Makin besar aplikasi, logika perlu dipakai bersama tanpa salin-tempel dan data perlu menjangkau komponen dalam tanpa mengoper props sepuluh lapis. Custom hook, context, dan reducer menyelesaikan keduanya.",
     points: [
-      "**Custom hook** adalah function bernama `useX` yang memanggil hook lain. Ia berbagi **logika**, bukan state: setiap pemanggil mendapat state-nya sendiri.",
-      "Aturan hook: panggil di level teratas komponen atau hook, jangan pernah di dalam kondisi atau loop, supaya urutan pemanggilannya sama di setiap render.",
-      "**Context** mengantarkan value ke turunan mana pun tanpa prop drilling. Cocok untuk value yang jarang berubah: tema, user saat ini, locale. Di React 19, render `<MyContext value={…}>` langsung dan baca dengan `useContext` atau `use`.",
-      "Setiap konsumen re-render saat value context berubah, jadi jaga value-nya tetap stabil (`useMemo`, kecuali React Compiler sudah mengerjakannya untukmu) dan pisahkan value yang tidak berhubungan ke context berbeda. Context bukan state manager.",
-      "`useReducer` memusatkan perubahan state yang rumit: `(state, action) => newState`. Action yang ditulis sebagai discriminated union membuat action yang tidak valid menjadi compile error.",
-      "`useRef` menyimpan value yang bisa diubah tanpa memicu re-render: node DOM, id timer, value sebelumnya."
+      "**Custom hook** adalah fungsi bernama `useX` yang memanggil hook bawaan React. Ia membagi **logika**, bukan state, jadi tiap pemanggil mendapat state sendiri.",
+      "Panggil hook hanya di tingkat paling atas komponen atau custom hook, jangan di dalam `if` atau loop. React bergantung pada urutan panggilan yang sama di tiap render.",
+      "**Context** mengalirkan nilai ke turunan tanpa prop drilling, cocok untuk data jarang berubah seperti tema, user aktif, atau bahasa. Di React 19, cukup render `<MyContext value={…}>` langsung.",
+      "Setiap konsumen ikut re-render saat isi context berubah, jadi jaga kestabilan nilainya (`useMemo` bila perlu) dan pisahkan data yang tak berkaitan ke context lain.",
+      "`useReducer` merapikan update state bercabang menjadi satu fungsi `(state, action) => newState`. Menulis action sebagai discriminated union membuat typo tertangkap saat kompilasi.",
+      "`useRef` menyimpan kotak `.current` yang bisa diubah tanpa memicu re-render, cocok untuk node DOM, ID timer, atau nilai render sebelumnya."
     ],
-    practice: "Ekstrak logika pengambilan produk menjadi `useProducts(search)` dengan pencarian yang di-debounce. Tambahkan keranjang belanja memakai reducer dan context di atas, lalu tampilkan jumlah item di komponen header yang tidak menerima props apa pun.",
-    teach: "Jelaskan kenapa dua komponen yang memanggil custom hook yang sama tidak berbagi state.",
-    analogy: "Custom hook itu resep, bukan hidangan: dua orang yang mengikuti resep yang sama masing-masing mendapat piringnya sendiri.",
+    practice: "Ekstrak pengambilan produk ke `useProducts(search)` dengan pencarian yang diberi jeda. Tambahkan keranjang belanja memakai reducer dan context, lalu tampilkan jumlah item di header tanpa memberi props ke header tersebut.",
+    teach: "Jelaskan kenapa dua komponen yang sama-sama memanggil satu custom hook tidak saling berbagi state.",
+    analogy: "Custom hook itu resep masakan, bukan piring makanannya. Dua orang yang memasak dari resep sama tetap punya piring masing-masing.",
     pitfalls: [
-      "Berharap custom hook berfungsi sebagai store bersama.",
-      "Menaruh state yang sering berubah di satu context besar lalu me-render ulang seluruh tree.",
-      "Mengirim object `{ … }` baru sebagai value context di setiap render, sehingga setiap konsumen re-render setiap kali.",
-      "Memanggil hook di dalam `if`, yang merusak urutan pemanggilan."
+      "Mengira custom hook otomatis berperan seperti store global bersama.",
+      "Menaruh state yang sering berubah ke dalam satu context raksasa sehingga seluruh halaman ikut re-render terus.",
+      "Membuat object `{ … }` baru di prop value context tiap kali render, bikin semua konsumen re-render setiap saat.",
+      "Memanggil hook di dalam blok `if`, yang merusak urutan indeks hook React."
     ],
     quiz: [
-      ["Dua komponen sama-sama memanggil `useCounter()`. Keduanya…", ["berbagi satu counter", "masing-masing mendapat state sendiri", "melempar error", "berbagi sampai salah satunya unmount"], "Hook berbagi logika; state milik komponen yang memanggilnya."],
-      ["Kenapa hook tidak boleh dipanggil di dalam kondisi?", ["Jadi lebih lambat", "React mengenali hook berdasarkan urutan pemanggilan, yang harus sama di setiap render", "TypeScript melarangnya", "Hook-nya jadi jalan dua kali"], "State disimpan berdasarkan posisi dalam urutan pemanggilan; melewatkan satu pemanggilan menggeser semua hook sesudahnya."],
-      ["Mengubah `.current` dari sebuah `useRef`…", ["me-render ulang komponennya", "tidak memicu re-render", "melempar error di Strict Mode", "me-reset state komponennya"], "Ref adalah kotak yang bisa diubah di luar siklus render."]
+      ["Dua komponen sama-sama memanggil `useCounter()`. Keduanya…", ["berbagi satu counter", "masing-masing mendapat state sendiri", "memicu error", "berbagi sampai salah satunya unmount"], "Custom hook cuma membagi logika, sementara state melekat ke komponen pemanggilnya."],
+      ["Kenapa hook tidak boleh dipanggil di dalam kondisi?", ["Jadi lebih lambat", "React mengenali hook lewat urutan pemanggilannya, yang harus cocok di setiap render", "TypeScript melarangnya", "Hook-nya jadi jalan dua kali"], "React menyimpan state berdasarkan urutan posisi panggilan hook, jadi melewatkan satu panggilan bikin hook sesudahnya bergeser."],
+      ["Mengubah `.current` dari sebuah `useRef`…", ["me-render ulang komponennya", "tidak memicu re-render", "memicu error di Strict Mode", "me-reset state komponennya"], "Ref adalah kotak variabel biasa di luar siklus render React."]
     ]
   },
   perf: {
     terms: [
-      ['`React.memo`', 'Melewati re-render child saat semua props sama secara dangkal (`Object.is`) — mudah rusak oleh objek/callback inline baru kecuali distabilkan.'],
-      ['`useCallback` & `useMemo`', 'Menjaga referensi fungsi/objek antar render — baru dipakai jika profiling membuktikan child memo atau komputasi berat membutuhkannya.'],
-      ['`useTransition` / kolokasi state', 'Menurunkan state cepat-berubah sedekat mungkin ke daun yang butuh serta menandai filter berat non-mendesak agar ketikan tetap mulus.']
+      ['`React.memo`', 'Melewati re-render child saat semua props cocok di permukaan lewat `Object.is`. Object atau fungsi inline baru bakal menggagalkannya kecuali distabilkan.'],
+      ['`useCallback` & `useMemo`', 'Menahan referensi fungsi atau object antar render, cukup dipakai bila profiling membuktikan child atau kalkulasi berat memang butuh.'],
+      ['`useTransition` / kolokasi state', 'Menurunkan state cepat-berubah ke child yang butuh serta menandai filter berat non-mendesak agar ketikan tetap mulus.']
     ],
     title: 'Performance rendering',
-    why: "React sudah cepat secara default, dan kebanyakan 'optimasi' buatan tangan membuat kode lebih susah dibaca tanpa membuatnya lebih cepat. Ukur dulu, lalu terapkan perbaikan yang tepat pada komponen yang tepat.",
+    why: "React bawaannya sudah cepat, dan optimasi sebelum waktunya malah bikin kode susah dibaca tanpa hasil nyata. Ukur dulu lewat profiler, baru benahi titik yang benar-benar lambat.",
     points: [
-      "**Render** adalah React memanggil function-mu; **commit** adalah React menyentuh DOM. Render biasanya murah; render tambahan hanya jadi masalah kalau lambat atau sangat banyak.",
-      "**Ukur dulu** dengan Profiler di React DevTools: komponen mana yang render, kenapa, dan berapa lama.",
-      "**React Compiler** (stabil sejak Oktober 2025) memoize komponen, value, dan callback secara otomatis saat build. Kalau ia aktif, kamu jarang menulis `memo`, `useMemo`, atau `useCallback` sendiri. Ia mengandalkan kodemu yang mengikuti aturan React (render yang pure, tanpa mutasi).",
-      "Perbaikan paling murah bersifat struktural: pindahkan state **ke bawah**, ke komponen yang membutuhkannya, dan kirim subtree yang mahal sebagai `children` supaya tidak ikut re-render.",
-      "Tanpa compiler, atau untuk satu titik panas: `memo(Component)` melewati render kalau props-nya sama secara dangkal, dan `useCallback`/`useMemo` menjaga props itu tetap stabil. Prop object, array, atau function baru di setiap render diam-diam menggagalkan `memo`.",
-      "Untuk list panjang, lakukan **virtualisasi** (render hanya baris yang terlihat). Pecah bundle dengan `lazy` dan `Suspense`."
+      "**Render** berarti React memanggil fungsi komponenmu, sementara **commit** berarti memperbarui DOM. Render biasanya ringan kecuali isinya berat atau terpicu berlebihan.",
+      "**Ukur dulu** memakai Profiler di React DevTools untuk melihat komponen mana yang render, apa pemicunya, dan berapa durasinya.",
+      "**React Compiler** otomatis me-memoize komponen, nilai, dan callback saat build. Saat aktif, kamu jarang perlu menulis `memo` atau `useCallback` sendiri asalkan fungsi render tetap pure.",
+      "Perbaikan struktural itu gratis. Turunkan state ke komponen yang benar-benar butuh, atau oper subtree berat lewat `children` supaya tidak ikut ter-render ulang.",
+      "Jika tanpa compiler, bungkus child panas dengan `memo` lalu stabilkan props memakai `useCallback` atau `useMemo`. Membuat fungsi atau object baru di render diam-diam menembus `memo`.",
+      "Untuk daftar ribuan baris, pakai **virtualisasi** agar hanya baris yang terlihat di layar yang dipasang ke DOM. Pecah rute besar lewat `lazy` dan `Suspense`."
     ],
-    practice: "Render 5.000 baris dengan kotak pencarian dan rekam sesi mengetik di Profiler. Terapkan perbaikan satu per satu — `memo` dengan callback yang stabil, lalu virtualisasi — dan catat berapa komponen yang render per ketikan setelah masing-masing. Lalu hapus memoisasi manualnya, aktifkan React Compiler, dan rekam lagi.",
-    teach: "Jelaskan kenapa membungkus komponen dengan `memo` kadang tidak berpengaruh sama sekali.",
-    analogy: "`memo` itu penjaga pintu yang bertanya 'apakah ada yang berubah dari kirimanmu sejak terakhir kali?' Kalau kamu selalu menyerahkan kotak yang benar-benar baru, meski isinya sama, ia terpaksa menjawab ya. `useCallback` dan `useMemo` adalah cara menyerahkan kotak yang sama, dan React Compiler adalah rekan kerja yang melakukannya untukmu.",
+    practice: "Render 5.000 baris dengan kotak pencarian lalu rekam ketikan di Profiler. Pasang `memo` plus callback stabil, lalu virtualisasi, sambil mencatat jumlah komponen per ketikan tiap langkah. Terakhir hapus hook manual itu, aktifkan React Compiler, dan ukur ulang.",
+    teach: "Jelaskan kenapa membungkus komponen dengan `memo` kadang tidak mengurangi hitungan render sama sekali.",
+    analogy: "`memo` bekerja mirip penjaga pintu yang bertanya apakah isi kirimanmu berubah dari kemarin. Kalau tiap datang kamu selalu membawa kardus baru, si penjaga tetap menganggapnya berbeda biarpun isinya sama. `useCallback` dan `useMemo` mengoper kardus yang sama, dan React Compiler mengotomatiskan itu.",
     pitfalls: [
-      "Membungkus semuanya dengan `useMemo`/`useCallback` tanpa mengukur.",
-      "`memo` yang digagalkan oleh prop inline `{}` / `[]` / `() => {}`.",
-      "Mengoptimasi render padahal biaya sebenarnya adalah bundle 2 MB atau API yang lambat.",
-      "Kode yang melakukan mutasi saat render, yang tidak bisa di-memoize dengan aman oleh React Compiler."
+      "Membungkus semua hal dengan `useMemo`/`useCallback` tanpa mengukur dulu.",
+      "`memo` percuma gara-gara prop inline `{}` / `[]` / `() => {}`.",
+      "Sibuk mengutak-atik render padahal sumber lambatnya bundle JS 2 MB atau query API yang lemot.",
+      "Memutasi object saat render, sehingga React Compiler tidak bisa mengoptimasinya dengan aman."
     ],
     quiz: [
-      ["Sebuah child yang di-memoize menerima `onClick={() => select(id)}` dari parent-nya, tanpa React Compiler. Apakah `memo` melewati re-render?", ["Ya", "Tidak: function baru dibuat di setiap render, jadi props-nya berbeda", "Hanya di production", "Hanya untuk child pertama"], "Perbandingan dangkal melihat reference function yang berbeda setiap kali."],
-      ["React Compiler aktif. Apakah kamu masih butuh `useCallback` di sekeliling event handler?", ["Ya, di mana-mana", "Biasanya tidak: compiler memoize-nya secara otomatis", "Hanya untuk handler yang memanggil `setState`", "Hanya di dalam class component"], "Compiler menambahkan memoisasinya saat build, asalkan kodenya mengikuti aturan React."],
-      ["Langkah pertama saat sebuah layar React terasa lambat?", ["Bungkus semuanya dengan `useMemo`", "Profiling untuk melihat apa yang render dan berapa lama", "Pindahkan semua state ke context", "Ganti `useState` dengan `useReducer`"], "Tanpa mengukur, kamu tidak bisa tahu komponen atau operasi mana yang memakan biaya."],
-      ["Perbaikan terbaik untuk list berisi 20.000 baris?", ["`memo` di setiap baris", "Virtualisasi: render hanya baris yang terlihat", "`useCallback` untuk setiap handler", "Memakai index sebagai `key`"], "Tidak membuat 20.000 node DOM lebih baik daripada membuat re-render-nya lebih murah."]
+      ["Sebuah child yang di-memoize menerima `onClick={() => select(id)}` dari parent-nya, tanpa React Compiler. Apakah `memo` melewati re-render?", ["Ya", "Tidak: function baru dibuat di setiap render, jadi props-nya berbeda", "Hanya di production", "Hanya untuk child pertama"], "Pengecekan dangkal selalu melihat referensi fungsi yang baru dibuat setiap render."],
+      ["React Compiler aktif. Apakah kamu masih butuh `useCallback` di sekeliling event handler?", ["Ya, di semua tempat", "Biasanya tidak: compiler otomatis me-memoize-nya", "Hanya untuk handler yang memanggil `setState`", "Hanya di dalam class component"], "Compiler menambahkan memoization itu waktu build selama kode mematuhi aturan React."],
+      ["Langkah pertama saat sebuah layar React terasa lambat?", ["Bungkus semuanya dengan `useMemo`", "Profiling untuk melihat apa yang render dan berapa lama", "Pindahkan semua state ke context", "Ganti `useState` dengan `useReducer`"], "Tanpa mengukur, kamu cuma menebak komponen atau langkah mana yang boros."],
+      ["Perbaikan terbaik untuk list berisi 20.000 baris?", ["`memo` di setiap baris", "Virtualisasi: render hanya baris yang terlihat", "`useCallback` untuk setiap handler", "Memakai index sebagai `key`"], "Menghindari pembuatan 20.000 node DOM jauh lebih berdampak daripada mempercepat re-render-nya."]
     ]
   },
   server: {
     splits: ['1 · Helper ApiError & api()', '2 · Query & Mutasi ProductsPage'],
     terms: [
-      ['Server state vs Client state', 'Data backend bersifat asinkron, bersama, dan bisa kedaluwarsa; mengelolanya lewat TanStack Query menghapus salinan lokal yang usang.'],
-      ['`useQuery` & `invalidateQueries`', '`useQuery` menyimpan cache per `queryKey`; sesudah `useMutation` menulis, invalidation langsung menyegarkan semua layar terkait.'],
-      ['Peta error per field `ProblemDetails`', 'Menerjemahkan JSON validasi ASP.NET Core `400` (`errors.Name[0]`) langsung ke error form aksesibel lewat `aria-describedby`.']
+      ['Server state vs Client state', 'Data backend bersifat asinkron, dipakai ramai-ramai, dan bisa di-cache. Mengelolanya di TanStack Query menghapus salinan lokal yang tertinggal.'],
+      ['`useQuery` & `invalidateQueries`', '`useQuery` menyimpan cache per `queryKey`. Sesudah `useMutation` menyimpan perubahan, invalidation menyegarkan layar terkait otomatis.'],
+      ['Peta error per field `ProblemDetails`', 'Memetakan JSON validasi ASP.NET Core `400` (`errors.Name[0]`) langsung menjadi pesan error aksesibel di samping field lewat `aria-describedby`.']
     ],
     title: 'Server state, routing, dan berkomunikasi dengan API-mu',
-    why: "Di sinilah track-track bertemu: layar React memanggil endpoint ASP.NET Core yang menjalankan SQL. Menangani caching, error, auth, dan type dengan benar di sini adalah inti pekerjaan full-stack.",
+    why: "Di sini semua bagian bertemu: layar React memanggil endpoint ASP.NET Core yang mengolah database SQL. Mengurus caching, validasi error, auth, dan kontrak tipe di lapisan ini penting di hampir setiap aplikasi nyata.",
     points: [
-      "**Server state** (data milik backend) berbeda dengan **client state** (state UI). Ia asynchronous, dipakai bersama, dan bisa basi.",
-      "Library server state (TanStack Query) memberi caching, deduplikasi, refetch di background, retry, serta state loading/error, menggantikan fetching di `useEffect` yang ditulis tangan. Bungkus aplikasinya sekali dengan `<QueryClientProvider>`.",
-      "**Query** membaca dan di-cache berdasarkan key; **mutation** menulis lalu **meng-invalidate** query yang terdampak supaya di-refetch.",
-      "Ubah ProblemDetails dari ASP.NET menjadi sesuatu yang bisa dipakai UI: `title` untuk pesan umum, dan `errors` untuk pesan di samping setiap field.",
-      "**Router** (React Router atau TanStack Router) memetakan URL ke komponen. Taruh state yang bisa dibagikan — halaman, filter, id yang dipilih — di URL.",
-      "Bagikan kontraknya: generate type TypeScript dari dokumen **OpenAPI** milik API alih-alih mengetik ulang DTO secara manual.",
-      "Auth untuk SPA: utamakan cookie `HttpOnly`, `Secure`, `SameSite` lewat backend-for-frontend daripada token di `localStorage`. Cookie dikirim otomatis, jadi lindungi operasi penulisan dari CSRF dengan antiforgery token milik ASP.NET Core atau custom header yang wajib ada."
+      "**Server state** tinggal di backend, beda sifatnya dari **client state** lokal. Ia datang lewat jaringan asinkron, bisa berubah tanpa sepengetahuanmu, dan perlu masa kedaluwarsa.",
+      "TanStack Query memberi caching, deduplikasi request, retry, dan status loading agar kamu tak perlu menulis fetch manual di `useEffect`. Bungkus aplikasi sekali di `<QueryClientProvider>`.",
+      "**Query** membaca dan menyimpan cache per key, sedangkan **mutation** mengirim perubahan lalu **meng-invalidate** query terkait supaya data daftar ikut segar.",
+      "Petakan `ProblemDetails` dari ASP.NET langsung ke UI: tampilkan `title` untuk pesan umum dan `errors` di samping field form yang salah.",
+      "**Router** seperti React Router atau TanStack Router menautkan URL ke komponen halaman. Taruh kondisi yang pantas dibagikan seperti halaman, filter, dan ID terpilih di URL.",
+      "Jaga kontrak API dengan men-generate tipe TypeScript dari dokumen **OpenAPI** ketimbang mengetik ulang class DTO C# dengan tangan.",
+      "Untuk autentikasi SPA, pilih cookie `HttpOnly`, `Secure`, `SameSite` lewat pola BFF ketimbang token di `localStorage`. Karena cookie terkirim otomatis, lindungi request tulis dari CSRF memakai token antiforgery atau custom header."
     ],
     practice: "Hubungkan aplikasi React-mu ke API ASP.NET Core dengan TanStack Query: list, create, delete. Kirim produk yang tidak valid dan pastikan pesan validasi dari server muncul di samping field yang tepat. Generate type TypeScript dari dokumen OpenAPI milik API lalu hapus salinan yang kamu tulis sendiri.",
-    teach: "Jelaskan perbedaan server state dan client state, serta apa yang dilakukan 'meng-invalidate query'.",
-    analogy: "Server state itu seperti buku perpustakaan: kamu memegang salinannya, tapi perpustakaan yang memiliki kebenarannya, dan orang lain mungkin sudah memperbaruinya. Cache query adalah rak berisi salinan pinjamanmu, masing-masing dicap tanggal 'cek lagi setelah'. Meng-invalidate berarti bilang 'aku baru saja menyerahkan koreksi; ambilkan edisi terbarunya'.",
+    teach: "Jelaskan perbedaan server state dan client state, serta efek dari meng-invalidate sebuah query.",
+    analogy: "Server state itu seperti buku perpustakaan. Kamu memegang salinan pinjaman, tapi perpustakaan yang punya edisi master yang mungkin baru direvisi orang lain. Cache query adalah rak pinjamanmu yang bertempel tanggal kadaluwarsa. Meng-invalidate artinya melapor ke petugas bahwa kamu baru mengirim revisi dan minta diambilkan cetakan terbaru.",
     pitfalls: [
-      "Menyalin data hasil fetch ke `useState` lalu menyimpan salinan kebenaran kedua yang basi.",
-      "Menyimpan access token di `localStorage`, tempat script sisipan mana pun bisa membacanya.",
-      "Mengatur `Content-Type: application/json` di setiap request, termasuk GET, yang memaksa request preflight CORS tambahan setiap kali.",
-      "Men-spread opsi dari pemanggil setelah `headers` milikmu sendiri, sehingga mengirim header apa pun diam-diam menghapus `Content-Type`.",
-      "Merawat salinan type TypeScript dari DTO C# secara manual sampai keduanya melenceng."
+      "Menyalin hasil fetch ke `useState` lalu terjebak merawat dua versi data yang mudah tertinggal.",
+      "Menaruh access token di `localStorage` sehingga skrip XSS apa pun bisa mencurinya.",
+      "Memasang header `Content-Type: application/json` di request GET, memicu preflight CORS tambahan yang tak perlu.",
+      "Menyebar opsi pemanggil sesudah `headers` default sehingga header tambahan tak sengaja menimpa `Content-Type`.",
+      "Memperbarui DTO TypeScript terpisah dari class C# sampai lama-kelamaan tidak cocok."
     ],
     quiz: [
-      ["Setelah mutation 'create product' berhasil, bagaimana seharusnya list produk ter-update?", ["Ter-update sendiri", "Invalidate query list-nya supaya di-refetch", "Muat ulang halaman", "`push` item baru ke array di cache"], "Invalidation menandai data di cache sebagai basi dan mengambilnya ulang dari sumber kebenaran. Memutasi cache secara langsung melewati deteksi perubahan."],
-      ["Mana yang tempatnya di URL, bukan di state komponen?", ["Apakah dropdown sedang terbuka", "Nomor halaman dan filter sebuah list", "Input yang baru setengah diketik", "State hover"], "State tampilan yang bisa dibagikan dan di-bookmark sebaiknya bertahan saat reload dan bisa dijadikan link."],
-      ["SPA-mu login dengan cookie `HttpOnly`. Apa lagi yang dibutuhkan operasi penulisan?", ["Tidak ada: `HttpOnly` memblokir semua serangan", "Perlindungan CSRF, seperti antiforgery token atau custom header yang wajib ada", "Token di `localStorage` juga", "`credentials: \"omit\"` di setiap request"], "Browser mengirim cookie di setiap request ke API-mu, termasuk request yang dipicu situs lain. Itulah yang dicegah oleh perlindungan CSRF."],
-      ["Cara paling andal menjaga type TypeScript tetap selaras dengan API C#?", ["Salin secara manual", "Generate dari dokumen OpenAPI milik API", "Pakai `any` untuk response API", "Bagikan file `.d.ts` lewat Slack"], "Type yang di-generate ikut berubah saat API berubah, dan menggagalkan build kalau frontend-nya tertinggal."]
+      ["Setelah mutation 'create product' berhasil, bagaimana seharusnya list produk ter-update?", ["Ter-update sendiri", "Invalidate query list-nya supaya di-refetch", "Muat ulang halaman", "`push` item baru ke array di cache"], "Invalidation menandai cache sudah lewat masa lalu mengambil data segar dari server. Mengubah cache langsung melewati pelacakan perubahan."],
+      ["Mana yang tempatnya di URL, bukan di state komponen?", ["Apakah dropdown sedang terbuka", "Nomor halaman dan filter sebuah list", "Input yang baru setengah diketik", "State hover"], "Tampilan yang pantas dibagikan atau di-bookmark sebaiknya tetap bertahan saat halaman dimuat ulang."],
+      ["SPA-mu login dengan cookie `HttpOnly`. Apa lagi yang dibutuhkan operasi penulisan?", ["Tidak ada: `HttpOnly` memblokir semua serangan", "Perlindungan CSRF, seperti antiforgery token atau custom header yang wajib ada", "Token di `localStorage` juga", "`credentials: \"omit\"` di setiap request"], "Browser mengirim cookie ke API di setiap request, termasuk yang dipicu situs lain. Itu alasan utama butuh pelindung CSRF."],
+      ["Cara paling andal menjaga type TypeScript tetap selaras dengan API C#?", ["Salin manual", "Generate dari dokumen OpenAPI milik API", "Pakai `any` untuk response API", "Bagikan file `.d.ts` lewat Slack"], "Tipe hasil generate ikut berubah mengikuti API dan langsung menggagalkan build jika frontend tertinggal."]
     ]
   },
   tsadv: {
     terms: [
-      ['Conditional type (`T extends U ? X : Y`)', 'Menghitung tipe hasil secara dinamis berdasar bentuk input — dasar dari `Awaited<T>` dan `ReturnType<F>` bawaan TypeScript.'],
-      ['Mapped type (`{ [K in keyof T]: ... }`)', 'Mengubah setiap properti pada sebuah interface secara sistematis (misalnya membentuk kamus error per field).'],
-      ['`infer` & Template literal type', 'Mengekstrak sub-type di dalam pencocokan (`infer R`) dan memaksa pola string jalur API (`\`/api/${string}\``) di waktu kompilasi.']
+      ['Conditional type (`T extends U ? X : Y`)', 'Memilih tipe hasil berdasarkan bentuk tipe masukan, cara `Awaited<T>` dan `ReturnType<F>` bekerja di balik layar.'],
+      ['Mapped type (`{ [K in keyof T]: ... }`)', 'Mengubah tiap properti interface dengan pola teratur, pas untuk kamus pesan error form yang ketat.'],
+      ['`infer` & Template literal type', 'Menarik sub-tipe di dalam pencocokan (`infer R`) dan memvalidasi pola string seperti `\`/api/${string}\`` saat kompilasi.']
     ],
     title: 'Type tingkat lanjut: conditional, mapped, dan inferred',
-    why: "Type system TypeScript adalah bahasa pemrograman kecil. Kalau dipakai dengan baik, ia membuat kode yang salah mustahil ditulis; kalau terlalu pintar, ia membuat kode yang tidak bisa diubah orang lain. Keahliannya adalah membedakan keduanya.",
+    why: "Sistem tipe TypeScript ibarat bahasa kecil yang berjalan saat kompilasi. Dipakai secukupnya, ia menutup celah bug sebelum kode jalan. Dipakai berlebihan, rekan tim akan kesusahan membaca dan mengubahnya.",
     points: [
-      "**Conditional type** memilih sebuah type: `T extends U ? X : Y`. Pada union, ia **didistribusikan**: diterapkan ke setiap anggotanya.",
-      "`infer` menangkap sebagian type di dalam kondisi: `T extends Promise<infer R> ? R : T`. `Awaited<T>` bawaan TypeScript bekerja dengan cara ini.",
-      "**Mapped type** mengubah setiap property: `{ [K in keyof T]: … }`, dengan modifier `readonly`/`?` dan penggantian nama key lewat `as`.",
-      "**Template literal type** membangun type string, ditulis dengan backtick seperti template string JavaScript: type nama event yang diturunkan dari nama property.",
-      "`never` adalah type kosong. Meng-assign ke `never` di cabang `default` memberi **pengecekan kelengkapan**: menambah anggota union akan menggagalkan build sampai anggota itu ditangani.",
-      "`satisfies` mengecek sebuah value terhadap type **tanpa memperlebarnya**. `as const` membekukan literal. Utamakan keduanya daripada cast `as`."
+      "**Conditional type** bercabang menurut bentuk tipe (`T extends U ? X : Y`). Bila diberikan ke union, ia otomatis tersebar ke setiap anggotanya.",
+      "`infer` mengekstrak bagian tipe di dalam syarat kondisi, seperti `T extends Promise<infer R> ? R : T` (dasar dari `Awaited<T>`).",
+      "**Mapped type** menelusuri setiap properti (`{ [K in keyof T]: … }`), lalu menambah `readonly`, menaruh `?`, atau mengganti nama key memakai `as`.",
+      "**Template literal type** menyusun pola string memakai backtick, berguna menurunkan nama event atau pola route langsung dari daftar key.",
+      "`never` menandakan himpunan nilai kosong. Meng-assign ke variabel `never` pada cabang `default` memberi **pengecekan kelengkapan**, mematahkan build jika ada opsi union yang terlewat.",
+      "`satisfies` mengecek kecocokan literal **tanpa memperlebar** tipenya, sedangkan `as const` membekukan nilai literal. Utamakan keduanya sebelum memakai cast `as`."
     ],
-    practice: "Tulis `DeepReadonly<T>`, dan `PathParams<'/users/:id/posts/:postId'>` yang menghasilkan `{ id: string; postId: string }`. Lalu tulis satu paragraf tentang apakah kamu akan menerima `PathParams` di codebase tim, dan apa yang bisa mengubah pendapatmu.",
-    teach: "Jelaskan bagaimana meng-assign ke variabel ber-type `never` di case `default` membuat compiler menangkap anggota union yang terlupa.",
-    analogy: "Type biasa adalah label di kotak. Type tingkat lanjut adalah mesin pencetak label: masukkan satu type dan ia mencetak type lain yang berkaitan. `never` adalah celah yang tidak bisa dilewati apa pun: kalau masih ada yang tersisa dan jatuh ke sana, compiler sudah menemukan case yang belum kamu tangani.",
+    practice: "Tulis `DeepReadonly<T>`, serta `PathParams<'/users/:id/posts/:postId'>` yang menghasilkan `{ id: string, postId: string }`. Lalu tuliskan dalam satu paragraf apakah kamu mau menerima `PathParams` ke repo tim dan alasannya.",
+    teach: "Jelaskan bagaimana meng-assign ke variabel `never` pada cabang `default` menangkap opsi union yang terlupa saat build.",
+    analogy: "Tipe dasar itu seperti stiker label di kotak. Tipe tingkat lanjut adalah mesin cetak label yang membaca satu tipe lalu memproduksi tipe turunan lain. Sementara `never` adalah celah sempit yang tak bisa dimasuki nilai apa pun, jadi sisa cabang yang tertinggal langsung tertangkap compiler.",
     pitfalls: [
-      "Akrobat type yang tidak bisa dirawat siapa pun di tim. Keterbacaan mengalahkan kepintaran.",
-      "Cast `as` yang membungkam error yang sebenarnya benar menurut type system.",
-      "Lupa bahwa conditional type didistribusikan ke anggota union, lalu mendapat hasil yang mengejutkan.",
-      "Membuat ulang utility type yang sudah disediakan TypeScript, seperti `Awaited`, `NonNullable`, atau `ReturnType`."
+      "Merangkai akrobat tipe yang tak ada rekan tim sanggup merawatnya. Kode jelas menang dari tipe pintar.",
+      "Menyumpal error tipe sah memakai `as` ketimbang membereskan akar bug-nya.",
+      "Lupa conditional type tersebar ke anggota union lalu kaget melihat tipe hasilnya.",
+      "Menulis ulang utilitas yang sudah disediakan TypeScript seperti `Awaited`, `NonNullable`, atau `ReturnType`."
     ],
     quiz: [
-      ["Apa hasil `T extends Promise<infer R> ? R : T` untuk `T = Promise<string>`?", ["`Promise<string>`", "`string`", "`never`", "`unknown`"], "`infer R` menangkap type yang dihasilkan promise saat resolve."],
-      ["Apa yang dilakukan `satisfies` yang tidak dilakukan anotasi type?", ["Mengecek value-nya saat runtime", "Mengecek kecocokan sambil mempertahankan type sempit hasil inference", "Membuat value-nya bisa diubah", "Mematikan pengecekan untuk value itu"], "Anotasi memperlebar ke type yang dianotasikan; `satisfies` mengecek sekaligus mempertahankan literalnya."],
-      ["Anggota baru ditambahkan ke union yang ditangani `switch` dengan `const x: never = value` di `default`. Hasilnya?", ["Bug diam-diam saat runtime", "Compile error sampai case baru itu ditangani", "Tidak ada apa-apa", "Case barunya jatuh ke case pertama"], "Anggota yang belum ditangani tidak bisa di-assign ke `never`, jadi build gagal tepat di tempat yang benar."]
+      ["Apa hasil `T extends Promise<infer R> ? R : T` untuk `T = Promise<string>`?", ["`Promise<string>`", "`string`", "`never`", "`unknown`"], "`infer R` mengambil tipe nilai yang keluar saat promise selesai."],
+      ["Apa yang dilakukan `satisfies` yang tidak dilakukan anotasi type?", ["Mengecek value-nya saat runtime", "Mengecek kecocokan sambil mempertahankan type sempit hasil inference", "Membuat value-nya bisa diubah", "Mematikan pengecekan untuk value itu"], "Anotasi biasa memperlebar tipe, sedangkan `satisfies` mengecek bentuk sembari mempertahankan tipe literalnya."],
+      ["Anggota baru ditambahkan ke union yang ditangani `switch` dengan `const x: never = value` di `default`. Hasilnya?", ["Bug diam-diam saat runtime", "Compile error sampai case baru itu ditangani", "Tidak ada apa-apa", "Case barunya jatuh ke case pertama"], "Cabang yang belum ditangani tak bisa masuk ke `never`, jadi build gagal persis di lokasi yang kurang."]
     ]
   },
   internals: {
     terms: [
-      ['Pohon Fiber (unit kerja)', 'Pohon tautan internal React penyimpan state dan hook komponen agar rendering bisa dijeda, dilanjutkan, atau dibatalkan per prioritas.'],
-      ['Rekonsiliasi (render vs commit)', 'Render menghitung selisih UI di JS murni; Commit menuliskan mutasi DOM minimal secara sinkron agar layar tak pernah tampil setengah jadi.'],
-      ['Pemanggilan ganda `StrictMode`', 'Pemeriksaan mode dev yang memanggil render/effect dua kali untuk langsung mengungkap mutasi tak murni atau cleanup yang lupa ditulis.']
+      ['Pohon Fiber (unit kerja)', 'Struktur pohon internal React penyimpan state dan hook agar proses render bisa dijeda, dilanjutkan, atau dibatalkan sesuai prioritas.'],
+      ['Rekonsiliasi (render vs commit)', 'Render menghitung selisih UI di JavaScript. Commit menerapkan perubahan DOM minimal sekaligus agar layar tak tampil setengah jadi.'],
+      ['Pemanggilan ganda `StrictMode`', 'Pemeriksaan mode dev yang memanggil render dan effect dua kali untuk langsung menangkap efek samping atau cleanup yang tertinggal.']
     ],
     title: 'Internal React: reconciliation dan concurrency',
-    why: "Memahami bagaimana React memutuskan apa yang diubah, dan kapan, mengubah perilaku yang membingungkan — state yang hilang, effect yang jalan dua kali, jank — menjadi akibat yang bisa ditebak dari segelintir aturan.",
+    why: "State yang hilang tiba-tiba, effect jalan dua kali, dan tampilan patah-patah tampak acak sampai kamu tahu cara React menjadwalkan kerja. Beberapa aturan inti menjelaskan semua gejalanya.",
     points: [
-      "Rendering menghasilkan tree berisi **element** (object biasa). **Reconciliation** membandingkannya dengan tree sebelumnya untuk menemukan perubahan DOM sesedikit mungkin.",
-      "Dua aturan: **type element** yang berbeda di posisi yang sama mengganti seluruh subtree; **key** mengenali child yang urutannya berubah. State terikat pada posisi + type + key.",
-      "Mengubah `key` sebuah komponen secara sengaja **me-reset state-nya**: teknik yang berguna, sekaligus kecelakaan yang umum.",
-      "**Fiber** adalah satuan kerja React, yang membuat rendering bisa dijeda, dilanjutkan, dan diprioritaskan. **Fase render** bisa diinterupsi dan harus pure; **fase commit** dijalankan sekaligus.",
-      "**Fitur concurrent**: `useTransition` dan `useDeferredValue` menandai update sebagai tidak mendesak supaya mengetik tetap responsif; `Suspense` mendeklarasikan batas loading; `use(promise)` membaca promise di dalam batas Suspense.",
-      "Strict Mode me-render dua kali dan menjalankan mount, unmount, lalu mount lagi pada effect saat development, untuk mengungkap kode yang tidak pure. Server Component di-render di server dan tidak mengirim JavaScript untuk dirinya sendiri: model eksekusi yang berbeda dari client component."
+      "Render menyusun pohon **element** berupa object biasa. **Reconciliation** membandingkannya dengan pohon sebelumnya untuk mencari ubahan DOM paling minimal.",
+      "Dua aturan berlaku: mengganti **tipe element** di posisi sama membongkar seluruh subtree-nya, dan **key** memadankan anak saat urutan bergeser. State menempel ke posisi + tipe + key.",
+      "Mengganti `key` komponen sengaja **mengulang state-nya** dari nol, trik yang praktis saat dibutuhkan dan menjebak bila terjadi tanpa sengaja.",
+      "**Fiber** membagi kerja render ke unit yang bisa dijeda, dilanjutkan, atau dibatalkan. **Fase render** harus murni dan boleh terputus, sedangkan **fase commit** mengubah DOM sekaligus.",
+      "`useTransition` dan `useDeferredValue` menandai update tidak mendesak agar ketikan tetap lancar. `Suspense` memasang tampilan cadangan saat loading, dan `use(promise)` membaca data async di dalamnya.",
+      "Di development, Strict Mode menjalankan render dua kali dan memasang-cabut effect lagi untuk memancing bug efek samping. Server Components berjalan hanya di server tanpa mengirim JS komponen ke browser."
     ],
     practice: "Bangun komponen tab yang me-render `<Counter />` di dua cabang pada posisi yang sama, dan lihat state-nya bertahan saat berpindah. Lalu beri masing-masing `key` yang berbeda dan jelaskan perubahannya dari sisi reconciliation.",
-    teach: "Jelaskan kenapa mengubah `key` sebuah komponen me-reset state-nya.",
-    analogy: "Reconciliation itu seperti petugas teater yang membandingkan denah tempat duduk malam ini dengan malam kemarin. Kursi yang sama, jenis tamu yang sama: biarkan dan perbarui tiketnya. Jenis tamu yang berbeda di kursi itu: kosongkan sepenuhnya. `key` adalah tanda nama, sehingga petugas bisa mengikuti tamu yang pindah kursi alih-alih menganggapnya orang asing.",
+    teach: "Jelaskan kenapa mengganti `key` pada sebuah komponen langsung mengulang state-nya dari awal.",
+    analogy: "Reconciliation itu mirip petugas teater membandingkan denah kursi malam ini dengan malam kemarin. Kursi sama dan jenis tamu sama: biarkan duduk, cukup perbarui tiketnya. Jenis tamu di kursi itu berganti: kosongkan seluruh barisnya dulu. `key` adalah papan nama agar petugas bisa mengikuti tamu yang pindah kursi.",
     pitfalls: [
-      "Mendefinisikan komponen di dalam komponen lain: setiap render ia menjadi type baru, sehingga state-nya terus ter-reset.",
-      "Side effect di fase render, yang bisa jalan lebih dari sekali.",
-      "Menganggap jalan-dua-kali dari Strict Mode sebagai bug lalu mematikannya."
+      "Mendeklarasikan komponen di dalam komponen lain sehingga tiap render terbaca tipe baru dan state-nya terus terhapus.",
+      "Menaruh efek samping di badan fase render yang bisa dipanggil ulang berkali-kali.",
+      "Mengira pemanggilan ganda Strict Mode itu bug lalu mematikannya."
     ],
     quiz: [
-      ["Di posisi yang sama, sebuah `<div>` diganti dengan `<section>` yang child-nya identik. React akan…", ["mengubah tag-nya di tempat", "menghancurkan subtree lama dan membangun yang baru, sehingga state child-nya hilang", "mengabaikan perubahannya", "melempar error"], "Type element yang berbeda berarti tree yang berbeda; React tidak mencoba memakainya ulang."],
-      ["Apa yang bisa dilakukan dengan `useTransition`?", ["Menganimasikan CSS", "Menandai update state sebagai tidak mendesak supaya update yang mendesak bisa menyelanya", "Mengambil data di background", "Melewati render sebuah komponen"], "Transition menjaga UI tetap responsif selama render yang mahal."],
-      ["Kenapa Strict Mode menjalankan effect dua kali saat development?", ["Itu bug di build development", "Untuk mengungkap effect yang tidak punya cleanup yang benar", "Untuk memuat data dua kali demi kecepatan", "Karena Strict Mode juga me-render di server"], "Mount → unmount → mount mensimulasikan mount ulang; effect dengan cleanup yang benar tidak terpengaruh."]
+      ["Di posisi yang sama, sebuah `<div>` diganti dengan `<section>` yang child-nya identik. React akan…", ["mengubah tag-nya di tempat", "menghancurkan subtree lama dan membangun yang baru, sehingga state child-nya hilang", "mengabaikan perubahannya", "memicu error"], "Tipe element yang berbeda menandakan pohon baru, jadi React membongkar subtree lama bukannya memakai ulang."],
+      ["Apa yang bisa dilakukan dengan `useTransition`?", ["Menganimasikan CSS", "Menandai update state sebagai tidak mendesak supaya update yang mendesak bisa menyelanya", "Mengambil data di background", "Melewati render sebuah komponen"], "Transition menjaga ketikan dan klik tetap responsif selama render berat disiapkan."],
+      ["Kenapa Strict Mode menjalankan effect dua kali saat development?", ["Itu bug di build development", "Untuk mengungkap effect yang tidak punya cleanup yang benar", "Untuk memuat data dua kali demi kecepatan", "Karena Strict Mode juga me-render di server"], "Simulasi mount, unmount, lalu mount ulang menguji logika cleanup sejak dini."]
     ]
   },
   arch: {
     terms: [
-      ['Test berorientasi pengguna (`render` + `userEvent`)', 'Menguji komponen lewat role dan label aksesibel (`getByRole("button")`) alih-alih membaca state internal komponen.'],
-      ['Mocking API (`MSW`)', 'Mencegat `fetch` di batas jaringan supaya test komponen menjalankan serialisasi, validasi, dan status error sungguhan.'],
-      ['Gerbang aksesibilitas inti (`axe-core`)', 'Landmark semantik, navigasi keyboard, kontrol berlabel, dan wilayah error `role="alert"` yang dicek otomatis di tiap fitur.']
+      ['Test berorientasi pengguna (`render` + `userEvent`)', 'Menguji komponen dari sisi pengguna lewat role dan label (`getByRole("button")`) ketimbang mengintip state internal komponen.'],
+      ['Mocking API (`MSW`)', 'Mencegat `fetch` di batas jaringan supaya test menjalankan serialisasi, validasi, dan status error HTTP sungguhan.'],
+      ['Gerbang aksesibilitas inti (`axe-core`)', 'Mengecek landmark semantik, navigasi keyboard, label input, dan pesan error `role="alert"` otomatis per fitur.']
     ],
     title: 'Arsitektur frontend, testing, dan aksesibilitas',
-    why: "Frontend yang baik adalah frontend yang bisa diubah tim dengan aman selama bertahun-tahun dan bisa dioperasikan setiap user. Itu butuh struktur, test yang bertahan saat refactor, dan aksesibilitas yang diperlakukan sebagai kebutuhan, bukan fitur tambahan.",
+    why: "Frontend yang tangguh bisa diubah tim dengan percaya diri selama bertahun-tahun sekaligus nyaman dipakai semua orang. Itu butuh batas modul yang jelas, test yang tahan refactor, dan aksesibilitas sejak awal.",
     points: [
-      "Klasifikasikan state sebelum memilih alat: **server state** (library query), **URL state** (router), **state UI lokal** (`useState`), **client state bersama** (context, atau store seperti Zustand kalau sering berubah).",
-      "Susun per **fitur** (`features/cart/…`), bukan per jenis file, dan pisahkan potongan UI bersama. Tegakkan batasnya dengan aturan lint.",
-      "Test **perilaku lewat UI** dengan React Testing Library: cari elemen berdasarkan role dan label, bertindak seperti user, dan assert pada apa yang mereka lihat. Mock network-nya (MSW), bukan komponennya.",
-      "Setup test untuk Vitest: environment `jsdom`, `import \"@testing-library/jest-dom/vitest\"` untuk matcher seperti `toBeInTheDocument`, dan provider yang sama dengan yang dipakai aplikasi (di sini `QueryClientProvider`).",
-      "Beberapa test **end-to-end** (Playwright) mencakup jalur kritis melewati frontend, API, dan database sungguhan.",
-      "**Aksesibilitas**: HTML semantik dulu, setiap input berlabel, bisa dioperasikan penuh lewat keyboard, fokus yang terlihat, kontras yang cukup, pengumuman untuk perubahan async. Test dengan keyboard dan screen reader.",
-      "Budget performance: pantau Core Web Vitals (LCP, INP, CLS), pecah kode per route, optimasi gambar, dan gagalkan CI saat bundle melewati budget."
+      "Kelompokkan state sebelum memilih library: taruh **server state** di cache query, **URL state** di router, dan **state UI lokal** di `useState`. Client state yang sering berubah dan dibagi banyak layar baru masuk Zustand atau context.",
+      "Susun folder per **fitur** (`features/cart/…`) ketimbang jenis file, pisahkan UI bersama, dan kunci batasnya lewat aturan lint.",
+      "Uji **alur pengguna nyata** dengan React Testing Library: cari elemen lewat role dan label, klik pakai `userEvent`, lalu mock `fetch` di jaringan dengan MSW.",
+      "Test Vitest memakai environment `jsdom`, `@testing-library/jest-dom/vitest` untuk matcher seperti `toBeInTheDocument`, dan provider asli aplikasi seperti `QueryClientProvider`.",
+      "Tambahkan beberapa test **end-to-end** Playwright untuk alur paling penting yang menembus frontend, API, hingga database asli.",
+      "Bangun **aksesibilitas** mulai dari HTML semantik. Beri label tiap input, dukung penuh navigasi keyboard dengan fokus terlihat, jaga kontras warna, lalu cek dengan pembaca layar.",
+      "Pantau Core Web Vitals (LCP, INP, CLS), pecah rute memakai lazy load, optimasi gambar, dan pasang batas ukuran bundle di CI."
     ],
-    practice: "Tulis test ini untuk halaman produkmu sendiri, lalu refactor bagian dalam halamannya — ganti nama komponen, ubah cara state dikelola — tanpa menyentuh test-nya. Kalau test-nya rusak, berarti ia mengetes implementasi. Terakhir, operasikan seluruh halaman hanya dengan keyboard dan perbaiki apa yang kamu temukan.",
-    teach: "Jelaskan kenapa test yang mencari elemen berdasarkan role dan label lebih berharga daripada test yang mengecek bagian dalam komponen.",
-    analogy: "UI test yang baik itu seperti mystery shopper: mereka masuk, memakai toko seperti pelanggan biasa, lalu melaporkan pengalamannya. Mereka tidak peduli bagaimana gudang ditata, jadi kamu bebas menata ulang gudangnya.",
+    practice: "Tulis test ini untuk halaman produkmu sendiri, lalu ubah nama komponen dan hook internalnya tanpa menyentuh file test. Kalau test-nya patah, berarti test itu menempel ke implementasi. Akhiri dengan menjelajahi seluruh halaman memakai keyboard saja.",
+    teach: "Jelaskan kenapa UI test yang mencari elemen lewat role dan label lebih tahan refactor daripada mengecek state internal.",
+    analogy: "UI test yang bagus itu seperti mystery shopper. Mereka masuk, belanja layaknya pelanggan biasa, lalu melaporkan pengalaman mereka tanpa peduli bagaimana gudang belakang kamu tata ulang.",
     pitfalls: [
-      "Store global untuk segalanya, termasuk data server dan input form.",
-      "Snapshot test dan test state internal yang rusak di setiap refactor tanpa pernah menangkap bug.",
-      "`div` atau `li` dengan `onClick` alih-alih `button`: tidak bisa dicapai lewat keyboard dan tidak terlihat oleh teknologi bantu.",
-      "Me-render komponen di test tanpa provider yang dibutuhkannya, lalu bergulat dengan error yang membingungkan."
+      "Menumpuk data API dan isi input form ke dalam satu store global raksasa.",
+      "Mengandalkan snapshot test rapuh atau mengecek hook internal yang patah di setiap refactor ringan.",
+      "Memasang `onClick` ke `div` atau `li` daripada memakai `button`, yang memutus akses keyboard dan pembaca layar.",
+      "Me-render komponen dalam test tanpa membungkus provider yang dibutuhkan lalu bingung mengejar pesan error."
     ],
     quiz: [
-      ["Di mana tempat data yang diambil dari API?", ["Store Redux global, selalu", "Cache server state seperti TanStack Query", "`localStorage`", "`useRef` di komponen root"], "Server state butuh caching, penanda basi, dan invalidation, yang memang tugas library query."],
-      ["Kenapa mencari dengan `getByRole('button', { name: 'Add' })`, bukan dengan class CSS?", ["Lebih cepat", "Ia mengetes apa yang dirasakan user dan teknologi bantu, dan bertahan saat refactor", "Class tidak ada di jsdom", "Tidak perlu rendering"], "Role dan nama adalah kontrak publik UI; nama class adalah detail implementasi."],
-      ["Langkah pertama yang paling penting untuk aksesibilitas?", ["Tambahkan atribut ARIA ke setiap elemen", "Pakai elemen HTML semantik dengan label yang benar", "Pilih palet warna berkontras tinggi", "Pasang widget overlay aksesibilitas"], "Elemen bawaan memberi dukungan keyboard dan makna secara gratis; ARIA mengisi celah, bukan menggantikannya. Widget overlay tidak memperbaiki markup yang bermasalah."]
+      ["Di mana tempat data yang diambil dari API?", ["Store Redux global, selalu", "Cache server state seperti TanStack Query", "`localStorage`", "`useRef` di komponen root"], "Data dari server butuh caching, aturan kedaluwarsa, dan invalidation yang diurus TanStack Query."],
+      ["Kenapa mencari dengan `getByRole('button', { name: 'Add' })`, bukan dengan class CSS?", ["Lebih cepat", "Ia mengetes apa yang dirasakan user dan teknologi bantu, dan bertahan saat refactor", "Class tidak ada di jsdom", "Tidak perlu rendering"], "Role dan nama aksesibel adalah kontrak asli antarmuka ke pengguna, sedangkan class CSS cuma urusan internal."],
+      ["Langkah pertama yang paling penting untuk aksesibilitas?", ["Tambahkan atribut ARIA ke setiap elemen", "Pakai elemen HTML semantik dengan label yang benar", "Pilih palet warna berkontras tinggi", "Pasang widget overlay aksesibilitas"], "HTML semantik memberi dukungan keyboard dan makna sejak awal. ARIA mengisi celah yang tersisa, dan widget overlay tidak memperbaiki markup yang rusak."]
     ]
   }
-}, { tagline: 'Frontend-nya: JavaScript modern, type system, komponen, state, dan arsitektur.' });
+}, { tagline: 'Bagian frontend: JavaScript modern, type system, komponen, state, dan arsitektur.' });

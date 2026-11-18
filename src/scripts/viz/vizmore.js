@@ -95,11 +95,11 @@
       const lines = ['console.log("1 sync");', 'setTimeout(() => console.log("4 timeout"), 0);', 'Promise.resolve().then(() => console.log("3 microtask"));', 'console.log("2 sync");'];
       const steps = [
         { line: 0, stack: ['main script', 'console.log'], micro: [], task: [], out: ['1 sync'], note: 'Synchronous code runs immediately, top to bottom, on the single thread.' },
-        { line: 1, stack: ['main script', 'setTimeout'], micro: [], task: ['timeout callback'], out: ['1 sync'], note: 'setTimeout does not run the callback. It asks the browser to queue it as a TASK when the timer ends — even with a delay of 0.' },
+        { line: 1, stack: ['main script', 'setTimeout'], micro: [], task: ['timeout callback'], out: ['1 sync'], note: "setTimeout doesn't run the callback right away. It tells the browser to queue it as a TASK when the timer ends, even if the delay is 0." },
         { line: 2, stack: ['main script', 'then'], micro: ['promise callback'], task: ['timeout callback'], out: ['1 sync'], note: 'The promise is already resolved, so its callback is queued as a MICROTASK. It still does not run yet.' },
         { line: 3, stack: ['main script', 'console.log'], micro: ['promise callback'], task: ['timeout callback'], out: ['1 sync', '2 sync'], note: 'The script keeps going. Nothing queued can interrupt running synchronous code.' },
         { line: -1, stack: [], micro: ['promise callback'], task: ['timeout callback'], out: ['1 sync', '2 sync'], note: 'The script has finished and the call stack is empty. The event loop now checks the microtask queue FIRST.' },
-        { line: 2, stack: ['promise callback'], micro: [], task: ['timeout callback'], out: ['1 sync', '2 sync', '3 microtask'], note: 'All microtasks run until the queue is empty — before any task, and before the browser can render.' },
+        { line: 2, stack: ['promise callback'], micro: [], task: ['timeout callback'], out: ['1 sync', '2 sync', '3 microtask'], note: 'All microtasks run until the queue is empty, before any task and before the browser can repaint.' },
         { line: 1, stack: ['timeout callback'], micro: [], task: [], out: ['1 sync', '2 sync', '3 microtask', '4 timeout'], note: 'Only now does the event loop take ONE task: the timeout callback. After it, microtasks would be checked again.' },
         { line: -1, stack: [], micro: [], task: [], out: ['1 sync', '2 sync', '3 microtask', '4 timeout'], note: 'Done. Order: synchronous code → all microtasks → one task → microtasks again → next task…' }
       ];

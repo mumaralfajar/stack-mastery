@@ -204,17 +204,17 @@
         { ui: 'Product #1 (loading…)', reqs: 'Fetch #1 in flight (600 ms)', log: 'Mount: render(id=1) → effect #1 runs', bad: false, note: 'First render paints immediately; effect #1 starts fetching id=1.' },
         { ui: 'Product #2 (loading…)', reqs: 'Fetch #1 (still slow) + Fetch #2 (150 ms)', log: cleanMode ? 'cleanup(#1) → cancelled=true · effect #2 starts' : 'No cleanup! Both Fetch #1 & #2 active', bad: false, note: cleanMode ? 'Before running effect #2, React calls cleanup from render #1 to abort/ignore stale results.' : 'User clicks Product 2 quickly. Without cleanup, Fetch #1 is still alive.' },
         { ui: 'Shown: Product #2', reqs: 'Fetch #2 finishes first (valid)', log: 'setState(Product #2)', bad: false, note: 'Fetch #2 responds fast and shows Product #2.' },
-        { ui: cleanMode ? 'Shown: Product #2 (stays accurate)' : 'BUG: Overwritten by Product #1!', reqs: 'Slow Fetch #1 finally arrives', log: cleanMode ? 'if (!ignore) blocked stale #1' : 'setState(Product #1) overwrote id=2!', bad: !cleanMode, note: cleanMode ? 'When slow Fetch #1 resolves later, its cleanup flag ignores the stale response cleanly.' : 'Slow Fetch #1 arrives AFTER #2 and overwrites the UI with Product #1 while id=2 is selected!' }
+        { ui: cleanMode ? 'Shown: Product #2 (stays accurate)' : 'BUG: Overwritten by Product #1!', reqs: 'Slow Fetch #1 finally arrives', log: cleanMode ? 'if (!ignore) blocked stale #1' : 'setState(Product #1) overwrote id=2!', bad: !cleanMode, note: cleanMode ? 'When slow Fetch #1 resolves later, its cleanup flag ignores the stale response.' : 'Slow Fetch #1 arrives AFTER #2 and overwrites the UI with Product #1 while id=2 is selected!' }
       ];
       const box = h('div', {}), note = h('p', { class: 'viz-note', 'aria-live': 'polite' });
       const s = stepper(() => 4, i => {
         cleanMode = mode === 'clean';
         const st = steps[i];
         const uiText = i === 3 ? (cleanMode ? 'Shown: Product #2 (stays accurate)' : 'BUG: Overwritten by Product #1!') : st.ui;
-        const logText = i === 1 ? (cleanMode ? 'cleanup(#1) → ignore=true · effect #2 runs' : 'No cleanup — Fetch #1 stays live!')
+        const logText = i === 1 ? (cleanMode ? 'cleanup(#1) → ignore=true · effect #2 runs' : 'No cleanup, so Fetch #1 stays live!')
           : i === 3 ? (cleanMode ? 'if (!ignore) dropped stale Fetch #1' : 'Fetch #1 called setState with stale id=1!') : st.log;
         const noteStr = i === 1 ? (cleanMode ? 'Before running effect #2, React runs cleanup(#1), marking its response stale.' : 'User clicks Product #2 quickly. Without cleanup, Fetch #1 continues in the background.')
-          : i === 3 ? (cleanMode ? 'Slow Fetch #1 finally arrives, sees ignore === true, and discards the stale response.' : 'Slow Fetch #1 arrives late and overwrites Product #2 with Product #1 — classic race condition!') : st.note;
+          : i === 3 ? (cleanMode ? 'Slow Fetch #1 finally arrives, sees ignore === true, and discards the stale response.' : 'Slow Fetch #1 arrives late and overwrites Product #2 with Product #1. Classic race condition!') : st.note;
         const cls = i === 3 ? (cleanMode ? 'good' : 'bad') : '';
         box.replaceChildren(h('div', { class: 'viz-cols' },
           h('div', { class: 'viz-box' }, h('h4', {}, 'Screen state'), h('div', { class: 'slot ' + (cls === 'good' ? 'tt-new' : cls === 'bad' ? 'tt-gone' : '') }, T(uiText))),

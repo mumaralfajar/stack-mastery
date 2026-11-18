@@ -319,9 +319,9 @@
         const hit = [], skipped = [];
         render(name, true, hit, skipped);
         const tail = inlineProp.checked && memo.checked && hit.length > 1
-          ? T(' — memo did NOT skip children because inline () => {} created a brand-new function reference.')
-          : skipped.length ? T('; {n} skipped by memo because their props did not change.', { n: skipped.length })
-            : T(hit.length > 1 ? ' — the component and its whole subtree, even though the children’s props are identical.' : '. Parents and siblings are never affected.');
+          ? T(". Memo didn't skip children because inline () => {} creates a new function each render.")
+          : skipped.length ? T('. {n} skipped by memo because their props stayed the same.', { n: skipped.length })
+            : T(hit.length > 1 ? '. That includes the component and its whole subtree, even with identical child props.' : '. Parents and siblings are never affected.');
         note.textContent = T(hit.length > 1 ? 'setState in {name} → {n} components re-rendered' : 'setState in {name} → {n} component re-rendered', { name, n: hit.length }) + tail;
       };
       const mk = name => { count[name] = 1; return nodes[name] = h('button', { type: 'button', class: 'comp', onclick: () => click(name) }, `<${name}>`, h('small', {}, T('renders:') + ' 1')); };
