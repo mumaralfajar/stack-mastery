@@ -14,7 +14,8 @@
     "check:i18n": "node tools/check-i18n.mjs",
     "verify:cs": "node tools/verify.mjs",
     "verify:angular": "node tools/verify-angular.mjs",
-    "verify:dart": "node tools/verify-dart.mjs"
+    "verify:dart": "node tools/verify-dart.mjs",
+    "verify:go": "node tools/verify-go.mjs"
   },
   "dependencies": {
     "astro": "^7.4.0"

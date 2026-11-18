@@ -14,7 +14,7 @@ if (typeof window !== 'undefined' && !window.INTERVIEW) {
           Object.keys(d.solved || {}).length / 21,
           Object.values(d.design || {}).filter(Boolean).length / 6,
           Math.min(beh.size, 8) / 8,
-          Object.values(d.rapid || {}).filter(v => v === 2).length / 55,
+          Object.values(d.rapid || {}).filter(v => v === 2).length / 61,
           Math.min((d.mocks || []).length, 8) / 8
         ];
         return Math.round(parts.reduce((a, x) => a + x, 0) / parts.length * 100);

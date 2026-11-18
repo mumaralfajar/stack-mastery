@@ -12,7 +12,7 @@ globalThis.I18N = {
   lessons(id, lessons, meta) { const t = this.tracks[id] || (this.tracks[id] = { lessons: {} }); Object.assign(t, meta); Object.assign(t.lessons, lessons); }
 };
 const run = f => (0, eval)(readFileSync(new URL('../data/' + f, import.meta.url), 'utf8'));
-['csharp', 'aspnet', 'sql', 'css', 'react', 'angular', 'flutter', 'fundamentals', 'projects', 'interview', 'interview-cs'].forEach(f => run(f + '.js'));
+['csharp', 'aspnet', 'go', 'sql', 'css', 'react', 'angular', 'flutter', 'fundamentals', 'projects', 'interview', 'interview-cs'].forEach(f => run(f + '.js'));
 readdirSync(new URL('../data/id/', import.meta.url)).forEach(f => run('id/' + f));
 
 const errors = [];

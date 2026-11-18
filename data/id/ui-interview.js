@@ -185,7 +185,7 @@ I18N.add({
   'From mid-level up. Design a large system on a whiteboard and defend the trade-offs.': 'Mulai dari mid-level ke atas. Mendesain sistem besar di whiteboard dan mempertahankan trade-off-nya.',
   'Evidence of ownership, collaboration and judgement, told as specific stories.': 'Bukti ownership, kolaborasi, dan judgement, yang diceritakan lewat kisah spesifik.',
   'Stack knowledge': 'Pengetahuan stack',
-  'Depth in your own technologies: C#, ASP.NET Core, SQL, TypeScript, React, Angular, CSS, Flutter, the web.': 'Kedalaman di teknologi yang kamu pakai: C#, ASP.NET Core, SQL, TypeScript, React, Angular, CSS, Flutter, dan web.',
+  'Depth in your own technologies: C#, ASP.NET Core, Go, SQL, TypeScript, React, Angular, CSS, Flutter, the web.': 'Kedalaman di teknologi yang kamu pakai: C#, ASP.NET Core, Go, SQL, TypeScript, React, Angular, CSS, Flutter, dan web.',
   'Mock interviews': 'Mock interview',
   'Timed, scored simulations of each round — the fastest way to improve.': 'Simulasi tiap ronde yang diberi waktu dan dinilai — cara tercepat untuk berkembang.',
   'Top companies hire through a structured loop, and the loop can be trained for. Everything here is practice under the same conditions: timed, out loud, and graded against a rubric.': 'Perusahaan top merekrut lewat loop yang terstruktur, dan loop itu bisa dilatih. Semua yang ada di sini adalah latihan dalam kondisi yang sama: diberi waktu, sambil bicara, dan dinilai dengan rubrik.',

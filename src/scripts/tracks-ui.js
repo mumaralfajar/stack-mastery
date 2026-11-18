@@ -2,4 +2,5 @@
 import '../../data/react.js';
 import '../../data/angular.js';
 import '../../data/flutter.js';
+import '../../data/go.js';
 import '../../data/projects.js';

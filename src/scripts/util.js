@@ -57,6 +57,7 @@ const KW = {
   cs: 'abstract as async await base bool break byte case catch char class const continue decimal default delegate do double else enum event false finally float for foreach get if in init int interface internal is lock long namespace new null object out override params private protected public readonly record ref required return sealed set static string struct switch this throw true try using var virtual void when where while with yield',
   sql: 'select from where group by having order limit offset insert into values update set delete create table index primary key foreign references join inner left right full outer cross on as and or not null is in exists between like distinct union all case when then else end with over partition rows begin commit rollback transaction unique check default asc desc top view constraint alter add drop include integer int text real varchar nvarchar decimal date datetime2 bit',
   dart: 'abstract as assert async await base bool break case catch class const continue default do double dynamic else enum extends extension external factory false final finally for get if implements import in int interface is late library mixin new null num on operator part required return sealed set show static super switch sync this throw true try typedef var void when while with yield',
+  go: 'any append bool break byte cap case chan clear close cmp complex complex64 complex128 const continue copy default defer delete else error fallthrough false float32 float64 for func go goto if imag import int int8 int16 int32 int64 interface iota len make map max min new nil package print println range real recover return rune select string struct switch true type uint uint8 uint16 uint32 uint64 uintptr var',
   ts: 'any as async await boolean break case catch class const continue default do else enum export extends false finally for from function if implements import in infer interface is keyof let never new null number of override private protected public readonly return satisfies string switch this throw true try type typeof undefined unknown var void while'
 };
 const RX = {};
@@ -130,7 +131,7 @@ let lastCopyMsg = '';
 
 W.codeBlock = function (code, lang, opts = {}) {
   code = code.replace(/^\n+|\s+$/g, '');
-  const label = { cs: 'C#', sql: 'SQL', ts: 'TypeScript', tsx: 'TSX', dart: 'Dart', sh: 'Shell', css: 'CSS', html: 'HTML' }[lang] || lang;
+  const label = { cs: 'C#', sql: 'SQL', ts: 'TypeScript', tsx: 'TSX', dart: 'Dart', go: 'Go', sh: 'Shell', css: 'CSS', html: 'HTML' }[lang] || lang;
   const tip = W.h('span', { class: 'copy-tip', role: 'status' });
   const pre = W.h('pre', {}, W.h('code', { html: W.highlight(code, lang === 'tsx' ? 'ts' : lang) }));
   let hidden = !!opts.blurComments;

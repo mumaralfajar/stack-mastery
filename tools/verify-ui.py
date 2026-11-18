@@ -138,10 +138,23 @@ def run_suite():
             page.get_by_role("button", name="Restart app").click()
             check("#5" in page.inner_text("#view table"), "Restart app in VIZ.di must generate new singleton #5")
 
-            for vid in ["boxmodel", "async", "graphsearch", "sqllock", "sqlwindow", "ngrxjs", "useeffect", "stacking", "backtrack", "dptable"]:
+            # Visualizations (fixed + 7 new + 4 Go labs)
+            for vid in ["boxmodel", "async", "graphsearch", "sqllock", "sqlwindow", "ngrxjs", "useeffect", "stacking", "backtrack", "dptable", "goslices", "goiface", "goroutine", "gocontext"]:
                 goto_hash(page, base, "#/lab/" + vid)
                 check(len(page.inner_text("#view .viz")) > 20, f"viz {vid} rendered empty")
                 check(len(page.evaluate(WCAG_DOM_AUDIT)) == 0, f"viz {vid} WCAG issues: {page.evaluate(WCAG_DOM_AUDIT)}")
+
+            # Go track, Predict-first slice aliasing, and code-tabs split
+            goto_hash(page, base, "#/track/go")
+            check(page.locator("#view .rows a.row").count() == 14, "Go track should list 14 lessons")
+            goto_hash(page, base, "#/lesson/go/collections")
+            check(page.locator(".predict-card").is_visible(), "go/collections should render Predict first card")
+            check(page.locator(".code.hide-hints").count() >= 1, "go/collections code hints should start blurred")
+            page.locator(".predict-card .opt").nth(1).click()
+            page.wait_for_timeout(80)
+            check(page.locator(".code.hide-hints").count() == 0, "go/collections hints should unblur after prediction")
+            goto_hash(page, base, "#/lesson/go/http")
+            check(page.locator(".code-tabs [role='tab']").count() == 4, "go/http should render 4 tabs (3 slices + Full file)")
 
             # Playgrounds deep link, schema drawer, dialect tip, dialog confirmation (non-native!)
             goto_hash(page, base, "#/play/sql/joins")
@@ -212,6 +225,11 @@ def run_suite():
             check("Tebak dulu" in body_id, "Indonesian signals lesson should render Tebak dulu")
             goto_hash(page_id, base, "#/lab/sqllock")
             check("Transaksi konkuren" in page_id.inner_text("#view"), "Indonesian ui-vizplus must translate sqllock")
+            goto_hash(page_id, base, "#/lesson/go/collections")
+            go_id = page_id.inner_text("#view")
+            check("Istilah penting" in go_id and "Tebak dulu" in go_id, "Indonesian Go collections lesson must translate")
+            goto_hash(page_id, base, "#/lab/gocontext")
+            check("Pohon pembatalan context.Context" in page_id.inner_text("#view"), "Indonesian ui-vizgo must translate gocontext")
             goto_hash(page_id, base, "#/interview/mock")
             check("Skorcard pewawancara" in page_id.inner_text("#view") or "pewawancara" in page_id.inner_text("#view").lower() or len(page_id.evaluate(WCAG_DOM_AUDIT)) == 0, "ID interview loaded cleanly")
             check(len(errs_id) == 0, f"ID pass runtime/console errors: {errs_id}")
@@ -221,7 +239,7 @@ def run_suite():
             ctx_m = browser.new_context(viewport={"width": 360, "height": 780})
             pm = ctx_m.new_page()
             pm.add_init_script("localStorage.setItem('stackmastery.lang', 'en');")
-            for r in ["#/", "#/track/angular", "#/lesson/angular/signals", "#/lesson/aspnet/arch", "#/play/sql", "#/interview/coding", "#/interview/design", "#/interview/mock", "#/projects", "#/exam"]:
+            for r in ["#/", "#/track/angular", "#/track/go", "#/lesson/angular/signals", "#/lesson/go/collections", "#/lesson/aspnet/arch", "#/lab/goslices", "#/lab/gocontext", "#/play/sql", "#/interview/coding", "#/interview/design", "#/interview/mock", "#/projects", "#/exam"]:
                 goto_hash(pm, base, r)
                 ov = pm.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1")
                 check(ov, f"360px mobile overflow on {r}")

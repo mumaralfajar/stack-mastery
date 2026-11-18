@@ -134,8 +134,9 @@ export function startView() {
   return h('div', { class: 'page' },
     h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Before lesson one'), h('h1', {}, 'Start here: set up your machine'),
       h('p', { class: 'lede' }, 'Reading is not learning. Every lesson ends with something to build, and that needs a handful of free tools. This takes about twenty minutes, once.')),
-    step('1. Install the tools', 'Install the **.NET SDK** (current LTS) from dotnet.microsoft.com, **Node.js LTS** from nodejs.org, **Git** from git-scm.com, the **Flutter SDK** from flutter.dev (it includes Dart), and **Visual Studio Code** with the C# Dev Kit, Angular Language Service, and Flutter extensions. Then confirm each one answers in a new terminal:', `
+    step('1. Install the tools', 'Install the **.NET SDK** (current LTS) from dotnet.microsoft.com, **Go** (1.27+) from go.dev/dl, **Node.js LTS** from nodejs.org, **Git** from git-scm.com, the **Flutter SDK** from flutter.dev (it includes Dart), and **Visual Studio Code** with the C# Dev Kit, Go, Angular Language Service, and Flutter extensions. Then confirm each one answers in a new terminal:', `
 dotnet --version
+go version
 node --version
 git --version
 flutter --version
@@ -163,17 +164,22 @@ flutter doctor
 flutter create shop_app
 cd shop_app
 flutter run -d chrome`),
-    step('7. A database', 'The SQL and ASP.NET Core tracks use **SQL Server**. On Windows, install the free **SQL Server Express** edition; the samples connect to it as `.\\SQLEXPRESS`. On macOS or Linux, run SQL Server in Docker and set a `Shop` connection string. The SQL playground runs SQLite in the browser, so the first SQL lessons work before any of this.', `
+    step('7. Your first Go program & API', 'Go compiles to a single native binary in milliseconds. Initialize a module with `go mod init`, create `main.go`, and use `go test ./...` for built-in testing.', `
+mkdir shop-go
+cd shop-go
+go mod init shop
+go run .`),
+    step('8. A database', 'The SQL and ASP.NET Core tracks use **SQL Server**. On Windows, install the free **SQL Server Express** edition; the samples connect to it as `.\\SQLEXPRESS`. On macOS or Linux, run SQL Server in Docker and set a `Shop` connection string. The SQL playground runs SQLite in the browser, so the first SQL lessons work before any of this.', `
 dotnet add package Microsoft.EntityFrameworkCore.SqlServer
 dotnet add package Microsoft.EntityFrameworkCore.Design
 dotnet tool install --global dotnet-ef
 dotnet ef migrations add Init
 dotnet ef database update`),
-    step('8. Put everything in Git from day one', 'A commit history is both your safety net and, later, your portfolio. The first lesson of the CS Fundamentals track covers the workflow.', `
+    step('9. Put everything in Git from day one', 'A commit history is both your safety net and, later, your portfolio. The first lesson of the CS Fundamentals track covers the workflow.', `
 git init
 git add .
 git commit -m "First commit"`),
-    h('section', { class: 'sec' }, h('h2', {}, '9. A routine that works'),
+    h('section', { class: 'sec' }, h('h2', {}, '10. A routine that works'),
       h('ol', { class: 'steps' },
         h('li', {}, h('b', {}, '10 minutes: '), 'flashcard review. Do this first, every day — it is what makes knowledge stay.'),
         h('li', {}, h('b', {}, '30 minutes: '), 'one lesson — learn it, check yourself, then write the teach-back.'),

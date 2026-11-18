@@ -8,6 +8,7 @@ export const ICONS = {
   react: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1.6" fill="currentColor"/><ellipse cx="12" cy="12" rx="9.5" ry="4"/><ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(120 12 12)"/></svg>',
   angular: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 3.5 5.6 5 17.5 12 21.5l7-4 1.5-11.9L12 2.5Z"/><path d="M12 6.2 7.8 16.5M12 6.2l4.2 10.3M9.3 13.4h5.4"/></svg>',
   flutter: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 2 4.5 12l3.1 3.1L20.7 2h-6.2ZM14.5 11.2 9.2 16.5l5.3 5.5h6.2l-5.3-5.5 5.3-5.3h-6.2Z"/></svg>',
+  go: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 9h3.2M1.5 12h4.2M2.5 15h3.2"/><path d="M13.1 9.5a3.5 3.5 0 1 0 0 5V12h-2.4"/><circle cx="18.5" cy="12" r="3.5"/></svg>',
   cs: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.5" r="2.5"/><circle cx="6" cy="13" r="2.5"/><circle cx="18" cy="13" r="2.5"/><circle cx="3.5" cy="20" r="2"/><circle cx="9.5" cy="20" r="2"/><path d="M10.3 6.4 7.5 11M13.7 6.4 16.5 11M5 15.2 4 18M7.2 15.2 8.8 18"/></svg>',
   interview: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></svg>'
 };

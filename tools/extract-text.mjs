@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 globalThis.window = globalThis;
 globalThis.TRACKS = [];
 const load = f => (0, eval)(readFileSync(new URL('../data/' + f, import.meta.url), 'utf8'));
-['csharp', 'aspnet', 'sql', 'css', 'react', 'angular', 'flutter', 'fundamentals', 'projects', 'interview', 'interview-cs'].forEach(f => load(f + '.js'));
+['csharp', 'aspnet', 'go', 'sql', 'css', 'react', 'angular', 'flutter', 'fundamentals', 'projects', 'interview', 'interview-cs'].forEach(f => load(f + '.js'));
 
 const what = process.argv[2];
 let out;
