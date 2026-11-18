@@ -73,7 +73,7 @@
         const hit = [], skipped = [];
         build(name, true, hit, skipped);
         note.textContent = T('setState in {name} → {n} build() call(s)', { name, n: hit.length }) +
-          T(skipped.length ? '; {n} const subtree(s) skipped because the widget instance didn\'t change.' : hit.length > 1 ? ': this widget and its subtree. Push state down or use BlocSelector to rebuild less.' : '. Parents and siblings never rebuild.', { n: skipped.length });
+          T(skipped.length ? ', skipping {n} unchanged const subtree(s).' : hit.length > 1 ? ': this widget and its subtree. Push state down or use BlocSelector to rebuild less.' : '. Parents and siblings never rebuild.', { n: skipped.length });
       };
       const mk = name => { count[name] = 1; return nodes[name] = h('button', { type: 'button', class: 'comp', onclick: () => tap(name) }, name, h('small', {}, T('builds:') + ' 1')); };
       const reset = () => { Object.keys(nodes).forEach(n => { count[n] = 1; label(n); nodes[n].classList.remove('skip'); }); note.textContent = T('Tap any widget.'); };

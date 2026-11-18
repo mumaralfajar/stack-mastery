@@ -65,7 +65,7 @@ const RX = {};
 const SPEC = {
   css: ['\\/\\*[\\s\\S]*?\\*\\/', '"[^"]*"|\'[^\']*\'', '@[\\w-]+|!important', '-?\\b\\d+(?:\\.\\d+)?(?:px|rem|em|fr|vh|vw|dvh|ch|ms|s|deg|%)?', '--[\\w-]+|[a-z-]+(?=\\s*:)'],
   html: ['<!--[\\s\\S]*?-->', '"[^"]*"', '<\\/?[a-zA-Z][\\w-]*|\\/?>', '(?!)', '[a-z-]+(?==)'],
-  sh: ['#[^\\n]*', '"[^"]*"|\'[^\']*\'', '\\b(?:dotnet|npm|npx|git|node|cd|code|docker)\\b', '(?!)', '(?<=\\s)--?[a-zA-Z][\\w-]*']
+  sh: ['#[^\\n]*', '"[^"]*"|\'[^\']*\'', '\\b(?:dotnet|npm|npx|git|node|cd|code|docker|go|flutter|dart|bun|mkdir|curl)\\b', '(?!)', '(?<=\\s)--?[a-zA-Z][\\w-]*']
 };
 const TPL_RX = /(<!--[\s\S]*?-->)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(@(?:if|else\s+if|else|for|empty|switch|case|default|defer|placeholder|loading|error)\b|\{\{|\}\})|(<\/?[a-zA-Z][\w-]*|\/?>)|([([]?[a-zA-Z][\w.-]*[\])]?(?==))/g;
 function highlightTemplate(raw) {
@@ -239,6 +239,14 @@ W.treeWire = function (treeEl, edges) {
   return treeEl;
 };
 
+function attachBackdropDismiss(dlg) {
+  if ('closedBy' in HTMLDialogElement.prototype) return;
+  let downOut = false;
+  const out = e => { const r = dlg.getBoundingClientRect(); return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom; };
+  dlg.addEventListener('pointerdown', e => { downOut = out(e); });
+  dlg.addEventListener('click', e => { if (downOut && out(e)) dlg.close(''); });
+}
+
 // Accessible native modal dialog helper (showModal + safe autofocus + closedby fallback).
 W.confirmDialog = function (message, { title = 'Confirm', confirmText = 'Continue', cancelText = 'Cancel', danger = false } = {}) {
   return new Promise(resolve => {
@@ -251,12 +259,7 @@ W.confirmDialog = function (message, { title = 'Confirm', confirmText = 'Continu
       W.h('p', {}, message),
       W.h('div', { class: 'dlg-actions' }, cancelBtn, okBtn));
     dlg.append(form);
-    if (!('closedBy' in HTMLDialogElement.prototype)) {
-      let downOut = false;
-      const out = e => { const r = dlg.getBoundingClientRect(); return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom; };
-      dlg.addEventListener('pointerdown', e => { downOut = out(e); });
-      dlg.addEventListener('click', e => { if (downOut && out(e)) dlg.close(''); });
-    }
+    attachBackdropDismiss(dlg);
     dlg.addEventListener('close', () => {
       const ok = dlg.returnValue === 'ok';
       dlg.returnValue = '';
@@ -276,6 +279,7 @@ W.alertDialog = function (message, { title = 'Notice', okText = 'OK' } = {}) {
       W.h('h2', { id }, title),
       W.h('p', {}, message),
       W.h('div', { class: 'dlg-actions' }, W.h('button', { type: 'submit', value: 'ok', class: 'btn', autofocus: true }, okText))));
+    attachBackdropDismiss(dlg);
     dlg.addEventListener('close', () => { dlg.returnValue = ''; dlg.remove(); resolve(); });
     document.body.append(dlg);
     dlg.showModal();

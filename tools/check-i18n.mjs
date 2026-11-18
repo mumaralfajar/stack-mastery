@@ -4,18 +4,26 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+const errors = [];
+const uiOwners = new Map();
+let curFile = '';
 globalThis.window = globalThis;
 globalThis.TRACKS = [];
 globalThis.I18N = {
   ui: new Map(), tracks: {},
-  add(d) { for (const k in d) this.ui.set(k, d[k]); },
+  add(d) {
+    for (const k in d) {
+      if (uiOwners.has(k)) errors.push(`duplicate I18N.ui key "${k}" (in ${curFile}, first defined in ${uiOwners.get(k)})`);
+      else uiOwners.set(k, curFile);
+      this.ui.set(k, d[k]);
+    }
+  },
   lessons(id, lessons, meta) { const t = this.tracks[id] || (this.tracks[id] = { lessons: {} }); Object.assign(t, meta); Object.assign(t.lessons, lessons); }
 };
-const run = f => (0, eval)(readFileSync(new URL('../data/' + f, import.meta.url), 'utf8'));
+const run = f => { curFile = f; (0, eval)(readFileSync(new URL('../data/' + f, import.meta.url), 'utf8')); };
 ['csharp', 'aspnet', 'go', 'sql', 'css', 'react', 'angular', 'flutter', 'fundamentals', 'projects', 'interview', 'interview-cs'].forEach(f => run(f + '.js'));
 readdirSync(new URL('../data/id/', import.meta.url)).forEach(f => run('id/' + f));
 
-const errors = [];
 const same = (where, a, b) => { if (!Array.isArray(b) || a.length !== b.length) errors.push(`${where}: expected ${a.length} items, found ${Array.isArray(b) ? b.length : 'none'}`); };
 const ticks = (where, a, b) => { const n = s => (String(s).match(/`/g) || []).length; if (n(a) !== n(b)) errors.push(`${where}: different number of code spans`); };
 
@@ -55,6 +63,7 @@ PROJECTS.forEach((p, i) => { const x = (I18N.projects || [])[i] || {}; same(`pro
 
 const iv = I18N.iv || {};
 for (const f of ['method', 'bigO', 'plan', 'hiring', 'ui']) same('interview.' + f, IV[f], iv[f]);
+(iv.ui || []).forEach((u, i) => { if (IV.ui[i] && u) { ticks(`interview.ui[${i}][1]`, IV.ui[i][1], u[1]); ticks(`interview.ui[${i}][2]`, IV.ui[i][2], u[2]); } });
 IV.plan.forEach((w, i) => same(`interview.plan[${i}]`, w[1], ((iv.plan || [])[i] || [])[1]));
 for (const p of IV.patterns) if (!(iv.patterns || {})[p.id]) errors.push(`pattern ${p.id}: not translated`);
 for (const p of IV.problems) { const x = (iv.problems || {})[p.id]; if (!x) errors.push(`problem ${p.id}: not translated`); else { same(`problem ${p.id}.hints`, p.hints, x.hints); same(`problem ${p.id}.follow`, p.follow, x.follow); } }
@@ -67,6 +76,13 @@ IV.rapid.forEach((r, i) => same(`rapid[${i}] ${r.area}`, r.qs, ((iv.rapid || [])
 // Guard against Object.assign(I18N.ui, ...) bypassing Map.set() (which leaves own properties on the Map).
 const strayOwnKeys = Object.keys(I18N.ui);
 if (strayOwnKeys.length) errors.push(`I18N.ui has ${strayOwnKeys.length} own object property key(s) instead of Map entries (use I18N.add(...)): ${strayOwnKeys.slice(0, 5).join(', ')}`);
+
+// Check {var} placeholder parity and non-empty translations across all I18N.ui entries.
+const placeholders = s => [...String(s).matchAll(/\{([a-zA-Z0-9_]+)\}/g)].map(m => m[1]).sort().join(',');
+for (const [k, v] of I18N.ui) {
+  if (!v || !String(v).trim()) errors.push(`empty I18N.ui translation for: ${k}`);
+  else if (placeholders(k) !== placeholders(v)) errors.push(`placeholder mismatch for "${k}": expected {${placeholders(k)}}, found {${placeholders(v)}}`);
+}
 
 // Check T(), W.t(), section(), and viz title/desc literals in src/scripts/ exist in I18N.ui.
 const scanScripts = dir => {

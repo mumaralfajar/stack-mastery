@@ -42,7 +42,7 @@ export function quizItem(q, { once, solved, onResult, onMiss }) {
       b.classList.add('wrong');
       if (first && onMiss) onMiss();
       if (once) { done = true; btns[order.findIndex(x => x.ok)].classList.add('right'); fb.className = 'fb bad'; fb.innerHTML = '<strong>' + T('Not quite.') + '</strong> ' + md(q.why); }
-      else { fb.className = 'fb bad'; fb.textContent = T('Not quite — think about why, then try another.'); }
+      else { fb.className = 'fb bad'; fb.textContent = T('Not quite. Think about why, then try another.'); }
     }
     if (done || once) { btns.forEach(x => x.disabled = done); onResult && onResult(o.ok && first); }
     first = false;

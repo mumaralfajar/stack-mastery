@@ -78,7 +78,7 @@
   // ---------- 2. SQL: GROUP BY vs Window Function ----------
   VIZ.sqlwindow = {
     title: 'GROUP BY vs window functions', track: 'sql', trackName: 'SQL',
-    desc: 'Contrast what GROUP BY does (collapses rows into one bucket per group) against OVER (PARTITION BY … ORDER BY …), which keeps every row and attaches its running total.',
+    desc: 'Contrast GROUP BY (collapses rows per group) with OVER (PARTITION BY … ORDER BY …) to keep every row and attach a running total.',
     mount(el) {
       const orders = [
         [101, 'Tech', '2026-01-02', 120],
@@ -142,7 +142,7 @@
             noteTxt = T('exhaustMap ignored click #{id} because an earlier request is still running. Ideal for Pay/Submit buttons.', { id });
           } else {
             reqs.push({ id, state: 'running', pct: 35 });
-            noteTxt = T('exhaustMap started request #{id}; new clicks will be dropped until it completes.', { id });
+            noteTxt = T('exhaustMap started request #{id}, so new clicks drop until it finishes.', { id });
           }
         } else if (op === 'concatMap') {
           const active = reqs.some(r => r.state === 'running');
@@ -201,7 +201,7 @@
     mount(el) {
       let cleanMode = false;
       const steps = [
-        { ui: 'Product #1 (loading…)', reqs: 'Fetch #1 in flight (600 ms)', log: 'Mount: render(id=1) → effect #1 runs', bad: false, note: 'First render paints immediately; effect #1 starts fetching id=1.' },
+        { ui: 'Product #1 (loading…)', reqs: 'Fetch #1 in flight (600 ms)', log: 'Mount: render(id=1) → effect #1 runs', bad: false, note: 'First render paints immediately, and effect #1 starts fetching id=1.' },
         { ui: 'Product #2 (loading…)', reqs: 'Fetch #1 (still slow) + Fetch #2 (150 ms)', log: cleanMode ? 'cleanup(#1) → cancelled=true · effect #2 starts' : 'No cleanup! Both Fetch #1 & #2 active', bad: false, note: cleanMode ? 'Before running effect #2, React calls cleanup from render #1 to abort/ignore stale results.' : 'User clicks Product 2 quickly. Without cleanup, Fetch #1 is still alive.' },
         { ui: 'Shown: Product #2', reqs: 'Fetch #2 finishes first (valid)', log: 'setState(Product #2)', bad: false, note: 'Fetch #2 responds fast and shows Product #2.' },
         { ui: cleanMode ? 'Shown: Product #2 (stays accurate)' : 'BUG: Overwritten by Product #1!', reqs: 'Slow Fetch #1 finally arrives', log: cleanMode ? 'if (!ignore) blocked stale #1' : 'setState(Product #1) overwrote id=2!', bad: !cleanMode, note: cleanMode ? 'When slow Fetch #1 resolves later, its cleanup flag ignores the stale response.' : 'Slow Fetch #1 arrives AFTER #2 and overwrites the UI with Product #1 while id=2 is selected!' }
@@ -285,7 +285,7 @@
   // ---------- 7. CS: Dynamic Programming Table (Coin Change) ----------
   VIZ.dptable = {
     title: 'Greedy vs DP table (coins [1, 3, 4])', track: 'cs', trackName: 'CS Fundamentals',
-    desc: 'Target amount 6 with coins [1, 3, 4]. Greedy grabs the biggest coin first (4 + 1 + 1 = 3 coins); DP builds dp[0..6] and finds 3 + 3 = 2 coins.',
+    desc: 'Target 6 with coins [1, 3, 4]. Greedy takes 4 + 1 + 1 (3 coins), while DP finds 3 + 3 (2 coins).',
     mount(el) {
       const steps = [
         { k: 0, dp: [0, null, null, null, null, null, null], note: 'Base case: 0 coins needed to make amount 0 (dp[0] = 0).' },

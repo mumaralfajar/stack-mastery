@@ -45,7 +45,7 @@
           : T('“{a}” wins with specificity ({s}). Compare column by column: ids first, then classes, then elements.', { a: win.r.sel, s: win.r.spec.join(',') });
       };
       el.append(h('p', { class: 'muted' }, 'Target element: ', h('code', {}, '<nav><a id="buy" class="btn primary">Buy now</a></nav>'), ' (rules are listed in source order).'),
-        h('div', { class: 'viz-cols' }, list, h('div', { class: 'viz-box spec-stage' }, h('h4', {}, 'Result'), sample)), note);
+        h('div', { class: 'viz-cols' }, list, h('div', { class: 'viz-box spec-stage' }, h('h4', {}, 'Winning result'), sample)), note);
       draw();
     }
   };

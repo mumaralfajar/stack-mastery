@@ -5,7 +5,7 @@
   const loaded = {};
   const loadScript = src => loaded[src] || (loaded[src] = new Promise((ok, fail) => {
     const s = document.createElement('script'); s.src = src; s.onload = ok;
-    s.onerror = () => { delete loaded[src]; fail(new Error(T('Could not load {src} — the playground needs an internet connection the first time.', { src }))); };
+    s.onerror = () => { delete loaded[src]; fail(new Error(T('Could not load {src}. The playground needs an internet connection the first time.', { src }))); };
     document.head.append(s);
   }));
   const store = { get: k => { try { return JSON.parse(localStorage.getItem(k)) || []; } catch { return []; } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* ignore */ } } };
@@ -121,7 +121,7 @@ declare namespace JSX { interface IntrinsicElements { [tag: string]: ShimAttrs }
   const typeNote = async ta => {
     const errs = ta.typeErrors ? await ta.typeErrors() : [];
     return errs.length ? h('div', { class: 'type-errs' },
-      h('p', { class: 'err' }, T(errs.length > 1 ? '{n} type errors — the code still ran, because types are erased at build time:' : '{n} type error — the code still ran, because types are erased at build time:', { n: errs.length })),
+      h('p', { class: 'err' }, T(errs.length > 1 ? '{n} type errors, though the code still ran because types are erased at build time:' : '{n} type error, though the code still ran because types are erased at build time:', { n: errs.length })),
       h('ul', {}, errs.slice(0, 6).map(e => h('li', {}, e)))) : null;
   };
 
@@ -134,7 +134,7 @@ console.log = console.info = console.warn = console.error = (...a) => { if (__lo
     const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' })), w = new Worker(url);
     return new Promise(resolve => {
       const done = r => { clearTimeout(t); w.terminate(); URL.revokeObjectURL(url); resolve(r); };
-      const t = setTimeout(() => done({ logs: [], err: T('Stopped after {s} s — probably an infinite loop.', { s: ms / 1000 }) }), ms);
+      const t = setTimeout(() => done({ logs: [], err: T('Stopped after {s} s, likely due to an infinite loop.', { s: ms / 1000 }) }), ms);
       w.onmessage = e => done(e.data);
       w.onerror = e => { e.preventDefault(); done({ logs: [], err: (e.message || T('Runtime error')).replace(/^Uncaught /, '') }); };
     });
@@ -176,7 +176,7 @@ PRAGMA foreign_keys = ON;`;
   const getSQL = () => SQLp || (SQLp = loadScript(CDN + 'sql.js/1.8.0/sql-wasm.js')
     .then(() => window.initSqlJs({ locateFile: f => CDN + 'sql.js/1.8.0/' + f })).catch(e => { SQLp = null; throw e; }));
 
-  const SQL_PRESETS = { select: 0, dml: 2, aggregate: 3, joins: 4, subqueries: 8, window: 9, plans: 12, scale: 13 };
+  const SQL_PRESETS = { select: 0, dml: 2, aggregate: 3, joins: 4, design: 5, indexes: 1, transactions: 6, subqueries: 8, window: 9, locking: 11, plans: 12, scale: 13 };
   const SQL_DIALECT_HINTS = [
     [/\bTOP\s*\(?\s*\d+/i, 'SQL Server TOP(n) → SQLite uses LIMIT n at the end of ORDER BY.'],
     [/\b(?:YEAR|MONTH|DAY)\s*\(/i, "SQL Server YEAR()/MONTH() → SQLite uses strftime('%Y', col) or strftime('%m', col)."],
@@ -243,16 +243,16 @@ PRAGMA foreign_keys = ON;`;
       window.tableWrap('Database schema', h('table', { class: 't' },
         h('thead', {}, h('tr', {}, ['Table', 'Columns & keys', 'Rows'].map(c => h('th', { scope: 'col' }, c)))),
         h('tbody', {}, [
-          ['customers', 'id (PK INTEGER), name (TEXT), city (TEXT nullable)', '5'],
+          ['customers', 'id (PK INTEGER), name (TEXT), city (TEXT nullable)', '6'],
           ['products', 'id (PK INTEGER), name (TEXT), category (TEXT), price (REAL >= 0), stock (INTEGER >= 0)', '10'],
-          ['orders', 'id (PK INTEGER), customer_id (FK -> customers.id), order_date (TEXT YYYY-MM-DD), status (paid|pending)', '6'],
-          ['order_items', 'order_id (FK -> orders.id), product_id (FK -> products.id), quantity, unit_price', '9'],
+          ['orders', 'id (PK INTEGER), customer_id (FK -> customers.id), order_date (TEXT YYYY-MM-DD), status (paid|new|cancelled)', '8'],
+          ['order_items', 'order_id (FK -> orders.id), product_id (FK -> products.id), quantity, unit_price', '14'],
           ['accounts', 'id (PK INTEGER), owner (TEXT), balance (REAL >= 0)', '2']
         ].map(([tb, cols, cnt]) => h('tr', {}, h('th', { scope: 'row' }, h('code', {}, tb)), h('td', {}, cols), h('td', {}, cnt)))))));
     el.style.setProperty('--tc', 'var(--sql)');
     el.append(
       h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Practice'), h('h1', {}, 'SQL playground'),
-        h('p', { class: 'lede' }, 'A real SQLite database running right in your browser. Queries and writes run live, and you can reset anytime. Lessons use SQL Server syntax, which mostly runs here with a few quirks. Write LIMIT at the end instead of TOP, use strftime() instead of YEAR(), and expect float rounding on money since SQLite has no exact DECIMAL type. SQLite is also looser: it accepts aliases in WHERE, ungrouped columns beside aggregates, and "double-quoted" strings, all of which SQL Server rejects.')),
+        h('p', { class: 'lede' }, 'A live SQLite database runs right in your browser, and you can reset it anytime. Lessons use SQL Server syntax, which mostly runs here with a few quirks. Put LIMIT at the end instead of TOP, use strftime() instead of YEAR(), and expect float rounding on money. SQLite is also looser on WHERE aliases, ungrouped columns, and "double-quoted" strings.')),
       schemaDrawer,
       chips, task,
       h('div', { class: 'play' },
@@ -603,6 +603,8 @@ ${js.replace(/<\/script/gi, '<\\/script')}
     'react-hooks': 'Immutable state', 'react-perf': 'React component', 'react-server': 'React effects', 'react-tsadv': 'Generics',
     'react-internals': 'Immutable state', 'react-arch': 'React component',
     'angular-signals': 'Angular signals', 'angular-di': 'Angular signals', 'angular-architecture': 'Angular signals',
+    'angular-flow': 'Angular signals', 'angular-inputs': 'Angular linkedSignal', 'angular-guards': 'RxJS switchMap vs exhaustMap',
+    'angular-cd': 'Angular signals', 'angular-arch': 'ASP.NET ProblemDetails mapper',
     'angular-components': 'Angular signals', 'angular-forms': 'Angular linkedSignal', 'angular-rxjs': 'RxJS switchMap vs exhaustMap',
     'angular-http': 'ASP.NET ProblemDetails mapper', 'angular-routing': 'Angular signals', 'angular-testing': 'ASP.NET ProblemDetails mapper',
     'angular-perf': 'Angular signals', 'angular-interop': 'Angular signals', 'angular-ssr': 'Angular signals',
@@ -636,7 +638,7 @@ ${js.replace(/<\/script/gi, '<\\/script')}
         if (usesReact(ta.value)) return showReact(res.outputText);
         frame = null;
         const r = await runIsolated(res.outputText);
-        out.replaceChildren(...[await typeNote(ta), h('pre', {}, r.logs.join('\n') || (r.err ? '' : T('(no output — use console.log)'))), r.err ? h('p', { class: 'err' }, r.err) : null].filter(Boolean));
+        out.replaceChildren(...[await typeNote(ta), h('pre', {}, r.logs.join('\n') || (r.err ? '' : T('(no output yet, try console.log)'))), r.err ? h('p', { class: 'err' }, r.err) : null].filter(Boolean));
       } catch (e) {
         out.replaceChildren(h('p', { class: 'err' }, String(e.message || e)));
       }
@@ -653,7 +655,7 @@ ${js.replace(/<\/script/gi, '<\\/script')}
     el.style.setProperty('--tc', 'var(--react)');
     el.append(
       h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Practice'), h('h1', {}, 'TypeScript playground'),
-        h('p', { class: 'lede' }, 'Write TypeScript and run it instantly. Type errors are underlined as you type and listed when you run — hover a red squiggle to read the message. Plain TypeScript runs in an isolated worker with a five-second limit. Code that imports react renders in a live preview instead, with React 19 loaded from esm.sh, so it needs an internet connection.')),
+        h('p', { class: 'lede' }, 'Write TypeScript and run it right away. Type errors show red squiggles as you type and list below on run. Plain TypeScript runs in a worker with a 5-second limit, while React imports render live using React 19 from esm.sh.')),
       chips, ngNote,
       h('div', { class: 'play' },
         h('div', {}, ta, h('div', { class: 'actions' }, h('button', { type: 'button', class: 'btn', onclick: run }, 'Run (Ctrl+Enter)'))),
@@ -723,11 +725,16 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
   };
 
   const CSS_PRESETS = {
+    html: 'Flexbox navbar',
     flexbox: 'Flexbox navbar',
     grid: 'Responsive grid',
+    render: 'Responsive grid',
+    box: 'Theme tokens + :has()',
     cascade: 'Theme tokens + :has()',
     units: 'Theme tokens + :has()',
     modern: 'Theme tokens + :has()',
+    arch: 'Theme tokens + :has()',
+    position: 'Tailwind card',
     tailwind: 'Tailwind card',
     twreact: 'Tailwind card',
     responsive: 'Tailwind responsive'
@@ -758,7 +765,7 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
       chips,
       h('div', { class: 'play' },
         h('div', {}, h('p', { class: 'ed-label' }, 'HTML'), htmlTa, h('p', { class: 'ed-label' }, 'CSS'), cssTa,
-          h('div', { class: 'actions' }, h('label', { class: 'tw-toggle' }, twBox, ' Use Tailwind CSS'))),
+          h('div', { class: 'actions' }, h('label', { class: 'tw-toggle' }, twBox, 'Use Tailwind CSS'))),
         h('div', {}, wrap, size)));
     load((sample && CSS_PRESETS[sample]) || (sample && CSS_EXAMPLES[sample] && sample) || Object.keys(CSS_EXAMPLES)[0]);
   }
@@ -790,7 +797,7 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
     el.style.setProperty('--tc', 'var(--flutter)');
     el.append(
       h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Practice'), h('h1', {}, 'Dart + Flutter playground'),
-        h('p', { class: 'lede' }, 'DartPad, the official Dart playground, embedded here: it compiles and runs real Dart and Flutter in your browser. Pick a lesson sample, press Run in DartPad, then change the code and run it again.')),
+        h('p', { class: 'lede' }, 'DartPad compiles and runs real Dart and Flutter right in your browser. Pick a lesson sample, click Run, edit the code, and try it again.')),
       chips,
       h('div', { class: 'play' },
         h('div', {}, h('p', { class: 'ed-label' }, 'Lesson sample'), codeBox,

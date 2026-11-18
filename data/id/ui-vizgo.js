@@ -72,7 +72,7 @@ I18N.add({
   'Still waiting on slow RPC': 'Masih menunggu RPC lambat',
   '200 ms elapsed -> ctx.Done() closes': '200 ms berlalu -> ctx.Done() tertutup',
   'select picks case <-ctx.Done()': 'select memilih case <-ctx.Done()',
-  'At 200 ms the context deadline expires, select chooses ctx.Done(), and the handler returns 504 instead of hanging.': 'Pada 200 ms batas waktu context habis, select memilih ctx.Done(), dan handler membalas 504 alih-alih menggantung.',
+  'At 200 ms the context deadline expires, select chooses ctx.Done(), and the handler returns 504 instead of hanging.': 'Pada 200 ms batas waktu context habis, select memilih ctx.Done(), dan handler membalas 504 tanpa ikut menggantung.',
 
   // VIZ.gocontext
   'context.Context cancellation tree': 'Pohon pembatalan context.Context',

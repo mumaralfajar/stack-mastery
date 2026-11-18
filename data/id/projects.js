@@ -1,86 +1,86 @@
 // Bahasa Indonesia — capstone project.
 I18N.projects = [
   {
-    title: 'Capstone 1 — Katalog produk lintas stack',
-    brief: "Kenali tiap teknologi satu per satu dengan domain kecil yang sama: daftar produk. Belum ada yang saling terhubung; tujuannya merasakan apa yang dikerjakan tiap layer.",
+    title: 'Capstone 1: Katalog produk lintas stack',
+    brief: "Kenali tiap teknologi lewat satu contoh sederhana yaitu daftar produk. Belum ada yang perlu dihubungkan agar fokus ke peran masing-masing layer.",
     build: [
-      "**C#**: console app dengan class `Product` dan `List<Product>`; tambah, tampilkan, dan jumlahkan produk lewat menu loop.",
-      "**SQL**: tulis `CREATE TABLE` untuk products dan lima query: semua, difilter, diurutkan, dihitung per kategori, yang termahal.",
-      "**ASP.NET Core**: minimal API dengan `GET /api/products` dan `GET /api/products/{id}` di atas list in-memory, yang mengembalikan 404 dengan benar.",
-      "**React + TypeScript**: komponen `ProductList` ber-type yang me-render produk hard-code, lengkap dengan pesan empty state.",
-      "**CSS**: beri style daftar produknya dengan grid responsif dan komponen card — belum pakai framework, dan tanpa scroll horizontal di 360px.",
-      "Jelaskan dengan lantang apa itu request, row, object, komponen, dan rule CSS — masing-masing satu kalimat.",
-      "**Angular**: daftar produk hard-code yang sama dibangun dari standalone component dengan `@for (...; track p.id)`, empty state, dan interface TypeScript yang rapi.",
-      "**Dart + Flutter**: daftar produk hard-code yang sama sebagai satu layar Flutter yang disusun dari `StatelessWidget`, dijalankan di target web."
+      "Buat aplikasi console **C#** dengan class `Product` dan menu loop `List<Product>` untuk menambah, menampilkan, dan menjumlahkan produk.",
+      "Tulis query **SQL** `CREATE TABLE` produk beserta lima query: tampilkan semua, filter, urutkan, hitung per kategori, dan cari yang termahal.",
+      "Buat minimal API **ASP.NET Core** dengan endpoint `GET /api/products` dan `GET /api/products/{id}` di memori yang membalas 404 saat tak ketemu.",
+      "Buat komponen **React + TypeScript** `ProductList` ber-type yang menampilkan daftar produk hard-code beserta pesan kosongnya.",
+      "Rapikan daftar produk dengan **CSS** biasa memakai grid responsif dan komponen card tanpa scroll horizontal di lebar 360px.",
+      "Jelaskan pakai suaramu sendiri apa tugas request, row, object, komponen, dan rule CSS dalam satu kalimat tiap istilah.",
+      "Bangun daftar produk yang sama di **Angular** dengan standalone component, `@for (...; track p.id)`, empty state, dan interface TypeScript.",
+      "Buat tampilan produk serupa di **Dart + Flutter** memakai `StatelessWidget` lalu jalankan di target Chrome."
     ],
     stretch: [
-      "Tambahkan `POST` ke API dan panggil dengan `curl`.",
-      "Tambahkan search box di list React yang memfilter saat kamu mengetik."
+      "Tambahkan endpoint `POST` di API dan tes lewat `curl`.",
+      "Tambahkan kotak cari di React agar daftar tersaring saat mengetik."
     ],
-    teach: "Sudut pandang mengajar: jadikan ini workshop hari pertama. Bagian stack mana yang kamu tunjukkan lebih dulu, dan apa yang sengaja kamu sembunyikan?"
+    teach: "Sudut pandang mengajar: jadikan ini workshop hari pertama. Tentukan bagian stack mana yang dibuka dulu dan detail mana yang disimpan belakangan."
   },
   {
-    title: 'Capstone 2 — Task manager full-stack',
-    brief: "Aplikasi sungguhan pertamamu: client frontend bicara dengan ASP.NET Core, yang bicara dengan database lewat EF Core. Setiap layer di stack membawa satu aksi user dari klik atau tap sampai jadi row.",
+    title: 'Capstone 2: Task manager full-stack',
+    brief: "Aplikasi pertamamu yang saling terhubung dari UI ke ASP.NET Core hingga tabel database lewat EF Core. Satu klik berpindah mulus sampai ke baris SQL.",
     build: [
-      "Schema dengan `projects` dan `tasks` (one-to-many), foreign key, constraint `NOT NULL` dan `CHECK`, dibuat lewat migration EF Core.",
-      "REST API: list, get, create, update, dan delete task, dengan DTO request/response dan status code yang benar.",
-      "Validasi di setiap endpoint write yang mengembalikan ProblemDetails; global exception handler.",
-      "Service didaftarkan dengan lifetime yang dipilih secara sadar; kamu bisa mempertanggungjawabkan masing-masing.",
-      "Aplikasi React: daftar task, form create dengan controlled input, toggle done, delete — lengkap dengan state loading dan error.",
-      "Type TypeScript untuk setiap response API; tanpa `any`.",
-      "Di-style dengan Tailwind: layout responsif, komponen `Button` dan `Input` reusable dengan variant ber-type, focus state yang terlihat.",
-      "Endpoint dengan query JOIN: projects beserta jumlah task yang masih open, ditulis sedemikian rupa sehingga menghasilkan tepat satu statement SQL.",
-      "Client Angular untuk API yang sama: daftar task lewat `httpResource`, validasi Signal Forms, toggle done, delete — lengkap dengan state loading dan error.",
-      "Client Flutter untuk API yang sama: daftar task, form create dengan validasi, toggle done — lengkap dengan state loading, kosong, dan error."
+      "Buat schema `projects` dan `tasks` (one-to-many) lengkap dengan foreign key, constraint `NOT NULL`, dan `CHECK` lewat migration EF Core.",
+      "Bangun REST API untuk list, detail, buat, ubah, dan hapus task memakai DTO yang pas serta status code akurat.",
+      "Validasi semua endpoint penulisan dengan response ProblemDetails dan pasang global exception handler.",
+      "Daftarkan service DI dengan lifetime yang dipilih sengaja dan siap kamu jelaskan alasannya.",
+      "Bangun aplikasi React dengan controlled input, tambah task, toggle selesai, hapus, plus tampilan loading dan error.",
+      "Tulis type TypeScript untuk tiap response API tanpa memakai jalan pintas `any`.",
+      "Beri style Tailwind dengan layout responsif, komponen `Button` dan `Input` ber-variant, serta focus state keyboard yang jelas.",
+      "Tambahkan endpoint JOIN yang mengembalikan tiap project beserta jumlah task terbuka dalam satu perintah SQL.",
+      "Buat client Angular ke API yang sama memakai `httpResource`, validasi Signal Forms, toggle, hapus, dan state loading/error.",
+      "Buat client Flutter ke API yang sama dengan form tambah tervalidasi, toggle selesai, serta tampilan loading, kosong, dan error."
     ],
     stretch: [
-      "Filter dan sort task lewat parameter query string yang tercermin di URL.",
-      "Ganti fetching tulisan tangan dengan TanStack Query."
+      "Filter dan urutkan task lewat query string yang tersinkron di URL.",
+      "Ganti kode fetch manual dengan TanStack Query."
     ],
-    teach: "Sudut pandang mengajar: telusuri satu klik 'add task' melewati setiap layer di whiteboard, sambil menyebutkan baris kode persisnya di tiap perhentian."
+    teach: "Sudut pandang mengajar: telusuri satu klik 'tambah task' melewati tiap layer di papan tulis sambil menunjuk kode persis di tiap langkah."
   },
   {
-    title: 'Capstone 3 — Toko multi-user dengan auth dan test',
-    brief: "Buat aplikasinya aman, tetap benar di bawah concurrency, dan terbukti berfungsi. Di level inilah software menjadi sesuatu yang bisa diandalkan orang lain.",
+    title: 'Capstone 3: Toko multi-user dengan auth dan test',
+    brief: "Buat aplikasinya aman saat dipakai bersamaan dan terjamin test. Di titik inilah kode kamu siap diandalkan oleh engineer lain.",
     build: [
-      "Authentication dengan JWT atau cookie; user hanya bisa melihat dan mengubah order miliknya sendiri (resource-based authorization).",
-      "Role admin dengan area pengelolaan produk yang dilindungi policy.",
-      "Membuat order mengurangi stok secara atomic di dalam transaction; overselling mustahil terjadi walaupun request-nya paralel — buktikan dengan test.",
-      "Optimistic concurrency pada edit produk yang mengembalikan 409 saat conflict, dan ditampilkan di UI.",
-      "Index dipilih berdasarkan query plan sungguhan; satu pengukuran sebelum/sesudah dicatat.",
-      "Endpoint laporan penjualan yang memakai window function (running total atau top-N per kategori).",
-      "Integration test dengan `WebApplicationFactory` terhadap database sungguhan untuk setiap endpoint; test React Testing Library untuk alur checkout.",
-      "Cart diimplementasikan dengan reducer dan context; server state lewat query library dengan invalidation.",
-      "Design system kecil: token lewat `@theme`, dark mode, dan komponen yang tidak memiliki margin luar.",
-      "Storefront Angular dengan functional route guard, HTTP auth interceptor yang memetakan `ProblemDetails`, signal cart di `@Service()`, dan test Vitest `HttpTestingController`.",
-      "Aplikasi Flutter-nya bisa sign in, menyimpan token di secure storage, dan mengelola cart serta order dengan Bloc/Cubit, dilengkapi test untuk cubit dan widget."
+      "Pasang auth JWT atau cookie agar user hanya melihat dan mengubah order miliknya lewat cek otorisasi per resource.",
+      "Lindungi area pengelolaan produk admin dengan policy khusus.",
+      "Kurangi stok di dalam transaction saat checkout agar request paralel tak bisa bikin overselling, lalu buktikan dengan concurrency test.",
+      "Terapkan optimistic concurrency di edit produk yang membalas 409 Conflict dan memunculkan infonya di UI.",
+      "Pilih index dari query plan sungguhan lalu catat satu hasil perbandingan sebelum dan sesudahnya.",
+      "Buat endpoint laporan penjualan memakai window function untuk running total atau produk terlaris tiap kategori.",
+      "Tulis integration test `WebApplicationFactory` ke database asli plus test React Testing Library untuk alur checkout.",
+      "Kelola cart dengan reducer dan context sambil mengatur server state memakai query cache serta invalidasi.",
+      "Buat design system ringkas memakai token `@theme`, dark mode, dan komponen yang tak membocorkan margin luar.",
+      "Bangun storefront Angular dengan route guard, interceptor `ProblemDetails`, signal cart di `@Service()`, dan test Vitest HTTP.",
+      "Lengkapi aplikasi Flutter dengan login di secure storage, manajemen cart lewat Bloc/Cubit, serta test cubit dan widget."
     ],
     stretch: [
-      "Options pattern dengan validasi saat startup untuk semua setting.",
-      "Structured logging dengan correlation ID yang terlihat di setiap baris log dalam satu request."
+      "Pakai Options pattern dengan validasi startup untuk semua konfigurasi.",
+      "Terapkan structured logging yang menempelkan correlation ID di tiap baris log request."
     ],
-    teach: "Sudut pandang mengajar: pilih satu bug yang dicegah project ini — overselling, IDOR, lost update — lalu rancang demo 15 menit yang pertama-tama menunjukkan bug-nya, baru perbaikannya."
+    teach: "Sudut pandang mengajar: pilih satu bug berat seperti overselling, IDOR, atau lost update, lalu siapkan demo 15 menit dari bug hingga solusinya."
   },
   {
-    title: 'Capstone 4 — Platform kelas production',
-    brief: "Bawa Capstone 3 ke standar production. Yang diserahkan bukan cuma kode, tapi juga bukti: pengukuran, dashboard, dan keputusan yang bisa kamu pertahankan.",
+    title: 'Capstone 4: Platform kelas production',
+    brief: "Angkat Capstone 3 ke standar production. Bukti kerjamu bukan cuma kode, melainkan juga metrik latensi, telemetry, dan alasan desain yang matang.",
     build: [
-      "Load test dengan target p95 yang dinyatakan; satu bottleneck ditemukan lewat profiling dan diperbaiki, lengkap dengan angka sebelum/sesudah.",
-      "Caching (output cache atau HybridCache) dengan strategi invalidation yang eksplisit dan jaminan staleness yang tertulis.",
-      "Rate limiting, health check yang dipisah jadi liveness dan readiness, graceful shutdown.",
-      "Trace, metric, dan log dengan OpenTelemetry; satu trace diikuti dari klik di React sampai statement SQL.",
-      "Background worker dengan outbox pattern yang mengirim konfirmasi order exactly-once dari sudut pandang user.",
-      "Perubahan schema tanpa downtime yang dieksekusi dengan expand → migrate → contract selagi aplikasinya berjalan.",
-      "Frontend: code splitting berbasis route, list panjang yang di-virtualize, Core Web Vitals sesuai budget, sepenuhnya bisa diakses lewat keyboard.",
-      "Di-containerize, di-deploy lewat CI dengan test, migration, dan rencana rollback yang benar-benar pernah kamu jalankan.",
-      "Aplikasi Angular yang dikonfigurasi dengan chunk `@defer`, hybrid SSR (`ServerRoute`), dan pemeriksaan runtime agar tipe hasil generate OpenAPI cocok dengan API yang ter-deploy.",
-      "Aplikasi Flutter di-build di CI sebagai release yang di-sign, dengan flavor dev dan prod, crash reporting, dan jalur upgrade dari versi sebelumnya yang sudah diuji."
+      "Jalankan load test sesuai target p95, temukan satu bottleneck lewat profiler, dan catat angka sebelum/sesudahnya.",
+      "Pasang output cache atau HybridCache lengkap dengan strategi invalidasi dan batas waktu data basi yang terukur.",
+      "Tambahkan rate limiting, health check liveness dan readiness yang terpisah, serta graceful shutdown.",
+      "Pasang OpenTelemetry untuk trace, metric, dan log, lalu ikuti satu trace dari klik React hingga statement SQL-nya.",
+      "Pindahkan pengiriman email konfirmasi ke background worker memakai outbox pattern agar tetap aman walau server restart.",
+      "Lakukan migrasi schema tanpa downtime memakai pola expand, migrate, dan contract saat aplikasi tetap melayani traffic.",
+      "Jaga kecepatan frontend lewat route splitting, virtualisasi daftar panjang, target Core Web Vitals, dan dukungan penuh keyboard.",
+      "Bungkus aplikasi ke container lalu deploy lewat CI/CD dengan test otomatis, migrasi, dan skenario rollback teruji.",
+      "Atur chunk `@defer`, hybrid SSR (`ServerRoute`), serta validasi tipe OpenAPI di runtime pada aplikasi Angular.",
+      "Bangun rilis Flutter ter-sign lewat CI lengkap dengan flavor dev/prod, crash reporting, dan uji upgrade dari versi sebelumnya."
     ],
     stretch: [
-      "Tulis architecture decision record untuk tiga pilihanmu yang paling berdampak.",
-      "Adakan game day: rusak database-nya, sebuah dependency, dan sebuah deploy, lalu dokumentasikan apa yang dilakukan sistem dan dashboard-nya."
+      "Tulis Architecture Decision Record (ADR) untuk tiga keputusan arsitektur terpenting.",
+      "Lakukan simulasi gangguan (game day) dengan memutus database, dependensi, atau deploy untuk menguji alert dashboard."
     ],
-    teach: "Sudut pandang mengajar: presentasikan sistem ini sebagai architecture review 30 menit di depan audiens senior. Mereka akan bertanya 'kenapa bukan alternatifnya?' untuk setiap pilihan — siapkan jawabannya."
+    teach: "Sudut pandang mengajar: presentasikan arsitektur ini selama 30 menit ke tim senior dan jawab kenapa alternatif lain tidak kamu pilih."
   }
 ];

@@ -73,7 +73,7 @@ self.onmessage = e => {
     const w = new Worker(url);
     return new Promise(resolve => {
       const done = r => { clearTimeout(t); w.terminate(); URL.revokeObjectURL(url); resolve(r); };
-      const t = setTimeout(() => done({ fatal: T('Time limit exceeded (4 s) — check for an infinite loop or an exponential algorithm.') }), 4000);
+      const t = setTimeout(() => done({ fatal: T('Time limit exceeded (4 s). Check for an infinite loop or an exponential algorithm.') }), 4000);
       w.onmessage = e => done(e.data);
       w.onerror = e => { e.preventDefault(); done({ fatal: (e.message || T('Runtime error')).replace(/^Uncaught /, '') }); };
       w.postMessage(p.tests.map(t => t[0]));
@@ -91,7 +91,7 @@ self.onmessage = e => {
       const rows = r.out.map((x, i) => {
         const [args, exp] = p.tests[i], ok = !x.err && same(x.got, exp, p.mode);
         return { ok, el: h('li', { class: ok ? 'pass' : 'fail' }, h('b', {}, ok ? '✓ ' : '✗ '), h('code', {}, show(args).slice(1, -1)),
-          ok ? null : h('div', {}, 'expected ', h('code', {}, show(exp)), x.err ? [' — threw ', h('code', {}, x.err)] : [' — got ', h('code', {}, show(x.got))])) };
+          ok ? null : h('div', {}, 'expected ', h('code', {}, show(exp)), x.err ? [', threw ', h('code', {}, x.err)] : [', got ', h('code', {}, show(x.got))])) };
       });
       const passed = rows.filter(x => x.ok).length, all = passed === rows.length;
       if (all) { D.solved[p.id] = true; save(); }
@@ -109,7 +109,7 @@ self.onmessage = e => {
       h('details', {}, h('summary', {}, 'Hint 1'), h('p', {}, p.hints[0])),
       h('details', {}, h('summary', {}, 'Hint 2'), h('p', {}, p.hints[1])),
       h('details', {}, h('summary', {}, 'Solution and complexity'), codeBlock(p.solution, 'ts'),
-        IV.cs && IV.cs[p.id] ? [h('p', { class: 'muted', style: { margin: '.8rem 0 .3rem' } }, 'The same solution in C# — compiled and run against these test cases:'), codeBlock(IV.cs[p.id], 'cs')] : null,
+        IV.cs && IV.cs[p.id] ? [h('p', { class: 'muted', style: { margin: '.8rem 0 .3rem' } }, 'The same solution in C#, compiled and run against these test cases:'), codeBlock(IV.cs[p.id], 'cs')] : null,
         h('p', { style: { marginTop: '.6rem' } }, h('b', {}, 'Complexity: '), p.complexity),
         h('p', { class: 'muted' }, 'Pattern: ', h('a', { href: '#/interview/patterns' }, patternName(p.pattern)))),
       h('details', {}, h('summary', {}, 'Interviewer follow-ups'), list(p.follow))
@@ -140,7 +140,7 @@ self.onmessage = e => {
   function codingView() {
     const solved = Object.keys(D.solved).length;
     return h('div', { class: 'page iv' },
-      head(crumb('Coding'), 'Coding interview', T('{n} classic problems across 12 patterns, judged in your browser against real test cases. Write TypeScript here; the same patterns are shown in C# on the patterns page.', { n: IV.problems.length }), bar(Math.round(solved / IV.problems.length * 100), 'Coding interview')),
+      head(crumb('Coding'), 'Coding interview', T('{n} classic problems across 12 patterns, judged in-browser against real tests. Write TypeScript here, or view the C# templates on the patterns page.', { n: IV.problems.length }), bar(Math.round(solved / IV.problems.length * 100), 'Coding interview')),
       sec('How to run every problem', h('p', {}, 'Interviewers grade the process as much as the answer. Follow the same seven steps each time until they are automatic.'),
         h('ol', { class: 'steps' }, IV.method.map(([n, t]) => h('li', {}, h('b', {}, n + '. '), t)))),
       sec(h('span', {}, 'Problems ', h('small', {}, `${solved} / ${IV.problems.length} ${T('solved')}`)),
@@ -204,7 +204,7 @@ self.onmessage = e => {
         h('div', { class: 'rubric', style: { marginTop: '1.2rem' } }, h('label', {}, cb, h('span', {}, 'I can present this design out loud in 35 minutes without notes, and answer the follow-ups.'))));
     }
     return h('div', { class: 'page iv' },
-      head(crumb('System design'), 'System design interview', 'An open-ended conversation where you lead. There is no single right answer — interviewers look for structure, sound trade-offs and depth where it matters.'),
+      head(crumb('System design'), 'System design interview', 'An open-ended conversation where you lead. Interviewers look for structure, clear trade-offs, and depth where it matters rather than one right answer.'),
       sec('The 45-minute framework', h('div', { class: 'rows' }, IV.design.framework.map(([n, t, d], i) => h('div', { class: 'row static' }, h('span', { class: 'tick on' }, i + 1), h('span', { class: 'row-t' }, h('b', {}, n), h('br'), h('span', { class: 'muted' }, d)), h('small', {}, t))))),
       sec('Worked cases', h('div', { class: 'grid' }, IV.design.cases.map(x => h('a', { class: 'card go', href: '#/interview/design/' + x.id },
         h('span', { class: 'card-k' }, D.design[x.id] ? '✓ mastered' : 'case study'), h('strong', {}, x.title), h('p', {}, x.prompt))))),
@@ -231,30 +231,30 @@ self.onmessage = e => {
       const next = () => { const t = pick(IV.behavioral); drillQ.textContent = pick(t.qs); const mine = D.stories.filter(s => s.tags.includes(t.id)); drillL.textContent = `${T('Theme:')} ${t.name}. ` + (mine.length ? T('Your stories: ') + mine.map(s => s.title).join(', ') + '.' : T('You have no story for this theme yet.')); };
       next();
       page.replaceChildren(
-        head(crumb('Behavioral'), 'Behavioral interview', 'Interviewers predict future behavior from past behavior. They want specific stories with you as the actor — not opinions, and not “we”.', bar(Math.round(covered() / IV.behavioral.length * 100), 'Behavioral interview')),
+        head(crumb('Behavioral'), 'Behavioral interview', 'Interviewers predict future behavior from past actions. Share concrete stories focused on what you did instead of opinions or “we”.', bar(Math.round(covered() / IV.behavioral.length * 100), 'Behavioral interview')),
         sec('STAR, with reflection', h('ol', { class: 'steps' },
-          h('li', {}, h('b', {}, 'Situation '), '— one or two sentences of context. Keep it short.'),
-          h('li', {}, h('b', {}, 'Task '), '— what you were responsible for, and what was at stake.'),
-          h('li', {}, h('b', {}, 'Action '), '— what YOU did, step by step, and why. This is 60% of the answer.'),
-          h('li', {}, h('b', {}, 'Result '), '— the measurable outcome. Numbers where you have them.'),
-          h('li', {}, h('b', {}, 'Reflection '), '— what you learned or would do differently. This is what separates senior answers.')),
+          h('li', {}, h('b', {}, 'Situation '), ': one or two sentences of context. Keep it short.'),
+          h('li', {}, h('b', {}, 'Task '), ': what you were responsible for, and what was at stake.'),
+          h('li', {}, h('b', {}, 'Action '), ': what YOU did, step by step, and why. This is 60% of the answer.'),
+          h('li', {}, h('b', {}, 'Result '), ': the measurable outcome. Add numbers where you have them.'),
+          h('li', {}, h('b', {}, 'Reflection '), ': what you learned or would do differently. This separates strong senior answers.')),
           h('p', { class: 'muted' }, 'Aim for two minutes per story. Six to eight strong stories, each usable for several themes, cover almost any question.'),
-          h('details', {}, h('summary', {}, 'Example answer (made up — replace it with your own)'),
+          h('details', {}, h('summary', {}, 'Example answer (sample story, replace with yours)'),
             h('p', { class: 'muted' }, 'Question: “Tell me about a problem you noticed that nobody had asked you to fix.”'),
             [['Situation', 'Our cooperative’s member app sometimes showed the old savings balance right after a deposit. Support was getting about 20 complaints a week, and members thought their money was missing.'],
-             ['Task', 'I was on the mobile team, so the backend was not mine, but I had the most room that sprint, so I offered to find the cause.'],
-             ['Action', 'I matched three complaints against the server logs and saw that the balance came from a cache refreshed every five minutes. I wrote a test that reproduced it, proposed clearing that member’s cached balance as soon as the deposit committed, and paired with the backend developer to ship it behind a feature flag.'],
+             ['Task', 'I was on the mobile team, so the backend wasn’t mine. With extra room that sprint, I offered to track down the root cause.'],
+             ['Action', 'I matched three complaints against server logs and spotted a five-minute balance cache. I wrote a failing test, cleared that member’s cache on commit, and paired with backend to ship behind a feature flag.'],
              ['Result', 'Balance complaints went from about 20 a week to one or two in the following month, and the flag was removed after two weeks.'],
              ['Reflection', 'Reproducing the bug in a test before arguing about the fix ended the discussion about whose bug it was. I now do that first.']]
               .map(([k, v]) => h('p', {}, h('b', {}, T(k) + ': '), v)))),
         sec('Practice drill', h('div', { class: 'flash' }, drillQ, drillL, h('div', { class: 'actions' }, timer(2), h('button', { type: 'button', class: 'btn ghost', onclick: next }, 'Next question')))),
         sec('Your story bank',
           h('div', { class: 'cover' }, IV.behavioral.map(t => { const n = D.stories.filter(s => s.tags.includes(t.id)).length; return h('span', { class: 'chip ' + (n ? 'diff-0' : '') }, `${t.name}: ${n}`); })),
-          D.stories.length ? h('div', { class: 'stories' }, D.stories.map((s, i) => h('details', { class: 'story' }, h('summary', {}, s.title, ' ', h('small', {}, s.tags.map(id => IV.behavioral.find(t => t.id === id).name).join(' · '))),
+          D.stories.length ? h('div', { class: 'stories' }, D.stories.map((s, i) => h('details', { class: 'story' }, h('summary', {}, s.title, ' ', h('small', {}, s.tags.map(id => (IV.behavioral.find(t => t.id === id)?.name || id)).join(' · '))),
             [['Situation', s.s], ['Task', s.t], ['Action', s.a], ['Result', s.r]].map(([k, v]) => h('p', {}, h('b', {}, T(k) + ': '), v || '—')),
             h('button', { type: 'button', class: 'btn sm ghost', onclick: async () => { if (await window.confirmDialog(T('Delete this story?'), { title: 'Delete', confirmText: 'Delete', danger: true })) { D.stories.splice(i, 1); save(); draw(); } } }, 'Delete')))) : h('p', { class: 'muted' }, 'No stories yet. Add your first below.'),
           h('div', { class: 'story-form' },
-            h('label', {}, 'Title', form.title), h('label', {}, 'Situation', form.s), h('label', {}, 'Task', form.t), h('label', {}, 'Action — what you did', form.a), h('label', {}, 'Result — with numbers', form.r),
+            h('label', {}, 'Title', form.title), h('label', {}, 'Situation', form.s), h('label', {}, 'Task', form.t), h('label', {}, 'Action: what you did', form.a), h('label', {}, 'Result: with numbers', form.r),
             h('div', { class: 'tagbox' }, h('span', { class: 'muted' }, 'Themes this story can answer:'), tags.map(([, l]) => l)),
             h('button', { type: 'button', class: 'btn', onclick: add }, 'Save story'))),
         sec('Question bank', IV.behavioral.map(t => h('details', {}, h('summary', {}, t.name), h('p', {}, h('b', {}, 'What a strong answer shows: '), t.looks), list(t.qs)))));
@@ -286,12 +286,12 @@ self.onmessage = e => {
 
   // ---------- mock interviews ----------
   const RUBRICS = {
-    coding: ['Problem solving — clarified, found the right approach', 'Coding — correct, clean, idiomatic', 'Communication — thought out loud, took hints well', 'Verification — tested, found bugs, stated complexity'],
+    coding: ['Problem solving: clarified, found the right approach', 'Coding: correct, clean, idiomatic', 'Communication: thought out loud, took hints well', 'Verification: tested, found bugs, stated complexity'],
     design: ['Requirements and scope', 'High-level design that works end to end', 'Depth and trade-offs in the hard parts', 'Communication and leading the conversation'],
-    behavioral: ['Structure — clear STAR, about two minutes', 'Ownership — “I”, specific actions', 'Impact — measurable result', 'Reflection — what was learned'],
+    behavioral: ['Structure: clear STAR, about two minutes', 'Ownership: “I” rather than “we”', 'Impact: measurable result', 'Reflection: what was learned'],
     rapid: ['Accuracy', 'Depth beyond the definition', 'Clarity and brevity', 'Composure when unsure']
   };
-  const LEVELS4 = ['', '1 — No hire', '2 — Lean no hire', '3 — Hire', '4 — Strong hire'];
+  const LEVELS4 = ['', '1: No hire', '2: Lean no hire', '3: Hire', '4: Strong hire'];
   const verdict = avg => avg >= 3.5 ? 'Strong hire' : avg >= 3 ? 'Hire' : avg >= 2.5 ? 'Borderline' : 'No hire';
 
   function scorecard(type, title, onSaved) {
@@ -299,7 +299,7 @@ self.onmessage = e => {
     const notes = h('textarea', { rows: 3, 'aria-label': 'Mock interview notes', placeholder: 'What went well? What will you drill before the next one?' });
     const msg = h('p', { class: 'muted' });
     return h('section', { class: 'sec teach' }, h('h2', {}, 'Interviewer scorecard'),
-      h('p', { class: 'muted' }, 'Grade yourself as the interviewer would — or better, have a friend do it. Be strict: “hire” means you would want this person on your team.'),
+      h('p', { class: 'muted' }, 'Grade yourself like an interviewer, or ask a friend to score you. “Hire” means you’d gladly work alongside this person.'),
       h('div', { class: 'score-grid' }, RUBRICS[type].flatMap((r, i) => [h('label', { for: `sc-${type}-${i}` }, r), sels[i]])), notes,
       h('div', { class: 'actions' }, h('button', { type: 'button', class: 'btn', onclick: () => {
         const scores = sels.map(s => +s.value);
@@ -328,7 +328,7 @@ self.onmessage = e => {
       design: () => {
         const c = pick(IV.design.cases);
         return [h('div', { class: 'actions' }, h('h2', { style: { margin: 0 } }, c.title), timer(45)), h('p', { class: 'prompt' }, c.prompt),
-          h('ol', { class: 'steps' }, IV.design.framework.map(([n, t]) => h('li', {}, h('b', {}, n), ` — ${t}`))),
+          h('ol', { class: 'steps' }, IV.design.framework.map(([n, t]) => h('li', {}, h('b', {}, n), `: ${t}`))),
           h('p', { class: 'muted' }, 'Draw on paper and talk out loud for the full 45 minutes before opening the reference.'),
           h('details', {}, h('summary', {}, 'After the interview: reference design'), caseBody(c, true)), scorecard('design', c.title, refresh)];
       },
@@ -347,7 +347,7 @@ self.onmessage = e => {
     const go = type => () => { stage.replaceChildren(...start[type]().flat(Infinity)); stage.scrollIntoView({ behavior: 'smooth' }); };
     const card = (type, title, desc, extra) => h('div', { class: 'card' }, h('strong', {}, title), h('p', {}, desc), h('div', { class: 'actions' }, extra, h('button', { type: 'button', class: 'btn sm', onclick: go(type) }, 'Start')));
     return h('div', { class: 'page wide iv' },
-      head(crumb('Mock interview'), 'Mock interview', 'Simulate one round under real conditions: timer running, talking out loud, no notes. Then score it honestly. Keep going until your scores stop jumping from one mock to the next; for most people that takes several of each round.'),
+      head(crumb('Mock interview'), 'Mock interview', 'Simulate one round with the timer running, thinking out loud, and using zero notes. Keep running mocks until your scores settle across sessions.'),
       h('div', { class: 'grid' },
         card('coding', 'Coding round', 'One problem, 35–45 minutes, hints locked until the end.', diffSel),
         card('design', 'System design round', 'One open-ended design, 45 minutes, reference hidden.'),
@@ -365,7 +365,7 @@ self.onmessage = e => {
       ['System design', '#/interview/design', 'From mid-level up. Design a large system on a whiteboard and defend the trade-offs.'],
       ['Behavioral', '#/interview/behavioral', 'Evidence of ownership, collaboration and judgement, told as specific stories.'],
       ['Stack knowledge', '#/interview/rapid', 'Depth in your own technologies: C#, ASP.NET Core, Go, SQL, TypeScript, React, Angular, CSS, Flutter, the web.'],
-      ['Mock interviews', '#/interview/mock', 'Timed, scored simulations of each round — the fastest way to improve.']
+      ['Mock interviews', '#/interview/mock', 'Timed, scored simulations of every round to build speed and confidence.']
     ];
     return h('div', { class: 'page iv' },
       h('header', { class: 'hero' },
@@ -376,10 +376,10 @@ self.onmessage = e => {
         h('p', { class: 'muted' }, 'Self-reported progress, not a guarantee. The honest test is a mock interview graded by another person.')),
       sec('The interview loop', h('div', { class: 'grid' }, loop.map(([t, href, d]) => h('a', { class: 'card go', href }, h('strong', {}, t), h('p', {}, d))))),
       sec('Two more rounds for full-stack roles',
-        h('details', {}, h('summary', {}, 'SQL round'), h('p', {}, 'Many backend and full-stack loops include live SQL: joins, grouping, a window function, and reading a slow query. The 14 graded challenges in the ', h('a', { href: '#/play/sql' }, 'SQL playground'), ' cover exactly that range — do them timed, explaining each clause out loud. Then review ', h('a', { href: '#/lesson/sql/indexes' }, 'indexes'), ' and ', h('a', { href: '#/lesson/sql/plans' }, 'execution plans'), ' for the follow-up questions.')),
-        h('details', {}, h('summary', {}, 'Frontend “build a component” round'), h('p', {}, 'Forty-five minutes to build a working UI component in React, Angular, or TypeScript while explaining your decisions. Practise each prompt in a fresh Vite or Angular CLI project against the clock.'),
+        h('details', {}, h('summary', {}, 'SQL round'), h('p', {}, 'Many backend and full-stack loops include live SQL: joins, grouping, window functions, and reading slow queries. The 14 graded challenges in the ', h('a', { href: '#/play/sql' }, 'SQL playground'), ' cover that exact range. Solve them timed while explaining each clause out loud, then review ', h('a', { href: '#/lesson/sql/indexes' }, 'indexes'), ' and ', h('a', { href: '#/lesson/sql/plans' }, 'execution plans'), ' for the follow-up questions.')),
+        h('details', {}, h('summary', {}, 'Frontend “build a component” round'), h('p', {}, 'Forty-five minutes to build a working UI feature in React, Angular, TypeScript, or Flutter while explaining your choices. Practise each prompt in a fresh Vite, Angular CLI, or Flutter app against the clock.'),
           h('div', { class: 'rows' }, IV.ui.map(([t, build, checks]) => h('div', { class: 'row static' }, h('span', { class: 'row-t' }, h('b', {}, t), h('br'), build, h('br'), h('span', { class: 'muted', html: T('Interviewers check: ') + md(checks) })))))),
-        h('p', { class: 'muted' }, 'Before any coding round, make sure the ', h('a', { href: '#/track/cs' }, 'CS Fundamentals'), ' track is solid — every pattern here assumes it.')),
+        h('p', { class: 'muted' }, 'Before any coding round, make sure the ', h('a', { href: '#/track/cs' }, 'CS Fundamentals'), ' track is solid since every pattern here builds on it.')),
       sec('Eight-week plan', h('p', { class: 'muted' }, 'Assumes about 15–20 hours a week. With a full-time job, give each week two weeks: finishing later beats skipping the mocks.'), IV.plan.map(([week, items], wi) => {
         const done = D.plan[wi] || [];
         const el = h('details', {}, h('summary', {}, week, ' ', h('small', {}, `${items.filter((_, i) => done[i]).length} / ${items.length}`)),
@@ -387,7 +387,7 @@ self.onmessage = e => {
         el.open = items.some((_, i) => !done[i]) && IV.plan.slice(0, wi).every((w, j) => w[1].every((_, i) => (D.plan[j] || [])[i]));
         return el;
       })),
-      sec('Getting the interview — and real credibility', list(IV.hiring)),
+      sec('Getting the interview and building real credibility', list(IV.hiring)),
       sec('Mock history', history()));
   }
 

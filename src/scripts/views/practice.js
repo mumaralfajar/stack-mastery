@@ -11,7 +11,7 @@ export function review() {
   const stage = h('div', {});
   const page = h('div', { class: 'page' },
     h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Spaced repetition'), h('h1', {}, 'Flashcard review'),
-      h('p', { class: 'lede' }, 'Questions from lessons you have marked as learned, and any you missed in a lesson, return at growing intervals: 1, 2, 4, 8, then 16 days. Say the answer out loud before you reveal it.')),
+      h('p', { class: 'lede' }, 'Questions from learned lessons and missed quizzes return after 1, 2, 4, 8, and 16 days. Say your answer out loud before revealing it.')),
     h('div', { class: 'actions' }, trackSel), stage);
   let queue = [], n = 0, got = 0;
   const resetQueue = () => {
@@ -21,8 +21,8 @@ export function review() {
   };
   trackSel.onchange = resetQueue;
   const show = () => {
-    if (!queue.length) return stage.replaceChildren(h('div', { class: 'empty' }, h('strong', {}, 'Nothing due.'), h('p', {}, allLessons().some(e => peek(e.k).read) ? 'You are caught up — come back tomorrow, or take a mock exam.' : 'Mark a lesson as learned and its questions will appear here.')));
-    if (n >= queue.length) { renderNav(); return stage.replaceChildren(h('div', { class: 'empty' }, h('strong', {}, T('Session complete — {got} of {n} recalled.', { got, n: queue.length })), h('p', {}, 'Missed cards return tomorrow.'), h('a', { class: 'btn', href: '#/' }, 'Back to dashboard'))); }
+    if (!queue.length) return stage.replaceChildren(h('div', { class: 'empty' }, h('strong', {}, 'Nothing due.'), h('p', {}, allLessons().some(e => peek(e.k).read) ? "You're caught up. Come back tomorrow, or try a mock exam." : 'Mark a lesson as learned and its questions will appear here.')));
+    if (n >= queue.length) { renderNav(); return stage.replaceChildren(h('div', { class: 'empty' }, h('strong', {}, T('Session complete: {got} of {n} recalled.', { got, n: queue.length })), h('p', {}, 'Missed cards return tomorrow.'), h('a', { class: 'btn', href: '#/' }, 'Back to dashboard'))); }
     const c = queue[n], nextBox = Math.min((S.cards[c.id]?.box || 0) + 1, 5), nextGap = GAPS[nextBox - 1];
     const back = h('div', { class: 'fc-back', hidden: true },
       h('p', { class: 'fc-a', html: md(c.q.a[c.q.c]) }), h('p', { html: md(c.q.why) }),
@@ -35,7 +35,7 @@ export function review() {
       S.cards[c.id] = { box, due: day(ok ? nextGap : 1) }; if (ok) got++; n++; touch(); show();
     };
     stage.replaceChildren(h('div', { class: 'flash', style: { '--tc': `var(--${c.t.id})` } },
-      h('p', { class: 'eyebrow' }, `${n + 1} / ${queue.length} · `, h('a', { href: lessonHref(c.t, c.l) }, c.t.name + ' — ' + c.l.title)),
+      h('p', { class: 'eyebrow' }, `${n + 1} / ${queue.length} · `, h('a', { href: lessonHref(c.t, c.l) }, c.t.name + ' · ' + c.l.title)),
       h('p', { class: 'fc-q', html: md(c.q.q) }), reveal, back));
   };
   resetQueue();
@@ -74,7 +74,7 @@ export function labView(id) {
   const { h, VIZ } = window;
   const v = VIZ[id];
   if (!v) return h('div', { class: 'page' },
-    h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'See it move'), h('h1', {}, 'Visual lab'), h('p', { class: 'lede' }, 'Every hard idea in this stack has a mental picture. These are the pictures — use them yourself, then use them on your students.')),
+    h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'See it move'), h('h1', {}, 'Visual lab'), h('p', { class: 'lede' }, 'Every tough concept in this stack has a mental picture. Explore each visual model yourself, then use it when teaching others.')),
     h('div', { class: 'grid' }, Object.entries(VIZ).map(([vid, x]) => h('a', { class: 'card go', href: '#/lab/' + vid, style: { '--tc': `var(--${x.track})` } },
       ico(x.track, 'card-ico'),
       h('span', { class: 'card-k' }, x.trackName), h('strong', {}, x.title), h('p', {}, x.desc)))));

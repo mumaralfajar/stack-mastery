@@ -80,7 +80,7 @@
           if (delay) await sleep(delay);
         }
         paint();
-        note.textContent = T('{algo} used {c} comparisons for {n} values. n² is {sq}; n·log₂n is about {nlog}.', { algo: sel.value.split(' — ')[0], c, n: N, sq: N * N, nlog: Math.round(N * Math.log2(N)) });
+        note.textContent = T('{algo} used {c} comparisons for {n} values. n² is {sq}, while n·log₂n is about {nlog}.', { algo: sel.value.split(' — ')[0], c, n: N, sq: N * N, nlog: Math.round(N * Math.log2(N)) });
       };
       el.append(h('div', { class: 'viz-ctl' }, sel, btn('Sort', sort), btn('Shuffle', shuffle, 'ghost'), h('span', {}, 'Comparisons: ', count)), bars, note);
       shuffle();
@@ -125,7 +125,7 @@
   // ---------- graph search: BFS vs DFS ----------
   VIZ.graphsearch = {
     title: 'BFS and DFS on a graph', track: 'cs', trackName: 'CS Fundamentals',
-    desc: 'Search from A to F with each algorithm and compare the path each one finds. BFS uses a queue and spreads out in rings; DFS follows one path as deep as it can.',
+    desc: 'Search from A to F with each algorithm and compare their paths. BFS uses a queue layer by layer, while DFS follows one branch deep.',
     mount(el) {
       // Neighbour order is part of the picture: DFS tries G first, which leads it the long way round.
       const pos = { A: [50, 95], G: [50, 190], B: [170, 35], C: [170, 120], H: [260, 205], D: [300, 35], E: [330, 125], F: [450, 80] };

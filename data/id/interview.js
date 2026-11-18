@@ -6,7 +6,7 @@ I18N.iv = {
     ['Brute force', 'Sebutkan solusi yang paling jelas beserta complexity-nya dalam satu kalimat. Ini membuktikan kamu paham soalnya dan memberi baseline.'],
     ['Optimasi', 'Sebutkan bottleneck-nya, lalu pattern yang menghilangkannya (hash map, two pointers, sorting, heap…). Sepakati pendekatannya sebelum coding.'],
     ['Coding', 'Tulis kode yang rapi sambil menjelaskan. Nama yang bermakna, helper function kecil, dan jangan diam lebih dari satu menit.'],
-    ['Test', 'Telusuri kodemu dengan contoh tadi, lalu dengan edge case — seperti seorang reviewer, baris demi baris. Perbaiki bug dengan tenang.'],
+    ['Test', 'Telusuri kodemu lewat contoh lalu edge case, baris per baris seperti reviewer. Perbaiki bug dengan tenang.'],
     ['Analisis', 'Sebutkan time dan space complexity, plus satu trade-off atau perbaikan lanjutan.']
   ],
   bigO: [
@@ -18,92 +18,92 @@ I18N.iv = {
     ['Semua subset / semua permutasi', 'O(2ⁿ) / O(n!)']
   ],
   plan: [
-    ['Minggu 1 — Fondasi', [
+    ['Minggu 1: Fondasi', [
       'Selesaikan materi Pemula di CS Fundamentals, C#, dan SQL',
       'Kerjakan 7 soal coding yang easy, sambil menjelaskan dengan lantang',
       'Tulis résumé-mu dengan impact formula',
       'Daftar 10 pengalaman yang bisa dijadikan cerita'
     ]],
-    ['Minggu 2 — Pattern inti', [
+    ['Minggu 2: Pattern inti', [
       'Pelajari pattern hash map, two pointers, sliding window, dan stack',
       'Kerjakan 5 soal medium (masing-masing 30 menit, pakai timer)',
       'Selesaikan materi Pemula di ASP.NET Core, CSS, React, Angular, dan Flutter',
       'Tulis 3 cerita STAR di bank cerita'
     ]],
-    ['Minggu 3 — Tree, graph, search', [
+    ['Minggu 3: Tree, graph, dan search', [
       'Pelajari binary search, tree, graph, dan interval',
-      'Kerjakan 5 soal medium lagi; ulangi soal yang tadi butuh hint',
+      'Kerjakan 5 soal medium lagi dan ulangi soal yang tadi butuh hint',
       'Selesaikan materi Menengah di C#, SQL, dan ASP.NET Core',
-      'Mulai Capstone 2 — project portofoliomu'
+      'Mulai Capstone 2 sebagai app portofoliomu'
     ]],
-    ['Minggu 4 — DP, backtracking, dasar design', [
+    ['Minggu 4: DP, backtracking, dan dasar design', [
       'Pelajari backtracking dan dynamic programming',
       'Kerjakan soal yang tersisa, termasuk yang hard',
       'Pelajari framework system design dan building block-nya',
       'Mock coding interview pertama, dinilai dengan rubrik',
       'Selesaikan materi Menengah di CSS, React, Angular, dan Flutter'
     ]],
-    ['Minggu 5 — System design', [
+    ['Minggu 5: System design', [
       'Kerjakan keenam kasus design: coba dulu, baru bandingkan',
-      'Presentasikan satu kasus secara lisan dalam 35 menit, sambil direkam',
+      'Presentasikan satu kasus 35 menit penuh sambil direkam',
       'Materi Mahir: async, transaction, index, auth',
       'Lengkapi bank cerita: semua tema terisi'
     ]],
-    ['Minggu 6 — Kedalaman full-stack', [
+    ['Minggu 6: Kedalaman full-stack', [
       'Tanya jawab kilat: nilai semua pertanyaan, ulangi yang masih goyah',
-      'Selesaikan Capstone 2 dan deploy; mulai Capstone 3',
+      'Selesaikan dan deploy Capstone 2, lalu mulai Capstone 3',
       'Mock system design interview',
       'Mock behavioral interview'
     ]],
-    ['Minggu 7 — Mock loop', [
+    ['Minggu 7: Mock loop', [
       'Dua mock coding interview dengan timer',
       'Satu loop penuh dalam sehari: coding, design, behavioral, tanya jawab kilat',
       'Review setiap skor rubrik di bawah 3 dan latih area itu',
       'Latihan bersama orang lain minimal sekali'
     ]],
-    ['Minggu 8 — Melamar dan mengasah', [
-      'Melamar ke banyak tempat; minta referral; jadwalkan interview yang lebih mudah lebih dulu',
+    ['Minggu 8: Melamar dan mengasah', [
+      'Lamar ke banyak perusahaan, minta referral, dan jadwalkan latihan lebih dulu',
       'Kerjakan ulang 8 soal tanpa persiapan, masing-masing 20 menit',
       'Siapkan pertanyaan untuk tiap interviewer',
       'Setiap selesai interview sungguhan, catat semua pertanyaan yang diajukan'
     ]]
   ],
   hiring: [
-    "**Apa yang diukur interview.** Loop di big tech umumnya menilai empat hal: problem solving dan coding, system design (mulai mid-level ke atas), bukti behavioral, dan kedalaman di stack-mu sendiri. Tiap interviewer menulis penilaian hire / no-hire secara independen berdasarkan rubrik.",
-    "**Poin di résumé memakai impact formula:** mencapai X, diukur dengan Y, dengan melakukan Z. “Menurunkan latency p95 API checkout dari 900 ms ke 180 ms dengan menambah covering index dan output caching.” Angka, bukan daftar tugas.",
+    "**Yang diukur interviewer.** Loop big tech menilai empat hal: coding, system design (mid-level+), cerita behavioral, dan kedalaman stack. Tiap interviewer menulis penilaian rubrik terpisah.",
+    "**Poin di résumé memakai impact formula.** Tulis pencapaian X, terukur oleh Y, lewat langkah Z. Contohnya, “Menurunkan latency p95 API checkout dari 900 ms ke 180 ms dengan covering index dan output caching.”",
     "**Belum punya nama perusahaan besar? Bangun bukti.** Capstone 3 dan 4 di program ini berkelas portofolio: di-deploy, dites, diukur. Sistem nyata dengan angka nyata mengalahkan daftar teknologi.",
     "**Referral melipatgandakan peluang lamaranmu direspons.** Hubungi engineer di perusahaan incaranmu dengan pesan singkat yang spesifik dan link ke karyamu. Berkontribusilah ke project open source yang mereka pakai.",
     "**Level.** Junior: menyelesaikan masalah yang sudah terdefinisi dengan kode yang rapi. Mid: memegang fitur dari ujung ke ujung dan mendesain komponen. Senior: memegang sistem, menangani ambiguitas, dan membuat orang lain jadi lebih baik. Arahkan cerita dan kedalaman design-mu ke level yang kamu lamar.",
     "**Atur urutan interview-mu.** Jadwalkan perusahaan yang kurang kamu incar lebih dulu sebagai latihan, dan kumpulkan final round berdekatan supaya offer-nya datang bersamaan.",
-    "**Bukti mengalahkan jabatan.** Project yang sudah dirilis, hasil yang terukur, tulisan atau talk publik, dan karya open source adalah bukti yang bisa dicek siapa saja. Nama perusahaan besar membantumu mendapat panggilan pertama; yang bisa kamu tunjukkanlah yang membuatmu lolos loop-nya.",
-    "**Perusahaan remote dan perusahaan Indonesia punya cara interview yang berbeda — siapkan keduanya.** Persiapan big tech adalah standar yang lebih ketat dan sudah mencakup sebagian besarnya, tapi banyak perusahaan melewatkan soal algoritma dan menggantinya dengan take-home assignment atau live coding fitur yang realistis, lalu interview HR dan interview “user” dengan team lead.",
-    "**Take-home dinilai seperti pull request.** Baca brief-nya dua kali, bertanya sejak awal, dan tetap dalam batas waktu yang disebutkan. README yang menjelaskan cara menjalankannya, apa yang kamu pilih dan apa yang sengaja ditinggalkan, beberapa test yang bermakna, dan commit yang rapi sama pentingnya dengan fiturnya.",
-    "**Ketahui angkamu sebelum interview HR.** Untuk posisi remote yang dibayar dari luar negeri, tanyakan juga apakah kamu karyawan atau kontraktor, bagaimana dan dalam mata uang apa kamu dibayar, dan siapa yang mengurus pajak — sebagai kontraktor, biasanya kamu sendiri yang melapor dan membayarnya."
+    "**Bukti lebih bernilai daripada jabatan.** Aplikasi live, metrik nyata, tulisan teknis, atau open source mudah diverifikasi. Nama perusahaan besar mengantar ke panggilan pertama, tapi karya nyata meloloskanmu.",
+    "**Format tim remote dan lokal berbeda.** Banyak perusahaan mengganti soal algoritma dengan take-home atau pairing praktis. Prosesnya biasa ditutup sesi HR dan lead.",
+    "**Tugas take-home dinilai layaknya pull request.** Baca brief dua kali, tanya lebih awal bila ragu, dan patuhi batas waktunya. README cara run, catatan trade-off, test penting, dan commit rapi bernilai setara dengan fiturnya.",
+    "**Siapkan ekspektasi gajimu sebelum bertemu HR.** Untuk kerja remote lintas negara, tanyakan status kontrak, mata uang transfer, dan urusan pajaknya. Status kontraktor biasanya menuntut kamu mengurus lapor pajak sendiri."
   ],
   ui: [
-    ['Autocomplete search box', 'Fetch saran saat user mengetik, tampilkan dalam list, pilih dengan mouse atau keyboard.', 'Request di-debounce; response basi diabaikan atau di-abort; tombol panah, Enter, dan Escape berfungsi; ada state loading, kosong, dan error; role combobox yang accessible.'],
-    ['Modal dialog', 'Modal reusable yang dibuka lewat sebuah button, dengan judul, isi, dan aksi untuk menutup.', 'Focus pindah ke dalam dan terkurung di sana; Escape dan klik backdrop menutupnya; focus kembali ke pemicunya; scroll body dikunci; memakai `<dialog>` atau ARIA yang benar.'],
-    ['Data table', 'Render baris dari API dengan kolom yang bisa di-sort, pagination, dan kotak filter.', 'State dijaga minimal dan diturunkan; sort dan halaman tercermin di URL; key yang stabil; ada state loading dan kosong; tidak fetch ulang di setiap ketukan tombol.'],
-    ['Todo list dengan filter', 'Tambah, toggle, edit, dan hapus item; filter berdasarkan all / active / done; tetap tersimpan setelah reload.', 'Update yang immutable; list hasil filter diturunkan; controlled input; reducer atau handler yang rapi; proses edit yang ramah keyboard.'],
-    ['Star rating', 'Komponen rating lima bintang yang bisa dipakai sebagai input form.', 'Bisa dipakai controlled maupun uncontrolled; preview saat hover; dukungan keyboard dengan tombol panah; semantik radio group; props ber-type.'],
-    ['Infinite scroll feed', 'Muat halaman item berikutnya saat user mendekati bagian bawah.', 'IntersectionObserver, bukan scroll event; cursor pagination; tidak ada request duplikat; virtualization dibahas untuk list panjang.'],
-    ['Angular: pencarian live & tabel dengan filter', 'Component Angular yang memuat produk dari API, memfilter berdasarkan kata kunci dan kategori di URL, serta menghindari race condition pencarian.', '`httpResource` atau `toObservable` + `debounceTime` + `switchMap`; `withComponentInputBinding()` untuk query param; `computed()` untuk baris terfilter; `@for (...; track p.id)` dengan `@empty`; `@defer` atau live region ARIA untuk status update.'],
-    ['Angular: form checkout multi-langkah (Signal Forms)', 'Component form dengan kolom pengiriman/penagihan, validasi diskon kondisional, verifikasi promo asinkron, dan pemetaan ProblemDetails server.', 'Signal Forms (`form()`, `[formField]`, `applyWhen()`, `submit()`); membaca state lewat `field().touched()` / `errors()`; `exhaustMap` atau state disabled saat submit; memetakan `ProblemDetails.errors` server dengan `aria-describedby` dan `role="alert"`.'],
-    ['Flutter: daftar produk dengan pencarian', 'Layar yang memuat produk dari API, memfilternya saat user mengetik, dan mendukung pull-to-refresh.', 'Ada state loading, kosong, dan error; pencarian di-debounce; logic ada di cubit atau bloc, bukan di widget; `ListView.builder` dengan key; tidak ada pekerjaan yang dimulai di dalam `build`.'],
-    ['Flutter: cart dengan tombol quantity', 'Layar cart yang tiap barisnya punya tombol plus dan minus, total yang terus ter-update, dan aksi swipe untuk menghapus.', 'State immutable dengan `copyWith`; rebuild yang sempit (`BlocSelector` atau widget kecil); key pada baris yang dismissible; tombol minus nonaktif di angka nol; semantics label pada icon button.']
+    ['Autocomplete search box', 'Ambil saran saat user mengetik, tampilkan daftarnya, dan dukung klik maupun keyboard.', 'Debounce request, abaikan atau batalkan respons basi, dan dukung panah/Enter/Escape. Sediakan state loading, kosong, dan error dengan role combobox aksesibel.'],
+    ['Modal dialog', 'Modal reusable yang dibuka lewat tombol, berisi judul, konten, dan tombol tutup.', 'Kurung fokus di dalam, tutup lewat Escape atau klik luar, lalu kembalikan fokus ke pemicunya. Kunci scroll halaman dan pakai `<dialog>` atau ARIA yang tepat.'],
+    ['Data table', 'Tampilkan baris dari API dengan kolom urut, pagination, dan input filter.', 'Simpan state seperlunya sambil sinkronkan urut dan halaman ke URL. Pasang key stabil, state loading/kosong, dan hindari fetch tiap ketukan.'],
+    ['Todo list dengan filter', 'Tambah, toggle, ubah, dan hapus item, filter all/active/done, lalu simpan saat reload.', 'Ubah state tanpa mutasi, turunkan daftar filter, pakai controlled input dan handler bersih yang ramah keyboard.'],
+    ['Star rating', 'Komponen rating lima bintang yang bisa dipakai di dalam form.', 'Dukung mode controlled dan uncontrolled, pratinjau hover, navigasi panah, semantik radio group, serta props bertipe.'],
+    ['Infinite scroll feed', 'Muat halaman baru saat user mendekati ujung bawah daftar.', 'Pakai IntersectionObserver pengganti scroll listener, pagination cursor, cegah request ganda, dan bahas virtualisasi list panjang.'],
+    ['Angular: pencarian live & tabel dengan filter', 'Component Angular pemuat produk dari API dengan filter URL bebas race pencarian.', 'Pakai `httpResource` atau `toObservable` + `debounceTime` + `switchMap`, `withComponentInputBinding()`, dan `computed()`. Render pakai `@for (...; track p.id)`, `@empty`, plus `@defer` atau live region.'],
+    ['Angular: form checkout multi-langkah (Signal Forms)', 'Form pengiriman/tagihan dengan diskon bersyarat, cek promo async, dan mapping ProblemDetails.', 'Pakai Signal Forms (`form()`, `[formField]`, `applyWhen()`, `submit()`) lalu cek `field().touched()` dan `errors()`. Cegah double submit lewat `exhaustMap` dan tampilkan `ProblemDetails.errors` dengan `aria-describedby` dan `role="alert"`.'],
+    ['Flutter: daftar produk dengan pencarian', 'Layar pemuat produk API yang menyaring saat diketik plus mendukung pull-to-refresh.', 'Siapkan state loading, kosong, dan error dengan search debounced di cubit atau bloc. Bangun list pakai `ListView.builder` ber-key tanpa memulai kerja di `build`.'],
+    ['Flutter: cart dengan tombol quantity', 'Layar cart dengan tombol tambah-kurang tiap baris, total berjalan, dan swipe hapus.', 'Jaga state immutable lewat `copyWith`, batasi rebuild pakai `BlocSelector` atau widget kecil. Pasang key di baris swipe, matikan minus di nol, dan beri label tombol ikon.']
   ],
   patterns: {
     hashing: { signal: 'Kamu perlu tahu “apakah ini sudah pernah muncul?” atau perlu menghitung sesuatu, dan nested loop akan jadi O(n²).', cost: 'Time O(n), space O(n)' },
     'two-pointers': { signal: 'Input-nya terurut (atau bisa diurutkan), atau kamu membandingkan elemen dari kedua ujung sambil bergerak ke tengah.', cost: 'Time O(n), space O(1)' },
-    'sliding-window': { signal: 'Soalnya menanyakan subarray atau substring berurutan yang terpanjang / terpendek / terbaik.', cost: 'Time O(n) — tiap elemen masuk dan keluar window satu kali' },
+    'sliding-window': { signal: 'Soalnya menanyakan subarray atau substring berurutan yang terpanjang / terpendek / terbaik.', cost: 'Time O(n) karena tiap elemen masuk dan keluar window sekali' },
     stack: { signal: 'Pasangan yang harus cocok, undo, atau “elemen berikutnya yang lebih besar / lebih kecil” untuk tiap posisi.', cost: 'Time O(n), space O(n)' },
     'binary-search': { signal: 'Data terurut, atau pertanyaan ya/tidak yang jawabannya berubah tepat satu kali seiring sebuah nilai membesar (“search on the answer”).', cost: 'Time O(log n)' },
-    'linked-list': { signal: 'Reversal, mencari titik tengah, mendeteksi cycle, me-merge list — menyambung ulang pointer dengan space tambahan O(1).', cost: 'Time O(n), space O(1)' },
-    trees: { signal: 'Data hierarkis. DFS (rekursi) untuk kedalaman, path, dan sifat subtree; BFS (queue) untuk level dan jumlah langkah terpendek.', cost: 'Time O(n); space O(height) untuk DFS, O(width) untuk BFS' },
-    heap: { signal: '“K terbesar”, “K paling sering muncul”, “terkecil berikutnya” secara berulang, atau me-merge beberapa stream terurut.', cost: 'Time O(n log k), space O(k)' },
+    'linked-list': { signal: 'Reversal, mencari titik tengah, cek cycle, dan merge list lewat penyambungan pointer dengan space O(1).', cost: 'Time O(n), space O(1)' },
+    trees: { signal: 'Data hierarkis. Pakai rekursi DFS untuk kedalaman dan path, atau queue BFS untuk level dan rute terpendek.', cost: 'Time O(n), dengan space O(height) DFS atau O(width) BFS' },
+    heap: { signal: '“K terbesar”, “K tersering muncul”, “terkecil berikutnya” berulang-ulang, atau menggabung stream terurut.', cost: 'Time O(n log k), space O(k)' },
     graphs: { signal: 'Koneksi, grid, dependency, “apakah bisa sampai”, “ada berapa kelompok”, “dengan urutan apa”.', cost: 'Time O(V + E)' },
     intervals: { signal: 'Range yang bisa bertumpang-tindih: meeting, booking, merge. Hampir selalu: sort berdasarkan start lebih dulu.', cost: 'Time O(n log n) untuk sort-nya' },
-    backtracking: { signal: '“Semua kombinasi / permutasi / subset”, atau puzzle yang diselesaikan dengan mencoba pilihan lalu membatalkannya.', cost: 'Eksponensial — O(2ⁿ) atau O(n!) — dan memang begitu seharusnya' },
+    backtracking: { signal: '“Semua kombinasi / permutasi / subset”, atau puzzle yang diselesaikan dengan mencoba pilihan lalu membatalkannya.', cost: 'Eksponensial, O(2ⁿ) atau O(n!), yang memang wajar di sini' },
     dp: { signal: 'Nilai optimal atau jumlah cara, yang jawabannya disusun dari jawaban subproblem lebih kecil yang saling tumpang-tindih.', cost: 'Biasanya O(state × transisi)' }
   }
 };
@@ -118,19 +118,19 @@ I18N.iv.problems = {
   'group-anagrams': {
     prompt: 'Kelompokkan kata-kata yang merupakan anagram satu sama lain. Group dan kata di dalamnya boleh dikembalikan dengan urutan apa pun.',
     hints: ['Dua kata adalah anagram kalau bentuk kanoniknya identik.', 'Pakai huruf-hurufnya yang sudah diurutkan (atau signature jumlah huruf) sebagai key map.'],
-    complexity: 'Time O(n · k log k) untuk n kata dengan panjang k; space O(n · k).',
+    complexity: 'Time O(n · k log k) untuk n kata berpanjang k, dan space O(n · k).',
     follow: ['Bagaimana menghindari sorting tiap kata? (Hitungan 26 slot sebagai key: O(n · k).)', 'Bagaimana kalau kata-katanya tidak muat di memory?']
   },
   'top-k-frequent': {
     prompt: 'Kembalikan k nilai yang paling sering muncul di array, dengan urutan apa pun. Jawabannya dijamin unik.',
-    hints: ['Hitung dulu. Setelah itu kamu butuh k hitungan terbesar.', 'Frekuensi tidak mungkin melebihi n — jadi hitungannya bisa jadi index untuk array of bucket.'],
+    hints: ['Hitung dulu. Setelah itu kamu butuh k hitungan terbesar.', 'Frekuensi tak pernah melebihi n, jadi jumlahnya bisa dipakai mengindeks array bucket.'],
     complexity: 'Time dan space O(n) dengan bucket sort. Min-heap berukuran k memberi O(n log k).',
     follow: ['Kapan solusi heap lebih baik daripada bucket? (Data streaming, atau k jauh lebih kecil dari n.)', 'Bagaimana cara kerjanya kalau dijalankan di banyak mesin?']
   },
   'valid-palindrome': {
     prompt: 'Kembalikan true kalau string-nya terbaca sama dari depan maupun dari belakang, dengan hanya memperhitungkan huruf dan angka serta mengabaikan besar-kecil huruf.',
     hints: ['Bandingkan karakter dari kedua ujung sambil bergerak ke tengah.', 'Majukan pointer setiap kali ia berada di karakter yang bukan huruf atau angka.'],
-    complexity: 'Time O(n), space O(1) — tidak membuat salinan string yang sudah dibersihkan.',
+    complexity: 'Time O(n) dan space O(1) tanpa menyalin string baru.',
     follow: ['Bagaimana kalau kamu boleh menghapus maksimal satu karakter?', 'Bagaimana Unicode mengubah definisi “huruf” versimu?']
   },
   'container-water': {
@@ -141,7 +141,7 @@ I18N.iv.problems = {
   },
   'longest-substring': {
     prompt: 'Kembalikan panjang substring terpanjang yang tidak mengandung karakter berulang.',
-    hints: ['Jaga sebuah window [left, right] yang tidak pernah berisi duplikat.', 'Ingat index terakhir tiap karakter; saat bertemu karakter berulang di dalam window, lompatkan left melewatinya.'],
+    hints: ['Jaga sebuah window [left, right] yang tidak pernah berisi duplikat.', 'Simpan indeks terakhir tiap karakter, lalu lompatkan left melewati pengulangan di window.'],
     complexity: 'Time O(n), space O(min(n, ukuran alfabet)).',
     follow: ['Kembalikan substring-nya, bukan cuma panjangnya.', 'Izinkan maksimal k karakter berbeda.']
   },
@@ -153,14 +153,14 @@ I18N.iv.problems = {
   },
   'valid-brackets': {
     prompt: 'Diberikan string berisi karakter ( ) [ ] { }, kembalikan true kalau setiap kurung ditutup oleh jenis yang sama dengan urutan yang benar.',
-    hints: ['Kurung yang paling terakhir dibuka harus jadi yang pertama ditutup.', 'Push kurung buka ke stack; saat bertemu kurung tutup, elemen teratas stack harus cocok.'],
+    hints: ['Kurung yang paling terakhir dibuka harus jadi yang pertama ditutup.', 'Masukkan kurung buka ke stack, lalu pastikan tiap kurung tutup cocok dengan elemen teratas.'],
     complexity: 'Time O(n), space O(n).',
     follow: ['Kembalikan index karakter pertama yang tidak valid.', 'Jumlah minimum penghapusan supaya jadi valid.']
   },
   'daily-temperatures': {
     prompt: 'Untuk tiap hari, kembalikan berapa hari kamu harus menunggu sampai suhunya lebih hangat, atau 0 kalau tidak pernah.',
-    hints: ['Hari yang belum menemukan hari yang lebih hangat sedang “menunggu”. Hari menunggu mana yang selesai lebih dulu?', 'Simpan stack berisi index dengan suhu menurun; hari yang lebih hangat mem-pop semua yang lebih dingin darinya.'],
-    complexity: 'Time O(n) — tiap index di-push dan di-pop maksimal sekali. Space O(n).',
+    hints: ['Hari yang belum menemukan hari yang lebih hangat sedang “menunggu”. Hari menunggu mana yang selesai lebih dulu?', 'Simpan stack indeks dengan suhu menurun agar hari hangat langsung mem-pop suhu lebih dingin.'],
+    complexity: 'Time O(n) karena tiap indeks masuk dan keluar maksimal sekali, dengan space O(n).',
     follow: ['Kenapa ini O(n) padahal ada nested loop?', 'Selesaikan dengan scan dari kanan ke kiri.']
   },
   'search-rotated': {
@@ -173,7 +173,7 @@ I18N.iv.problems = {
     prompt: 'Balik sebuah singly linked list dan kembalikan head barunya. Sebuah node berbentuk { val, next }.',
     hints: ['Telusuri list-nya sekali, sambil membalik arah tiap panah.', 'Kamu butuh tiga reference: previous, current, dan next (disimpan sebelum kamu menimpanya).'],
     complexity: 'Time O(n), space O(1).',
-    follow: ['Kerjakan secara rekursif. Berapa biaya space-nya?', 'Balik hanya node di antara posisi m dan n.']
+    follow: ['Kerjakan lewat rekursi. Berapa pemakaian space-nya?', 'Balik hanya node di antara posisi m dan n.']
   },
   'merge-intervals': {
     prompt: 'Diberikan interval [start, end], merge semua yang overlap (interval yang bersentuhan dihitung overlap) dan kembalikan terurut berdasarkan start.',
@@ -194,9 +194,9 @@ I18N.iv.problems = {
     follow: ['Urutan zigzag (arah berganti tiap level).', 'Right-side view dari tree-nya.']
   },
   islands: {
-    prompt: 'Sebuah grid berisi "1" (daratan) dan "0" (air). Sebuah pulau adalah daratan yang terhubung secara horizontal atau vertikal. Kembalikan jumlah pulaunya.',
+    prompt: 'Sebuah grid berisi "1" (daratan) dan "0" (air), dengan pulau sebagai daratan terhubung mendatar atau tegak. Hitung jumlah pulaunya.',
     hints: ['Setiap kali menemukan daratan yang belum dikunjungi, kamu menemukan satu pulau baru.', 'Dari sel itu, lakukan flood fill (DFS atau BFS) untuk menandai seluruh pulau sebagai sudah dikunjungi.'],
-    complexity: 'Time O(rows × cols); space O(rows × cols) di worst case untuk rekursinya.',
+    complexity: 'Time O(rows × cols), dan space O(rows × cols) terburuk untuk rekursi.',
     follow: ['Kamu tidak boleh mengubah input-nya.', 'Grid-nya sangat besar dan datang sebagai stream baris (union-find).']
   },
   'course-schedule': {
@@ -209,7 +209,7 @@ I18N.iv.problems = {
     prompt: 'Kamu menaiki tangga dengan n anak tangga, sekali melangkah 1 atau 2 anak tangga. Kembalikan jumlah cara berbeda untuk sampai ke puncak.',
     hints: ['Bagaimana kamu bisa sampai di anak tangga n? Dari anak tangga mana saja?', 'ways(n) = ways(n − 1) + ways(n − 2). Kamu hanya butuh dua nilai terakhir.'],
     complexity: 'Time O(n), space O(1). Rekursi biasa tanpa memoization itu O(2ⁿ).',
-    follow: ['Boleh melangkah 1, 2, atau 3 anak tangga.', 'Tiap anak tangga punya biaya; cari cara naik yang paling murah.']
+    follow: ['Boleh melangkah 1, 2, atau 3 anak tangga.', 'Setiap anak tangga punya biaya, jadi cari jalur termurah sampai puncak.']
   },
   'coin-change': {
     prompt: 'Diberikan pecahan koin (persediaan tiap pecahan tidak terbatas) dan sebuah amount, kembalikan jumlah koin paling sedikit untuk mencapai amount itu, atau -1 kalau mustahil.',
@@ -219,13 +219,13 @@ I18N.iv.problems = {
   },
   subsets: {
     prompt: 'Diberikan array berisi integer unik, kembalikan semua subset yang mungkin (power set), dengan urutan apa pun.',
-    hints: ['Untuk tiap angka ada dua pilihan: diikutkan atau tidak.', 'Lakukan rekursi dengan start index; simpan salinan path saat ini di setiap pemanggilan.'],
-    complexity: 'Time dan space O(n · 2ⁿ) — ada 2ⁿ subset yang harus dihasilkan.',
-    follow: ['Input-nya bisa mengandung duplikat; kembalikan subset yang unik.', 'Hanya subset berukuran k.']
+    hints: ['Untuk tiap angka ada dua pilihan: diikutkan atau tidak.', 'Rekursi memakai start index dan simpan salinan path saat ini di setiap cabang.'],
+    complexity: 'Time dan space O(n · 2ⁿ) untuk menyalin seluruh 2ⁿ subset.',
+    follow: ['Bagaimana jika input mengandung duplikat dan output harus unik?', 'Hanya subset berukuran k.']
   },
   'lru-cache': {
-    prompt: 'Desain sebuah cache dengan kapasitas tetap. get(key) mengembalikan value-nya atau -1. put(key, value) menyisipkan atau meng-update; kalau melebihi kapasitas, key yang paling lama tidak dipakai dibuang. Kedua operasi harus O(1). Membaca atau menulis sebuah key menjadikannya yang paling baru dipakai.',
-    hints: ['Kamu butuh lookup O(1) dan “pindahkan ke paling baru” O(1) — hash map plus sebuah struktur yang menjaga urutan.', 'Jawaban klasiknya hash map plus doubly linked list. Di JavaScript, Map sudah mengingat urutan insert: hapus lalu sisipkan ulang untuk menyegarkan sebuah key.'],
+    prompt: 'Rancang cache berkapasitas tetap dengan get(key) (kembali nilai atau -1) dan put(key, value) dalam O(1). Buang key paling lama menganggur saat penuh, lalu tandai key yang diakses sebagai terbaru.',
+    hints: ['Gabungkan hash map untuk lookup O(1) dengan struktur terurut guna memindah ke posisi terbaru dalam O(1).', 'Jawaban klasiknya hash map plus doubly linked list. Di JavaScript, Map sudah mengingat urutan insert: hapus lalu sisipkan ulang untuk menyegarkan sebuah key.'],
     complexity: 'O(1) per operasi, space O(capacity).',
     follow: ['Implementasikan dengan hash map dan doubly linked list, seperti yang akan kamu lakukan di C#.', 'Buat jadi thread-safe. Tambahkan time-to-live per entry.']
   },
@@ -239,10 +239,10 @@ I18N.iv.problems = {
 I18N.iv.design = {
   framework: [
     ['Requirement', '5 menit', 'Functional: cukup 3–4 fitur inti. Non-functional: skala, latency, availability, consistency. Sebutkan apa yang di luar scope.'],
-    ['Estimasi', '5 menit', 'Jumlah user, request per detik, rasio read:write, storage per tahun. Pakai angka bulat; tujuannya mencari apa yang paling dominan.'],
+    ['Estimasi', '5 menit', 'User, request per detik, rasio read:write, dan storage tahunan. Bulatkan angka untuk melihat beban paling dominan.'],
     ['API dan data model', '5 menit', 'Endpoint utama beserta input dan output-nya. Entity inti, key-nya, dan store mana yang cocok untuk masing-masing.'],
     ['High-level design', '10 menit', 'Gambar kotak-kotaknya: client, load balancer, service, database, cache, queue. Telusuri satu request dari ujung ke ujung.'],
-    ['Deep dive', '15 menit', 'Dalami dua bagian tersulit — biasanya hot path dan data store. Di sinilah senioritas terlihat.'],
+    ['Deep dive', '15 menit', 'Dalami dua bagian paling sulit, biasanya hot path dan data store. Di sinilah level seniormu tampak.'],
     ['Trade-off dan penutup', '5 menit', 'Bottleneck, failure mode, monitoring, dan apa yang akan kamu ubah kalau skalanya 10×.']
   ],
   blocks: [
@@ -259,43 +259,43 @@ I18N.iv.design = {
   ],
   cases: {
     'url-shortener': {
-      prompt: 'Desain service yang mengubah URL panjang jadi link pendek dan me-redirect pengunjungnya — sistem yang jauh lebih sering dibaca daripada ditulis.',
+      prompt: 'Desain pemendek URL yang mengubah URL panjang jadi kode singkat lalu mengarahkan pengunjung pada sistem dominan baca.',
       req: [
-        'Membuat link pendek untuk sebuah URL panjang; custom alias dan expiry bersifat opsional.',
+        'Membuat link pendek dari URL panjang dengan dukungan custom alias dan masa berlaku.',
         'Me-redirect link pendek ke URL aslinya dengan latency sangat rendah.',
         'Non-functional: redirect yang highly available, link tidak pernah bentrok, analytics klik sederhana.',
         'Di luar scope: akun user, preview link.'
       ],
       est: [
-        '100 juta link baru per bulan ≈ 40 write/detik; rasio read 100:1 ≈ 4.000 redirect/detik rata-rata, lebih banyak saat peak.',
+        '100 juta link/bulan berarti ~40 write/detik. Rasio baca 100:1 menghasilkan rata-rata ~4.000 redirect/detik dan jauh lebih tinggi saat peak.',
         '500 byte per record × 1,2 miliar link per tahun ≈ 600 GB per tahun.',
         'Kode base-62 sepanjang 7 karakter memberi 62⁷ ≈ 3,5 triliun kombinasi.'
       ],
       deep: [
         ['Menghasilkan kode', 'Meng-hash URL berisiko collision dan butuh check-and-retry. Counter yang di-encode ke base 62 menjamin keunikan: beri tiap server rentang ID yang sudah dialokasikan lebih dulu supaya tidak ada bottleneck terpusat. Tambahkan unsur acak atau enkripsi pada counter kalau kodenya tidak boleh bisa ditebak.'],
-        ['Redirect yang cepat', 'Cek cache dulu, kalau tidak ada baru ke store, lalu isi cache-nya. Sebagian besar traffic mengenai sebagian kecil link, jadi cache berukuran sedang pun punya hit rate tinggi. Pilih 302 kalau setiap klik harus terhitung; 301 membuat browser meng-cache dan melewati servermu.'],
-        ['Analytics tanpa memperlambat redirect', 'Publish event klik ke queue lalu langsung return; lakukan agregasi secara asynchronous.'],
-        ['Storage', 'Aksesnya berupa lookup satu key, jadi key-value store atau wide-column store yang dipartisi berdasarkan kode bisa scale secara horizontal. Relational database pun tidak masalah untuk skala yang lebih kecil.']
+        ['Redirect yang cepat', 'Cek cache sebelum database dan isi saat miss karena link populer mendominasi traffic. Pakai 302 bila perlu menghitung klik, atau 301 agar browser langsung cache redirect-nya.'],
+        ['Analytics tanpa memperlambat redirect', 'Kirim event klik ke queue, langsung balas user, lalu hitung statistiknya di background.'],
+        ['Storage', 'Akses cuma butuh lookup satu key, jadi key-value atau wide-column store terpartisi kode mudah di-scale horizontal. Relational database tetap memadai untuk skala kecil.']
       ],
       follow: ['Bagaimana menangani link yang tiba-tiba viral?', 'Bagaimana link yang sudah expired dihapus?', 'Bagaimana mencegah penyalahgunaan untuk phishing?']
     },
     'rate-limiter': {
       prompt: 'Desain rate limiter yang melindungi API dari terlalu banyak request per client, dan tetap bekerja dengan benar di banyak server.',
       req: [
-        'Membatasi request per client key (user, API key, atau IP) per time window; limit berbeda per endpoint.',
+        'Batasi request tiap client key (user, API key, atau IP) per rentang waktu dengan aturan berbeda per endpoint.',
         'Menolak request yang berlebih dengan 429 dan header Retry-After.',
         'Non-functional: hanya menambah beberapa milidetik, bekerja di semua server API, gagal dengan aman.',
         'Di luar scope: perlindungan DDoS di network layer.'
       ],
       est: [
-        'Kalau API melayani 10.000 request/detik, limiter melakukan 10.000 pengecekan/detik — masing-masing satu read-modify-write kecil.',
+        'Bila API melayani 10.000 request/detik, limiter memproses 10.000 operasi kecil read-modify-write per detik.',
         'State per client sangat kecil (satu counter dan satu timestamp), jadi 10 juta client aktif muat di beberapa GB memory.'
       ],
       deep: [
-        ['Memilih algoritma', 'Fixed window paling sederhana tapi membolehkan burst ganda di tepi window. Sliding window log itu presisi tapi menyimpan setiap timestamp. Sliding window counter memberi pendekatan yang bagus dengan biaya murah. Token bucket membolehkan burst yang terkendali dan biasanya jadi default; sebutkan pilihanmu dan alasannya.'],
-        ['Correctness di banyak server', 'Counter harus tinggal di store bersama. Read-then-write dari beberapa server akan race, jadi lakukan check-and-decrement secara atomic — Lua script atau atomic increment dengan expiry di Redis.'],
-        ['Latency dan kegagalan', 'Taruh store-nya dekat dengan server API. Putuskan failure mode-nya secara eksplisit: fail open (loloskan traffic kalau limiter mati) demi availability, fail closed untuk endpoint yang dilindungi seperti login.'],
-        ['Skala', 'Shard counter berdasarkan client key. Untuk volume yang sangat tinggi, biarkan tiap server memegang satu batch token lokal dan sinkron secara berkala, menukar ketepatan dengan kecepatan.']
+        ['Memilih algoritma', 'Fixed window rentan lonjakan ganda di batas waktu, sedangkan sliding log boros memori. Sliding counter hemat mendekatinya, sementara token bucket jadi standar umum karena meredam burst.'],
+        ['Correctness di banyak server', 'Simpan counter di store terpusat. Langkah read-then-write lintas server rawan race, jadi gabung cek dan kurang memakai Lua script atau atomic increment ber-TTL di Redis.'],
+        ['Latency dan kegagalan', 'Tempatkan store sedekat mungkin dengan API server. Tentukan sikap saat limiter tumbang: fail open demi kelancaran layanan, atau fail closed di endpoint sensitif seperti login.'],
+        ['Skala', 'Shard counter memakai client key. Untuk traffic sangat padat, izinkan server menahan stok token lokal lalu sinkron berkala demi mengejar kecepatan.']
       ],
       follow: ['Bagaimana rate limit berdasarkan cost, bukan jumlah request?', 'Bagaimana client mengetahui sisa kuotanya?', 'Bagaimana membatasi penyerang terdistribusi yang memakai banyak IP?']
     },
@@ -303,40 +303,40 @@ I18N.iv.design = {
       title: 'News feed media sosial',
       prompt: 'Desain home feed sebuah aplikasi sosial: user mem-follow user lain dan melihat post terbaru mereka, dari yang terbaru atau yang paling relevan.',
       req: [
-        'Mem-publish post; follow dan unfollow user; memuat home feed dengan pagination.',
-        'Non-functional: feed termuat di bawah 200 ms; eventual consistency beberapa detik masih bisa diterima; highly available.',
+        'Membuat post, follow atau unfollow akun lain, serta memuat home feed bertahap.',
+        'Non-functional: feed terbuka di bawah 200 ms, ketersediaan tinggi, dan delay sinkron beberapa detik masih aman.',
         'Di luar scope: detail model ranking, iklan, direct message.'
       ],
       est: [
-        '200 juta user harian × 5 kali buka feed ≈ 12.000 read feed/detik; 20 juta post per hari ≈ 230 write/detik.',
+        '200 juta user harian × 5 buka feed menghasilkan ~12.000 read/detik, sedangkan 20 juta post harian sekitar ~230 write/detik.',
         'Read mendominasi sekitar 50:1, jadi optimasi read path-nya.',
-        'Rata-rata user mem-follow 200 akun; seorang selebritas bisa punya 50 juta follower.'
+        'Rata-rata user mem-follow 200 akun, namun selebritas bisa diikuti 50 juta follower.'
       ],
       deep: [
-        ['Fan-out on write vs on read', 'On write: saat seseorang mem-post, push id post-nya ke feed tiap follower yang sudah dihitung lebih dulu — read cukup satu lookup ke cache, tapi satu post selebritas berarti jutaan write. On read: susun feed saat request dengan me-merge post terbaru dari akun yang di-follow — write murah, read lambat. Pakai hybrid: push untuk user biasa, pull lalu merge untuk akun selebritas.'],
-        ['Feed cache', 'Simpan hanya id post per user (misalnya 500 terbaru) lalu ambil isi post-nya dari post cache. User yang tidak aktif tidak butuh feed yang dihitung lebih dulu; susun saat diminta ketika mereka kembali.'],
+        ['Fan-out on write vs on read', 'Fan-out on write mendorong id post ke cache follower agar baca cepat, tapi post selebritas memicu jutaan write. Pull on read menggabungnya saat request. Pakai hybrid: push akun biasa, pull akun selebritas.'],
+        ['Feed cache', 'Simpan hanya ~500 id post per user lalu muat isinya dari post cache. User pasif tidak perlu disiapkan feed di depan karena bisa disusun saat ia login lagi.'],
         ['Pagination', 'Pakai cursor (keyset) pagination pada (created_at, id). Offset pagination menampilkan duplikat dan celah saat post baru terus berdatangan.'],
-        ['Media', 'Upload media langsung ke object storage dengan pre-signed URL dan sajikan lewat CDN; API hanya menangani metadata.']
+        ['Media', 'Upload media langsung ke object storage lewat pre-signed URL dan sajikan via CDN agar API mengurus metadata saja.']
       ],
       follow: ['Bagaimana unfollow atau post yang dihapus dikeluarkan dari feed?', 'Bagaimana ranking berdasarkan relevansi mengubah desainnya?', 'Apa yang terjadi kalau fan-out queue tertinggal?']
     },
     chat: {
       prompt: 'Desain service messaging dengan chat satu lawan satu dan group kecil, pengiriman real time ke user yang online, dan history untuk user yang offline.',
       req: [
-        'Mengirim dan menerima pesan secara real time; group chat sampai beberapa ratus anggota; history pesan; tanda delivered/read.',
+        'Kirim dan terima chat seketika, grup beranggota ratusan orang, riwayat pesan, dan status delivered/read.',
         'Non-functional: pengiriman di bawah 500 ms, pesan tidak pernah hilang, berurutan di dalam satu percakapan.',
         'Di luar scope: voice dan video, detail end-to-end encryption.'
       ],
       est: [
         '50 juta user harian, masing-masing 40 pesan ≈ 2 miliar pesan per hari ≈ 23.000 pesan/detik rata-rata.',
-        '10 juta koneksi concurrent; dengan sekitar 100.000 koneksi per server, itu kira-kira 100 server gateway.',
+        '10 juta koneksi bersamaan dengan kapasitas ~100.000 per mesin membutuhkan sekitar 100 gateway server.',
         '2 miliar × 200 byte ≈ 400 GB pesan per hari.'
       ],
       deep: [
         ['Koneksi dan routing', 'Client memegang satu WebSocket ke sebuah gateway. Session registry memetakan user → gateway. Untuk mengirim, message service mencari gateway milik penerima lalu meneruskan lewat pub/sub. Di ASP.NET Core, SignalR dengan Redis backplane mengimplementasikan pola ini.'],
-        ['Tidak pernah kehilangan pesan', 'Simpan dulu pesannya sebelum memberi acknowledge ke pengirim. Client mengirim clientMsgId supaya retry bersifat idempotent. Penerima memberi acknowledge; pesan yang belum di-acknowledge dikirim ulang saat reconnect dengan sinkronisasi dari id pesan terakhir yang terlihat.'],
+        ['Tidak pernah kehilangan pesan', 'Simpan pesan lebih dulu sebelum mengirim ack, lalu sertakan clientMsgId agar retry tak menggandakan data. Pesan yang belum di-ack akan dikirim ulang saat reconnect berpatokan id terakhir.'],
         ['Ordering', 'Berikan id yang selalu naik per percakapan di sisi server (bukan timestamp dari client). Urutan dijamin di dalam satu percakapan, dan hanya itu yang bisa dirasakan user.'],
-        ['User offline dan group', 'Kalau penerima tidak punya session, simpan pesannya dan kirim push notification. Untuk group, fan out ke device tiap anggota; untuk group yang sangat besar, beralih ke pull.']
+        ['User offline dan group', 'Jika penerima sedang offline, simpan pesan dan kirim push notification. Sebarkan chat grup ke tiap device anggota, lalu ubah ke mode pull untuk grup super besar.']
       ],
       follow: ['Bagaimana menampilkan presence (online / sedang mengetik) dengan murah?', 'Bagaimana cara kerja sinkronisasi multi-device?', 'Apa yang terjadi kalau sebuah server gateway crash?']
     },
@@ -344,42 +344,42 @@ I18N.iv.design = {
       title: 'Checkout flash sale',
       prompt: 'Desain checkout untuk flash sale e-commerce: 1.000 unit sebuah barang, sejuta user mengklik Buy dalam menit yang sama. Tidak boleh oversell dan tidak boleh menagih dua kali.',
       req: [
-        'Me-reserve stok, menerima pembayaran, membuat order; menampilkan “sold out” yang akurat.',
+        'Menahan stok, memproses bayar, mencatat order, dan menampilkan status habis dengan tepat.',
         'Non-functional: tidak pernah oversell, tidak pernah menagih dua kali, tetap responsif saat traffic melonjak 100×, adil bagi user.',
         'Di luar scope: browsing katalog, rekomendasi.'
       ],
       est: [
         '1 juta user di menit pertama ≈ 17.000 request/detik di edge, berbanding 1.000 unit: 99,9% request harus ditolak dengan murah.',
-        'Database hanya perlu memproses write kira-kira sebanyak jumlah unit — kalau layer-layer di depannya membuang sisanya.'
+        'Database cukup memproses penulisan sebanyak jumlah barang asalkan layer terdepan menyaring sisanya.'
       ],
       deep: [
-        ['Tidak pernah oversell', 'Pengurangan stok harus atomic: UPDATE inventory SET available = available - 1 WHERE item_id = @itemId AND available > 0, lalu pastikan tepat satu baris yang terpengaruh. Demi kecepatan, muat stok ke Redis lebih dulu dan kurangi secara atomic di sana sebagai gerbang; hanya yang lolos yang lanjut ke database, yang tetap jadi source of truth.'],
+        ['Tidak pernah oversell', 'Jalankan UPDATE inventory SET available = available - 1 WHERE item_id = @itemId AND available > 0 dan pastikan tepat satu baris berubah. Saring antrean lewat decrement atomic di Redis dulu agar cuma pembeli sah yang masuk database.'],
         ['Membuang beban', 'Sajikan halamannya dari CDN, tempatkan user di waiting room atau queue, rate-limit per user, dan langsung tolak begitu counter menyentuh nol. Lindungi database supaya ia hanya melihat traffic yang sanggup ditanganinya.'],
-        ['Reservation dan pembayaran', 'Pengurangan stok yang berhasil membuat reservation dengan expiry (misalnya 10 menit). Pembayaran berjalan asynchronous dari sebuah queue; kalau gagal atau timeout, reservation dilepas dan stok dikembalikan.'],
-        ['Tidak pernah menagih dua kali', 'Client mengirim Idempotency-Key; unique constraint pada key itu membuat retry mengembalikan hasil yang pertama. Pakai outbox pattern supaya record order dan message “charge” ditulis dalam satu transaction.']
+        ['Reservation dan pembayaran', 'Stok terkunci selama 10 menit sementara pembayaran diproses lewat queue latar belakang. Kalau bayar gagal atau habis waktu, kunci dilepas agar stok kembali tersedia.'],
+        ['Tidak pernah menagih dua kali', 'Client mengirim Idempotency-Key dengan unique constraint supaya retry membalas hasil pertama. Pakai outbox pattern untuk menulis order dan pesan tagihan dalam satu transaction.']
       ],
       follow: ['Bagaimana mencegah bot memborong semua stok?', 'Bagaimana kalau Redis dan database tidak sepakat soal stok?', 'Bagaimana mengetes ini sebelum sale yang sesungguhnya?']
     },
     'savings-ledger': {
       title: 'Ledger simpan pinjam',
-      prompt: 'Desain ledger inti aplikasi koperasi simpan pinjam: anggota menabung, menarik, meminjam, dan membayar angsuran, dan setiap saldo harus benar persis — sampai rupiah terakhir, selamanya.',
+      prompt: 'Desain ledger inti koperasi simpan pinjam untuk setor, tarik, pinjaman, dan angsuran. Semua saldo harus presisi hingga rupiah terakhir tanpa selisih.',
       req: [
-        'Setor, tarik, dan transfer antar-rekening milik seorang anggota; mencatat pencairan pinjaman dan pembayaran angsuran; menampilkan saldo dan riwayat mutasi.',
+        'Mencatat setor, tarik, transfer antar-rekening, pencairan pinjaman, angsuran, saldo, serta riwayat mutasi.',
         'Job akhir bulan: bunga simpanan, denda keterlambatan, dan laporan yang cocok dengan rekening bank.',
-        'Non-functional: uang tidak pernah tercipta atau hilang, setiap perubahan bisa diaudit, request yang di-retry tidak pernah diterapkan dua kali; ketepatan jauh lebih penting daripada throughput.',
+        'Non-functional: uang tak pernah hilang, semua jejak dapat diaudit, dan retry dilarang memproses dua kali. Akurasi jauh di atas kecepatan mentah.',
         'Di luar scope: credit scoring, onboarding anggota (KYC).'
       ],
       est: [
-        '200.000 anggota × 30 transaksi sebulan ≈ 6 juta transaksi sebulan ≈ 2–3 write/detik rata-rata, dengan puncak saat gajian mungkin 20× lebih tinggi — masih kecil untuk satu SQL Server.',
+        '200.000 anggota × 30 transaksi/bulan memberi ~6 juta write/bulan (~2–3 write/detik). Bahkan lonjakan 20× saat gajian tetap enteng bagi satu SQL Server.',
         'Double-entry berarti minimal dua entry per transaksi: sekitar 12 juta baris sebulan, kira-kira 150 juta setahun. Aman untuk satu tabel, asalkan mutasi tidak pernah men-scan seluruhnya.',
         'Bagian tersulitnya adalah ketepatan, concurrency, dan batch akhir bulan, bukan skala.'
       ],
       tiers: [['Aplikasi anggota', 'Web app teller'], ['API gateway'], ['Ledger service', 'Worker batch akhir bulan'], ['SQL Server (source of truth)', 'Outbox / queue', 'Notification service']],
       deep: [
-        ['Double-entry, append-only', 'Setiap transaksi menulis entry yang jumlahnya nol: rekening simpanan anggota +100.000 dan rekening kas −100.000. Entry tidak pernah di-update atau dihapus; kesalahan diperbaiki dengan transaksi pembalik. Hasilnya jejak audit yang lengkap dan pengecekan yang bisa dijalankan kapan saja: total semua entry sama dengan nol.'],
-        ['Saldo di bawah concurrency', 'Dua penarikan di saat yang sama tidak boleh sama-sama lolos cek saldo. Jadikan pengecekan dan perubahannya satu statement — UPDATE accounts SET balance = balance - @amount WHERE id = @id AND balance >= @amount — dan insert entry-nya di transaction yang sama; nol baris terpengaruh berarti saldo tidak cukup. Saldo yang disimpan hanyalah cache dari entry, jadi job malam menghitung ulang dan memberi alert kalau ada selisih.'],
-        ['Tipe data uang dan pembulatan', 'Simpan nominal sebagai DECIMAL(19,4), atau rupiah utuh dalam BIGINT — jangan pernah float. Tentukan aturan pembulatan sekali, sesuai aturan koperasi, dan terapkan di satu tempat supaya batch, mutasi, dan laporan selalu sama.'],
-        ['Retry dan batch akhir bulan', 'Idempotency key yang unik pada transaksi membuat request yang di-retry dari koneksi mobile yang putus-sambung mengembalikan hasil yang pertama. Batch bunga juga idempotent: satu transaksi per rekening per periode, dijaga unique key (account_id, period), jadi menjalankan ulang batch yang setengah jadi hanya mengisi yang belum ada. Notifikasi lewat outbox, jadi “setoran diterima” hanya dikirim untuk transaksi yang sudah di-commit.']
+        ['Double-entry, append-only', 'Tiap transaksi menulis entri berpasangan (+100.000 tabungan, −100.000 kas) yang selalu impas nol. Perbaiki kesalahan lewat jurnal balik ketimbang mengedit data lama agar total mutasi tetap nol.'],
+        ['Saldo di bawah concurrency', 'Gabung cek dan debit dalam satu query UPDATE accounts SET balance = balance - @amount WHERE id = @id AND balance >= @amount. Anggap saldo kurang bila 0 baris terubah, lalu catat jurnal di transaction yang sama dan audit tiap malam.'],
+        ['Tipe data uang dan pembulatan', 'Simpan uang memakai DECIMAL(19,4) atau rupiah utuh di BIGINT, jangan pernah float. Tetapkan satu aturan pembulatan tunggal supaya batch, mutasi, dan laporan selalu sinkron.'],
+        ['Retry dan batch akhir bulan', 'Unique idempotency key memastikan retry koneksi mobile mengembalikan hasil pertama. Batch bunga berjalan per rekening dan periode berkunci unik (account_id, period) agar rerun mengisi sisanya saja. Kirim notifikasi via outbox setelah transaction commit.']
       ],
       follow: ['Teller memasukkan setoran yang sama dua kali. Bagaimana memperbaikinya?', 'Bagaimana mutasi tetap cepat setelah lima tahun entry?', 'Bagaimana merekonsiliasi ledger dengan rekening koran bank setiap hari?']
     }
@@ -393,7 +393,7 @@ I18N.iv.behavioral = {
   },
   conflict: {
     name: 'Konflik dan perbedaan pendapat',
-    looks: 'Kamu tidak setuju dengan berbekal data, bukan emosi; mau mendengarkan; dan berkomitmen penuh setelah keputusan diambil — bahkan kalau keputusannya tidak berpihak padamu.',
+    looks: 'Kamu berargumen memakai data bukan ego, mau mendengar, lalu ikut mendukung keputusan final meski usulmu kalah.',
     qs: ['Ceritakan saat kamu tidak sependapat dengan rekan tim atau manajer.', 'Jelaskan saat kamu harus menolak atau mempertanyakan sebuah requirement.', 'Ceritakan saat kamu menerima feedback yang tidak kamu setujui.', 'Kapan kamu berubah pikiran setelah sebuah perbedaan pendapat?']
   },
   failure: {
@@ -403,13 +403,13 @@ I18N.iv.behavioral = {
   },
   ambiguity: {
     name: 'Ambiguitas',
-    looks: 'Kamu menciptakan kejelasan: menemukan pertanyaan yang tepat, menyatakan asumsi yang wajar secara eksplisit, mulai dari yang kecil, lalu menyesuaikan.',
+    looks: 'Kamu merapikan situasi kabur dengan mengajukan pertanyaan tepat, menyebut asumsi terus terang, dan mulai dari langkah kecil.',
     qs: ['Ceritakan saat kamu harus bekerja dengan requirement yang tidak jelas.', 'Jelaskan keputusan yang kamu ambil tanpa memiliki semua informasinya.', 'Ceritakan saat kamu memulai sesuatu di bidang yang benar-benar baru bagimu.', 'Kapan prioritas berubah mendadak, dan bagaimana responsmu?']
   },
   impact: {
     name: 'Impact dan hasil',
     looks: 'Hasil terukur yang berarti bagi user atau bisnis, dan garis yang jelas dari tindakanmu ke hasil itu.',
-    qs: ['Pencapaian apa yang paling kamu banggakan?', 'Ceritakan saat kamu memperbaiki sebuah sistem atau proses secara signifikan.', 'Jelaskan masalah paling menantang secara teknis yang pernah kamu selesaikan.', 'Ceritakan saat kamu memberikan lebih dari yang diharapkan.']
+    qs: ['Pencapaian apa yang paling kamu banggakan?', 'Ceritakan saat kamu memberi peningkatan besar pada sistem atau proses kerja.', 'Jelaskan masalah teknis tersulit yang pernah kamu pecahkan.', 'Ceritakan saat kamu memberikan lebih dari yang diharapkan.']
   },
   leadership: {
     name: 'Leadership dan pengaruh',
@@ -423,7 +423,7 @@ I18N.iv.behavioral = {
   },
   customer: {
     name: 'Fokus pada customer dan prioritas',
-    looks: 'Kamu berangkat dari masalah user, mengambil trade-off secara sadar di tengah keterbatasan, dan bisa menjelaskan apa yang sengaja tidak kamu kerjakan.',
+    looks: 'Kamu berangkat dari kebutuhan user, sadar memilih trade-off di tengah keterbatasan, dan jelas memaparkan bagian yang ditunda.',
     qs: ['Ceritakan saat pekerjaanmu terlalu banyak dan bagaimana kamu menentukan prioritas.', 'Jelaskan trade-off antara kualitas dan kecepatan yang pernah kamu ambil.', 'Ceritakan saat kamu memperjuangkan kepentingan user.', 'Kapan kamu menolak sebuah permintaan, dan kenapa?']
   }
 };
@@ -435,15 +435,15 @@ I18N.iv.rapid = [
     ['Jelaskan async/await. Apa yang terjadi di sebuah await?', 'Kalau task yang di-await belum rampung, method mengembalikan Task belum selesai dan melepas thread ke pool hingga continuation melanjutkannya. Kalau sudah selesai, eksekusi lanjut tanpa menjeda thread. Pola async meningkatkan kapasitas saat menunggu I/O, bukan mempercepat satu panggilan tunggal.'],
     ['IEnumerable vs IQueryable?', 'IEnumerable menjalankan delegate di memori atas object C#. IQueryable membawa expression tree agar provider seperti EF Core bisa menerjemahkannya menjadi query SQL. Memanggil ToList terlalu cepat menarik penyaringan dari database ke memori aplikasi.'],
     ['Apa perbedaan interface dan abstract class?', 'Satu class bisa memakai banyak interface (kontrak kemampuan), tapi hanya boleh mewarisi satu abstract class (implementasi dasar bersama, state, dan constructor). Gunakan interface untuk kapabilitas dan abstract class untuk logika induk bersama.'],
-    ['Bagaimana garbage collection bekerja di .NET?', '.NET memakai GC bertingkat (generational). Object sementara yang cepat selesai dibersihkan murah di Gen 0, yang bertahan naik ke Gen 1 dan Gen 2, sedangkan buffer sekitar 85 KB+ masuk LOH. Pangkas alokasi di jalur panas ketimbang memanggil GC.Collect.'],
+    ['Bagaimana garbage collection bekerja di .NET?', '.NET memakai GC bertingkat. Object sementara cepat beres di Gen 0, yang awet naik ke Gen 1–2, dan buffer 85 KB+ masuk LOH. Pangkas alokasi di jalur panas ketimbang memanggil GC.Collect.'],
     ['Apa perbedaan record, class, dan struct?', 'Class adalah reference type yang dibandingkan lewat referensi. Struct adalah value type yang disalin. Record (class maupun struct) memberi perbandingan berdasar isi nilai dan salinan with, pas untuk DTO immutable maupun pesan data.']
   ] },
   { qs: [
     ['Jelaskan middleware pipeline.', 'Request masuk melewati middleware sesuai urutan pendaftaran, lalu response keluar dengan urutan terbalik. Tiap komponen boleh jalan sebelum dan sesudah memanggil next, atau memutus aliran lebih awal. Urutannya penting: exception handler dulu, baru routing, authentication, authorization, dan endpoint.'],
-    ['Singleton, scoped, dan transient: apa itu captive dependency?', 'Singleton hidup selama aplikasi jalan, scoped per HTTP request, dan transient selalu baru setiap kali diminta. Captive dependency terjadi saat service dengan masa hidup lebih lama menahan service yang masa hidupnya lebih singkat, misalnya singleton memegang DbContext scoped, yang bikin datanya basi dan rawan race condition.'],
+    ['Singleton, scoped, dan transient: apa itu captive dependency?', 'Singleton hidup sepanjang aplikasi, scoped per HTTP request, dan transient baru tiap diminta. Captive dependency muncul saat service jangka panjang (seperti singleton) menahan DbContext scoped, memicu data basi dan race.'],
     ['Bagaimana mencegah masalah N+1 query di EF Core?', 'Gunakan Select untuk mengambil kolom yang memang dibutuhkan dalam satu query, atau Include untuk data relasinya dan hindari lazy loading di dalam loop. Cek langsung SQL yang tercetak di log.'],
     ['Authentication vs authorization, dan 401 vs 403?', 'Authentication memastikan siapa penggunanya, sedangkan authorization mengecek hak aksesnya. 401 artinya belum login dan 403 artinya sudah login tapi dilarang masuk. Cek juga kepemilikan datanya, bukan hanya role.'],
-    ['Bagaimana menangani error di API biar konsisten?', 'Validasi input di awal lalu balas 400 pakai ProblemDetails. Kembalikan kode jelas seperti 404 atau 409 untuk gagal yang terduga, dan tangkap error tak terduga di satu global handler yang mencatat detail di log lalu membalas 500 generik.'],
+    ['Bagaimana menangani error di API biar konsisten?', 'Validasi input di awal lalu balas 400 pakai ProblemDetails. Balas 404 atau 409 untuk gagal terduga, lalu tangkap error tak terduga di satu global handler untuk mencatat log dan mengirim 500 generik.'],
     ['Bagaimana membuat endpoint aman saat di-retry?', 'Buat operasinya idempotent. GET, PUT, dan DELETE memang idempotent, sedangkan POST butuh idempotency key dengan unique constraint supaya request ulang mengembalikan hasil pertama.']
   ] },
   { qs: [
@@ -452,7 +452,7 @@ I18N.iv.rapid = [
     ['Jelaskan ACID.', 'Atomic (berhasil semua atau batal total), Consistent (constraint tetap terjaga), Isolated (transaksi paralel tak saling merusak), dan Durable (data yang ter-commit tahan crash).'],
     ['WHERE vs HAVING?', 'WHERE menyaring baris sebelum dikelompokkan, sedangkan HAVING menyaring hasil grup sesudah agregasi. Urutan eksekusinya adalah FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY.'],
     ['Apa itu isolation level?', 'Read uncommitted, read committed, repeatable read, serializable, plus snapshot. Level lebih ketat mencegah anomali seperti dirty read atau phantom, walau antrean lock bertambah. Default SQL Server adalah read committed dengan shared lock kecuali READ_COMMITTED_SNAPSHOT menyala (bawaan Azure SQL) sehingga pembaca cukup membaca snapshot versi commit terakhir.'],
-    ['Bagaimana menginvestigasi query yang lambat?', 'Ambil actual execution plan, bandingkan baris perkiraan vs aktual, cari scan, lookup, dan sort, cek filter apakah sudah sargable serta statistics masih segar, lalu ubah satu hal dan ukur ulang.'],
+    ['Bagaimana menginvestigasi query yang lambat?', 'Buka actual execution plan lalu bandingkan perkiraan dan baris asli. Cek scan, lookup, filter non-sargable, dan kesegaran statistics sebelum mengubah satu hal lalu ukur lagi.'],
     ['Clustered vs nonclustered index di SQL Server?', 'Clustered index itu sendiri yang menyimpan isi tabel terurut menurut key, jadi satu tabel cuma punya satu (umumnya primary key). Nonclustered index adalah B-tree terpisah berisi kolom key beserta clustered key. Kolom ekstra butuh key lookup per baris kecuali ikut dimasukkan lewat INCLUDE.']
   ] },
   { qs: [
@@ -488,9 +488,9 @@ I18N.iv.rapid = [
     ['Bagaimana HTTP caching bekerja?', 'Cache-Control menentukan berapa lama response dianggap segar, sementara ETag atau Last-Modified dipakai mengecek ulang lewat status 304. Browser dan CDN bisa langsung memakai hasil cache tanpa membebani server asal.']
   ] },
   { qs: [
-    ['StatelessWidget vs StatefulWidget?', 'Keduanya adalah konfigurasi immutable. StatelessWidget hanya memiliki build(). StatefulWidget membuat object State terpisah yang bertahan melewati rebuild untuk menyimpan data mutable; setState() menandainya dirty supaya build() berjalan ulang.'],
+    ['StatelessWidget vs StatefulWidget?', 'Keduanya konfigurasi immutable. StatelessWidget cuma punya build(), sedangkan StatefulWidget menjaga object State awet lintas rebuild dan menandainya lewat setState().'],
     ['Jelaskan widget tree, element tree, dan render object tree.', 'Widget adalah deskripsi immutable yang murah dibangun ulang. Element adalah instance tahan lama yang mencocokkan widget lama dengan baru berdasar type dan key serta menyimpan State. Render object menghitung layout dan menggambar layar hanya bila ada perubahan.'],
-    ['Untuk apa key?', 'Key memberi tahu Flutter widget mana milik item yang mana saat sibling bertipe sama bertukar posisi, disisipkan, atau dihapus agar tiap State tetap menempel ke item yang tepat. Tanpa key, state dicocokkan berdasar posisi.'],
+    ['Untuk apa key?', 'Key membantu Flutter mengenali sibling bertipe sama saat urutan berubah, ditambah, atau dihapus agar State menempel ke item tepat. Tanpa key, state dicocokkan berdasar posisi.'],
     ['Cubit vs Bloc, dan bagaimana perbandingannya dengan Provider dan Riverpod?', 'Cubit membuka method yang langsung memancarkan state, sedangkan Bloc memetakan event ke state sehingga riwayat aksinya mudah dilacak dan diolah walau kodenya lebih banyak. Provider memadukan dependency injection dengan ChangeNotifier yang mutable. Riverpod bekerja tanpa context dan dicek saat compile dengan dependensi yang lebih halus.'],
     ['Bagaimana layout bekerja di Flutter?', 'Constraint turun, size naik, parent menentukan posisi. Parent menurunkan ukuran minimum dan maksimum, child memilih ukuran dalam rentang itu, lalu parent menempatkannya. Error overflow dan unbounded height bersumber dari aturan ini.'],
     ['Bagaimana menjaga aplikasi Flutter tetap mulus?', 'Tiap frame punya jatah sekitar 16 ms di 60 Hz dan 8 ms di layar 120 Hz. Kurangi rebuild dengan widget const, state yang ditaruh sedekat mungkin ke widget pemakainya, dan selector. Bangun list panjang lewat builder lazy, pindahkan komputasi berat ke luar UI isolate dengan compute(), lalu ukur di profile mode memakai DevTools.']
@@ -509,6 +509,6 @@ I18N.iv.rapid = [
     ['Unbuffered vs buffered channel, dan siapa yang boleh menutupnya?', 'Unbuffered channel membuat pengirim dan penerima saling menunggu sampai bertemu. Buffered channel menampung kiriman sampai batas cap sebelum memblokir pengirim. Selalu tutup channel dari sisi pengirim, sebab menulis ke channel tertutup memicu panic sedangkan penerima mengeceknya lewat v, ok := <-ch.'],
     ['Kenapa mengembalikan pointer typed nil sebagai error bisa membuat err != nil bernilai true?', 'Nilai interface berisi dua word: dynamic type dan pointer data. Mengembalikan typed nil seperti var e *MyError = nil mengisi word type dengan *MyError, jadi interface dihitung tidak nil meski pointernya nil. Kembalikan nil langsung tanpa tipe saat tidak ada error.'],
     ['Kenapa context.Context harus lewat parameter fungsi, bukan field struct?', 'Context mewakili pembatalan, batas waktu, dan data per request, bukan state objek jangka panjang. Mengirim ctx sebagai parameter pertama membuat setiap query atau call (*Context) di bawahnya ikut berhenti saat client putus. Untuk log audit setelah respons dikirim, pakai context.WithoutCancel (Go 1.21+).'],
-    ['Bagaimana membuat service net/http Go aman saat trafik tinggi dan shutdown?', 'Pasang ReadHeaderTimeout, ReadTimeout, WriteTimeout, dan IdleTimeout di http.Server alih-alih memakai http.ListenAndServe biasa. Batasi jumlah worker dengan errgroup.SetLimit, dengarkan SIGINT atau SIGTERM lewat signal.NotifyContext, dan tunggu request aktif selesai dengan server.Shutdown(ctx).']
+    ['Bagaimana membuat service net/http Go aman saat trafik tinggi dan shutdown?', 'Pasang ReadHeaderTimeout, ReadTimeout, WriteTimeout, dan IdleTimeout di http.Server bukan lewat http.ListenAndServe polos. Batasi worker dengan errgroup.SetLimit, tangkap SIGINT atau SIGTERM lewat signal.NotifyContext, lalu tunggu request selesai lewat server.Shutdown(ctx).']
   ] }
 ];

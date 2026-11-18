@@ -1,11 +1,11 @@
-// Bahasa Indonesia — teks antarmuka untuk js/playground.js.
+// Bahasa Indonesia — teks antarmuka untuk playground.
 I18N.add({
-  'Could not load {src} — the playground needs an internet connection the first time.': 'Gagal memuat {src} — playground butuh koneksi internet saat pertama kali dibuka.',
+  'Could not load {src}. The playground needs an internet connection the first time.': 'Gagal memuat {src}. Playground butuh koneksi internet saat pertama dibuka.',
   'Code editor': 'Code editor',
   'line': 'baris',
-  '{n} type errors — the code still ran, because types are erased at build time:': '{n} type error — kodenya tetap jalan, karena type dihapus saat build:',
-  '{n} type error — the code still ran, because types are erased at build time:': '{n} type error — kodenya tetap jalan, karena type dihapus saat build:',
-  'Stopped after {s} s — probably an infinite loop.': 'Dihentikan setelah {s} detik — kemungkinan infinite loop.',
+  '{n} type errors, though the code still ran because types are erased at build time:': 'Ada {n} type error, tapi kodenya tetap jalan karena type dihapus saat build:',
+  '{n} type error, though the code still ran because types are erased at build time:': 'Ada {n} type error, tapi kodenya tetap jalan karena type dihapus saat build:',
+  'Stopped after {s} s, likely due to an infinite loop.': 'Berhenti setelah {s} detik, kemungkinan ada infinite loop.',
 
   // SQL
   'All customers': 'Semua customer',
@@ -27,17 +27,17 @@ I18N.add({
   'Above average': 'Di atas rata-rata',
   'Return the names of products priced above the average product price.': 'Tampilkan nama produk yang harganya di atas rata-rata harga semua produk.',
   'Top per category': 'Termahal per kategori',
-  'Return category and name of the most expensive product in each category. Use a window function.': 'Tampilkan category dan name produk termahal di tiap kategori. Gunakan window function.',
+  'Return category and name of the most expensive product in each category. Use a window function.': 'Tampilkan category dan name produk termahal di tiap kategori. Pakai window function.',
   'Running total': 'Running total',
   'For paid orders, return order id and the running total of order value, ordered by order date.': 'Untuk order berstatus paid, tampilkan id order dan running total nilai order, diurutkan berdasarkan tanggal order.',
   'Best sellers with ties': 'Terlaris, termasuk yang seri',
-  'For paid orders, list category, product name, and units sold for the top two totals per category. Ties keep the same rank, so a category can return more than two rows.': 'Untuk order berstatus paid, tampilkan category, nama produk, dan jumlah terjual untuk dua angka teratas di tiap kategori. Produk dengan angka sama berbagi peringkat, jadi satu kategori bisa menampilkan lebih dari dua baris.',
+  'For paid orders, list category, product name, and units sold for the top two totals per category. Ties keep the same rank, so a category can return more than two rows.': 'Untuk order berstatus paid, tampilkan category, nama produk, dan jumlah terjual untuk dua angka teratas per kategori. Produk seri berbagi peringkat, jadi hasilnya bisa lebih dari dua baris.',
   'Next page without OFFSET': 'Halaman berikutnya tanpa OFFSET',
-  'Sort products cheapest first, breaking ties by id. The current page ended on Lamp (price 40, id 6). Return name and price of the next three rows using (price, id) instead of OFFSET.': 'Urutkan produk dari termurah, dan bila harga sama urutkan lewat id. Baris terakhir di halaman sekarang adalah Lamp (price 40, id 6). Tampilkan name dan price untuk tiga baris berikutnya memakai pasangan (price, id), bukan OFFSET.',
+  'Sort products cheapest first, breaking ties by id. The current page ended on Lamp (price 40, id 6). Return name and price of the next three rows using (price, id) instead of OFFSET.': 'Urutkan produk dari termurah lalu urutkan lewat id bila harganya sama. Halaman tadi berakhir di Lamp (price 40, id 6). Tampilkan name dan price tiga baris berikutnya memakai (price, id), bukan OFFSET.',
   'Streaks of active months': 'Rangkaian bulan aktif',
-  "For each customer, find stretches of consecutive months with at least one paid order. Return customer name, first month, last month as 'YYYY-MM', and month count.": "Untuk tiap customer, cari rentang bulan berurutan saat ia minimal punya satu order berstatus paid. Tampilkan nama customer, bulan pertama, bulan terakhir format 'YYYY-MM', dan jumlah bulannya.",
+  "For each customer, find stretches of consecutive months with at least one paid order. Return customer name, first month, last month as 'YYYY-MM', and month count.": "Untuk tiap customer, cari rentang bulan berurutan saat ia minimal punya satu order paid. Tampilkan nama customer, bulan pertama, bulan terakhir format 'YYYY-MM', dan jumlah bulannya.",
   'Loading SQLite…': 'Memuat SQLite…',
-  'Free play, or pick a challenge above.': 'Bebas mencoba query sendiri, atau pilih challenge di atas.',
+  'Free play, or pick a challenge above.': 'Bebas coba query sendiri, atau pilih challenge di atas.',
   'OK: {n} row(s) changed.': 'OK: {n} baris berubah.',
   'row(s)': 'baris',
   'Pick a challenge first.': 'Pilih challenge dulu.',
@@ -46,7 +46,7 @@ I18N.add({
   '✗ Not the expected rows yet. Compare your output with the task.': '✗ Hasilnya belum sesuai. Bandingkan output-mu dengan soalnya.',
   'Database reset to its original contents.': 'Database dikembalikan ke isi awalnya.',
   'Challenge': 'Challenge',
-  'A real SQLite database running right in your browser. Queries and writes run live, and you can reset anytime. Lessons use SQL Server syntax, which mostly runs here with a few quirks. Write LIMIT at the end instead of TOP, use strftime() instead of YEAR(), and expect float rounding on money since SQLite has no exact DECIMAL type. SQLite is also looser: it accepts aliases in WHERE, ungrouped columns beside aggregates, and "double-quoted" strings, all of which SQL Server rejects.': 'Database SQLite asli yang berjalan langsung di browsermu. Query dan perubahan data langsung jalan, dan kamu bisa me-resetnya kapan saja. Materi memakai sintaks SQL Server yang umumnya jalan di sini dengan beberapa perbedaan. Tulis LIMIT di akhir bukan TOP, pakai strftime() bukan YEAR(), dan maklumi pembulatan float pada uang karena SQLite tak punya tipe DECIMAL persis. SQLite juga lebih longgar karena mau menerima alias di WHERE, kolom polos di sebelah aggregate, serta string "tanda kutip ganda" yang ditolak SQL Server.',
+  'A live SQLite database runs right in your browser, and you can reset it anytime. Lessons use SQL Server syntax, which mostly runs here with a few quirks. Put LIMIT at the end instead of TOP, use strftime() instead of YEAR(), and expect float rounding on money. SQLite is also looser on WHERE aliases, ungrouped columns, and "double-quoted" strings.': 'Database SQLite langsung jalan di browser dan bisa di-reset kapan saja. Materi memakai sintaks SQL Server yang umumnya cocok di sini dengan beberapa beda kecil. Tulis LIMIT di akhir sebagai ganti TOP, pakai strftime() sebagai ganti YEAR(), dan maklumi pembulatan float di uang. SQLite juga lebih longgar soal alias di WHERE, kolom tanpa aggregate, dan string berkutip ganda.',
   'Run (Ctrl+Enter)': 'Jalankan (Ctrl+Enter)',
   'Check answer': 'Cek jawaban',
   'Show solution': 'Lihat solusi',
@@ -55,8 +55,8 @@ I18N.add({
 
   // TypeScript
   'Output appears here.': 'Output akan muncul di sini.',
-  '(no output — use console.log)': '(tidak ada output — gunakan console.log)',
-  'Write TypeScript and run it instantly. Type errors are underlined as you type and listed when you run — hover a red squiggle to read the message. Plain TypeScript runs in an isolated worker with a five-second limit. Code that imports react renders in a live preview instead, with React 19 loaded from esm.sh, so it needs an internet connection.': 'Tulis TypeScript dan jalankan seketika. Type error digarisbawahi saat kamu mengetik dan didaftar saat kode dijalankan — arahkan kursor ke garis merah untuk membaca pesannya. TypeScript biasa berjalan di worker terisolasi dengan batas lima detik. Kode yang meng-import react tampil di preview langsung, dengan React 19 dimuat dari esm.sh, jadi butuh koneksi internet.',
+  '(no output yet, try console.log)': '(belum ada output, coba console.log)',
+  'Write TypeScript and run it right away. Type errors show red squiggles as you type and list below on run. Plain TypeScript runs in a worker with a 5-second limit, while React imports render live using React 19 from esm.sh.': 'Tulis TypeScript dan jalankan seketika. Type error bergaris merah saat mengetik dan tampil di bawah waktu dijalankan. TypeScript biasa berjalan di worker berbatas lima detik, sedangkan kode dengan import react langsung tampil live memakai React 19 dari esm.sh.',
   'Console output from the preview appears below it.': 'Output console dari preview muncul di bawahnya.',
   'React preview': 'Preview React',
 
@@ -64,7 +64,7 @@ I18N.add({
   'Preview': 'Preview',
   'Preview width: {w}px (drag the right edge to test breakpoints)': 'Lebar preview: {w}px (tarik tepi kanan untuk menguji breakpoint)',
   "Write HTML and CSS and watch the preview update live. Toggle Tailwind to try utility classes and @theme (loads Tailwind's browser build, so internet is needed).": 'Tulis HTML dan CSS lalu lihat preview berubah langsung saat mengetik. Nyalakan Tailwind untuk mencoba utility class dan @theme (memuat browser build Tailwind, jadi butuh internet).',
-  ' Use Tailwind CSS': ' Pakai Tailwind CSS',
+  'Use Tailwind CSS': 'Pakai Tailwind CSS',
   'Schema and foreign keys (5 tables)': 'Skema dan foreign key (5 tabel)',
   'Database schema': 'Skema database',
   'Table': 'Tabel',

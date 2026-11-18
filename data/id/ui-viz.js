@@ -122,11 +122,11 @@ I18N.add({
   'The user clicks Add. The onClick handler runs and calls the mutation with { name, price }.': 'User mengklik Add. Handler onClick berjalan dan memanggil mutation dengan { name, price }.',
   'fetch() sends POST /api/products with a JSON body and the auth cookie or token in the headers.': 'fetch() mengirim POST /api/products dengan body JSON serta cookie atau token auth di header.',
   'The web server accepts the connection, parses the HTTP request and creates an HttpContext.': 'Web server menerima koneksi, mem-parsing HTTP request, dan membuat HttpContext.',
-  'The request passes exception handling, routing, authentication and authorization — in that order.': 'Request melewati exception handling, routing, authentication, dan authorization sesuai urutan itu.',
-  'Model binding turns the JSON into a CreateProductRequest; validation runs; an invalid body returns 400 here.': 'Model binding mengubah JSON jadi CreateProductRequest lalu memvalidasinya. Body yang salah langsung dibalas 400 di sini.',
+  'The request passes exception handling, routing, authentication, and authorization in that order.': 'Request melewati exception handling, routing, authentication, dan authorization sesuai urutan itu.',
+  'Model binding turns JSON into a CreateProductRequest and validates it, returning 400 on bad input.': 'Model binding mengubah JSON jadi CreateProductRequest lalu memvalidasinya, dan membalas 400 bila datanya salah.',
   'The container supplies a scoped DbContext and services. Your async handler awaits each step, freeing the thread during I/O.': 'Container menyediakan DbContext scoped dan service lainnya. Handler async-mu meng-await tiap langkah agar thread tidak tertahan saat I/O.',
-  'db.Products.Add(entity) is tracked; SaveChangesAsync translates the change into a parameterized INSERT.': 'db.Products.Add(entity) mulai di-track, lalu SaveChangesAsync mengubahnya menjadi query INSERT berparameter.',
+  'db.Products.Add(entity) tracks the entity so SaveChangesAsync sends a parameterized INSERT.': 'db.Products.Add(entity) menandai entity tersebut agar SaveChangesAsync mengirim query INSERT berparameter.',
   'The database checks constraints, writes the row, updates indexes and commits the transaction. The new id is returned.': 'Database mengecek constraint, menulis barisnya, meng-update index, lalu meng-commit transaction. Id yang baru dikembalikan.',
   '201 Created with the JSON body travels back out through the middleware in reverse order.': '201 Created beserta body JSON berjalan keluar melewati middleware dengan urutan terbalik.',
-  'The mutation succeeds and invalidates the products query; it refetches; state changes; React re-renders and patches the DOM.': 'Mutation sukses lalu meng-invalidate query products. Data diambil ulang, state berubah, dan React memperbarui DOM.'
+  'Mutation success invalidates the query cache, triggering a refetch so React updates state and patches the DOM.': 'Mutasi yang berhasil menghapus cache query, memicu fetch ulang supaya React memperbarui state dan DOM.'
 });

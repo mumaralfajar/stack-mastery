@@ -344,12 +344,12 @@
         ['react', 'Browser', 'fetch() sends POST /api/products with a JSON body and the auth cookie or token in the headers.'],
         ['aspnet', 'Kestrel', 'The web server accepts the connection, parses the HTTP request and creates an HttpContext.'],
         ['aspnet', 'Middleware', 'The request passes exception handling, routing, authentication, and authorization in that order.'],
-        ['aspnet', 'Endpoint', 'Model binding turns the JSON into a CreateProductRequest; validation runs; an invalid body returns 400 here.'],
+        ['aspnet', 'Endpoint', 'Model binding turns JSON into a CreateProductRequest and validates it, returning 400 on bad input.'],
         ['csharp', 'DI + C#', 'The container supplies a scoped DbContext and services. Your async handler awaits each step, freeing the thread during I/O.'],
-        ['aspnet', 'EF Core', 'db.Products.Add(entity) is tracked; SaveChangesAsync translates the change into a parameterized INSERT.'],
+        ['aspnet', 'EF Core', 'db.Products.Add(entity) tracks the entity so SaveChangesAsync sends a parameterized INSERT.'],
         ['sql', 'SQL', 'The database checks constraints, writes the row, updates indexes and commits the transaction. The new id is returned.'],
         ['aspnet', 'Response', '201 Created with the JSON body travels back out through the middleware in reverse order.'],
-        ['react', 'React', 'The mutation succeeds and invalidates the products query; it refetches; state changes; React re-renders and patches the DOM.']
+        ['react', 'React', 'Mutation success invalidates the query cache, triggering a refetch so React updates state and patches the DOM.']
       ];
       const rows = steps.map(([t, name, text]) => h('div', { class: 'jstep', style: { '--tc': `var(--${t})` } }, h('b', { style: { color: `var(--${t})` } }, name), h('span', {}, text)));
       const s = stepper(steps.length, i => rows.forEach((r, j) => r.className = 'jstep' + (j === i ? ' cur' : j < i ? ' done' : '')));

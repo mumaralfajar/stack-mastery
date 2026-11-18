@@ -4,7 +4,7 @@ import { renderNav } from '../nav.js';
 import { dashboard } from './dashboard.js';
 
 const RUBRIC = [
-  'Plain words — no jargon I did not define first',
+  'Plain words, with no unexplained jargon',
   'An analogy or a picture',
   'A concrete code example',
   'A common mistake, and why people make it',
@@ -41,7 +41,7 @@ export function lessonView(tid, lid) {
 
   // Learn
   const readBtn = h('button', { type: 'button', class: 'btn', onclick: () => { set('read', !peek(k).read); drawRead(); } });
-  const drawRead = () => { readBtn.textContent = T(peek(k).read ? '✓ Learned — click to undo' : 'Mark as learned'); readBtn.classList.toggle('done', !!peek(k).read); };
+  const drawRead = () => { readBtn.textContent = T(peek(k).read ? '✓ Learned (click to undo)' : 'Mark as learned'); readBtn.classList.toggle('done', !!peek(k).read); };
   drawRead();
 
   // Check (persist per-question completion across reloads)
@@ -176,10 +176,10 @@ export function planView(tid, lid) {
     l.terms?.length ? block('', 'Key words', h('dl', { class: 'terms' }, l.terms.map(([term, def]) =>
       h('div', { class: 'term-item' }, h('dt', { html: md(term) }), h('dd', { html: md(def) }))))) : null,
     block('5 min', 'Hook', h('p', { html: md(l.analogy) })),
-    block('10 min', 'Explain — one idea at a time', h('ul', { class: 'points' }, l.points.map(p => h('li', { html: md(p) })))),
-    l.code ? block('10 min', 'Live demo — type it, have students predict each line before you run it', codeBlock(l.code, l.lang || t.lang)) : null,
-    block('15 min', 'Guided practice — students type, you watch', h('p', { html: md(l.practice) })),
-    block('5 min', 'Check for understanding', h('ol', {}, l.quiz.map(q => h('li', {}, h('span', { html: md(q.q) }), h('br'), h('small', { html: T('Answer: ') + md(q.a[q.c]) + ' — ' + md(q.why) }))))),
+    block('10 min', 'Explain one idea at a time', h('ul', { class: 'points' }, l.points.map(p => h('li', { html: md(p) })))),
+    l.code ? block('10 min', 'Live demo: type it and let students predict each line', codeBlock(l.code, l.lang || t.lang)) : null,
+    block('15 min', 'Guided practice: students type while you watch', h('p', { html: md(l.practice) })),
+    block('5 min', 'Check for understanding', h('ol', {}, l.quiz.map(q => h('li', {}, h('span', { html: md(q.q) }), h('br'), h('small', { html: T('Answer: ') + md(q.a[q.c]) + '. ' + md(q.why) }))))),
     block('', 'Watch for these misconceptions', h('ul', { class: 'points' }, l.pitfalls.map(p => h('li', { html: md(p) })))),
-    block('2 min', 'Exit ticket — the student explains back', h('p', { html: md(l.teach) })));
+    block('2 min', 'Exit ticket: each student explains it back', h('p', { html: md(l.teach) })));
 }

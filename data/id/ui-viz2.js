@@ -10,7 +10,7 @@ I18N.add({
   '“{a}” wins with specificity ({s}). Compare column by column: ids first, then classes, then elements.': '“{a}” menang dengan specificity ({s}). Bandingkan berurutan per kolom: id dulu, lalu class, lalu element.',
   'Target element: ': 'Element target: ',
   ' (rules are listed in source order).': ' (rule diurutkan sesuai source).',
-  'Result': 'Hasil',
+  'Winning result': 'Hasil akhir',
 
   // box model
   'Box model': 'Box model',
@@ -55,7 +55,7 @@ I18N.add({
   'Watch four algorithms sort the same 24 values and compare how many comparisons each one needs.': 'Lihat empat algoritma mengurutkan 24 nilai yang sama, lalu bandingkan berapa banyak perbandingan yang dibutuhkan masing-masing.',
   'Pick an algorithm and press Sort.': 'Pilih algoritma lalu tekan Sort.',
   'Algorithm': 'Algoritma',
-  '{algo} used {c} comparisons for {n} values. n² is {sq}; n·log₂n is about {nlog}.': '{algo} memakai {c} perbandingan untuk {n} nilai. n² adalah {sq}; n·log₂n kira-kira {nlog}.',
+  '{algo} used {c} comparisons for {n} values. n² is {sq}, while n·log₂n is about {nlog}.': '{algo} memakai {c} perbandingan untuk {n} nilai. n² adalah {sq}, sedangkan n·log₂n sekitar {nlog}.',
   'Sort': 'Sort', 'Shuffle': 'Acak',
   'Comparisons: ': 'Perbandingan: ',
 
@@ -77,7 +77,7 @@ I18N.add({
 
   // Graph search
   "BFS and DFS on a graph": "BFS dan DFS pada graph",
-  "Search from A to F with each algorithm and compare the path each one finds. BFS uses a queue and spreads out in rings; DFS follows one path as deep as it can.": "Cari jalur dari A ke F dengan tiap algoritma dan bandingkan hasilnya. BFS memakai queue yang menyebar per lapisan, sedangkan DFS menelusuri satu cabang sedalam mungkin.",
+  "Search from A to F with each algorithm and compare their paths. BFS uses a queue layer by layer, while DFS follows one branch deep.": "Cari jalur dari A ke F dengan tiap algoritma dan bandingkan hasilnya. BFS memakai queue per lapisan jarak, sedangkan DFS menelusuri satu cabang sedalam mungkin.",
   "Start at {node}: distance 0. It goes into the queue.": "Mulai dari {node}: jarak 0. Node ini masuk ke queue.",
   "Take {node} from the front of the queue (distance {d}). Unvisited neighbours go to the back: {added}.": "Ambil {node} dari depan queue (jarak {d}). Tetangga yang belum dikunjungi masuk ke belakang: {added}.",
   "{node} reached at distance {d}: {path}. BFS finishes every node at distance {prev} before any at distance {d}, so the first path it finds is a shortest one.": "{node} ketemu di jarak {d}: {path}. BFS menyelesaikan semua node berjarak {prev} dulu sebelum menyentuh jarak {d}, jadi rute pertamanya pasti sesingkat mungkin.",

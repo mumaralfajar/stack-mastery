@@ -1,73 +1,73 @@
 window.PROJECTS = [
   {
-    level: 0, title: 'Capstone 1 — Product catalogue across the stack',
-    brief: "Meet each technology on its own with the same tiny domain: a list of products. Nothing is connected yet; the goal is to feel what each layer does.",
+    level: 0, title: 'Capstone 1: Product catalogue across the stack',
+    brief: "Meet each layer on its own using one small domain: a product list. Nothing connects yet, so you can focus on what each tool does.",
     build: [
-      "**C#**: a console app with a `Product` class and a `List<Product>`; add, list and total products from a menu loop.",
-      "**SQL**: write the `CREATE TABLE` for products and five queries: all, filtered, sorted, counted per category, most expensive.",
-      "**ASP.NET Core**: a minimal API with `GET /api/products` and `GET /api/products/{id}` over an in-memory list, returning 404 correctly.",
-      "**React + TypeScript**: a typed `ProductList` component rendering hard-coded products with an empty-state message.",
-      "**CSS**: style the product list with a responsive grid and a card component — no framework yet, and no horizontal scroll at 360px.",
-      "Explain out loud what a request, a row, an object, a component and a CSS rule each are — one sentence each.",
-      "**Angular**: the same hard-coded product list built from standalone components with `@for (...; track p.id)`, empty states, and clean TypeScript interfaces.",
-      "**Dart + Flutter**: the same hard-coded product list as a Flutter screen built from `StatelessWidget`s, run on the web target."
+      "Build a **C#** console app with a `Product` class and a `List<Product>` menu loop that adds, lists, and totals products.",
+      "Write a **SQL** `CREATE TABLE` for products and five queries: all items, filtered, sorted, counted by category, and most expensive.",
+      "Create an **ASP.NET Core** minimal API with `GET /api/products` and `GET /api/products/{id}` over an in-memory list that returns 404 when missing.",
+      "Build a **React + TypeScript** `ProductList` component displaying typed products with an empty-state message.",
+      "Style the list with plain **CSS** using a responsive grid and card component, with no horizontal overflow at 360px wide.",
+      "Explain out loud what a request, a row, an object, a component, and a CSS rule each do in one clear sentence.",
+      "Build the same product list in **Angular** using standalone components, `@for (...; track p.id)`, an empty state, and typed interfaces.",
+      "Build that same product screen in **Dart + Flutter** out of `StatelessWidget` building blocks and run it on Chrome."
     ],
     stretch: ["Add `POST` to the API and call it with `curl`.", "Add a search box to the React list that filters as you type."],
-    teach: "Teaching angle: run this as a first-day workshop. Which part of the stack would you show first, and what would you deliberately hide?"
+    teach: "Teaching angle: run this as a first-day workshop. Decide which layer to show first and what details to hide for now."
   },
   {
-    level: 1, title: 'Capstone 2 — Full-stack task manager',
-    brief: "Your first real application: a frontend talks to ASP.NET Core, which talks to a database through EF Core. Every layer of the stack carries one user action from click or tap to row.",
+    level: 1, title: 'Capstone 2: Full-stack task manager',
+    brief: "Your first connected app: the UI calls ASP.NET Core, which talks to SQL through EF Core. One user click flows from browser to table row.",
     build: [
-      "Schema with `projects` and `tasks` (one-to-many), foreign key, `NOT NULL` and `CHECK` constraints, created through an EF Core migration.",
-      "REST API: list, get, create, update and delete tasks, with request/response DTOs and correct status codes.",
-      "Validation on every write endpoint returning ProblemDetails; a global exception handler.",
-      "Services registered with deliberate lifetimes; you can justify each one.",
-      "React app: task list, create form with controlled inputs, toggle done, delete — with loading and error states.",
-      "TypeScript types for every API response; no `any`.",
-      "Styled with Tailwind: a responsive layout, reusable `Button` and `Input` components with typed variants, visible focus states.",
-      "A JOIN query endpoint: projects with their open-task counts, written so it produces exactly one SQL statement.",
-      "An Angular client for the same API: task list via `httpResource`, Signal Form validation, toggle done, delete — with loading and error states.",
-      "A Flutter client for the same API: task list, create form with validation, toggle done — with loading, empty and error states."
+      "Design a `projects` and `tasks` schema (one-to-many) with foreign keys, `NOT NULL`, and `CHECK` constraints via an EF Core migration.",
+      "Build a REST API to list, get, create, update, and delete tasks using typed request/response DTOs and proper status codes.",
+      "Validate every write endpoint with ProblemDetails errors and wire a global exception handler.",
+      "Register DI services with intentional lifetimes you can justify for each dependency.",
+      "Build a React client with controlled inputs, task creation, toggle done, delete, loading indicators, and error banners.",
+      "Define TypeScript types for every API payload with zero `any` escape hatches.",
+      "Style the UI with Tailwind using a responsive layout, typed `Button` and `Input` variants, and clear keyboard focus rings.",
+      "Add a JOIN summary endpoint returning projects with open-task counts in a single SQL query.",
+      "Build an Angular client for the same API with `httpResource`, Signal Forms validation, toggle, delete, and loading/error states.",
+      "Build a Flutter client for that API with validated task creation, completion toggles, and loading, empty, and error views."
     ],
-    stretch: ["Filter and sort tasks via query-string parameters reflected in the URL.", "Replace hand-written fetching with TanStack Query."],
-    teach: "Teaching angle: trace one 'add task' click through every layer on a whiteboard, naming the exact line of code at each hop."
+    stretch: ["Filter and sort tasks via query-string parameters kept in the URL.", "Swap manual fetching for TanStack Query."],
+    teach: "Teaching angle: trace one 'add task' click across every layer on a whiteboard, naming the exact code at each stop."
   },
   {
-    level: 2, title: 'Capstone 3 — Multi-user shop with auth and tests',
-    brief: "Make it safe, correct under concurrency, and provably working. This is the level at which software becomes something other people can rely on.",
+    level: 2, title: 'Capstone 3: Multi-user shop with auth and tests',
+    brief: "Make the app safe, concurrent-correct, and backed by tests. This is the stage where other engineers can depend on your software.",
     build: [
-      "Authentication with JWT or cookies; users see and change only their own orders (resource-based authorization).",
-      "An admin role with a policy-protected product management area.",
-      "Placing an order decrements stock atomically inside a transaction; overselling is impossible under parallel requests — prove it with a test.",
-      "Optimistic concurrency on product edits returning 409 on conflict, surfaced in the UI.",
-      "Indexes chosen from real query plans; one before/after measurement written down.",
-      "A sales report endpoint using a window function (running total or top-N per category).",
-      "Integration tests with `WebApplicationFactory` against a real database for every endpoint; React Testing Library tests for the checkout flow.",
-      "Cart implemented with a reducer and context; server state via a query library with invalidation.",
-      "A small design system: tokens through `@theme`, dark mode, and components that own no outer margin.",
-      "An Angular storefront with functional route guards, HTTP auth interceptor mapping `ProblemDetails`, `@Service()` cart signals, and Vitest `HttpTestingController` tests.",
-      "The Flutter app signs in, stores its token in secure storage, and manages cart and orders with Bloc/Cubit, covered by cubit and widget tests."
+      "Add JWT or cookie authentication so users only read and update their own orders via resource-based checks.",
+      "Protect admin product management routes behind an explicit authorization policy.",
+      "Decrement stock inside a transaction when ordering so parallel checkouts can't oversell, and prove it with a concurrency test.",
+      "Add optimistic concurrency on product updates that returns 409 Conflict and shows it in the UI.",
+      "Pick indexes using real query plans and record one before/after execution measurement.",
+      "Add a sales report endpoint powered by a window function for running totals or top items per category.",
+      "Write `WebApplicationFactory` integration tests against a real DB alongside React Testing Library tests for checkout.",
+      "Manage cart state with a reducer and context while caching server reads with invalidation.",
+      "Build a small design system using `@theme` tokens, dark mode, and components without outer margin leaks.",
+      "Build an Angular storefront with route guards, a `ProblemDetails` auth interceptor, `@Service()` cart signals, and Vitest HTTP tests.",
+      "Have the Flutter app sign in via secure storage and manage cart/orders with Bloc/Cubit plus cubit and widget tests."
     ],
-    stretch: ["Options pattern with startup validation for all settings.", "Structured logging with a correlation ID visible in every log line of a request."],
-    teach: "Teaching angle: pick one bug this project prevents — overselling, IDOR, lost update — and design a 15-minute demo that first shows the bug, then the fix."
+    stretch: ["Use the Options pattern with startup validation for configuration.", "Emit structured logs carrying a correlation ID on every log line."],
+    teach: "Teaching angle: pick one bug this project stops (overselling, IDOR, or lost updates) and run a 15-minute bug-then-fix demo."
   },
   {
-    level: 3, title: 'Capstone 4 — Production-grade platform',
-    brief: "Take Capstone 3 to production standard. The deliverable is not only code but evidence: measurements, dashboards, and decisions you can defend.",
+    level: 3, title: 'Capstone 4: Production-grade platform',
+    brief: "Push Capstone 3 to production standards. Ship measured evidence alongside code: latency numbers, telemetry, and clear design trade-offs.",
     build: [
-      "Load test with stated p95 targets; one bottleneck found by profiling and fixed, with before/after numbers.",
-      "Caching (output cache or HybridCache) with an explicit invalidation strategy and a written staleness guarantee.",
-      "Rate limiting, health checks split into liveness and readiness, graceful shutdown.",
-      "OpenTelemetry traces, metrics and logs; one trace followed from the React click to the SQL statement.",
-      "A background worker with the outbox pattern sending order confirmations exactly-once from the user's point of view.",
-      "A zero-downtime schema change executed with expand → migrate → contract while the app runs.",
-      "Frontend: route-based code splitting, virtualized long list, Core Web Vitals within budget, fully keyboard accessible.",
-      "Containerized, deployed through CI with tests, migrations and a rollback plan you have actually exercised.",
-      "The Angular app configured with `@defer` chunks, hybrid SSR (`ServerRoute`), and a runtime check verifying OpenAPI-generated types match the deployed API.",
-      "The Flutter app built in CI as a signed release with dev and prod flavors, crash reporting, and a tested upgrade path from the previous version."
+      "Run load tests against stated p95 goals, profile one bottleneck, and document before/after timings.",
+      "Add output caching or HybridCache with a documented invalidation plan and staleness window.",
+      "Wire rate limiting, split liveness/readiness health checks, and clean graceful shutdown.",
+      "Capture OpenTelemetry traces, metrics, and logs, following one user click all the way down to its SQL query.",
+      "Move order confirmations into a background worker using the outbox pattern so delivery stays reliable under crashes.",
+      "Execute a zero-downtime database migration using expand, migrate, and contract while traffic stays live.",
+      "Keep the frontend fast with route splitting, virtualized lists, Core Web Vitals targets, and full keyboard navigation.",
+      "Containerize services and deploy through CI/CD with automated tests, migrations, and a practiced rollback.",
+      "Configure Angular with `@defer` chunks, hybrid SSR (`ServerRoute`), and runtime verification for OpenAPI types.",
+      "Build signed Flutter releases in CI with dev/prod flavors, crash reporting, and a tested upgrade path."
     ],
-    stretch: ["Write an architecture decision record for your three most consequential choices.", "Run a game day: break the database, a dependency and a deploy, and document what the system and the dashboards did."],
-    teach: "Teaching angle: present this system as a 30-minute architecture review to a senior audience. They will ask 'why not the alternative?' for every choice — prepare the answers."
+    stretch: ["Write short Architecture Decision Records (ADRs) for your top three technical choices.", "Run a game day breaking the database, a dependency, and a deploy to verify dashboards and recovery."],
+    teach: "Teaching angle: present the architecture in 30 minutes to senior engineers and defend why you rejected each alternative."
   }
 ];

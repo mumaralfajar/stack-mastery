@@ -5,7 +5,7 @@ export function projects() {
   const { h, md, PROJECTS, LEVELS } = window;
   return h('div', { class: 'page' },
     h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Build to learn'), h('h1', {}, 'Capstone projects'),
-      h('p', { class: 'lede' }, 'One project per level, each using the whole stack. Nothing here is copy-paste: build them in your own editor, and tick a requirement only when you could rebuild it without notes.')),
+      h('p', { class: 'lede' }, 'One full-stack project per level. Build them in your own editor without copy-pasting, and tick an item only when you can rebuild it from memory.')),
     PROJECTS.map((p, pi) => {
       const done = S.projects[pi] || [];
       const prog = h('small', {});
@@ -29,34 +29,34 @@ export function teach() {
   const { h, md, TRACKS, LEVELS } = window;
   const ts = h('select', { 'aria-label': 'Track' }, TRACKS.map(t => h('option', { value: t.id }, t.name)));
   const ls = h('select', { 'aria-label': 'Lesson' });
-  const fill = () => ls.replaceChildren(...track(ts.value).lessons.map(l => h('option', { value: l.id }, LEVELS[l.level] + ' — ' + l.title)));
+  const fill = () => ls.replaceChildren(...track(ts.value).lessons.map(l => h('option', { value: l.id }, LEVELS[l.level] + ': ' + l.title)));
   ts.onchange = fill; fill();
   const list = items => h('ul', { class: 'points' }, items.map(i => h('li', { html: md(i) })));
   return h('div', { class: 'page' },
     h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Become the teacher'), h('h1', {}, 'Teaching toolkit'),
-      h('p', { class: 'lede' }, 'Knowing a thing and teaching it are different skills. Experts skip steps they no longer notice; teachers put those steps back.')),
+      h('p', { class: 'lede' }, 'Knowing a topic and teaching it take different skills. Experts skip steps they forget are hard, while teachers put those steps back.')),
     section('Generate a lesson plan',
       h('p', {}, 'Every lesson in this program converts into a 45-minute printable plan: hook, explanation, live demo, practice, checks, and misconceptions to watch for.'),
       h('div', { class: 'actions' }, ts, ls, h('button', { type: 'button', class: 'btn', onclick: () => location.hash = `#/plan/${ts.value}/${ls.value}` }, 'Open plan'))),
     section('Seven rules for teaching programmers', list([
       '**One new idea per step.** If a demo needs three unfamiliar things, teach two of them earlier or hide them.',
       '**Concrete before abstract.** Show a working example first, name the concept second, give the definition last.',
-      '**Predict, run, explain.** Before running any line, ask what will happen. A wrong prediction shows exactly which idea is missing, and the correction sticks better than an explanation given up front.',
+      '**Predict, run, explain.** Before running any line, ask what happens. A wrong guess reveals the missing idea much better than an upfront lecture.',
       '**Their hands on the keyboard.** Watching you type feels like learning and is not. Aim for students typing at least half of the session.',
       '**Errors are the curriculum.** Cause the common error on purpose, read the message together, and fix it. Students who can read errors can teach themselves.',
       '**Ask questions that cannot be answered with yes.** Not “does that make sense?” but “what would this print if I swapped these two lines?”',
       '**Fight the curse of knowledge.** List every term you used. Any term the student did not have yesterday needs a definition or an analogy.'])),
     section('The question ladder', h('p', {}, 'Climb it for any topic. If you can answer all four rungs, you can teach it at any level.'),
       h('ol', { class: 'steps' },
-        h('li', {}, h('b', {}, 'What does it do? '), 'Beginner — describe the behavior and show it.'),
-        h('li', {}, h('b', {}, 'What happens if…? '), 'Intermediate — predict edge cases and failures.'),
-        h('li', {}, h('b', {}, 'Why is it designed this way? '), 'Advanced — name the trade-off and the alternative that was rejected.'),
-        h('li', {}, h('b', {}, 'When should you not use it? '), 'Expert — know the limits, the cost, and what to reach for instead.'))),
+        h('li', {}, h('b', {}, 'What does it do? '), 'Beginner: describe the behavior and show it.'),
+        h('li', {}, h('b', {}, 'What happens if…? '), 'Intermediate: predict edge cases and failures.'),
+        h('li', {}, h('b', {}, 'Why is it designed this way? '), 'Advanced: name the trade-off and the rejected alternative.'),
+        h('li', {}, h('b', {}, 'When should you not use it? '), 'Expert: know the limits, cost, and better alternatives.'))),
     section('What each level of student needs', list([
-      '**Beginner:** a correct mental model and lots of tiny wins. Hide complexity without lying — say “we will open that box later”.',
-      '**Intermediate:** projects slightly too big for them, and feedback on their own code rather than more examples of yours.',
-      '**Advanced:** trade-offs. Give two valid designs and make them argue for each one.',
-      '**Expert:** internals, measurement and judgement. Stop giving answers; ask for evidence — a benchmark, a query plan, a profiler trace.'])),
+      '**Beginner** learners need a solid mental model and small wins. Hide complexity without lying by saying we’ll open that box later.',
+      '**Intermediate** learners need slightly oversized projects and reviews on their own code instead of more toy demos.',
+      '**Advanced** learners need real trade-offs. Give two valid designs and ask them to defend each one.',
+      '**Expert** learners need internals, measurement, and judgement. Stop giving answers and ask for benchmarks, query plans, or traces.'])),
     section('A 45-minute session', h('ol', { class: 'steps' },
       h('li', {}, h('b', {}, '0–5 Hook. '), 'A problem or analogy that makes the topic necessary.'),
       h('li', {}, h('b', {}, '5–15 Explain. '), 'Three key ideas at most, each with a picture.'),
@@ -134,7 +134,7 @@ export function startView() {
   return h('div', { class: 'page' },
     h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Before lesson one'), h('h1', {}, 'Start here: set up your machine'),
       h('p', { class: 'lede' }, 'Reading is not learning. Every lesson ends with something to build, and that needs a handful of free tools. This takes about twenty minutes, once.')),
-    step('1. Install the tools', 'Install the **.NET SDK** (current LTS) from dotnet.microsoft.com, **Go** (1.27+) from go.dev/dl, **Node.js LTS** from nodejs.org, **Git** from git-scm.com, the **Flutter SDK** from flutter.dev (it includes Dart), and **Visual Studio Code** with the C# Dev Kit, Go, Angular Language Service, and Flutter extensions. Then confirm each one answers in a new terminal:', `
+    step('1. Install the tools', 'Install the **.NET SDK** (current LTS), **Go** (1.27+), **Node.js LTS**, **Git**, and the **Flutter SDK** (which includes Dart). Add **Visual Studio Code** with C# Dev Kit, Go, Angular, and Flutter extensions, then check each command in a terminal:', `
 dotnet --version
 go version
 node --version
@@ -145,7 +145,7 @@ code --version`),
 dotnet new console -o hello
 cd hello
 dotnet run`),
-    step('3. Your first web API', '`dotnet watch` rebuilds and restarts on every save — keep it running while you work through the ASP.NET Core track.', `
+    step('3. Your first web API', '`dotnet watch` rebuilds and restarts on every save. Leave it running as you work through ASP.NET Core.', `
 dotnet new web -o shop-api
 cd shop-api
 dotnet watch run`),
@@ -169,7 +169,7 @@ mkdir shop-go
 cd shop-go
 go mod init shop
 go run .`),
-    step('8. A database', 'The SQL and ASP.NET Core tracks use **SQL Server**. On Windows, install the free **SQL Server Express** edition; the samples connect to it as `.\\SQLEXPRESS`. On macOS or Linux, run SQL Server in Docker and set a `Shop` connection string. The SQL playground runs SQLite in the browser, so the first SQL lessons work before any of this.', `
+    step('8. A database', 'The SQL and ASP.NET Core tracks use **SQL Server**. On Windows, install free **SQL Server Express**, where samples connect as `.\\SQLEXPRESS`. On macOS or Linux, run SQL Server in Docker with a `Shop` connection string. The SQL playground uses SQLite in your browser, so early SQL lessons work right away.', `
 dotnet add package Microsoft.EntityFrameworkCore.SqlServer
 dotnet add package Microsoft.EntityFrameworkCore.Design
 dotnet tool install --global dotnet-ef
@@ -181,8 +181,8 @@ git add .
 git commit -m "First commit"`),
     h('section', { class: 'sec' }, h('h2', {}, '10. A routine that works'),
       h('ol', { class: 'steps' },
-        h('li', {}, h('b', {}, '10 minutes: '), 'flashcard review. Do this first, every day — it is what makes knowledge stay.'),
-        h('li', {}, h('b', {}, '30 minutes: '), 'one lesson — learn it, check yourself, then write the teach-back.'),
+        h('li', {}, h('b', {}, '10 minutes: '), 'flashcard review. Do this first every day so concepts stick.'),
+        h('li', {}, h('b', {}, '30 minutes: '), 'one lesson. Learn it, check yourself, and write the teach-back.'),
         h('li', {}, h('b', {}, '30–45 minutes: '), 'build. The lesson’s “Your turn” exercise, then the current capstone.'),
         h('li', {}, h('b', {}, 'Weekly: '), 'one mock exam, and from the Intermediate level three coding problems.')),
       h('p', { class: 'muted' }, 'Progress is stored in this browser only. Use “Export backup” in the sidebar now and then, and before switching browser or computer.')),

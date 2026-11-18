@@ -7,7 +7,7 @@ I18N.add({
   '`flutter doctor` tells you what is still missing for each platform. The web target needs only Chrome, so you can start before setting up Android Studio or Xcode.': '`flutter doctor` memberi tahu apa yang masih kurang untuk tiap platform. Target web hanya butuh Chrome, jadi kamu bisa mulai sebelum menyiapkan Android Studio atau Xcode.',
 
   // playground
-  'DartPad, the official Dart playground, embedded here: it compiles and runs real Dart and Flutter in your browser. Pick a lesson sample, press Run in DartPad, then change the code and run it again.': 'DartPad, playground resmi Dart, ditanam di sini: ia meng-compile dan menjalankan Dart dan Flutter sungguhan di browsermu. Pilih contoh dari materi, tekan Run di DartPad, lalu ubah kodenya dan jalankan lagi.',
+  'DartPad compiles and runs real Dart and Flutter right in your browser. Pick a lesson sample, click Run, edit the code, and try it again.': 'DartPad menjalankan Dart dan Flutter sungguhan langsung di browsermu. Pilih contoh dari materi, klik Run, ubah kodenya, lalu jalankan lagi.',
   'Lesson sample': 'Contoh dari materi',
   'The sample is sent to DartPad automatically. If the editor on the right does not show it, press Copy and paste it in.': 'Contohnya otomatis dikirim ke DartPad. Kalau editor di sebelah kanan tidak menampilkannya, tekan Salin lalu paste di sana.',
   'DartPad needs an internet connection. Samples that use packages such as flutter_bloc or go_router are meant for a local project: ': 'DartPad butuh koneksi internet. Contoh yang memakai package seperti flutter_bloc atau go_router ditujukan untuk project lokal: ',
@@ -34,7 +34,7 @@ I18N.add({
   ' Children are const (configuration unchanged)': ' Child-nya const (konfigurasinya tidak berubah)',
   'builds:': 'build:',
   'setState in {name} → {n} build() call(s)': 'setState di {name} → {n} pemanggilan build()',
-  '; {n} const subtree(s) skipped because the widget instance didn\'t change.': '; {n} subtree const dilewati karena instance widget tidak berubah.',
+  ', skipping {n} unchanged const subtree(s).': ', dan melewati {n} subtree const yang tidak berubah.',
   ': this widget and its subtree. Push state down or use BlocSelector to rebuild less.': ': widget ini beserta seluruh subtree-nya. Turunkan state ke child atau pakai BlocSelector supaya rebuild makin sedikit.',
   '. Parents and siblings never rebuild.': '. Parent dan sibling tidak pernah ikut rebuild.',
   'ProductsPage contains AppBar, ProductList and CartBadge. ProductList contains the three tiles.': 'ProductsPage berisi AppBar, ProductList, dan CartBadge. ProductList berisi tiga tile.',
