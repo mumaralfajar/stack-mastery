@@ -59,7 +59,7 @@
         } else if (changed === 'coupon') {
           noteText = T('Only hasCoupon() changed: subtotal() and shipping() stayed cached, while total() and effect() updated once.');
         } else if (states.shipping === 'same value' && states.total === 'recomputed') {
-          noteText = T('Diamond update: subtotal and shipping both settled before total() ran once — no glitch, and effect() saw only the final total ({total}).', { total: totalVal });
+          noteText = T('Diamond update: subtotal and shipping settled before total() ran once with no glitch, and effect() saw only the final total ({total}).', { total: totalVal });
         } else {
           noteText = T('Recalculated {n} node(s); total is now {total}.', {
             n: ['subtotal', 'shipping', 'total'].filter(k => states[k] !== 'cached').length,
@@ -193,7 +193,7 @@
         } else if (mode === 'onpush') {
           note.textContent = T('OnPush: checked {n} view(s) along the ancestor path; {s} sibling/other views skipped.', { n: count, s: skipped });
         } else {
-          note.textContent = T('Zoneless + Signal: refreshed only {n} view(s) reading the changed signal ({list}); {s} skipped — not even parents re-checked.', {
+          note.textContent = T('Zoneless + Signal: refreshed only {n} view(s) reading the changed signal ({list}); {s} skipped without re-checking parents.', {
             n: count, list: [...checked].join(', '), s: skipped
           });
         }
