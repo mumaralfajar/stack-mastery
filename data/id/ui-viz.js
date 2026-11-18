@@ -40,29 +40,29 @@ I18N.add({
   'who are you?': 'kamu siapa?', 'allowed?': 'boleh akses?', 'your code': 'kodemu',
   'Press “Send request”.': 'Tekan “Kirim request”.',
   'Request has a valid token': 'Request membawa token yang valid',
-  'Endpoint throws an exception': 'Endpoint melempar exception',
+  'Endpoint throws an exception': 'Endpoint memicu exception',
   'Request travelling…': 'Request sedang berjalan…',
   '→ Authentication: token valid, user = ana': '→ Authentication: token valid, user = ana',
   '→ Authentication: no token, user = anonymous': '→ Authentication: tanpa token, user = anonymous',
   '✗ Authorization: not authenticated → 401. SHORT-CIRCUIT: next() is never called': '✗ Authorization: belum terautentikasi → 401. SHORT-CIRCUIT: next() tidak pernah dipanggil',
-  '✗ Endpoint throws InvalidOperationException': '✗ Endpoint melempar InvalidOperationException',
+  '✗ Endpoint throws InvalidOperationException': '✗ Endpoint memicu InvalidOperationException',
   '✓ Endpoint runs → 200 OK': '✓ Endpoint dijalankan → 200 OK',
   '  exception passes up through {name}': '  exception naik melewati {name}',
   '← ExceptionHandler catches it → 500 ProblemDetails': '← ExceptionHandler menangkapnya → 500 ProblemDetails',
   '← {name} (code after next())': '← {name} (kode setelah next())',
-  'The endpoint never ran — authorization short-circuited the pipeline.': 'Endpoint-nya tidak pernah dijalankan — authorization melakukan short-circuit pada pipeline.',
-  'Only the outermost middleware could catch the exception, which is why it must be registered first.': 'Hanya middleware terluar yang bisa menangkap exception itu, makanya ia harus didaftarkan paling awal.',
+  'The endpoint never ran because authorization short-circuited the pipeline.': 'Endpoint-nya tidak pernah jalan karena authorization langsung memutus pipeline.',
+  'Only the outermost middleware could catch the exception, which is why it must come first.': 'Cuma middleware paling luar yang bisa menangkap exception itu, jadi harus dipasang paling awal.',
   'In through six stages, back out through the same stages in reverse.': 'Masuk lewat enam tahap, keluar lewat tahap yang sama dengan urutan terbalik.',
   'Send request': 'Kirim request',
 
   // DI
   'Service lifetimes': 'Service lifetime',
-  'Each request resolves every service twice — once in the endpoint, once in a dependency. Compare the instance IDs.': 'Tiap request me-resolve setiap service dua kali — sekali di endpoint, sekali di sebuah dependency. Bandingkan ID instance-nya.',
+  'Each request resolves every service twice: once in the endpoint and once inside a dependency. Compare the instance IDs.': 'Tiap request me-resolve tiap service dua kali: sekali di endpoint dan sekali di dependency. Bandingkan ID instance-nya.',
   'Send a few requests. Same colour = same object instance.': 'Kirim beberapa request. Warna sama = instance object yang sama.',
   'Request': 'Request',
   'Singleton: one instance forever. Scoped: one per request, shared within it. Transient: a new one every single time it is asked for.': 'Singleton: satu instance selamanya. Scoped: satu per request, dipakai bersama di dalam request itu. Transient: instance baru setiap kali diminta.',
   'Restart app': 'Restart aplikasi',
-  'App restarted — a fresh singleton ({id}) was created. Send requests to compare with earlier runs.': 'Aplikasi di-restart — singleton baru ({id}) dibuat. Kirim request untuk membandingkannya dengan sesi sebelumnya.',
+  'App restarted with a fresh singleton ({id}). Send requests to compare with earlier runs.': 'Aplikasi baru restart dengan singleton baru ({id}). Kirim request lagi untuk membandingkannya dengan hasil tadi.',
 
   // joins
   'JOIN explorer': 'JOIN explorer',
@@ -118,15 +118,15 @@ I18N.add({
 
   // journey
   'One click through the whole stack': 'Satu klik melewati seluruh stack',
-  'Follow “Add product” from the button in React to a row in SQL and back. Every lesson in this program lives at one of these hops.': 'Ikuti “Add product” dari tombol di React sampai jadi satu baris di SQL, lalu kembali lagi. Setiap materi di program ini berada di salah satu perhentian ini.',
+  'Follow “Add product” from the button in React to a row in SQL and back. Every lesson in this program lives at one of these hops.': 'Ikuti alur "Add product" dari tombol di React ke satu baris SQL sampai balik lagi. Tiap pelajaran di program ini membahas salah satu titiknya.',
   'The user clicks Add. The onClick handler runs and calls the mutation with { name, price }.': 'User mengklik Add. Handler onClick berjalan dan memanggil mutation dengan { name, price }.',
   'fetch() sends POST /api/products with a JSON body and the auth cookie or token in the headers.': 'fetch() mengirim POST /api/products dengan body JSON serta cookie atau token auth di header.',
   'The web server accepts the connection, parses the HTTP request and creates an HttpContext.': 'Web server menerima koneksi, mem-parsing HTTP request, dan membuat HttpContext.',
-  'The request passes exception handling, routing, authentication and authorization — in that order.': 'Request melewati exception handling, routing, authentication, dan authorization — dengan urutan itu.',
-  'Model binding turns the JSON into a CreateProductRequest; validation runs; an invalid body returns 400 here.': 'Model binding mengubah JSON menjadi CreateProductRequest; validasi dijalankan; body yang tidak valid langsung dibalas 400 di sini.',
-  'The container supplies a scoped DbContext and services. Your async handler awaits each step, freeing the thread during I/O.': 'Container menyediakan DbContext yang scoped beserta service lainnya. Handler async-mu meng-await tiap langkah, sehingga thread bebas selama I/O.',
-  'db.Products.Add(entity) is tracked; SaveChangesAsync translates the change into a parameterized INSERT.': 'db.Products.Add(entity) di-track; SaveChangesAsync menerjemahkan perubahan itu menjadi INSERT yang parameterized.',
+  'The request passes exception handling, routing, authentication and authorization — in that order.': 'Request melewati exception handling, routing, authentication, dan authorization sesuai urutan itu.',
+  'Model binding turns the JSON into a CreateProductRequest; validation runs; an invalid body returns 400 here.': 'Model binding mengubah JSON jadi CreateProductRequest lalu memvalidasinya. Body yang salah langsung dibalas 400 di sini.',
+  'The container supplies a scoped DbContext and services. Your async handler awaits each step, freeing the thread during I/O.': 'Container menyediakan DbContext scoped dan service lainnya. Handler async-mu meng-await tiap langkah agar thread tidak tertahan saat I/O.',
+  'db.Products.Add(entity) is tracked; SaveChangesAsync translates the change into a parameterized INSERT.': 'db.Products.Add(entity) mulai di-track, lalu SaveChangesAsync mengubahnya menjadi query INSERT berparameter.',
   'The database checks constraints, writes the row, updates indexes and commits the transaction. The new id is returned.': 'Database mengecek constraint, menulis barisnya, meng-update index, lalu meng-commit transaction. Id yang baru dikembalikan.',
   '201 Created with the JSON body travels back out through the middleware in reverse order.': '201 Created beserta body JSON berjalan keluar melewati middleware dengan urutan terbalik.',
-  'The mutation succeeds and invalidates the products query; it refetches; state changes; React re-renders and patches the DOM.': 'Mutation berhasil dan meng-invalidate query products; data di-fetch ulang; state berubah; React me-render ulang dan mem-patch DOM.'
+  'The mutation succeeds and invalidates the products query; it refetches; state changes; React re-renders and patches the DOM.': 'Mutation sukses lalu meng-invalidate query products. Data diambil ulang, state berubah, dan React memperbarui DOM.'
 });

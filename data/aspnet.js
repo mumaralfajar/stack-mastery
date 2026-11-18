@@ -1,25 +1,25 @@
 TRACKS.push({
   id: 'aspnet', name: 'ASP.NET Core', lang: 'cs',
-  tagline: 'The backend: HTTP, APIs, dependency injection, EF Core, security and production.',
+  tagline: 'The backend: HTTP, APIs, dependency injection, EF Core, security, and production.',
   lessons: [
     // ---------------- Beginner ----------------
     {
       id: 'http', title: 'How the web works: HTTP in 20 minutes', level: 0, mins: 25, viz: 'journey',
       terms: [
         ['Method & URL', 'Verb (`GET`, `POST`, `PUT`, `DELETE`) plus resource path (`/api/products/7`) telling the server what action to take.'],
-        ['Status code', 'Three-digit verdict (`200 OK`, `201 Created`, `400 Bad Request`, `404 Not Found`, `500 Error`) telling clients if the request succeeded.'],
-        ['Headers & JSON body', 'Key/value metadata (`Authorization`, `Content-Type`) wrapped around the actual JSON payload traveling over HTTP.']
+        ['Status code', 'Three-digit verdict (`200 OK`, `201 Created`, `400 Bad Request`, `404 Not Found`, `500 Error`) telling clients how the request turned out.'],
+        ['Headers & JSON body', 'Key/value metadata (`Authorization`, `Content-Type`) wrapped around the JSON payload traveling over HTTP.']
       ],
-      why: "ASP.NET Core is a machine that turns HTTP requests into HTTP responses. Once you can read a raw request and response, you can debug web problems in any framework. Every sample in this track is a complete `Program.cs` for .NET 10. Start from `dotnet new web`, run the `dotnet add package` lines at the top of the sample if it has any, and paste it in. Samples with a database expect SQL Server Express on your machine (`.\\SQLEXPRESS`) unless you set a `Shop` connection string.",
+      why: "ASP.NET Core turns HTTP requests into HTTP responses. Once you can read raw requests and responses, you can debug web issues in any framework. Every sample here is a complete `Program.cs` for .NET 10. Start with `dotnet new web`, run any `dotnet add package` lines at the top, and paste the file in. Database samples expect local SQL Server Express (`.\\SQLEXPRESS`) unless you set a `Shop` connection string.",
       points: [
-        "The browser (client) sends a **request**: a method (`GET`, `POST`, `PUT`, `DELETE`), a URL, headers, and sometimes a body.",
-        "The server returns a **response**: a status code, headers, and usually a body (HTML or JSON).",
-        "Status families: `2xx` success, `3xx` redirect, `4xx` the client made a mistake, `5xx` the server failed.",
-        "HTTP is **stateless**: each request stands alone. Identity is sent again every time, in a cookie or a token.",
-        "`GET` reads and must not change data; `POST` creates; `PUT`/`PATCH` update; `DELETE` removes.",
-        "`GET`, `PUT` and `DELETE` are **idempotent**: sending the same request twice leaves the same result as sending it once. `POST` isn't, so a retried `POST` can create two orders.",
-        "A browser page on one origin (`http://localhost:5173`) may only read responses from another origin (`http://localhost:5000`) if the server allows it with **CORS** headers. A React app calling its API is exactly that case; the routing lesson shows the setup.",
-        "The Network tab in the browser's dev tools shows every request and response. Keep it open while you work."
+        "The browser sends a **request**: a method (`GET`, `POST`, `PUT`, `DELETE`), a URL, headers, and sometimes a body.",
+        "The server returns a **response**: a status code, headers, and usually an HTML or JSON body.",
+        "Status families: `2xx` success, `3xx` redirect, `4xx` client error, and `5xx` server failure.",
+        "HTTP is **stateless**, so each request stands alone. Identity gets sent again every time in a cookie or token.",
+        "`GET` reads data without changing it, `POST` creates, `PUT` or `PATCH` updates, and `DELETE` removes.",
+        "`GET`, `PUT`, and `DELETE` are **idempotent**, meaning repeating a request leaves the same result as running it once. `POST` isn't, so retrying a `POST` can create duplicate orders.",
+        "A page on one origin (`http://localhost:5173`) can read responses from another (`http://localhost:5000`) only if the server sends **CORS** headers. Your React app calling this API hits that exact rule, covered in the routing lesson.",
+        "Keep the browser dev tools Network tab open while working so you can inspect every request and response."
       ],
       code: `
 // Program.cs: the smallest ASP.NET Core app
@@ -41,18 +41,18 @@ app.Run();
 //
 //            {"now":"2026-01-15T09:30:00.1234567Z"}
 `,
-      practice: "Run `dotnet new web`, replace `Program.cs` with the sample, and call `/time` from the browser, from `curl -i`, and with the dev tools Network tab open. Find the method, status code and `Content-Type` in each.",
-      teach: "Explain what happens between typing a URL and seeing a page, using the words request, response, status code and header.",
-      analogy: "HTTP is ordering at a counter by letter. You send an envelope: what you want (method and URL), notes on the outside (headers) and the contents (body). The kitchen sends an envelope back, stamped with a result code. The kitchen has no memory of you, so you show your loyalty card every single time.",
+      practice: "Run `dotnet new web`, paste the sample into `Program.cs`, and hit `/time` from the browser, `curl -i`, and the dev tools Network tab. Check the method, status code, and `Content-Type` in each.",
+      teach: "Explain what happens between typing a URL and seeing a page, using the words request, response, status code, and header.",
+      analogy: "HTTP works like ordering at a counter by mail. You send an envelope carrying what you want (method and URL), outer notes (headers), and the contents (body). The kitchen mails back a stamped envelope, and because it forgets you every time, you enclose your loyalty card with every order.",
       pitfalls: [
-        "Thinking the server 'remembers' the user between requests. It doesn't; a cookie or token is sent each time.",
-        "Using `GET` for operations that change data. Browsers, crawlers and link previews call `GET` freely.",
-        "Returning `200 OK` with an error message in the body instead of a proper `4xx`/`5xx` code."
+        "Thinking the server remembers the user between requests. It doesn't, so a cookie or token travels on every request.",
+        "Using `GET` for actions that mutate data. Browsers, crawlers, and link previews trigger `GET` links on their own.",
+        "Returning `200 OK` with an error message in the body instead of an accurate `4xx` or `5xx` code."
       ],
       quiz: [
-        { q: "Which status code family means 'the client sent something wrong'?", a: ["2xx", "3xx", "4xx", "5xx"], c: 2, why: "4xx codes such as 400, 401 and 404 signal a problem with the request." },
-        { q: "HTTP being stateless means…", a: ["The server can't store any data", "Each request carries everything needed to process it", "Responses have no body", "Cookies are not allowed"], c: 1, why: "The protocol keeps no memory between requests. Cookies are how state is sent again with each one." },
-        { q: "A network error happens and the client automatically sends the same request again. For which method is that safe without extra design?", a: ["`POST /orders`", "`PUT /orders/7`", "`POST /payments`", "None of them"], c: 1, why: "`PUT` replaces the resource with the same content, so repeating it changes nothing more. Repeating a `POST` can create a second order or charge." }
+        { q: "Which status code family means 'the client sent something wrong'?", a: ["2xx", "3xx", "4xx", "5xx"], c: 2, why: "4xx codes like 400, 401, and 404 point to a client request mistake." },
+        { q: "HTTP being stateless means…", a: ["The server can't store any data", "Each request carries everything needed to process it", "Responses have no body", "Cookies are not allowed"], c: 1, why: "The protocol keeps no memory between requests. Cookies send state again with each request." },
+        { q: "A network error happens and the client automatically retries the same request. Which method is safe without extra design?", a: ["`POST /orders`", "`PUT /orders/7`", "`POST /payments`", "None of them"], c: 1, why: "`PUT` overwrites the resource with identical content, while repeating a `POST` can double an order or charge." }
       ]
     },
     {
@@ -62,14 +62,14 @@ app.Run();
         ['Middleware pipeline (`app.Use*`)', 'Second half of `Program.cs`: builds the ordered chain of steps that processes each HTTP request and response.'],
         ['Minimal API endpoint', '`app.MapGet("/path", handler)` maps a route directly to a C# lambda without extra controller boilerplate.']
       ],
-      why: "`Program.cs` has two halves, and most 'why is my service not found?' or 'why isn't my middleware running?' questions are answered by knowing which half something belongs in.",
+      why: "`Program.cs` splits into two halves. Knowing which half owns a line immediately answers most 'why is my service missing?' or 'why isn't middleware running?' bugs.",
       points: [
-        "**Half one, the builder**: register services (things the app needs) with `builder.Services.Add…`, and read configuration.",
-        "**Half two, the app**: after `builder.Build()`, build the request pipeline with `app.Use…` and map endpoints with `app.Map…`. `app.Run()` starts the server and blocks until shutdown.",
-        "**Kestrel** is the built-in web server that listens on a port and hands requests to your pipeline.",
-        "Configuration is layered: `appsettings.json` → `appsettings.{Environment}.json` → user secrets (Development only) → environment variables → command-line arguments. Later sources win.",
-        "`ASPNETCORE_ENVIRONMENT` selects `Development`, `Staging` or `Production` behavior.",
-        "This track uses **minimal APIs** (`app.MapGet`). Controllers are the other style: `AddControllers()` plus `MapControllers()`, on the same routing engine."
+        "In the **builder half**, register services the app depends on via `builder.Services.Add…` and wire up configuration.",
+        "In the **app half** after `builder.Build()`, assemble the middleware pipeline with `app.Use…` and map endpoints with `app.Map…`. `app.Run()` starts Kestrel and waits until shutdown.",
+        "**Kestrel** is the built-in web server listening on a port and passing requests into your pipeline.",
+        "Configuration stacks in order: `appsettings.json` → `appsettings.{Environment}.json` → user secrets (Development only) → environment variables → CLI args. Later values override earlier ones.",
+        "`ASPNETCORE_ENVIRONMENT` chooses `Development`, `Staging`, or `Production` behavior.",
+        "This track uses **minimal APIs** (`app.MapGet`). Controllers (`AddControllers()` + `MapControllers()`) sit on the exact same routing engine."
       ],
       code: `
 // dotnet add package Microsoft.AspNetCore.OpenApi
@@ -114,27 +114,27 @@ public class Greeter : IGreeter
         "Assuming `appsettings.Development.json` is used in production."
       ],
       quiz: [
-        { q: "Where must `builder.Services.AddScoped<…>()` be called?", a: ["After `app.Run()`", "Before `builder.Build()`", "Inside an endpoint handler", "Anywhere, as long as it's in `Program.cs`"], c: 1, why: "The service collection is frozen when the app is built." },
-        { q: "The same key exists in `appsettings.json` and an environment variable. Which wins by default?", a: ["`appsettings.json`", "The environment variable", "Neither: the app refuses to start", "Whichever changed most recently"], c: 1, why: "Configuration sources added later override earlier ones; environment variables come after the JSON files." },
-        { q: "What is Kestrel?", a: ["A database driver", "The cross-platform web server built into ASP.NET Core", "A reverse proxy you have to install separately", "The background job scheduler"], c: 1, why: "Kestrel listens for HTTP connections and feeds requests into the pipeline. A reverse proxy such as nginx or IIS can sit in front of it, but isn't required." }
+        { q: "Where must `builder.Services.AddScoped<…>()` be called?", a: ["After `app.Run()`", "Before `builder.Build()`", "Inside an endpoint handler", "Anywhere, as long as it's in `Program.cs`"], c: 1, why: "The service collection locks as soon as the app builds." },
+        { q: "The same key exists in `appsettings.json` and an environment variable. Which wins by default?", a: ["`appsettings.json`", "The environment variable", "Neither: the app refuses to start", "Whichever changed most recently"], c: 1, why: "Later configuration sources override earlier ones, and environment variables load after the JSON files." },
+        { q: "What is Kestrel?", a: ["A database driver", "The cross-platform web server built into ASP.NET Core", "A reverse proxy you have to install separately", "The background job scheduler"], c: 1, why: "Kestrel listens for HTTP connections and passes requests to your pipeline. A reverse proxy like nginx or IIS can sit in front, though it's optional." }
       ]
     },
     {
       id: 'routing', title: 'Routing, endpoints and model binding', level: 0, mins: 35,
       terms: [
-        ['Route constraint (`{id:int}`)', 'Ensures `/products/abc` rejects immediately with 404 before entering your C# handler with a broken parameter.'],
+        ['Route constraint (`{id:int}`)', 'Ensures `/products/abc` stops immediately with 404 before entering your C# handler with a broken parameter.'],
         ['Model binding', 'Automatically pulls typed values from route segments, query strings (`?page=2`), headers, and JSON request bodies.'],
         ['`TypedResults` vs `Results`', '`TypedResults.Ok(x)` bakes concrete return types (`Results<Ok<T>, NotFound>`) into signatures so OpenAPI documents every status code.']
       ],
-      why: "An API is a list of endpoints. Mapping URLs to code, reading inputs safely and returning the right status codes is the daily work of a backend developer.",
+      why: "An API is a set of endpoints. Mapping URLs to handlers, reading input safely, and returning accurate status codes are everyday backend work.",
       points: [
-        "**Routing** matches method + URL pattern to a handler: `GET /api/products/{id}`.",
-        "**Model binding** fills handler parameters from the route, query string, headers and JSON body automatically.",
-        "Return the right result: `Ok` 200, `Created` 201, `NoContent` 204, `BadRequest` 400, `NotFound` 404. `TypedResults` plus `Results<…>` in the signature also documents every possible response in the OpenAPI description.",
-        "REST convention: nouns in URLs (`/products/5`), HTTP methods for the verbs. Not `/getProduct?id=5`.",
-        "Route constraints such as `{id:int}` decide which route matches. `/api/products/abc` simply doesn't match, so the caller gets **404**, not 400. Validate input in the handler or with validation, not with constraints.",
-        "Anything the endpoints share lives as long as the app and is used by many requests at once, so it must be thread-safe: hence `ConcurrentDictionary` and `Interlocked` below.",
-        "**CORS** lets your React dev server, on another origin, call the API from the browser. Name the exact origins you allow."
+        "**Routing** matches an HTTP method and URL pattern like `GET /api/products/{id}` to your handler.",
+        "**Model binding** pulls handler parameters from the route, query string, headers, and JSON body automatically.",
+        "Return accurate results: `Ok` 200, `Created` 201, `NoContent` 204, `BadRequest` 400, and `NotFound` 404. `TypedResults` paired with `Results<…>` also documents every status in OpenAPI.",
+        "Follow REST style with nouns in URLs (`/products/5`) and HTTP methods for verbs, not `/getProduct?id=5`.",
+        "Route constraints like `{id:int}` decide which route matches. `/api/products/abc` never matches at all, returning **404** instead of 400, so validate input inside your handler or filter.",
+        "Shared endpoint state lives for the whole app lifetime across concurrent requests, so keep it thread-safe using `ConcurrentDictionary` and `Interlocked`.",
+        "**CORS** lets a frontend on another origin call the API from a browser. List the exact allowed origins."
       ],
       code: `
 using System.Collections.Concurrent;
@@ -179,36 +179,36 @@ public record CreateProduct(string Name, decimal Price);
 `,
       practice: "Add `PUT /api/products/{id}` that replaces a product and returns 404 when it doesn't exist. Test all five endpoints with an `.http` file or `curl`, and check every status code. Then call `/api/products/abc` and explain the 404.",
       teach: "Explain how ASP.NET Core knows that the `id` parameter comes from the URL and `input` comes from the request body.",
-      analogy: "Routing is a hotel receptionist: 'room 204? Second floor, on the left.' Model binding is the bellhop who unpacks your suitcase into the right drawers before you even enter the room: route values here, query values there, the JSON body laid out as an object.",
+      analogy: "Routing is a hotel receptionist: 'room 204? Second floor, on the left.' Model binding is the bellhop unpacking your bag into the right drawers before you step inside. Route params go in one drawer, query params in another, and the JSON body becomes an object.",
       pitfalls: [
-        "Returning 200 with `null` when something isn't found. Return 404.",
-        "Generating ids with `list.Count + 1`. After a delete, the next id repeats an existing one.",
-        "Keeping shared data in a plain `List<T>` that many requests change at once.",
-        "Exposing database entities directly as request and response bodies. Use DTOs (records).",
-        "Verbs in URLs (`/api/createProduct`). Let the HTTP method carry the verb."
+        "Returning 200 with `null` when nothing matches. Return 404 instead.",
+        "Generating ids with `list.Count + 1`. Deleting one row makes the next id collide.",
+        "Storing shared data in a plain `List<T>` mutated by concurrent requests.",
+        "Exposing database entities directly in requests or responses. Map them to DTO records.",
+        "Putting verbs in URLs like `/api/createProduct`. Let the HTTP method carry the verb."
       ],
       quiz: [
         { q: "A `POST` successfully creates a resource. Best status code?", a: ["200", "201", "204", "202"], c: 1, why: "201 Created, ideally with a `Location` header pointing at the new resource. 202 means 'accepted, not done yet'." },
         { q: "With `app.MapGet(\"/items/{id:int}\", (int id) => …)`, a request to `/items/abc` returns…", a: ["500", "404", "200 with id = 0", "400"], c: 1, why: "The `:int` constraint doesn't match, so no route is found. That's why constraints aren't a validation tool." },
-        { q: "Where does a complex-type parameter like `CreateProduct input` bind from by default in a POST?", a: ["Query string", "Route", "JSON body", "Form fields"], c: 2, why: "Complex types bind from the body; simple types bind from the route or the query string." }
+        { q: "Where does a complex-type parameter like `CreateProduct input` bind from by default in a POST?", a: ["Query string", "Route", "JSON body", "Form fields"], c: 2, why: "Complex types bind from the JSON body, while simple types bind from the route or query string." }
       ]
     },
     // ---------------- Intermediate ----------------
     {
       id: 'middleware', title: 'The middleware pipeline', level: 1, mins: 30, viz: 'middleware',
       terms: [
-        ['Middleware delegate (`next()`)', 'A component wrapping every HTTP request: code before `await next()` runs on the way in; code after runs on the way out.'],
+        ['Middleware delegate (`next()`)', 'Wraps each HTTP request: code before `await next()` runs on the way in, and code after runs on the way out.'],
         ['Short-circuiting', 'Returning `401` or a cached response early without invoking `next()`, skipping downstream handlers safely.'],
-        ['Pipeline ordering', 'Running `ExceptionHandler` first and `UseAuthentication()` before `UseAuthorization()` ensures errors are caught and identity exists before rules check it.']
+        ['Pipeline ordering', 'Running `ExceptionHandler` first and `UseAuthentication()` before `UseAuthorization()` keeps errors caught and identity populated first.']
       ],
-      why: "Error handling, CORS, authentication and logging are all middleware. Getting their order wrong is one of the most common ASP.NET Core mistakes, and it's hard to see unless you have the pipeline pictured in your head.",
+      why: "Error handling, CORS, authentication, and logging are all middleware. Misordering them is a classic ASP.NET Core mistake, and it's tough to spot until you picture how the pipeline flows.",
       points: [
-        "A request passes through the middleware **in the order registered**, and the response travels back through them in **reverse**.",
-        "Each middleware may do work before `next()`, call `next()`, do work after, or **short-circuit** by not calling `next()` at all.",
-        "Order matters: exception handling first (so it wraps everything), then HTTPS, static files, CORS, authentication, authorization, endpoints.",
-        "You don't have to call `UseRouting()`: `WebApplication` adds it at the start of the pipeline for you. Call it yourself only when some middleware must run before routing.",
-        "`UseExceptionHandler()` needs to know how to write the error: register `AddProblemDetails()` (or an `IExceptionHandler`), or the app fails at startup.",
-        "Custom middleware is just `app.Use(async (context, next) => { … })`, or a class with an `InvokeAsync` method."
+        "Requests pass through middleware **in registration order**, and responses unwind back out in **reverse**.",
+        "Each middleware can act before `next()`, await `next()`, act after it, or **short-circuit** by skipping `next()` altogether.",
+        "Order matters: exception handling wraps everything first, followed by HTTPS, static files, CORS, authentication, authorization, and endpoints.",
+        "You don't need `UseRouting()` unless middleware must run before route matching, because `WebApplication` wires it up automatically.",
+        "`UseExceptionHandler()` needs an error formatter like `AddProblemDetails()` or an `IExceptionHandler`, or the app crashes on startup.",
+        "Custom middleware can be inline with `app.Use(async (context, next) => { … })` or a class with an `InvokeAsync` method."
       ],
       code: `
 // dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
@@ -262,18 +262,18 @@ app.Run();
     {
       id: 'di', title: 'Dependency injection and service lifetimes', level: 1, mins: 35, viz: 'di',
       terms: [
-        ['`Transient`', 'A brand-new instance created every time a constructor or endpoint asks for the service.'],
-        ['`Scoped`', 'One shared instance created per HTTP request (and disposed at request end) — mandatory for `DbContext` and unit-of-work state.'],
-        ['Captive dependency bug', 'Injecting a short-lived `Scoped` service inside a long-lived `Singleton`, accidentally pinning stale DB connections forever.']
+        ['`Transient`', 'Creates a fresh instance every single time a constructor or endpoint requests it.'],
+        ['`Scoped`', 'One instance shared per HTTP request and disposed at the end, which `DbContext` and unit-of-work state require.'],
+        ['Captive dependency bug', 'Injecting a short-lived `Scoped` service inside a long-lived `Singleton`, pinning stale DB state forever.']
       ],
-      why: "DI is the backbone of ASP.NET Core. Choosing the wrong lifetime gives you stale data, races on shared state, and the 'cannot consume scoped service from singleton' error.",
+      why: "DI wires the whole app together in ASP.NET Core. Picking the wrong lifetime causes stale data, race conditions on shared state, and the 'cannot consume scoped service from singleton' crash.",
       points: [
-        "Classes declare what they need in the constructor; the **container** creates and supplies it. Classes don't `new` their own dependencies.",
-        "**Transient**: a new instance every time it's requested. For lightweight, stateless services.",
-        "**Scoped**: one instance per HTTP request. The default for anything touching the database; `DbContext` is scoped.",
-        "**Singleton**: one instance for the whole app. Must be thread-safe and hold no per-user state.",
-        "**Captive dependency**: a singleton holding a scoped service keeps it alive forever. In Development, ASP.NET Core checks for this and throws; in Production it doesn't check, so the bug slips through.",
-        "`TimeProvider` is .NET's built-in clock. Inject it instead of calling `DateTime.UtcNow`, and tests can swap in a fake one."
+        "Classes ask for what they need in constructors, and the **container** builds and passes it in instead of classes calling `new` themselves.",
+        "Pick **transient** for lightweight stateless helpers where every resolution should create a fresh instance.",
+        "Pick **scoped** for one shared instance per HTTP request, the standard lifetime for database work like `DbContext`.",
+        "Pick **singleton** when one instance lives for the whole app. Keep it thread-safe and free of per-user state.",
+        "Watch out for a **captive dependency**, where a singleton holds a scoped service open forever. Development checks for this and throws, while Production skips the check and lets the bug slip in.",
+        "`TimeProvider` is .NET's built-in clock. Inject it instead of calling `DateTime.UtcNow` so tests can substitute a fake clock."
       ],
       code: `
 // dotnet add package Microsoft.EntityFrameworkCore.SqlServer
@@ -322,18 +322,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Order> Orders => Set<Order>();
 }
 `,
-      practice: "Register a class with a `Guid Id = Guid.NewGuid()` property three times — transient, scoped and singleton — and return all three ids from an endpoint that injects each one twice. Refresh and explain the pattern. Then make `OrderService` a singleton, run in Development, and read the error.",
+      practice: "Register a class with `Guid Id = Guid.NewGuid()` as transient, scoped, and singleton, then inject each lifetime twice into one endpoint and return all six ids. Refresh a few times and explain the pattern. Next, switch `OrderService` to singleton, start in Development, and inspect the error.",
       teach: "Explain the three service lifetimes and why a `DbContext` must not be injected into a singleton.",
-      analogy: "A hotel. **Singleton** is the lobby clock: one for everyone, forever. **Scoped** is your room key: yours for this stay, the same one each time you ask at the desk, handed back at checkout. **Transient** is a paper cup: a fresh one every time you ask.",
+      analogy: "Think of a hotel. **Singleton** is the lobby clock shared by everyone forever. **Scoped** is your room key, the same card for your whole stay and returned at checkout. **Transient** is a paper cup, fresh every single time you ask.",
       pitfalls: [
-        "Storing per-user data in a singleton. Every user then sees it.",
-        "Injecting a scoped service into a singleton. If a singleton needs one, inject `IServiceScopeFactory` and create a scope for each unit of work.",
-        "Pulling services from `IServiceProvider` all over the code instead of declaring them in the constructor (the service locator pattern)."
+        "Storing per-user data in a singleton, letting every user read it.",
+        "Injecting a scoped service into a singleton. Inject `IServiceScopeFactory` instead and create a scope per job.",
+        "Pulling services from `IServiceProvider` inside methods instead of declaring constructor dependencies (the service locator anti-pattern)."
       ],
       quiz: [
-        { q: "Within a single HTTP request, a scoped service is injected into two different classes. How many instances exist?", a: ["One", "Two", "One per thread", "Two, then merged at the end of the request"], c: 0, why: "Scoped means one instance per scope, and each request is one scope." },
-        { q: "Which lifetime does `AddDbContext` use by default?", a: ["Singleton", "Scoped", "Transient", "Pooled singleton"], c: 1, why: "A `DbContext` is a unit of work for one request and is not thread-safe." },
-        { q: "What is a captive dependency?", a: ["A circular reference between two services", "A shorter-lived service held by a longer-lived one", "A service registered twice", "A service that is never disposed"], c: 1, why: "For example, a singleton holding a scoped `DbContext`: it never gets released, and every request shares it." }
+        { q: "Within a single HTTP request, a scoped service is injected into two different classes. How many instances exist?", a: ["One", "Two", "One per thread", "Two, then merged at the end of the request"], c: 0, why: "Scoped creates one instance per scope, and every request gets one scope." },
+        { q: "Which lifetime does `AddDbContext` use by default?", a: ["Singleton", "Scoped", "Transient", "Pooled singleton"], c: 1, why: "A `DbContext` tracks one request's unit of work and isn't thread-safe." },
+        { q: "What is a captive dependency?", a: ["A circular reference between two services", "A shorter-lived service held by a longer-lived one", "A service registered twice", "A service that is never disposed"], c: 1, why: "Think of a singleton keeping a scoped `DbContext`: it never disposes, and concurrent requests share it." }
       ]
     },
     {
@@ -344,15 +344,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         ['Projection (`.Select(...)`)', 'Fetches only the DTO columns you need directly in SQL instead of loading entire entity graphs into memory.'],
         ['Migration', 'Versioned C# code (`dotnet ef migrations add`) keeping database schema evolution synced in Git.']
       ],
-      why: "EF Core is where C#, LINQ and SQL meet. Used well, it removes boilerplate; used blindly, it generates slow queries you never see. The habit that matters most is reading the SQL it produces.",
+      why: "EF Core bridges C#, LINQ, and SQL. Used thoughtfully, it cuts boilerplate, though using it blindly hides slow queries. Checking the generated SQL is the best habit you can build here.",
       points: [
-        "A `DbContext` is a session with the database; each `DbSet<T>` maps to a table, and each entity object to a row.",
-        "LINQ on a `DbSet` is translated to SQL and runs when you enumerate it (`ToListAsync`, `FirstOrDefaultAsync`).",
-        "**Migrations** version the schema in code. Install the tool once (`dotnet tool install --global dotnet-ef`), add the `Microsoft.EntityFrameworkCore.Design` package, then `dotnet ef migrations add Init` and `dotnet ef database update`.",
-        "**Change tracking**: load an entity, change it, call `SaveChangesAsync`, and EF writes the `UPDATE`.",
-        "Load related data by projecting with `Select`, which fetches only the columns you need, or with `Include` when you really need whole entities.",
-        "Map money explicitly with `[Precision(10, 2)]`, so the column is `DECIMAL(10,2)` like in the SQL track.",
-        "LINQ and `FromSql($\"…{value}\")` send values as SQL parameters. `FromSqlRaw` with a concatenated string does not, and is open to SQL injection."
+        "A `DbContext` is a session with the database, where each `DbSet<T>` maps to a table and each entity maps to a row.",
+        "LINQ over a `DbSet` translates to SQL and runs only when enumerated via `ToListAsync` or `FirstOrDefaultAsync`.",
+        "**Migrations** version schema changes in code. Install the CLI tool once (`dotnet tool install --global dotnet-ef`), add `Microsoft.EntityFrameworkCore.Design`, then run `dotnet ef migrations add Init` and `dotnet ef database update`.",
+        "With **change tracking**, EF notices property edits on entities you loaded and generates the `UPDATE` on `SaveChangesAsync`.",
+        "Load related columns by projecting with `Select`, or use `Include` when you actually need the full entities.",
+        "Mark money fields with `[Precision(10, 2)]` so columns become `DECIMAL(10,2)` just like in the SQL track.",
+        "LINQ and `FromSql($\"…{value}\")` parameterize inputs automatically, whereas `FromSqlRaw` with string concatenation opens SQL injection holes."
       ],
       code: `
 // dotnet add package Microsoft.EntityFrameworkCore.SqlServer
@@ -421,17 +421,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 `,
       practice: "Point the sample at SQL Server Express or LocalDB (`Server=(localdb)\\MSSQLLocalDB`), add a migration and apply it, and add a few rows. Call each endpoint and read the SQL in the console. Is it what you would have written by hand?",
       teach: "Explain how a C# LINQ expression such as `db.Products.Where(p => p.Price < 100)` becomes a SQL query.",
-      analogy: "EF Core is an interpreter between two people who speak different languages: you speak C# objects, the database speaks SQL tables. A good interpreter saves you a lot of work, but if you never learn the other language, you won't notice when a translation is long-winded or wrong.",
+      analogy: "EF Core translates between two languages: you speak C# objects and the database speaks SQL tables. An interpreter saves tedious work, yet without knowing SQL you won't catch bloated or wrong translations.",
       pitfalls: [
-        "Never looking at the generated SQL.",
-        "Calling `ToList()` early and filtering in memory instead of in the database.",
-        "Returning entities straight from the API: navigation properties cause serialization cycles and expose columns you didn't mean to.",
-        "Building SQL by concatenation with `FromSqlRaw(\"… '\" + name + \"'\")`."
+        "Never checking the generated SQL in logs.",
+        "Calling `ToList()` early and filtering rows in RAM instead of SQL.",
+        "Returning entities straight from endpoints: navigation properties trigger JSON cycles and leak private columns.",
+        "Concatenating SQL strings inside `FromSqlRaw(\"… '\" + name + \"'\")`."
       ],
       quiz: [
-        { q: "When does `db.Products.Where(p => p.Price < 100)` hit the database?", a: ["Immediately", "When enumerated, e.g. by `ToListAsync()`", "When the app starts", "When `SaveChanges` is called"], c: 1, why: "`IQueryable` is deferred, just like LINQ to Objects." },
-        { q: "What does a migration contain?", a: ["A database backup", "Code describing a schema change, with `Up` and `Down` steps", "Seed data only", "The compiled SQL for every query"], c: 1, why: "Migrations are versioned, reviewable schema changes." },
-        { q: "You loaded an entity and changed a property. What writes it to the database?", a: ["Nothing: it's saved automatically when the property changes", "`db.SaveChangesAsync()`", "`db.Update()` is always required first", "Disposing the context"], c: 1, why: "The change tracker detects the modification; `SaveChanges` sends the `UPDATE`. `Update()` is only needed for entities the context isn't tracking." }
+        { q: "When does `db.Products.Where(p => p.Price < 100)` hit the database?", a: ["Immediately", "When enumerated, e.g. by `ToListAsync()`", "When the app starts", "When `SaveChanges` is called"], c: 1, why: "`IQueryable` stays deferred until enumerated, just like LINQ to Objects." },
+        { q: "What does a migration contain?", a: ["A database backup", "Code describing a schema change, with `Up` and `Down` steps", "Seed data only", "The compiled SQL for every query"], c: 1, why: "Migrations are versioned, reviewable schema scripts." },
+        { q: "You loaded an entity and changed a property. What writes it to the database?", a: ["Nothing: it's saved automatically when the property changes", "`db.SaveChangesAsync()`", "`db.Update()` is always required first", "Disposing the context"], c: 1, why: "Change tracking catches the edit, and `SaveChanges` sends the `UPDATE`. Call `Update()` only on untracked entities." }
       ]
     },
     {
@@ -441,15 +441,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         ['`AddValidation()`', 'Minimal API opt-in endpoint filter enforcing `[Required]`, `[Range]`, and `[MaxLength]` data annotations before your handler executes.'],
         ['RFC 9457 `ProblemDetails`', 'Standard machine-readable JSON error payload (`title`, `status`, `errors`) returned on validation errors or unhandled exceptions.']
       ],
-      why: "An API is a contract with strangers. Validating every input and returning consistent, machine-readable errors is what makes it usable by anyone other than you.",
+      why: "An API is a contract with strangers. Checking every input and returning consistent, predictable errors keeps other developers able to integrate without guessing.",
       points: [
-        "**Never trust input.** Validate at the boundary and return `400 Bad Request` with details.",
-        "**DTOs** (request and response records) separate your API contract from your database entities and prevent over-posting.",
-        "Data annotations (`[Required]`, `[Range]`, `[StringLength]`) express rules declaratively. In .NET 10, `AddValidation()` checks them on minimal API parameters.",
-        "**ProblemDetails** (RFC 9457) is the standard JSON error shape: `type`, `title`, `status`, `detail`, `errors`.",
-        "Handle unexpected exceptions centrally with `UseExceptionHandler`: log the detail, return a generic 500, never leak stack traces.",
-        "Expected failures (not found, conflict, invalid input) aren't exceptions; return status codes for them.",
-        "Rules like 'names are unique' belong in the database as a `UNIQUE` index. Checking first in code and then inserting races when two requests arrive together."
+        "**Never trust input.** Validate right at the boundary and answer invalid bodies with `400 Bad Request` details.",
+        "**DTOs** (request and response records) keep API shapes separate from database entities and stop over-posting.",
+        "Data annotations like `[Required]`, `[Range]`, and `[StringLength]` declare rules right on DTOs. In .NET 10, `AddValidation()` validates minimal API parameters automatically.",
+        "**ProblemDetails** (RFC 9457) defines the standard error JSON shape: `type`, `title`, `status`, `detail`, and `errors`.",
+        "Catch unexpected exceptions in one spot with `UseExceptionHandler`, logging details while returning a generic 500 without stack traces.",
+        "Expected outcomes like missing rows, conflicts, or invalid inputs aren't exceptions. Return status codes for them.",
+        "Enforce uniqueness like 'unique product names' with a database `UNIQUE` index. Checking in C# before inserting races whenever two requests overlap."
       ],
       code: `
 // dotnet add package Microsoft.EntityFrameworkCore.SqlServer
@@ -514,17 +514,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 `,
       practice: "Add validation to every write endpoint in your API. Send five different invalid requests and confirm each returns a `400` ProblemDetails naming the bad field. Send the same new product name twice in parallel and confirm one gets 201 and the other 409. Then throw an exception on purpose and confirm no stack trace reaches the client in Production.",
       teach: "Explain why an API should use separate request and response DTOs instead of accepting and returning the database entity.",
-      analogy: "A DTO is the order form at a counter; the entity is the warehouse record. Customers fill in the form. They don't get to walk into the warehouse and edit the stock ledger, including columns they were never meant to see, such as cost price or `IsAdmin`.",
+      analogy: "A DTO is the order slip at the counter, and the entity is the warehouse ledger. Customers fill out the order slip. They don't wander into the back room to edit wholesale costs or flip `IsAdmin` flags.",
       pitfalls: [
-        "Binding directly to entities and letting clients set fields like `IsAdmin` (over-posting).",
-        "Throwing exceptions for validation failures.",
-        "Checking for a duplicate with `AnyAsync` and then inserting, with no unique index behind it.",
-        "Returning different error shapes from different endpoints."
+        "Binding directly to entities so callers can pass hidden fields like `IsAdmin` (over-posting).",
+        "Throwing exceptions for ordinary validation failures.",
+        "Checking for duplicates with `AnyAsync` before inserting without a database unique index.",
+        "Returning mismatched JSON error formats across endpoints."
       ],
       quiz: [
-        { q: "A client sends a negative price. Correct response?", a: ["500", "200 with an error message", "400 with validation details", "422 with no body"], c: 2, why: "Invalid client input is a 4xx; 400 with field-level details lets the client fix it." },
-        { q: "What problem do request DTOs prevent?", a: ["Slow queries", "Over-posting: clients setting properties they shouldn't control", "Duplicate rows", "CORS errors"], c: 1, why: "Only the fields on the DTO can be bound from the request." },
-        { q: "Two requests create a product called 'Lamp' at the same moment. What reliably stops a duplicate?", a: ["Checking `AnyAsync` before inserting", "A `UNIQUE` index, with the duplicate-key error turned into a 409", "A `lock` around the endpoint", "Validation attributes"], c: 1, why: "Both `AnyAsync` checks can pass before either insert. A `lock` only works on one server. The database index is the one place that sees both." }
+        { q: "A client sends a negative price. Correct response?", a: ["500", "200 with an error message", "400 with validation details", "422 with no body"], c: 2, why: "Invalid client input belongs in 4xx, and a 400 with field errors helps callers fix it." },
+        { q: "What problem do request DTOs prevent?", a: ["Slow queries", "Over-posting: clients setting properties they shouldn't control", "Duplicate rows", "CORS errors"], c: 1, why: "Only fields defined on the DTO bind from the HTTP body." },
+        { q: "Two requests create a product called 'Lamp' at the same moment. What actually stops a duplicate?", a: ["Checking `AnyAsync` before inserting", "A `UNIQUE` index, with the duplicate-key error turned into a 409", "A `lock` around the endpoint", "Validation attributes"], c: 1, why: "Both `AnyAsync` checks can pass before either insert runs, and a `lock` fails across servers. Only a database index sees every write." }
       ]
     },
     // ---------------- Advanced ----------------
@@ -532,19 +532,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
       id: 'auth', title: 'Authentication and authorization', level: 2, mins: 45,
       splits: [['1 · Auth & CORS setup', '// dotnet add package'], ['2 · Endpoints & ownership', 'app.MapGet("/api/products"'], ['3 · Entity & settings', '// appsettings.json']],
       terms: [
-        ['Authentication vs Authorization', 'Authentication verifies *who* you are (`ClaimsPrincipal`); authorization enforces *what* you are allowed to touch.'],
+        ['Authentication vs Authorization', 'Authentication confirms *who* you are (`ClaimsPrincipal`), while authorization checks *what* you can touch.'],
         ['Resource-based auth', 'Checking ownership (`order.UserId == callerId`) per record, returning `404` rather than revealing another user’s order exists.'],
         ['CORS policy', 'Server headers telling browsers which exact frontend origin (never `*` with credentials) may read responses cross-origin.']
       ],
-      why: "Security bugs are the expensive ones. You need to be able to say who the caller is, how the server knows, and how each endpoint decides what they may do.",
+      why: "Security bugs are the most expensive ones to ship. Always know who is calling, how the server verifies them, and how each endpoint enforces permissions.",
       points: [
-        "**Authentication** = proving identity. **Authorization** = deciding permission. Two separate steps, two separate middleware.",
-        "For a browser SPA such as your React app, current guidance is a **backend-for-frontend**: the browser keeps only an `HttpOnly` session cookie, and tokens stay on the server. **JWT bearer tokens** fit mobile apps and service-to-service calls.",
-        "A JWT is three base64url parts: header, payload (claims), signature. It is **signed, not encrypted**: anyone can read it, but nobody can change it without breaking the signature.",
-        "The server checks the signature, issuer, audience and expiry on every request. Keep access tokens short-lived.",
-        "Put token settings in configuration, not in code: `appsettings.json` names your identity provider, and `dotnet user-jwts` writes local test settings into `appsettings.Development.json`.",
-        "Authorize with roles, **policies**, and resource-based checks ('is this order yours?').",
-        "Never store passwords yourself: use ASP.NET Core Identity (salted, slow hashes) or an identity provider over OpenID Connect."
+        "**Authentication** proves identity, and **authorization** enforces permissions. They are two separate steps with separate middleware.",
+        "For browser SPAs like React, prefer a **backend-for-frontend** holding an `HttpOnly` session cookie while keeping tokens server-side. Reserve **JWT bearer tokens** for mobile apps and service calls.",
+        "A JWT packs three base64url segments: header, payload claims, and signature. It's **signed, not encrypted**, so anyone can inspect it, though tampering breaks the signature.",
+        "The server checks signature, issuer, audience, and expiry on every request. Keep access tokens short-lived.",
+        "Keep token settings in config, not hardcoded: `appsettings.json` points to your identity provider, and `dotnet user-jwts` writes dev settings to `appsettings.Development.json`.",
+        "Authorize with roles, **policies**, and record ownership checks ('does this order belong to the caller?').",
+        "Don't roll your own password hashing: reach for ASP.NET Core Identity (salted slow hashes) or an OpenID Connect identity provider."
       ],
       code: `
 // dotnet add package Microsoft.EntityFrameworkCore.SqlServer
@@ -614,17 +614,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 `,
       practice: "Run the sample and create local tokens with `dotnet user-jwts create` (and `--role Admin` for a second one). Prove with requests that 401 (no token), 403 (signed in, not Admin) and 404 (someone else's order) each occur. Then call `/api/products` from a page on `http://localhost:5173` with and without the CORS policy and compare what the browser console says.",
       teach: "Explain the difference between 401 and 403, and why a JWT can be trusted even though anyone can read its contents.",
-      analogy: "A JWT is a festival wristband. Staff can see at a glance what it grants (the claims), it expires tonight, and the tamper-proof seal (the signature) shows the box office issued it. Anyone can read a wristband; nobody can print a convincing one.",
+      analogy: "A JWT works like a festival wristband. Staff see what it allows at a glance (claims) and when it expires, and the tamper-proof seal (signature) proves the box office printed it. Anyone can read it, but nobody can forge one.",
       pitfalls: [
-        "Putting secrets or sensitive data in a JWT payload. Anyone holding the token can read it.",
-        "Checking only 'is signed in' and forgetting to check that the caller owns the specific resource (IDOR).",
-        "Keeping access tokens in `localStorage`, where any injected script can read them.",
-        "Treating CORS as security for your API. It only tells browsers what to allow; `curl` and other servers ignore it completely."
+        "Storing secrets or sensitive data inside a JWT payload, since anyone holding the token can decode it.",
+        "Checking only 'is signed in' while forgetting to verify the caller owns the requested record (IDOR).",
+        "Stashing access tokens in `localStorage`, where any injected XSS script can grab them.",
+        "Treating CORS like server security. It only guides browsers, while `curl` and other servers ignore it completely."
       ],
       quiz: [
-        { q: "A signed-in user without the Admin role calls an admin-only endpoint. Status?", a: ["401", "403", "404", "400"], c: 1, why: "401 means not authenticated; 403 means authenticated but not permitted." },
-        { q: "What does the signature of a JWT guarantee?", a: ["The payload is secret", "The token was issued by the holder of the key and hasn't been modified", "The token hasn't expired", "The user is who they say they are, forever"], c: 1, why: "Signing gives integrity and authenticity, not confidentiality. Expiry is a separate claim that the server checks." },
-        { q: "Which check stops user A from reading user B's order at `/api/orders/17`?", a: ["`RequireAuthorization()` alone", "A query that only finds orders belonging to the caller", "HTTPS", "CORS"], c: 1, why: "Being signed in isn't enough; ownership has to be checked for each resource." }
+        { q: "A signed-in user without the Admin role calls an admin-only endpoint. Status?", a: ["401", "403", "404", "400"], c: 1, why: "401 means unauthenticated, and 403 means signed in without permission." },
+        { q: "What does the signature of a JWT guarantee?", a: ["The payload is secret", "The token was issued by the holder of the key and hasn't been modified", "The token hasn't expired", "The user is who they say they are, forever"], c: 1, why: "Signing gives integrity and authenticity, not secrecy. Expiry is a separate claim verified on the server." },
+        { q: "Which check stops user A from reading user B's order at `/api/orders/17`?", a: ["`RequireAuthorization()` alone", "A query that only finds orders belonging to the caller", "HTTPS", "CORS"], c: 1, why: "Login proves identity only. Check record ownership on every private resource." }
       ]
     },
     {
@@ -632,16 +632,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
       terms: [
         ['Options pattern (`IOptions<T>`)', 'Binds configuration sections into strongly typed C# classes validated on startup (`ValidateDataAnnotations().ValidateOnStart()`).'],
         ['Structured logging', 'Logging templates (`"Paid {OrderId} for {Total}"`) preserve searchable named fields in Seq/OpenTelemetry instead of plain text strings.'],
-        ['User Secrets / Key Vault', 'Keeps DB passwords and API keys out of Git and `appsettings.json` cleanly per environment.']
+        ['User Secrets / Key Vault', 'Keeps DB passwords and API keys out of Git and `appsettings.json` per environment.']
       ],
-      why: "The same build has to run on a laptop, in CI and in production with different settings. When something breaks in production, logs are often all you have to go on.",
+      why: "The same build runs on a laptop, in CI, and in production with different settings. When production misbehaves, logs are often all you have.",
       points: [
-        "The **options pattern** binds a configuration section to a typed class: `IOptions<T>` (read once), `IOptionsSnapshot<T>` (per request), `IOptionsMonitor<T>` (live reload).",
-        "Validate options at startup with `ValidateDataAnnotations().ValidateOnStart()`, so a bad setting stops the deploy instead of failing the first request.",
-        "**Structured logging**: `log.LogInformation(\"Order {OrderId} placed\", id)` keeps `OrderId` as a searchable field. Don't use string interpolation in log calls.",
-        "Log levels: Trace, Debug, Information, Warning, Error, Critical. Configure them per category in `appsettings.json`.",
-        "Secrets: user secrets in development; environment variables or a vault (Azure Key Vault, AWS Secrets Manager) in production; never in source control.",
-        "Use log scopes or `Activity` to attach a correlation id, so one request can be followed across services."
+        "The **options pattern** binds config sections into typed classes: `IOptions<T>` reads once, `IOptionsSnapshot<T>` reloads per request, and `IOptionsMonitor<T>` reacts live.",
+        "Validate options at startup with `ValidateDataAnnotations().ValidateOnStart()` so a missing key fails the deploy instead of the first request.",
+        "Use **structured logging** such as `log.LogInformation(\"Order {OrderId} placed\", id)` so `OrderId` stays searchable instead of interpolating into a flat string.",
+        "Log levels run Trace, Debug, Information, Warning, Error, and Critical, configured per category in `appsettings.json`.",
+        "Keep secrets out of Git: use user secrets locally and environment variables or a vault like Azure Key Vault or AWS Secrets Manager in production.",
+        "Attach correlation ids via log scopes or `Activity` so one request stays traceable across services."
       ],
       code: `
 using System.ComponentModel.DataAnnotations;
@@ -685,17 +685,17 @@ public class Mailer(IOptions<SmtpOptions> options, ILogger<Mailer> log)
 `,
       practice: "Move every magic string and number in your API into a validated options class. Remove `Smtp:Host` from `appsettings.json` and confirm the app refuses to start with a clear message. Then set it with the environment variable `Smtp__Host` (two underscores) and confirm it starts.",
       teach: "Explain why `log.LogInformation(\"User {Id} logged in\", id)` is better than an interpolated string.",
-      analogy: "Structured logs are a filing cabinet with labelled folders instead of a pile of handwritten notes: you can ask for 'everything about order 42' and get exactly that.",
+      analogy: "Structured logs work like a filing cabinet with labelled folders rather than loose handwritten notes. You can ask for 'everything on order 42' and pull up every event.",
       pitfalls: [
-        "Injecting `IConfiguration` everywhere and reading string keys.",
-        "String-interpolated log messages, which lose the structure and allocate even when that level is switched off.",
-        "Logging secrets, tokens or personal data such as email addresses.",
-        "Expecting `IOptions<T>` to pick up a changed setting. It's read once; use `IOptionsMonitor<T>` for live values."
+        "Injecting `IConfiguration` everywhere and reading raw string keys.",
+        "Interpolating log messages with `$`, which strips named fields and still allocates even when that log level is off.",
+        "Logging secrets, tokens, or personal data like user email addresses.",
+        "Expecting `IOptions<T>` to reflect config edits at runtime. It reads once, so inject `IOptionsMonitor<T>` for live reloads."
       ],
       quiz: [
-        { q: "What does `ValidateOnStart()` change?", a: ["Nothing", "Invalid options fail at application startup instead of first use", "Options reload automatically", "Validation is skipped in production"], c: 1, why: "Failing at startup turns a hidden runtime bug into an obvious deployment failure." },
-        { q: "Which options interface reflects configuration changes without restarting?", a: ["`IOptions<T>`", "`IOptionsMonitor<T>`", "`IConfigurationRoot`", "`IOptionsFactory<T>`"], c: 1, why: "`IOptionsMonitor` observes changes; `IOptions` is computed once." },
-        { q: "Where should a production database password live?", a: ["`appsettings.json`, committed to git", "An environment variable or a secret vault", "`appsettings.Production.json`, committed to git", "A constant in the code"], c: 1, why: "Secrets must stay out of source control and be supplied at deploy time." }
+        { q: "What does `ValidateOnStart()` change?", a: ["Nothing", "Invalid options fail at application startup instead of first use", "Options reload automatically", "Validation is skipped in production"], c: 1, why: "Failing at startup catches config typos at deploy time instead of on a live user request." },
+        { q: "Which options interface reflects configuration changes without restarting?", a: ["`IOptions<T>`", "`IOptionsMonitor<T>`", "`IConfigurationRoot`", "`IOptionsFactory<T>`"], c: 1, why: "`IOptionsMonitor` watches for config updates, while `IOptions` computes once." },
+        { q: "Where should a production database password live?", a: ["`appsettings.json`, committed to git", "An environment variable or a secret vault", "`appsettings.Production.json`, committed to git", "A constant in the code"], c: 1, why: "Keep secrets out of source control and inject them at deploy time." }
       ]
     },
     {
@@ -705,14 +705,14 @@ public class Mailer(IOptions<SmtpOptions> options, ILogger<Mailer> log)
         ['In-memory `HttpClient`', 'Sends real HTTP JSON requests from tests into your `TestServer` without touching a network port.'],
         ['Test doubles & containers', 'Run integration tests against real SQL containers (Testcontainers) rather than EF’s InMemory provider whenever testing SQL semantics.']
       ],
-      why: "Tests let you change code without fear. A good test is also documentation that can't go stale: it states what the code should do, and fails the moment it doesn't.",
+      why: "Good tests let you refactor without guessing. They also double as live documentation that complains the second behavior drifts.",
       points: [
-        "**Unit tests** check one class with its dependencies faked. Fast, many, precise.",
-        "**Integration tests** run the real pipeline in memory with `WebApplicationFactory<Program>` (package `Microsoft.AspNetCore.Mvc.Testing`): routing, DI, validation and serialization, all of it.",
-        "Create a test project with `dotnet new xunit` and add a reference to the API project. In .NET 10 `Program` is public automatically; on .NET 8 and 9, add `public partial class Program { }` to the end of `Program.cs`.",
-        "Structure every test as **Arrange, Act, Assert**. One behavior per test, named after the behavior.",
-        "For database tests, use real SQL Server in a container (Testcontainers) rather than the EF in-memory provider, which has no constraints and runs no SQL.",
-        "Test behavior, not implementation: assert on outputs and visible effects, not on which private method was called."
+        "**Unit tests** isolate one class with fake dependencies. They're fast, plentiful, and focused.",
+        "**Integration tests** boot your real HTTP pipeline in memory via `WebApplicationFactory<Program>` (`Microsoft.AspNetCore.Mvc.Testing`), exercising routing, DI, validation, and JSON serialization together.",
+        "Run `dotnet new xunit` and reference the API project. `Program` is public by default in .NET 10, while .NET 8 and 9 need `public partial class Program { }` at the bottom of `Program.cs`.",
+        "Write each test in **Arrange, Act, Assert** order, testing and naming one behavior per test.",
+        "Back database tests with real SQL Server via Testcontainers rather than EF's in-memory provider, which skips constraints and real SQL translation.",
+        "Test observable behavior rather than private internals so internal refactors don't break tests."
       ],
       code: `
 // Test project: dotnet new xunit, then
@@ -764,16 +764,16 @@ public class PriceCalculator
 `,
       practice: "Write integration tests for every endpoint of your products API, covering the happy path and at least one failure each. Then change a status code in the API and watch exactly one test fail with a readable message.",
       teach: "Explain the difference between a unit test and an integration test, and what each one can catch that the other can't.",
-      analogy: "Unit tests check that each brick is solid. Integration tests check that the wall stands up. You need both: perfect bricks can still be laid crooked, and when a wall falls you want to know quickly whether a brick was the cause.",
+      analogy: "Unit tests verify each brick, while integration tests verify the whole wall stands. Perfect bricks can still be wired together crooked, and when the wall fails, unit tests help pinpoint which brick cracked.",
       pitfalls: [
-        "Mocking everything until the test only checks the mocks.",
-        "Tests that depend on each other or on the order they run in.",
-        "Trusting the EF in-memory provider to behave like SQL Server: no constraints, no transactions, no real SQL."
+        "Mocking so heavily that tests only verify your own mocks.",
+        "Writing tests that depend on shared state or run order.",
+        "Trusting EF's in-memory provider to mimic SQL Server when it ignores constraints, transactions, and real SQL."
       ],
       quiz: [
-        { q: "What does `WebApplicationFactory<Program>` give you?", a: ["A mock of the database", "Your real app hosted in memory, with an `HttpClient` to call it", "A deployment to a test server", "A recorded copy of production traffic"], c: 1, why: "It boots the actual pipeline in the test process, so routing, DI and middleware are all exercised." },
-        { q: "The three parts of a well-structured test are…", a: ["Setup, Run, Teardown", "Arrange, Act, Assert", "Given, When, Verify", "Mock, Call, Check"], c: 1, why: "Arrange the inputs, act once, assert on the outcome." },
-        { q: "Why prefer real SQL Server over the EF in-memory provider in integration tests?", a: ["It's faster", "The in-memory provider doesn't enforce constraints or run real SQL", "It needs no setup", "xUnit can't use the in-memory provider"], c: 1, why: "Bugs in query translation, constraints and transactions only show up against a real engine." }
+        { q: "What does `WebApplicationFactory<Program>` give you?", a: ["A mock of the database", "Your real app hosted in memory, with an `HttpClient` to call it", "A deployment to a test server", "A recorded copy of production traffic"], c: 1, why: "It boots your actual pipeline inside the test runner, testing routing, DI, and middleware together." },
+        { q: "The three parts of a well-structured test are…", a: ["Setup, Run, Teardown", "Arrange, Act, Assert", "Given, When, Verify", "Mock, Call, Check"], c: 1, why: "Arrange inputs, act once, and assert the outcome." },
+        { q: "Why prefer real SQL Server over the EF in-memory provider in integration tests?", a: ["It's faster", "The in-memory provider doesn't enforce constraints or run real SQL", "It needs no setup", "xUnit can't use the in-memory provider"], c: 1, why: "Query translation, constraint, and transaction bugs only appear against a real database engine." }
       ]
     },
     {
@@ -781,17 +781,17 @@ public class PriceCalculator
       splits: [['1 · N+1 vs projection', '// dotnet add package'], ['2 · Optimistic concurrency', '// Optimistic concurrency'], ['3 · Entities & DbContext', 'public record OrderRow']],
       terms: [
         ['`AsNoTracking()`', 'Skips change-tracker snapshot bookkeeping on read-only queries, cutting CPU and RAM allocations.'],
-        ['N+1 query bug', 'Issuing 1 query for N rows plus N hidden extra queries inside a loop — solved via `.Select(...)` projection or eager `.Include(...)`.'],
-        ['Optimistic concurrency (`[Timestamp]`)', 'Detects two conflicting edits via a row-version check and returns `409 Conflict` instead of silently overwriting the first user’s change.']
+        ['N+1 query bug', 'Issuing 1 query for N rows plus N hidden queries inside a loop, solved with `.Select(...)` projection or `.Include(...)`.'],
+        ['Optimistic concurrency (`[Timestamp]`)', 'Detects conflicting edits via row-version checks and returns `409 Conflict` instead of overwriting the first user’s change without warning.']
       ],
-      why: "Most slow ASP.NET Core apps are slow because of a handful of EF Core mistakes. Each one has a recognisable shape in the SQL log, and a small fix.",
+      why: "Most slow ASP.NET Core apps trace back to a handful of EF Core habits. Each one leaves an obvious pattern in the SQL log and takes just a few lines to fix.",
       points: [
-        "**N+1 problem**: one query for the list, then one more per row for related data. Fix it with projection (`Select`) or `Include`.",
-        "Read-only queries should project to DTOs or use `AsNoTracking()`, so the change tracker does no work.",
-        "`Include` on several collections multiplies rows (cartesian explosion); `AsSplitQuery()` swaps that for several smaller queries.",
-        "`SaveChanges` wraps its changes in one transaction. You only need an explicit transaction to span several saves.",
-        "**Optimistic concurrency**: a `[Timestamp]` (`rowversion`) column makes an update fail with `DbUpdateConcurrencyException` if the row changed. In a web API, compare against the version **the client read**, sent back with the edit; otherwise you only catch changes made in the milliseconds between your own load and save.",
-        "`ExecuteUpdateAsync` and `ExecuteDeleteAsync` run one SQL statement without loading entities. They skip the change tracker and concurrency checks, so keep them for bulk changes."
+        "Fix the **N+1 problem**, where one list query sparks an extra query per row, by projecting with `Select` or eager-loading with `Include`.",
+        "Read-only queries should project straight to DTOs or add `AsNoTracking()` so the change tracker stays idle.",
+        "Calling `Include` on multiple collections creates a Cartesian explosion of rows. `AsSplitQuery()` splits it into smaller queries.",
+        "`SaveChanges` already wraps its SQL in one transaction, so add an explicit transaction only to span multiple saves.",
+        "Use **optimistic concurrency** with a `[Timestamp]` (`rowversion`) column so conflicting saves throw `DbUpdateConcurrencyException`. Always send back and compare the version **the client read**, not one you just loaded.",
+        "`ExecuteUpdateAsync` and `ExecuteDeleteAsync` update rows straight in SQL without loading entities, skipping tracking and concurrency checks, so save them for bulk writes."
       ],
       code: `
 // dotnet add package Microsoft.EntityFrameworkCore.SqlServer
@@ -886,7 +886,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Product> Products => Set<Product>();
 }
 `,
-      practice: "Create an endpoint that lists orders with customer names using a naive loop. Count the SQL statements in the log for 50 orders, fix it, and count again. Then open the same product in two browser tabs, save a price in the first, save a different price in the second, and confirm the second gets a 409.",
+      practice: "Build an endpoint listing orders with customer names using a naive loop, count the SQL queries for 50 orders, then fix it and recount. Next, open one product in two tabs, save a new price in the first, save another in the second, and confirm a 409 returns.",
       teach: "Explain the N+1 query problem to someone who knows LINQ but has never looked at the generated SQL.",
       analogy: "N+1 is going to the supermarket once to fetch the shopping list, then driving back separately for each item on it. Projection is taking the whole list on one trip.",
       pitfalls: [
@@ -910,14 +910,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         ['`HybridCache` (stampede protection)', 'Combines fast L1 memory + distributed L2 cache and coalesces concurrent misses so 1,000 requests trigger only 1 DB read.'],
         ['Cache invalidation', 'Evicting stale cache entries (`EvictByTagAsync` / `RemoveAsync`) on `POST`/`PUT`/`DELETE` writes.']
       ],
-      why: "Performance work is measurement plus a small set of well-understood levers. The skill is matching the lever to the symptom, and knowing what each one costs in correctness.",
+      why: "Tuning performance comes down to measuring first and pulling a few proven levers. Knowing which lever fits each symptom, and what staleness it trades away, makes all the difference.",
       points: [
-        "Measure first: load test (k6, bombardier, NBomber), then profile. Track p50, p95 and p99 latency, not the average.",
-        "**Caching layers**: output caching (whole responses), `HybridCache` (objects, in memory with an optional shared second level), and a distributed cache such as Redis (shared between instances).",
-        "Every cache needs answers to three questions: what is the key, when does it expire, and how is it invalidated? `HybridCache` also stops a stampede: one factory call per key, however many requests arrive.",
-        "**Rate limiting** returns `429` when a client sends too much. Give each client its own allowance (partition by user or IP address), or one heavy client uses up everyone's.",
-        "**Thread-pool starvation**: sync-over-async (`.Result`, `.Wait()`) blocks threads; latency climbs while CPU stays low. Fix it by going async all the way.",
-        "Cheap wins: response compression, pagination everywhere, `IHttpClientFactory` for outbound calls, `IAsyncEnumerable` for streaming large results."
+        "Measure with load tests (k6, bombardier, NBomber) and a profiler before guessing. Track p50, p95, and p99 latency rather than averages.",
+        "Pick the right **caching layer**: output caching for full HTTP responses, `HybridCache` for in-memory objects with an optional L2 store, or Redis across instances.",
+        "Every cache needs a key, an expiry, and an invalidation hook. `HybridCache` also prevents stampedes by running only one factory call per cold key across concurrent requests.",
+        "**Rate limiting** returns `429` when traffic spikes. Partition limits by user or IP address so one noisy client doesn't throttle everyone else.",
+        "Avoid **thread-pool starvation** caused by blocking async calls with `.Result` or `.Wait()`, which spikes latency while CPU sits idle. Keep calls async top to bottom.",
+        "Low-effort wins include response compression, pagination on list routes, `IHttpClientFactory` for HTTP clients, and `IAsyncEnumerable` for streaming large lists."
       ],
       code: `
 // dotnet add package Microsoft.EntityFrameworkCore.SqlServer
@@ -1012,9 +1012,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
       ],
       quiz: [
         { q: "Latency is rising, CPU is at 15%, and the code contains `.Result` calls. Likely cause?", a: ["A CPU-bound loop", "Thread-pool starvation from blocking on async work", "The garbage collector", "Slow JSON serialization"], c: 1, why: "Blocked threads wait instead of working, and queued requests can't get a thread." },
-        { q: "Which status code should a rate limiter return?", a: ["401", "403", "429", "503"], c: 2, why: "429 Too Many Requests, ideally with a `Retry-After` header. 503 means the whole service is unavailable." },
-        { q: "With `AddTokenBucketLimiter(\"api\", …)` and no partition, one client sends 10,000 requests. What happens to everyone else?", a: ["Nothing; each client has its own bucket", "They get 429 too: they all share the one bucket", "The server crashes", "Only that client's IP is blocked automatically"], c: 1, why: "A plain limiter is one shared bucket. Partition by user or IP to give each client its own." },
-        { q: "Why must an app running on several servers use a distributed cache for shared data?", a: ["It's always faster", "In-memory caches are per instance, so the instances would disagree", "ASP.NET Core requires it", "Memory caches can't expire entries"], c: 1, why: "Each instance has its own memory; a shared store keeps them consistent." }
+        { q: "Which status code should a rate limiter return?", a: ["401", "403", "429", "503"], c: 2, why: "429 Too Many Requests, ideally with a `Retry-After` header. 503 means the whole service is down." },
+        { q: "With `AddTokenBucketLimiter(\"api\", …)` and no partition, one client sends 10,000 requests. What happens to everyone else?", a: ["Nothing, each client has its own bucket", "They get 429 too: they all share the one bucket", "The server crashes", "Only that client's IP is blocked automatically"], c: 1, why: "An unpartitioned limiter uses one shared bucket. Partition by user or IP to isolate clients." },
+        { q: "Why must an app running on several servers use a distributed cache for shared data?", a: ["It's always faster", "In-memory caches are per instance, so the instances would disagree", "ASP.NET Core requires it", "Memory caches can't expire entries"], c: 1, why: "Each server holds its own RAM, so a shared cache keeps them in sync." }
       ]
     },
     {
@@ -1023,17 +1023,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
       terms: [
         ['Vertical slice', 'Organizes code by feature (`PlaceOrder.cs` holding command, validation, handler, endpoint) instead of spreading files across folders by layer.'],
         ['Rich domain entity', 'Encapsulates invariants inside factory/behavior methods (`Order.Place(...)`) so invalid states cannot be constructed anywhere.'],
-        ['Transactional Outbox', 'Writes the business row and `OutboxMessage` in the *same* database transaction; a background `BackgroundService` reliably publishes them afterwards.']
+        ['Transactional Outbox', 'Writes the business row and `OutboxMessage` in the *same* database transaction, then a `BackgroundService` publishes them safely.']
       ],
-      why: "Architecture is deciding what can change without breaking what. A structure is worth defending only if you can name the forces behind it, and you should be just as ready to say when it's overkill.",
+      why: "Architecture is deciding what can change without breaking everything else. A pattern is worth using only if you can explain the trade-off, and you should know when it's overkill.",
       points: [
-        "**Layered / Clean Architecture**: domain at the centre, infrastructure at the edge, dependencies pointing inward. It protects business rules from framework churn.",
-        "**Vertical slices**: organize by feature (`PlaceOrder`) rather than by layer. Each slice owns its request, handler, validation and query.",
-        "**CQRS**: separate read models from write models. Useful when reads and writes have different shapes or load; needless for simple CRUD.",
-        "Put rules that must always hold in the **domain model** (an `Order` that refuses an impossible quantity), not scattered across endpoints. Validate the request too; the domain check is the last line of defence.",
-        "Work that shouldn't delay the response goes to a `BackgroundService` or a queue. The **outbox pattern** saves the message in the same transaction as the data, so 'saved' and 'published' can't disagree.",
-        "Since .NET 8, an unhandled exception in a `BackgroundService` **stops the whole app**. Catch and log inside the loop.",
-        "Start as a **modular monolith**. Split into services only when team structure or scaling demands it: distribution adds failure modes, not simplicity."
+        "Choose **Layered / Clean Architecture** to shield core business rules from framework changes: domain stays centered, and dependencies point inward.",
+        "Choose **vertical slices** to group code by feature (`PlaceOrder`) rather than folder layer, keeping request, handler, validation, and query together.",
+        "Use **CQRS** to split read and write models only when their load or shape diverges, and skip it for simple CRUD.",
+        "Enforce invariants inside the **domain model** (`Order` rejecting invalid quantities) rather than copying checks across endpoints. Still validate requests at the edge, using domain checks as your final guard.",
+        "Push slow work off the request thread into a `BackgroundService` or queue. With the **outbox pattern**, saving business rows and messages in one transaction ensures they stay in sync.",
+        "Since .NET 8, an unhandled exception in a `BackgroundService` **stops the host**. Catch and log failures inside its loop.",
+        "Begin with a **modular monolith**, splitting into services only when scaling or team boundaries force it. Distribution adds failure modes rather than simplicity."
       ],
       code: `
 // dotnet add package Microsoft.EntityFrameworkCore.SqlServer
@@ -1168,19 +1168,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 `,
       practice: "Take your CRUD API and restructure one feature as a vertical slice with a domain method that protects its rules. Then write half a page: for a three-person team building an internal tool, would you choose layers, slices or plain minimal APIs, and why?",
       teach: "Explain the outbox pattern: what failure does it prevent, and how?",
-      analogy: "The outbox is writing 'send this letter' in the same ledger entry as the sale. Even if the postman is late or the post office is closed, the letter can't be forgotten, because it's part of the record of the sale itself.",
+      analogy: "The outbox writes 'mail this receipt' on the same ledger line as the sale. Even if the mail truck runs late, you can't forget the letter because it's saved inside the sale record.",
       pitfalls: [
-        "Applying Clean Architecture, CQRS and a mediator library to a five-endpoint CRUD app.",
-        "Anemic domain models, where every rule lives in a 'service' and entities are bags of setters.",
-        "Putting an identity (`INT IDENTITY`) id into an outbox message before `SaveChanges`: it's still 0. Generate the id in code, as `Order` does with a `Guid`.",
-        "A `BackgroundService` loop without a `try/catch`, so one failed round stops the whole application.",
-        "Splitting into microservices to fix a design problem. You get a distributed design problem."
+        "Adding Clean Architecture, CQRS, and a mediator library to a five-endpoint CRUD app.",
+        "Building anemic domain models where rules sit in 'services' and entities hold empty setters.",
+        "Saving an `INT IDENTITY` key into an outbox payload before `SaveChanges`, when it's still 0. Generate the id in C#, like `Order` does with a `Guid`.",
+        "Running a `BackgroundService` loop without a `try/catch`, letting one crash kill the entire host.",
+        "Breaking a tangled monolith into microservices. You end up with a tangled distributed system."
       ],
       quiz: [
-        { q: "What does the outbox pattern guarantee?", a: ["Messages are sent instantly", "The message is saved in the same transaction as the data change, so neither happens without the other", "No message is ever delivered twice", "The database is never locked"], c: 1, why: "An atomic write, then at-least-once delivery by a background publisher. Consumers must handle duplicates." },
-        { q: "Why does the `BackgroundService` create a scope to use `DbContext`?", a: ["For performance", "Hosted services are singletons and `DbContext` is scoped", "Scopes are required for logging", "To open a database transaction"], c: 1, why: "Injecting a scoped service into a singleton is a captive dependency; create a scope per unit of work." },
+        { q: "What does the outbox pattern guarantee?", a: ["Messages are sent instantly", "The message is saved in the same transaction as the data change, so neither happens without the other", "No message is ever delivered twice", "The database is never locked"], c: 1, why: "One atomic write followed by at-least-once delivery from a worker. Receivers must still handle duplicates." },
+        { q: "Why does the `BackgroundService` create a scope to use `DbContext`?", a: ["For performance", "Hosted services are singletons and `DbContext` is scoped", "Scopes are required for logging", "To open a database transaction"], c: 1, why: "Injecting a scoped service into a singleton causes a captive dependency, so spin up a scope per unit of work." },
         { q: "An exception escapes `ExecuteAsync` in a .NET 10 `BackgroundService`. By default…", a: ["It's logged and the service restarts", "It's ignored", "The whole application stops", "Only that request fails"], c: 2, why: "Since .NET 8 the host's default is to stop when a background service fails, so catch and log inside the loop." },
-        { q: "When is CQRS worth its cost?", a: ["Always", "When read and write models differ a lot in shape or load", "Whenever you use EF Core", "Only with microservices"], c: 1, why: "It adds duplication and complexity; the payoff comes only when reads and writes truly diverge." }
+        { q: "When is CQRS worth its cost?", a: ["Always", "When read and write models differ a lot in shape or load", "Whenever you use EF Core", "Only with microservices"], c: 1, why: "It brings extra models and mapping, so it pays off only when reads and writes truly diverge." }
       ]
     },
     {
@@ -1188,17 +1188,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
       splits: [['1 · Telemetry & resilience', '// dotnet add package'], ['2 · Health & client', 'app.MapHealthChecks("/health/live"'], ['3 · Dockerfile & container', '// Dockerfile']],
       terms: [
         ['OpenTelemetry traces & metrics', 'Correlates logs, timings, and distributed SQL/HTTP spans across services using W3C Trace Context headers.'],
-        ['Liveness vs Readiness probes', '`/health/live` asks “is the process alive?”; `/health/ready` asks “can it reach SQL and serve traffic yet?”.'],
+        ['Liveness vs Readiness probes', '`/health/live` asks “is the process alive?”, while `/health/ready` asks “can it reach SQL and take traffic?”.'],
         ['Circuit breaker + jittered retries', 'Protects failing downstream dependencies from cascading failure using standard HTTP resilience handlers and idempotency keys.']
       ],
-      why: "Code is finished when it runs reliably for users, not when it compiles. That means designing for the day something fails, and in production something eventually does.",
+      why: "Code isn't finished when it compiles. It's finished when it holds up for real users, which means planning for the failures that happen in production.",
       points: [
-        "**Observability** = logs, metrics and traces. **OpenTelemetry** is the standard; a trace follows one request across services.",
-        "**Health checks**: liveness ('restart me if this fails') versus readiness ('don't send me traffic yet'). They answer different questions.",
-        "**Resilience** for outbound calls: always a timeout, retries with jitter for temporary faults, a circuit breaker to stop hammering a dead dependency. `AddStandardResilienceHandler()` sets all of these up.",
-        "The standard handler retries **every** method, `POST` included. Only allow that when the call is idempotent, for example with an idempotency key the other side honours; otherwise turn retries off for unsafe methods.",
-        "Ship as a container image: configuration comes from the environment, and the app is stateless so any instance can serve any request. Since .NET 8, the container listens on port **8080**.",
-        "Deploy safely: backward-compatible database migrations, graceful shutdown, rolling or blue/green releases, and a rollback you've actually tested."
+        "**Observability** combines logs, metrics, and traces. **OpenTelemetry** is the standard, letting one trace follow a request across services.",
+        "Split **health checks** into liveness ('restart me if this fails') and readiness ('hold traffic for now'), since they answer two separate questions.",
+        "**Resilience** for outbound HTTP needs timeouts, retries with jitter, and a circuit breaker to avoid piling on dead dependencies. `AddStandardResilienceHandler()` wires all three together.",
+        "Note that the standard handler retries **every** HTTP method, including `POST`. Keep that enabled only if the callee respects idempotency keys, or disable retries on unsafe methods.",
+        "Package the app as a stateless container receiving config from the environment so any replica serves any request. Since .NET 8, ASP.NET containers listen on port **8080**.",
+        "Deploy carefully with backward-compatible migrations, graceful shutdown, rolling or blue/green swaps, and rollbacks you've tested."
       ],
       code: `
 // dotnet add package Microsoft.EntityFrameworkCore.SqlServer
@@ -1276,19 +1276,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 //
 // Or build an image with no Dockerfile at all:  dotnet publish -t:PublishContainer
 `,
-      practice: "Containerize your API and run it with SQL Server using Docker Compose. Add OpenTelemetry with the Aspire dashboard as a local collector, stop the database while sending requests, and describe what the health checks, logs and traces each tell you.",
+      practice: "Containerize your API and SQL Server in Docker Compose, wire up OpenTelemetry to the local Aspire dashboard, stop the DB mid-traffic, and compare what health checks, logs, and traces report.",
       teach: "Explain the difference between a liveness check and a readiness check, with an example where they give different answers.",
-      analogy: "A circuit breaker is the fuse in your house: after repeated faults it cuts the circuit so the wiring doesn't burn, then lets you try again later.",
+      analogy: "A circuit breaker works like a household fuse: after repeated faults, it trips the circuit so wires don't overheat, giving things time before allowing retries.",
       pitfalls: [
-        "Retrying non-idempotent calls and charging a customer twice. The standard resilience handler retries `POST` unless you tell it not to.",
-        "One health endpoint that checks the database: a short database blip then restarts every instance.",
-        "Deploying a migration that drops a column the still-running old version reads.",
-        "Mapping the container to port 80 when the app inside listens on 8080."
+        "Retrying non-idempotent calls and double-charging users. The standard resilience handler retries `POST` unless you restrict it.",
+        "Pointing a single health check at the database, causing a brief DB hiccup to restart every container.",
+        "Shipping a migration that drops a column the outgoing version still reads.",
+        "Forwarding port 80 in Docker when ASP.NET Core containers listen on 8080."
       ],
       quiz: [
-        { q: "The database is down for 20 seconds. What should the liveness probe report?", a: ["Unhealthy, so the app restarts", "Healthy: the process itself is fine", "Unhealthy, but only after 10 seconds", "Degraded"], c: 1, why: "Restarting the app can't fix the database. Readiness should fail; liveness should not." },
+        { q: "The database is down for 20 seconds. What should the liveness probe report?", a: ["Unhealthy, so the app restarts", "Healthy: the process itself is fine", "Unhealthy, but only after 10 seconds", "Degraded"], c: 1, why: "Restarting the app won't fix SQL Server, so readiness should fail while liveness stays green." },
         { q: "What does a circuit breaker do after repeated failures?", a: ["Retries faster", "Fails calls immediately for a while instead of contacting the failing dependency", "Restarts the server", "Switches to a backup server automatically"], c: 1, why: "It gives the dependency time to recover and protects your own threads and latency." },
-        { q: "Which operation is safe to retry automatically without extra design?", a: ["`POST /payments`", "`GET /products/5`", "`POST /orders`", "Sending an email"], c: 1, why: "`GET` is idempotent; the others need an idempotency key first." }
+        { q: "Which operation is safe to retry automatically without extra design?", a: ["`POST /payments`", "`GET /products/5`", "`POST /orders`", "Sending an email"], c: 1, why: "`GET` is idempotent, while the others need an idempotency key first." }
       ]
     }
   ]

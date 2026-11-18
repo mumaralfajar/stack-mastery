@@ -161,7 +161,7 @@
             else if (status === '500') { await mark(0, 'outb', T('← ExceptionHandler catches it → 500 ProblemDetails'), 'b'); status = '500 Internal Server Error'; }
             else await mark(i, 'outb', T('← {name} (code after next())', { name: names[i][0] }), 'b');
           }
-          note.textContent = `Response: ${status}. ` + T(status.startsWith('401') ? 'The endpoint never ran — authorization short-circuited the pipeline.' : status.startsWith('500') ? 'Only the outermost middleware could catch the exception, which is why it must be registered first.' : 'In through six stages, back out through the same stages in reverse.');
+          note.textContent = `Response: ${status}. ` + T(status.startsWith('401') ? 'The endpoint never ran because authorization short-circuited the pipeline.' : status.startsWith('500') ? 'Only the outermost middleware could catch the exception, which is why it must come first.' : 'In through six stages, back out through the same stages in reverse.');
         } catch { /* superseded by a newer run */ }
       };
       el.append(h('div', { class: 'viz-ctl' }, btn('Send request', send), tokLab, errLab), h('div', { class: 'pipe' }, boxes), log, note);
@@ -171,7 +171,7 @@
   // ---------- ASP.NET: DI lifetimes ----------
   VIZ.di = {
     title: 'Service lifetimes', track: 'aspnet', trackName: 'ASP.NET Core',
-    desc: 'Each request resolves every service twice — once in the endpoint, once in a dependency. Compare the instance IDs.',
+    desc: 'Each request resolves every service twice: once in the endpoint and once inside a dependency. Compare the instance IDs.',
     mount(el) {
       let req = 0, n = 0; const rows = [];
       const id = v => h('span', { class: 'id', style: { background: `hsl(${(v * 67) % 360} 65% 50% / .28)` } }, '#' + v);
@@ -187,7 +187,7 @@
       };
       el.append(h('div', { class: 'viz-ctl' }, btn('Send request', send), btn('Restart app', () => {
         rows.length = 0; req = 0; singleton = ++n; send();
-        note.textContent = T('App restarted — a fresh singleton ({id}) was created. Send requests to compare with earlier runs.', { id: '#' + singleton });
+        note.textContent = T('App restarted with a fresh singleton ({id}). Send requests to compare with earlier runs.', { id: '#' + singleton });
       }, 'ghost')), body, note);
       send();
     }
@@ -343,7 +343,7 @@
         ['react', 'React', 'The user clicks Add. The onClick handler runs and calls the mutation with { name, price }.'],
         ['react', 'Browser', 'fetch() sends POST /api/products with a JSON body and the auth cookie or token in the headers.'],
         ['aspnet', 'Kestrel', 'The web server accepts the connection, parses the HTTP request and creates an HttpContext.'],
-        ['aspnet', 'Middleware', 'The request passes exception handling, routing, authentication and authorization — in that order.'],
+        ['aspnet', 'Middleware', 'The request passes exception handling, routing, authentication, and authorization in that order.'],
         ['aspnet', 'Endpoint', 'Model binding turns the JSON into a CreateProductRequest; validation runs; an invalid body returns 400 here.'],
         ['csharp', 'DI + C#', 'The container supplies a scoped DbContext and services. Your async handler awaits each step, freeing the thread during I/O.'],
         ['aspnet', 'EF Core', 'db.Products.Add(entity) is tracked; SaveChangesAsync translates the change into a parameterized INSERT.'],
