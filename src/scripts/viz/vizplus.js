@@ -263,7 +263,7 @@
         { path: '[]', out: '—', action: 'Start at index 0 with empty path [].', node: '[]' },
         { path: '[1]', out: '—', action: 'CHOOSE 1 (include 1) → recurse to index 1.', node: '[1]' },
         { path: '[1, 2]', out: '[1, 2]', action: 'CHOOSE 2 → leaf index 2 reached! Record [1, 2].', node: '[1, 2]' },
-        { path: '[1]', out: '[1, 2]', action: 'UN-CHOOSE 2 (path.pop()) to return cleanly to [1].', node: '[1]' },
+        { path: '[1]', out: '[1, 2]', action: 'UN-CHOOSE 2 (path.pop()) to return to [1].', node: '[1]' },
         { path: '[1]', out: '[1, 2], [1]', action: 'SKIP 2 → leaf index 2 reached! Record [1].', node: '[1]*' },
         { path: '[]', out: '[1, 2], [1]', action: 'UN-CHOOSE 1 (path.pop()) back to root [].', node: '[]' },
         { path: '[2]', out: '[1, 2], [1], [2]', action: 'SKIP 1, CHOOSE 2 → leaf reached! Record [2].', node: '[2]' },

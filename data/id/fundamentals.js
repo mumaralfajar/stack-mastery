@@ -2,331 +2,331 @@
 I18N.lessons('cs', {
   git: {
     terms: [
-      ['Staging area (`git add`)', 'Area transit penyimpan cuplikan perubahan persis yang akan ikut di commit berikutnya — terpisah dari suntingan bebas di working directory.'],
-      ['Branch & merge PR', 'Penunjuk terisolasi agar fitur berkembang mandiri sebelum direview lalu digabung rapi ke `main`.'],
-      ['`.gitignore`', 'Mencegah rahasia API, `node_modules/`, `bin/`, dan `.env` keluar dari mesinmu ke Git secara tidak sengaja.']
+      ['Staging area (`git add`)', 'Menampung perubahan persis yang mau masuk ke commit berikutnya, terpisah dari file yang masih diedit di working directory.'],
+      ['Branch & merge PR', 'Penunjuk terisolasi supaya fitur dikerjakan terpisah sebelum direview dan digabung ke `main`.'],
+      ['`.gitignore`', 'Mencegah rahasia API, `node_modules/`, `bin/`, dan `.env` tanpa sengaja ikut naik ke Git.']
     ],
     title: 'Git dan alur kerja developer',
-    why: "Tim profesional memakai Git setiap hari. Git adalah tombol undo sekaligus alat kolaborasimu, dan riwayat kerja nyata yang bisa dilihat publik adalah salah satu hal pertama yang membuat developer baru dipercaya.",
+    why: "Tim developer pakai Git setiap hari. Git jadi tombol undo sekaligus alat kerja bareng, dan riwayat commit publik sering jadi bukti kerja nyata pertama yang bikin developer baru dipercaya.",
     points: [
-      "**Repository** adalah sebuah project beserta seluruh riwayatnya. **Commit** adalah snapshot dengan pesan yang menjelaskan kenapa ada perubahan.",
-      "Ada tiga area: **working directory** (file-filemu), **staging area** (`git add` — isi commit berikutnya), dan **history** (`git commit`).",
-      "**Branch** adalah penunjuk yang bisa berpindah ke sebuah commit. Buat satu branch per fitur supaya `main` selalu jalan: `git switch -c feature/cart`.",
-      "**Remote** (GitHub, GitLab) adalah salinan bersama: `git push` meng-upload commit-mu, `git pull` men-download commit orang lain.",
-      "Dalam tim, kamu push sebuah branch lalu membuka **pull request**; rekan setim me-review-nya, lalu di-merge di GitHub. Kalau kerja sendiri tanpa hosting, `git merge feature/cart` di `main` melakukan merge yang sama secara lokal.",
-      "**Conflict** hanya berarti ada dua editan di baris yang sama, dan Git butuh kamu untuk memilih.",
-      "Commit kecil dan sering, dengan pesan berbentuk perintah: 'Add stock check to checkout'. Jauhkan hasil build dan secret dengan `.gitignore`."
+      "**Repository** menyimpan folder proyek beserta seluruh riwayatnya. **Commit** adalah snapshot yang disertai catatan singkat soal alasan perubahannya.",
+      "Ada tiga area kerja: **working directory** (file di disk), **staging area** (`git add` memilih isi commit berikutnya), dan **history** (`git commit`).",
+      "**Branch** adalah penunjuk yang mengarah ke sebuah commit. Buat satu branch per fitur supaya `main` tetap aman dijalankan: `git switch -c feature/cart`.",
+      "**Remote** (GitHub, GitLab) adalah salinan bersama. `git push` mengirim commit ke server, sementara `git pull` mengambil commit orang lain.",
+      "Dalam tim, push branch-mu lalu buka **pull request** supaya direview rekan sebelum di-merge di GitHub. Kalau kerja sendirian tanpa server hosting, `git merge feature/cart` di branch `main` langsung menggabungkannya di laptop.",
+      "**Conflict** cuma berarti ada dua editan di baris yang sama dan Git memintamu memilih salah satu.",
+      "Buat commit kecil dan sering dengan pesan bergaya perintah, seperti 'Add stock check to checkout'. Jauhkan file build dan secret dengan `.gitignore`."
     ],
-    practice: "Masukkan project latihanmu ke Git dengan `git init -b main` dan sebuah `.gitignore`. Buat tiga commit kecil dengan pesan yang jelas. Buat sebuah branch, ubah baris yang sama di kedua branch, merge ke `main` secara lokal, lalu bereskan conflict-nya secara manual. Setelah itu push ke repository GitHub baru dan ulangi alur fitur tadi dengan pull request.",
-    teach: "Jelaskan perbedaan working directory, staging area, dan commit, serta kenapa branch membuat kerja tim jadi aman.",
-    analogy: "Git itu sistem save game untuk kode. Commit adalah save point dengan catatan tentang apa yang baru saja kamu capai. Branch adalah slot save kedua tempat kamu bisa mencoba sesuatu yang berisiko; kalau berhasil, kamu merge kembali, dan kalau gagal, save utamamu tidak tersentuh.",
+    practice: "Masukkan proyek latihanmu ke Git dengan `git init -b main` dan `.gitignore`. Buat tiga commit kecil dengan pesan yang jelas. Lalu bikin satu branch baru, ubah baris yang sama di kedua branch, merge ke `main` di mesinmu, dan bereskan conflict-nya sendiri. Terakhir, push ke repo GitHub baru dan ulangi alurnya lewat pull request.",
+    teach: "Jelaskan bedanya working directory, staging area, dan commit, lalu kenapa branch bikin kerja tim lebih aman.",
+    analogy: "Git itu seperti sistem save game buat kode. Commit adalah checkpoint dengan catatan soal apa yang baru kamu bereskan. Branch itu slot save kedua tempat kamu bebas mencoba hal nekat. Kalau berhasil tinggal di-merge, dan kalau gagal save utamamu aman.",
     pitfalls: [
-      "Satu commit raksasa bernama 'changes' di akhir hari. Tidak ada yang bisa me-review-nya, dan kamu tidak bisa membatalkan sebagian saja.",
-      "Menganggap merge conflict sebagai error. Itu sebuah pertanyaan: dari dua editan ini, mana yang kamu mau?",
-      "Meng-commit password atau connection string. Menghapusnya di commit berikutnya tidak menghapusnya dari history, jadi anggap saja sudah bocor: ganti password-nya atau cabut key-nya, baru hapus.",
-      "Menjalankan `git init` biasa lalu ternyata branch-nya bernama `master`, sehingga tutorial yang memakai `main` tidak jalan. Pakai `git init -b main`, atau ganti namanya dengan `git branch -m main`."
+      "Satu commit raksasa bernama 'changes' di akhir hari. Tidak ada yang kuat me-review, dan kamu tidak bisa membatalkan sebagian saja.",
+      "Mengira merge conflict itu error. Itu sebenarnya pertanyaan: dari dua perubahan ini, mana yang kamu pilih?",
+      "Terlanjur meng-commit password atau connection string. Menghapusnya di commit berikutnya tidak menghilangkan dari history, jadi anggap sudah bocor: ganti password atau cabut key-nya, baru hapus.",
+      "Menjalankan `git init` polos lalu branch-nya ternyata bernama `master`, bikin tutorial yang memakai `main` macet. Pakai `git init -b main`, atau ubah namanya lewat `git branch -m main`."
     ],
     quiz: [
-      ["Apa yang dilakukan `git add`?", ["Membuat commit", "Memasukkan perubahan ke staging untuk commit berikutnya", "Meng-upload ke remote", "Mulai melacak seluruh repository"], "Perintah ini memindahkan perubahan ke staging area; `git commit` lalu mencatatnya."],
-      ["Kenapa bekerja di feature branch, bukan langsung di `main`?", ["Commit di branch tidak mungkin conflict", "Pekerjaan yang belum selesai tetap terisolasi, dan `main` tetap jalan serta bisa di-review", "Branch otomatis di-backup ke GitHub", "Hanya branch yang bisa di-push"], "Branch mengisolasi perubahan sampai sudah di-review dan siap di-merge. Branch tetap bisa conflict, dan tidak ada yang ter-upload sampai kamu push."],
-      ["Kamu push commit berisi API key, lalu menghapus key itu di commit berikutnya. Lalu apa?", ["Tidak perlu apa-apa; sudah hilang", "Cabut atau ganti key-nya: key itu masih ada di history", "Jalankan `git revert` pada commit pertama", "Jadikan repository-nya private lagi"], "Setiap clone menyimpan commit lama itu. Begitu secret sudah ter-push, anggap sudah ada orang yang memegangnya."]
+      ["Apa yang dilakukan `git add`?", ["Membuat commit", "Memasukkan perubahan ke staging untuk commit berikutnya", "Meng-upload ke remote", "Mulai melacak seluruh repository"], "Perintah ini memindahkan perubahan ke staging area, lalu `git commit` yang mencatatnya."],
+      ["Kenapa bekerja di feature branch, bukan langsung di `main`?", ["Commit di branch tidak mungkin conflict", "Pekerjaan yang belum selesai tetap terisolasi, dan `main` tetap jalan serta bisa di-review", "Branch otomatis di-backup ke GitHub", "Hanya branch yang bisa di-push"], "Branch mengisolasi pekerjaan sampai selesai direview dan siap di-merge. Branch tetap bisa conflict, dan belum ada yang naik sebelum kamu push."],
+      ["Kamu push commit berisi API key, lalu menghapus key itu di commit berikutnya. Lalu apa?", ["Tidak perlu apa-apa, sudah hilang", "Cabut atau ganti key-nya karena masih ada di history", "Jalankan `git revert` pada commit pertama", "Jadikan repository-nya private lagi"], "Setiap clone menyimpan commit lama itu. Begitu secret sudah ter-push, anggap sudah ada yang menyalinnya."]
     ]
   },
   bigo: {
     terms: [
-      ['Kompleksitas waktu (`O(n)`, `O(log n)`)', 'Mengukur bagaimana jumlah langkah tumbuh terhadap ukuran input `n`, bukan angka milidetik mentah di satu laptop.'],
-      ['Jebakan loop bersarang `O(n²)`', 'Mencari di seluruh array untuk setiap item tumbuh kuadratis (`1.000` item -> `1.000.000` langkah) — `HashSet` memotongnya ke `O(n)`.'],
-      ['Trade-off memori vs waktu', 'Membayar RAM ekstra `O(n)` untuk hash table atau memo tabel demi mengubah kerja `O(n²)` atau `O(2ⁿ)` menjadi linear cepat.']
+      ['Kompleksitas waktu (`O(n)`, `O(log n)`)', 'Mengukur seberapa cepat jumlah langkah bertambah terhadap ukuran input `n`, bukan sekadar hitungan milidetik di satu laptop.'],
+      ['Jebakan loop bersarang `O(n²)`', 'Menyisir seluruh array untuk tiap item membengkak kuadratis (`1.000` item jadi `1.000.000` langkah). `HashSet` memangkasnya ke `O(n)`.'],
+      ['Trade-off memori vs waktu', 'Membayar RAM ekstra `O(n)` untuk hash table atau tabel memo demi mengubah kerja `O(n²)` atau `O(2ⁿ)` menjadi waktu linear cepat.']
     ],
     title: 'Big-O: bagaimana kode berkembang',
-    why: "Interview hampir selalu menanyakan time complexity dan space complexity dari jawabanmu. Tapi alasan sehari-hari untuk belajar Big-O lebih besar: ia membuatmu bisa memperkirakan apakah kode yang jalan untuk 100 baris akan tetap selamat di 10 juta baris.",
+    why: "Interview hampir selalu menanyakan time dan space complexity jawabanmu. Di dunia kerja, Big-O membantumu menebak apakah kode yang lancar untuk 100 baris bakal bertahan saat datanya naik ke 10 juta baris.",
     points: [
-      "Big-O menggambarkan bagaimana **jumlah langkah bertambah** seiring membesarnya ukuran input n. Konstanta dan suku kecil diabaikan: 3n + 10 adalah O(n).",
-      "Kelas yang umum, dari terbaik ke terburuk: **O(1)** konstan, **O(log n)** logaritmik, **O(n)** linear, **O(n log n)**, **O(n²)** kuadratik, **O(2ⁿ)** eksponensial.",
-      "Patokan praktis: satu loop atas input itu O(n); loop di dalam loop itu O(n²); membagi dua masalah di setiap langkah itu O(log n); sorting itu O(n log n).",
-      "**Space complexity** menghitung memory tambahan dengan cara yang sama. Banyak optimasi menukar space dengan waktu: hash set mengubah pengecekan duplikat O(n²) menjadi O(n).",
-      "Kecuali diminta lain, analisis **worst case**. 'Amortized O(1)' berarti sesekali mahal tapi rata-ratanya murah, seperti `List.Add`.",
-      "Pada n = 1.000.000: O(log n) sekitar 20 langkah, O(n) sejuta, O(n²) satu triliun."
+      "Big-O melihat bagaimana **jumlah langkah tumbuh** saat ukuran input n membesar. Konstanta dan suku kecil dibuang, jadi 3n + 10 cukup ditulis O(n).",
+      "Kelas yang sering ketemu dari tercepat ke terlambat: **O(1)** konstan, **O(log n)** logaritmik, **O(n)** linear, **O(n log n)**, **O(n²)** kuadratik, dan **O(2ⁿ)** eksponensial.",
+      "Patokan praktis: satu loop menyusuri input itu O(n), dan loop di dalam loop itu O(n²). Membelah masalah tiap langkah memberi O(log n), sedangkan sorting memakan O(n log n).",
+      "**Space complexity** menghitung memory tambahan dengan cara yang sama. Banyak optimasi menukar memory dengan waktu, misalnya hash set mengubah cek duplikat O(n²) menjadi O(n).",
+      "Kecuali diminta lain, analisis **worst case**-nya. 'Amortized O(1)' artinya sesekali agak mahal tapi rata-ratanya murah, seperti `List.Add`.",
+      "Di n = 1.000.000: O(log n) butuh sekitar 20 langkah, O(n) sejuta langkah, dan O(n²) tembus satu triliun."
     ],
-    practice: "Pakai visualisasinya untuk membandingkan tiap kelas di n = 1.000 dan n = 1.000.000. Lalu ukur waktu `HasDuplicateSlow` dan `HasDuplicateFast` dengan `Stopwatch` untuk 10.000, 20.000, dan 40.000 item, jalankan tiap ukuran dua kali dan ambil waktu yang kedua (yang pertama ikut menghitung JIT warm-up). Saat n jadi dua kali lipat, apa yang terjadi pada waktu masing-masing?",
-    teach: "Jelaskan arti O(n) dan O(n²) ke orang yang belum pernah melihat notasinya, pakai contoh dari kehidupan nyata.",
-    analogy: "Mencari nama di buku telepon. Membaca setiap halaman itu O(n). Membuka di tengah lalu terus membagi dua itu O(log n). Menyuruh semua orang di ruangan bersalaman dengan semua orang lain untuk mencari yang ulang tahunnya sama itu O(n²): masih oke untuk 10 orang, mustahil untuk satu stadion.",
+    practice: "Pakai visualisasinya untuk membandingkan tiap kelas di n = 1.000 dan n = 1.000.000. Lalu ukur waktu `HasDuplicateSlow` dan `HasDuplicateFast` dengan `Stopwatch` pada 10.000, 20.000, dan 40.000 item. Jalankan tiap ukuran dua kali dan catat hasil kedua supaya bebas dari warm-up JIT. Saat n digandakan, apa yang terjadi ke durasinya?",
+    teach: "Jelaskan arti O(n) dan O(n²) memakai contoh sehari-hari ke orang yang belum pernah melihat notasinya.",
+    analogy: "Bayangkan mencari nama di buku telepon. Membaca halaman satu per satu itu O(n), sementara membuka bagian tengah lalu terus membelah dua itu O(log n). Menyuruh semua orang di ruangan bersalaman satu sama lain buat cari tanggal lahir yang sama itu O(n²): masih masuk akal untuk 10 orang, mustahil untuk satu stadion.",
     pitfalls: [
-      "Menghitung jumlah baris kode, bukan bagaimana pekerjaannya bertambah. Satu baris yang memanggil `list.Contains` di dalam loop itu O(n²).",
-      "Melupakan biaya tersembunyi: sorting, concatenation `string` di dalam loop, `Insert(0, x)` pada list.",
+      "Menghitung jumlah baris kode, bukan pertumbuhan kerjanya. Satu baris memanggil `list.Contains` di dalam loop tetap berbiaya O(n²).",
+      "Lupa biaya tersembunyi seperti sorting, concatenation `string` di dalam loop, dan `Insert(0, x)` pada list.",
       "Menyebutkan time complexity tapi lupa space-nya."
     ],
     quiz: [
-      ["Berapa complexity dari loop atas n item yang setiap kali memanggil `list.Contains(x)` pada list berisi n item?", ["O(n)", "O(n log n)", "O(n²)", "O(1), karena `Contains` itu bawaan"], "`Contains` pada list itu sendiri O(n), dan ia dijalankan n kali. Bawaan bukan berarti gratis."],
-      ["Binary search pada 1.000.000 item yang sudah terurut butuh sekitar berapa langkah?", ["20", "1.000", "500.000", "1.000.000"], "log₂(1.000.000) ≈ 20: setiap langkah membagi dua sisanya."],
-      ["5n² + 3n + 100 disederhanakan menjadi…", ["O(n)", "O(5n²)", "O(n²)", "O(n² + n)"], "Buang konstanta dan suku berorde lebih rendah: suku n² yang mendominasi saat n membesar."]
+      ["Berapa complexity dari loop atas n item yang setiap kali memanggil `list.Contains(x)` pada list berisi n item?", ["O(n)", "O(n log n)", "O(n²)", "O(1), karena `Contains` itu bawaan"], "`Contains` pada list itu sendiri O(n), dan ia dijalankan n kali. Fungsi bawaan bukan berarti gratis."],
+      ["Binary search pada 1.000.000 item yang sudah terurut butuh sekitar berapa langkah?", ["20", "1.000", "500.000", "1.000.000"], "log₂(1.000.000) ≈ 20 karena setiap langkah membuang separuh sisanya."],
+      ["5n² + 3n + 100 disederhanakan menjadi…", ["O(n)", "O(5n²)", "O(n²)", "O(n² + n)"], "Buang konstanta dan suku kecil. Suku n² yang paling menentukan saat n membesar."]
     ]
   },
   numbers: {
     terms: [
-      ['Binary float IEEE-754 (`double`)', 'Menyimpan pecahan berbasis 2 secara efisien untuk grafis/fisika, sehingga angka desimal `0.1` berulang tak terbatas dan membulat tipis.'],
-      ['Integer overflow', 'Melebihi batas maks `int` 32-bit (`~2,14M`) berputar diam-diam kecuali dicek atau memakai `long` / `Int64`.'],
-      ['Unit kode UTF-8 vs klaster grafem', 'Emoji seperti `"👍🏽"` memakan banyak byte UTF-8 dan unit `char` UTF-16 — hitung jumlah huruf nyata dengan `StringInfo` / `Intl.Segmenter`.']
+      ['Binary float IEEE-754 (`double`)', 'Menyimpan pecahan basis 2 dengan cepat untuk grafis dan fisika, jadi angka desimal seperti `0.1` berulang terus lalu terbulatkan tipis.'],
+      ['Integer overflow', 'Melewati batas maks `int` 32-bit (`~2,14 miliar`) langsung berputar balik tanpa error kecuali dicek atau dipindah ke `long` / `Int64`.'],
+      ['Unit kode UTF-8 vs klaster grafem', 'Emoji seperti `"👍🏽"` memakan banyak byte UTF-8 dan unit `char` UTF-16. Hitung karakter utuh dengan `StringInfo` / `Intl.Segmenter`.']
     ],
     predict: {
       prompt: 'Di C# (`double`), JavaScript (`number`), atau Dart (`double`), apa hasil evaluasi `0.1 + 0.2 === 0.3`?',
-      options: ['`true` (`0.3` persis)', '`false` (bernilai `0.30000000000000004` di binary IEEE-754)', 'Melempar peringatan overflow'],
-      explain: '`1/10` dan `1/5` tidak berhenti persis pada pecahan basis 2 (`0.000110011...`), sehingga binary floating point membulatkan kedua operandnya sedikit; pakai `decimal` atau sen bulat untuk uang.'
+      options: ['`true` (`0.3` persis)', '`false` (bernilai `0.30000000000000004` di binary IEEE-754)', 'Muncul peringatan overflow'],
+      explain: '`1/10` dan `1/5` tidak pernah habis di pecahan basis 2 (`0.000110011...`), jadi binary floating point membulatkan kedua angkanya sedikit. Pakai `decimal` atau sen bulat untuk uang.'
     },
     title: "Angka dan teks: biner, floating point, dan Unicode",
-    why: "Uang yang selisih satu sen, nama yang tampil sebagai 'Ã©', id yang rusak setelah 2,1 miliar: bug-bug ini berasal dari cara komputer menyimpan angka dan teks, dan muncul di setiap track — `DECIMAL` di SQL, `decimal` di C#, `NVARCHAR`, dan satu-satunya type angka di JavaScript.",
+    why: "Uang yang selisih satu sen, nama tampil sebagai 'Ã©', atau id rusak sesudah 2,1 miliar berasal dari cara komputer menyimpan angka dan teks. Masalah yang sama muncul di tiap track: `DECIMAL` di SQL, `decimal` di C#, `NVARCHAR`, dan satu-satunya type angka JavaScript.",
     points: [
-      "Semuanya disimpan dalam **biner**. `int` berukuran 32 bit, jadi menampung sekitar ±2,1 miliar; `long` (64 bit) menampung sekitar ±9,2 × 10¹⁸. Lewati batasnya dan nilainya **overflow**: di C# nilainya diam-diam berputar balik, kecuali kodenya berjalan dalam konteks `checked`.",
-      "`double` (dan setiap `number` di JavaScript) adalah **floating point** biner. Kebanyakan pecahan desimal, seperti 0,1, tidak punya bentuk biner yang persis, jadi `0.1 + 0.2` hasilnya `0.30000000000000004`.",
-      "Untuk uang, pakai type desimal yang persis: `decimal` di C#, `DECIMAL(19,4)` di SQL Server, atau rupiah atau sen utuh dalam integer. Jangan pernah membandingkan hasil floating point dengan `==`; bandingkan dengan toleransi kecil.",
-      "JavaScript hanya punya satu type angka, dan integer-nya hanya persis sampai 2⁵³ − 1 (`Number.MAX_SAFE_INTEGER`). Id database 64 bit di atas itu kehilangan digit di browser, jadi kirim id besar sebagai string, atau pakai `BigInt`.",
-      "Teks adalah rangkaian **code point Unicode** yang di-encode menjadi byte. **UTF-8**, default di web, memakai 1 sampai 4 byte per karakter; string di C#, JavaScript, dan Java memakai **UTF-16**, di mana satu emoji butuh dua unit 16 bit.",
-      "Jadi 'panjang' tergantung apa yang dihitung: `\"👍\".Length` bernilai 2 di C# dan JavaScript, padahal orang melihat satu karakter. Teks kacau seperti 'Ã©' berarti byte-nya ditulis dengan satu encoding lalu dibaca dengan encoding lain.",
-      "Di SQL Server, `NVARCHAR` menyimpan Unicode. `VARCHAR` menyimpan teks dalam satu code page kecuali kolomnya memakai collation UTF-8, jadi nama dalam aksara lain bisa kembali sebagai '?'."
+      "Semuanya disimpan dalam **biner**. `int` 32-bit menampung sekitar ±2,1 miliar, sementara `long` 64-bit menampung ±9,2 × 10¹⁸. Lewat dari batasnya nilainya **overflow**: di C# nilainya memutar balik tanpa error kecuali jalan di dalam blok `checked`.",
+      "`double` (dan semua `number` JavaScript) memakai **floating point** biner. Kebanyakan pecahan desimal seperti 0,1 tidak punya bentuk biner yang pas, makanya `0.1 + 0.2` menjadi `0.30000000000000004`.",
+      "Untuk uang, pakai type desimal yang presisi: `decimal` di C#, `DECIMAL(19,4)` di SQL Server, atau simpan dalam rupiah atau sen bulat pakai integer. Jangan bandingkan hasil float memakai `==`, melainkan pakai batas toleransi kecil.",
+      "JavaScript cuma punya satu type angka, dan integer-nya hanya akurat sampai 2⁵³ − 1 (`Number.MAX_SAFE_INTEGER`). Id database 64-bit di atas batas itu kehilangan digit di browser, jadi kirim id besar sebagai string atau pakai `BigInt`.",
+      "Teks adalah deretan **code point Unicode** yang diubah ke byte. **UTF-8**, default di web, memakai 1 sampai 4 byte per karakter, sedangkan string di C#, JavaScript, dan Java memakai **UTF-16** yang butuh dua unit 16-bit untuk satu emoji.",
+      "Jadi 'panjang' tergantung apa yang dihitung: `\"👍\".Length` bernilai 2 di C# dan JavaScript padahal mata melihat satu huruf. Teks rusak seperti 'Ã©' artinya byte ditulis memakai satu encoding lalu dibaca dengan encoding lain.",
+      "Di SQL Server, `NVARCHAR` menyimpan Unicode. `VARCHAR` cuma menyimpan satu code page kecuali kolomnya ber-collation UTF-8, jadi nama dalam aksara lain bisa berubah jadi '?'."
     ],
-    practice: "Di console browser, jalankan `0.1 + 0.2`, `9007199254740993`, dan `\"👍\".length`, lalu jelaskan tiap hasilnya. Kemudian di C#, jumlahkan harga sebuah order berisi 1.000 baris dengan `double` lalu dengan `decimal`, dan tampilkan selisihnya. Terakhir, di SQL Server, insert `N'Đặng Thị Hà'` ke kolom `VARCHAR(50)` dan kolom `NVARCHAR(50)`, lalu bandingkan apa yang kembali.",
-    teach: "Jelaskan kenapa `0.1 + 0.2` tidak persis `0.3`, dan type apa yang akan kamu pakai untuk saldo tabungan.",
-    analogy: "Tulis 1/3 sebagai desimal: 0,3333… tidak pernah selesai, jadi berapa pun jumlah digitnya, hasilnya sedikit meleset. Biner punya masalah yang sama dengan 1/10. Type desimal menghitung dalam persepuluhan dan perseratusan, seperti kasir menghitung koin, jadi 0,10 tetap persis 0,10.",
+    practice: "Di console browser, jalankan `0.1 + 0.2`, `9007199254740993`, dan `\"👍\".length`, lalu jelaskan tiap hasilnya. Kemudian di C#, jumlahkan harga order berisi 1.000 baris memakai `double` lalu `decimal`, dan cetak selisihnya. Terakhir di SQL Server, insert `N'Đặng Thị Hà'` ke kolom `VARCHAR(50)` dan `NVARCHAR(50)`, lalu bandingkan output-nya.",
+    teach: "Jelaskan kenapa `0.1 + 0.2` tidak persis `0.3`, dan type apa yang pas untuk saldo rekening.",
+    analogy: "Tulis 1/3 dalam desimal: 0,3333… tidak pernah habis, jadi sepanjang apa pun digitnya tetap sedikit meleset. Biner punya masalah yang persis sama dengan 1/10. Type desimal menghitung per sepuluh dan per seratus seperti kasir menghitung koin, jadi 0,10 tetap utuh 0,10.",
     pitfalls: [
-      "Menyimpan uang dalam `double`, `float`, atau `REAL` atau `FLOAT` di SQL. Tiap error-nya sangat kecil, tapi menumpuk setelah ribuan operasi.",
-      "Mengirim id 64 bit ke JavaScript sebagai angka. Di atas 2⁵³, digit terakhirnya diam-diam berubah.",
-      "Memotong string pada jumlah `char` yang tetap, yang bisa membelah sebuah emoji menjadi dua.",
-      "Mendeklarasikan nama sebagai `VARCHAR` lalu mendapat '?' untuk apa pun di luar code page-nya."
+      "Menyimpan uang di `double`, `float`, atau `REAL` / `FLOAT` SQL. Tiap selisihnya kecil, tapi menumpuk setelah ribuan baris.",
+      "Mengirim id 64-bit ke JavaScript sebagai angka. Lewat 2⁵³, digit paling belakang berubah tanpa peringatan.",
+      "Memotong string berdasarkan jumlah `char` yang kaku karena bisa membelah emoji jadi dua.",
+      "Mendeklarasikan kolom nama dengan `VARCHAR` lalu kaget muncul '?' untuk huruf di luar code page."
     ],
     quiz: [
-      ["Kenapa `0.1 + 0.2 == 0.3` bernilai false untuk `double` di C#?", ["Compiler membulatkan sisi kanannya", "0,1 dan 0,2 tidak punya bentuk biner yang persis, jadi jumlahnya sedikit meleset", "`==` membandingkan reference untuk double", "Double hanya menyimpan dua angka di belakang koma"], "Floating point biner menyimpan pecahan biner terdekat, dan error kecil itu membuat jumlahnya 0.30000000000000004. Pakai `decimal` untuk nilai desimal yang persis."],
-      ["Type mana yang cocok untuk saldo rekening di SQL Server?", ["`FLOAT`", "`REAL`", "`DECIMAL(19,4)`", "`NVARCHAR(20)`"], "`DECIMAL` persis dalam basis 10. `FLOAT` dan `REAL` adalah floating point biner, dan teks tidak bisa dijumlahkan atau dicek sebagai angka."],
+      ["Kenapa `0.1 + 0.2 == 0.3` bernilai false untuk `double` di C#?", ["Compiler membulatkan sisi kanannya", "0,1 dan 0,2 tidak punya bentuk biner yang persis, jadi jumlahnya sedikit meleset", "`==` membandingkan reference untuk double", "Double hanya menyimpan dua angka di belakang koma"], "Floating point biner menyimpan pecahan terdekat, membuat jumlahnya 0.30000000000000004. Pakai `decimal` untuk nominal eksak."],
+      ["Type mana yang cocok untuk saldo rekening di SQL Server?", ["`FLOAT`", "`REAL`", "`DECIMAL(19,4)`", "`NVARCHAR(20)`"], "`DECIMAL` eksak di basis 10. `FLOAT` dan `REAL` memakai biner, sedangkan teks tidak bisa dijumlahkan sebagai angka."],
       ["`\"👍\".Length` bernilai 2 di C#. Kenapa?", ["String C# memakai UTF-16, dan emoji ini butuh dua unit 16 bit", "Windows menyimpan setiap emoji sebagai dua karakter", "`Length` menghitung byte dalam UTF-8", "Itu bug di .NET"], "Karakter di luar 65.536 code point pertama butuh surrogate pair di UTF-16. Pakai `EnumerateRunes()` untuk menghitung code point."]
     ]
   },
   structures: {
     terms: [
-      ['Array vs Linked List', 'Array tersimpan rapat berdampingan di RAM (cache CPU kencang + indeks `O(1)`); linked list mengejar pointer terpencar (`O(n)` scan) sehingga jarang lebih cepat.'],
-      ['Hash table (`Dictionary` / `Map`)', 'Mem-hash kunci ke slot ember array untuk pencarian rata-rata `O(1)` — senjata utama di 80% optimasi soal coding interview.'],
-      ['Stack (LIFO) vs Queue (FIFO)', 'Stack melayani undo dan rekursi DFS; Queue menjaga urutan kedatangan untuk BFS serta worker antrean tugas.']
+      ['Array vs Linked List', 'Array tersimpan rapat berdampingan di RAM (cache CPU kencang + index `O(1)`), sedangkan linked list mengejar pointer terpencar (`O(n)` scan).'],
+      ['Hash table (`Dictionary` / `Map`)', 'Memetakan key ke slot bucket array untuk pencarian rata-rata `O(1)`, andalan di mayoritas optimasi soal interview.'],
+      ['Stack (LIFO) vs Queue (FIFO)', 'Stack melayani undo dan rekursi DFS, sementara Queue menjaga urutan kedatangan untuk BFS dan worker antrean tugas.']
     ],
     title: 'Array, hash table, stack, queue, dan linked list',
-    why: "Memilih data structure yang tepat sering kali sudah jadi sebagian besar solusinya. `Dictionary` di balik cache, queue di balik background job, stack di balik undo: beberapa structure yang sama muncul di codebase dan juga di interview.",
+    why: "Memilih data structure yang pas sering kali sudah menyelesaikan separuh soal. `Dictionary` dipakai buat cache, queue di balik background job, dan stack di balik tombol undo. Beberapa pola yang sama terus muncul di aplikasi nyata maupun interview.",
     points: [
-      "**Array / List**: memory yang bersebelahan. Akses lewat index O(1), append amortized O(1), insert atau hapus di tengah O(n), pencarian O(n).",
-      "**Hash table** (`Dictionary`, `HashSet`): hash function memetakan tiap key ke sebuah bucket. Lookup, insert, dan delete O(1) **rata-rata**; tanpa urutan.",
-      "Hash table hanya sebagus key-nya: kalau banyak key jatuh ke bucket yang sama, lookup melambat mendekati O(n), dan key yang berubah saat sedang disimpan tidak akan bisa ditemukan lagi.",
-      "**Stack** (masuk terakhir, keluar pertama): push dan pop di satu ujung. Undo, pencocokan kurung, depth-first search, dan call stack itu sendiri.",
-      "**Queue** (masuk pertama, keluar pertama): tambah di belakang, ambil dari depan. Pekerjaan sesuai urutan datang, breadth-first search.",
-      "**Linked list**: node yang masing-masing menunjuk ke node berikutnya. Insert atau hapus O(1) di node yang sudah kamu pegang, tapi O(n) untuk mencapainya dan cache locality-nya buruk. .NET punya `LinkedList<T>`, tapi soal interview memakai class node buatanmu sendiri dengan pointer `Next`.",
-      "Ajukan tiga pertanyaan: operasi apa yang kubutuhkan, seberapa sering, dan untuk data sebanyak apa? Jawabannya yang memilih structure-nya."
+      "**Array / List** menempati memory yang berdampingan. Akses lewat index itu O(1) dan append rata-rata O(1), tapi menyisipkan di tengah atau mencari butuh O(n).",
+      "**Hash table** (`Dictionary`, `HashSet`) memetakan tiap key ke bucket lewat hash function. Lookup, insert, dan delete O(1) **rata-rata**, tanpa urutan.",
+      "Hash table sangat bergantung pada key-nya. Kalau banyak key jatuh ke bucket yang sama, lookup melambat menuju O(n), dan key yang berubah setelah disimpan tak akan ketemu lagi.",
+      "**Stack** memakai aturan masuk terakhir keluar lebih dulu, jadi tambah dan ambil terjadi di satu ujung. Dipakai untuk undo, pencocokan kurung, DFS, dan call stack.",
+      "**Queue** bekerja masuk pertama keluar pertama: tambah di belakang dan ambil dari depan, cocok untuk antrean tugas dan BFS.",
+      "**Linked list** merangkai node lewat pointer. Insert atau hapus di node yang sudah dipegang cuma O(1), tapi mencari node itu makan O(n) dan cache locality-nya buruk. Soal interview memakai class node bikinan sendiri dengan pointer `Next`, bukan `LinkedList<T>` bawaan .NET.",
+      "Tanyakan tiga hal: operasi apa yang dibutuhkan, seberapa sering jalan, dan datanya sebesar apa? Jawabannya langsung menunjuk structure yang tepat."
     ],
-    practice: "Kerjakan tiga soal interview, dan sebutkan structure-nya sebelum menulis kode apa pun: 'Pair with target sum' (hash map), 'Valid brackets' (stack), 'Reverse a linked list' (pointer, memakai `ListNode` seperti contoh di atas). Untuk masing-masing, jelaskan kenapa alternatif yang paling gampang terpikir justru lebih buruk.",
+    practice: "Kerjakan tiga soal interview sambil menyebutkan structure-nya sebelum mulai ngoding: 'Pair with target sum' (hash map), 'Valid brackets' (stack), dan 'Reverse a linked list' (pointer memakai `ListNode`). Untuk tiap soal, jelaskan kenapa cara yang paling gampang terpikir lebih lambat.",
     teach: "Jelaskan kenapa mencari key di hash table itu O(1) rata-rata, sedangkan mencari di list itu O(n).",
-    analogy: "List itu deretan loker bernomor: instan kalau kamu tahu nomornya, perjalanan panjang kalau kamu hanya tahu isinya. Hash table itu tempat penitipan jaket yang nomor tiketnya dihitung dari namamu, jadi petugasnya langsung menuju gantungan yang benar.",
+    analogy: "List itu deretan loker bernomor: cepat kalau tahu nomornya, tapi harus buka satu per satu kalau cuma tahu isinya. Hash table itu tempat penitipan jaket yang nomor tiketnya langsung dihitung dari namamu, jadi petugas tinggal menuju gantungan yang benar.",
     pitfalls: [
       "Memakai list padahal yang dibutuhkan set atau dictionary, lalu mencarinya di dalam loop.",
-      "Menganggap dictionary menjaga urutan masuk atau urutan terurut. Pakai `SortedDictionary` atau lakukan sort kalau butuh urutan.",
-      "Memilih linked list demi 'insert yang cepat', padahal mencari posisinya tetap O(n).",
+      "Menganggap dictionary menjaga urutan masuk atau urutan terurut. Pakai `SortedDictionary` atau urutkan kalau butuh urutan.",
+      "Memilih linked list demi 'insert cepat', padahal mencari posisinya tetap O(n).",
       "Kehilangan sisa linked list karena menimpa `Next` sebelum menyimpannya. Gambar dulu kotak dan panahnya."
     ],
     quiz: [
-      ["Structure mana yang memberi lookup O(1) rata-rata berdasarkan key?", ["`List<T>` yang dijaga terurut", "`LinkedList<T>`", "Hash table", "`Queue<T>`"], "Hash dari key langsung mengarah ke bucket-nya. List terurut memberi O(log n) dengan binary search."],
+      ["Structure mana yang memberi lookup O(1) rata-rata berdasarkan key?", ["`List<T>` yang dijaga terurut", "`LinkedList<T>`", "Hash table", "`Queue<T>`"], "Hash dari key langsung menunjuk bucket-nya. List terurut memberi O(log n) lewat binary search."],
       ["Structure mana yang cocok untuk 'batalkan aksi terakhir'?", ["Queue", "Stack", "Dictionary", "List terurut"], "Undo itu masuk terakhir, keluar pertama."],
-      ["Berapa biaya `list.Insert(0, x)` pada List berisi n item?", ["O(1)", "O(log n)", "O(n)", "Amortized O(1), seperti `Add`"], "Setiap elemen yang ada harus bergeser satu posisi. Hanya append di ujung yang amortized O(1)."]
+      ["Berapa biaya `list.Insert(0, x)` pada List berisi n item?", ["O(1)", "O(log n)", "O(n)", "Amortized O(1), seperti `Add`"], "Setiap elemen yang sudah ada harus digeser satu posisi. Hanya append di ujung yang amortized O(1)."]
     ]
   },
   sorting: {
     terms: [
-      ['Base case & stack frame', 'Setiap fungsi rekursif wajib memiliki cabang henti; tanpanya parameter menumpuk sampai `StackOverflowException` menjatuhkan program.'],
-      ['Divide-and-conquer (`O(n log n)`)', 'Merge sort dan Quick sort membelah input terus-menerus (`log n` level × kerja `n` per level) alih-alih pertukaran tetangga `O(n²)`.'],
+      ['Base case & stack frame', 'Setiap fungsi rekursif wajib punya kondisi berhenti, atau stack frame menumpuk sampai `StackOverflowException` menjatuhkan program.'],
+      ['Divide-and-conquer (`O(n log n)`)', 'Merge sort dan Quick sort terus membelah input (`log n` level × kerja `n` per level), bukan menukar tetangga `O(n²)`.'],
       ['Stable sort', 'Mempertahankan urutan asli di antara item yang nilainya seri (`sort` di C#/JS `.toSorted()` berdasar `key`).']
     ],
     title: 'Recursion dan sorting',
-    why: "Recursion adalah alat berpikir di balik tree, graph, backtracking, dan dynamic programming. Sorting adalah langkah pertama yang paling umum dalam soal algoritma, dan memahami kenapa biayanya O(n log n) mengajarkan sebagian besar yang kamu perlukan untuk menganalisis algoritma.",
+    why: "Recursion adalah cara berpikir di balik tree, graph, backtracking, dan DP. Sorting sering jadi langkah pertama dalam soal algoritma, dan memahami kenapa biayanya O(n log n) menjadi bekal menganalisis banyak algoritma lain.",
     points: [
-      "Function recursive menyelesaikan masalah dengan menyelesaikan **versi lebih kecil dari masalah yang sama**. Ia butuh **base case** yang menghentikannya dan langkah yang bergerak menuju base case itu.",
-      "Setiap pemanggilan mendapat frame sendiri di call stack. Recursion yang sangat dalam membuat stack overflow; recursion apa pun bisa ditulis ulang dengan stack eksplisit.",
-      "**Divide and conquer**: pecah masalahnya, selesaikan tiap bagian, gabungkan. Merge sort melakukan persis ini dan selalu O(n log n).",
-      "Bubble sort dan insertion sort itu O(n²): sederhana, dan cukup untuk input yang sangat kecil atau hampir terurut. Quick sort rata-rata O(n log n), dan O(n²) di worst case.",
-      "Comparison sort secara umum tidak bisa lebih cepat dari O(n log n). Sort yang **stable** menjaga item yang sama nilainya tetap di urutan aslinya. Di .NET, `OrderBy` milik LINQ itu stable; `Array.Sort` dan `List.Sort` tidak.",
-      "Di kode sungguhan, pakai yang bawaan. Di interview, bilang 'sort dulu', lalu manfaatkan urutannya dengan two pointers atau binary search."
+      "Function recursive menyelesaikan masalah dengan memecahkan **versi lebih kecil dari masalah yang sama**. Ia butuh **base case** untuk berhenti dan langkah yang makin mendekatinya.",
+      "Setiap pemanggilan mendapat frame sendiri di call stack. Recursion yang terlalu dalam bikin stack overflow, meski recursion apa pun bisa ditulis ulang memakai stack.",
+      "Merge sort memakai pola **divide and conquer**: pecah input jadi dua, urutkan tiap bagian, lalu gabungkan sehingga waktunya selalu O(n log n).",
+      "Bubble dan insertion sort itu O(n²): sederhana dan cukup untuk input kecil atau hampir urut. Quick sort rata-rata O(n log n), dan O(n²) di worst case.",
+      "Umumnya comparison sort tidak bisa lebih cepat dari O(n log n). Sort yang **stable** menjaga item bernilai sama tetap di urutan aslinya, seperti `OrderBy` di LINQ, tidak seperti `Array.Sort` dan `List.Sort`.",
+      "Di kode proyek, pakai fungsi bawaan. Di interview, coba bilang 'sort dulu', lalu manfaatkan urutannya dengan two pointers atau binary search."
     ],
-    practice: "Jalankan tiap algoritma di visualisasi sorting dan catat jumlah perbandingannya. Lalu tulis `Sum(object[] items)` yang recursive untuk list bersarang seperti `[1, new object[] { 2, new object[] { 3, 4 } }, 5]` (jawabannya 15): pakai `item is int n` dan `item is object[] inner` untuk membedakan kasusnya. Telusuri call stack-nya di kertas.",
+    practice: "Jalankan semua algoritma di visualisasi sorting dan catat jumlah perbandingannya. Lalu tulis fungsi rekursif `Sum(object[] items)` untuk list bersarang seperti `[1, new object[] { 2, new object[] { 3, 4 } }, 5]` (hasilnya 15), memakai `item is int n` dan `item is object[] inner`. Gambar call stack-nya di kertas.",
     teach: "Jelaskan recursion memakai merge sort: apa base case-nya, apa masalah yang lebih kecil, dan bagaimana hasilnya digabungkan?",
-    analogy: "Mengurutkan setumpuk kartu dengan merge sort: bagi dua tumpukannya, serahkan masing-masing ke teman dengan instruksi yang sama, dan saat dua tumpukan terurut kembali, gabungkan dengan terus mengambil kartu teratas yang lebih kecil. Instruksinya sama di setiap level, dan satu kartu saja sudah pasti terurut: itulah base case-nya.",
+    analogy: "Bayangkan mengurutkan setumpuk kartu dengan merge sort. Bagi dua tumpukannya dan suruh dua teman melakukan instruksi yang sama, lalu saat kembali gabungkan kartu dengan terus mengambil yang teratas lebih kecil. Sampai tersisa satu kartu yang sudah pasti urut sebagai base case.",
     pitfalls: [
-      "Base case yang tidak ada atau tidak pernah tercapai: recursion tanpa akhir dan `StackOverflowException`, yang tidak bisa ditangkap.",
-      "Overflow dalam hitungan recursive. Dengan `int`, `Factorial(13)` diam-diam memberi jawaban salah; `long` bertahan sampai 20!, dan blok `checked` membuat overflow melempar exception alih-alih berbohong.",
+      "Base case tidak ada atau tidak pernah tersentuh: recursion berputar selamanya dan memicu `StackOverflowException` yang tidak bisa di-catch.",
+      "Overflow saat menghitung rekursif. Pakai `int`, `Factorial(13)` diam-diam memberi hasil salah. Pakai `long` (muat sampai 20!) atau blok `checked` supaya langsung error.",
       "Mengurutkan berdasarkan satu key lalu key lain dengan `Array.Sort` dan berharap urutan sebelumnya bertahan. Pakai `OrderBy(...).ThenBy(...)`.",
-      "Menulis sort sendiri di kode production alih-alih memakai library."
+      "Menulis sort sendiri di proyek produksi ketimbang memakai library."
     ],
     quiz: [
-      ["Dua hal apa yang wajib dimiliki setiap function recursive?", ["Loop dan counter", "Base case dan langkah menuju base case itu", "Memo dan return value", "Dua pemanggilan recursive"], "Tanpa base case ia tidak pernah berhenti; tanpa kemajuan ia tidak pernah mencapai base case."],
-      ["Berapa time complexity merge sort?", ["O(n)", "O(n log n)", "O(n²) di worst case", "O(log n)"], "Ada log n level pemecahan, dengan pekerjaan merge O(n) di setiap level, apa pun inputnya. Yang punya worst case O(n²) itu quick sort."],
-      ["Kamu mengurutkan order berdasarkan tanggal, lalu mengurutkan hasilnya berdasarkan customer dengan `Array.Sort`. Apakah order tiap customer masih terurut tanggalnya?", ["Ya, selalu", "Tidak dijamin: `Array.Sort` tidak stable", "Hanya untuk array kecil", "Ya, kalau tanggalnya unik"], "Sort yang tidak stable bisa mengacak urutan key yang sama. `OrderBy(o => o.Customer).ThenBy(o => o.Date)` menyatakan maksudmu dengan jelas."]
+      ["Dua hal apa yang wajib dimiliki setiap function recursive?", ["Loop dan counter", "Base case dan langkah menuju base case itu", "Memo dan return value", "Dua pemanggilan recursive"], "Tanpa base case ia berputar terus, dan tanpa langkah mendekat ia tak akan pernah sampai ke base case."],
+      ["Berapa time complexity merge sort?", ["O(n)", "O(n log n)", "O(n²) di worst case", "O(log n)"], "Ada log n level pemecahan dengan kerja merge O(n) di tiap level apa pun input-nya. Yang punya worst case O(n²) itu quick sort."],
+      ["Kamu mengurutkan order berdasarkan tanggal, lalu mengurutkan hasilnya berdasarkan customer dengan `Array.Sort`. Apakah order tiap customer masih terurut tanggalnya?", ["Ya, selalu", "Tidak dijamin: `Array.Sort` tidak stable", "Hanya untuk array kecil", "Ya, kalau tanggalnya unik"], "Sort yang tidak stable bisa mengacak urutan key yang sama. `OrderBy(o => o.Customer).ThenBy(o => o.Date)` lebih jelas maksudnya."]
     ]
   },
   trees: {
     terms: [
-      ['Invariant binary search (`lo <= hi`)', 'Memangkas separuh rentang monoton terurut tiap langkah dalam `O(log n)` — juga berlaku untuk “binary search jawaban kapasitas”.'],
-      ['Heap (`PriorityQueue`)', 'Pohon terurut sebagian yang mengambil item terkecil atau terbesar dalam `O(log n)` — inti Top-K, penjadwalan timer, dan Dijkstra.'],
-      ['Penelusuran pohon (`DFS` pre/in/post vs `BFS`)', 'DFS menelusuri akar-ke-daun secara rekursif; BFS memproses tingkat demi tingkat dengan bantuan queue.']
+      ['Invariant binary search (`lo <= hi`)', 'Memangkas separuh rentang terurut di tiap langkah dalam `O(log n)`, termasuk untuk soal "binary search jawaban kapasitas".'],
+      ['Heap (`PriorityQueue`)', 'Tree semi-terurut yang mengambil nilai terkecil atau terbesar dalam `O(log n)`, inti Top-K, timer, dan Dijkstra.'],
+      ['Penelusuran pohon (`DFS` pre/in/post vs `BFS`)', 'DFS menelusuri akar sampai ujung cabang lewat rekursi, sedangkan BFS menyapu level demi level memakai queue.']
     ],
     title: 'Tree, heap, dan binary search',
-    why: "Tree muncul di seluruh stack: DOM, JSON, file system, component tree milik React, dan B-tree di balik setiap index SQL. Heap menjawab pertanyaan 'apa berikutnya?' seperti top K dan penjadwalan, dan binary search jangkauannya jauh melampaui sekadar mencari angka di array.",
+    why: "Tree muncul di seluruh stack: DOM, JSON, file system, component tree React, dan B-tree di balik index SQL. Heap menjawab pertanyaan 'apa berikutnya?' seperti top K dan penjadwalan, dan binary search berguna jauh melampaui mencari angka di array.",
     points: [
-      "**Tree** adalah node yang punya child dan tidak punya cycle. **Binary tree** punya paling banyak dua child per node. Tree yang seimbang dengan n node kedalamannya sekitar log₂ n level.",
-      "**Binary search tree** menjaga kiri < node < kanan, sehingga search, insert, dan delete jadi O(log n) kalau seimbang, dan O(n) kalau merosot jadi rantai. Self-balancing tree (red-black tree, dan B-tree yang dipakai database) mencegah hal itu.",
-      "Traversal: **in-order** (kiri, node, kanan: urutan terurut untuk BST), **pre-order** dan **post-order** (semuanya depth-first), serta **level-order** (breadth-first, dengan queue).",
-      "Sebagian besar soal tree bermuara pada satu pertanyaan recursive: 'kalau aku tahu jawaban untuk subtree kiri dan kananku, apa jawabanku?'",
-      "**Heap** adalah tree yang setiap parent-nya lebih kecil atau sama dengan child-nya (min-heap). Melihat nilai minimum O(1); insert dan remove O(log n). Di .NET: `PriorityQueue<TElement, TPriority>`.",
-      "**Binary search** bisa dipakai untuk kondisi apa pun yang berubah dari false ke true tepat satu kali di sepanjang sebuah rentang: cari titik perubahannya, bukan sebuah nilai."
+      "**Tree** adalah node bercabang tanpa cycle, dan **binary tree** maksimal punya dua child per node. Tree seimbang dengan n node dalamnya sekitar log₂ n level.",
+      "**Binary search tree** menjaga kiri < node < kanan, sehingga search, insert, dan delete jalan di O(log n) saat seimbang, dan O(n) kalau berat sebelah jadi rantai. Red-black tree dan B-tree database mencegah ketimpangan itu.",
+      "Traversal punya empat jenis: **in-order** (kiri, node, kanan: urut menaik untuk BST), **pre-order** dan **post-order** (depth-first), serta **level-order** (breadth-first memakai queue).",
+      "Kebanyakan soal tree berawal dari satu pertanyaan rekursif: 'kalau aku tahu jawaban subtree kiri dan kananku, apa jawabanku?'",
+      "**Heap** adalah tree yang setiap parent-nya lebih kecil atau sama dengan child-nya (min-heap). Mengintip minimum O(1), insert dan pop O(log n). Di .NET ada `PriorityQueue<TElement, TPriority>`.",
+      "**Binary search** bekerja pada kondisi apa saja yang berubah dari false ke true satu kali di sebuah rentang. Cari titik perubahannya, bukan cuma mencari sebuah nilai."
     ],
-    practice: "Kerjakan 'Maximum depth of a binary tree', 'Level-order traversal', dan 'Top K frequent elements' di bagian interview. Untuk tiap soal tree, tulis dulu pertanyaan recursive-nya sebelum coding. Lalu pakai `FirstTrue` untuk mencari kapasitas pengiriman harian terkecil yang bisa mengirim 10 order berukuran [3, 5, 2, 8, 4, 1, 7, 6, 2, 3], sesuai urutan itu, dalam 5 hari. (Jawabannya seharusnya 11.)",
-    teach: "Jelaskan kenapa binary search tree yang seimbang bisa menemukan sebuah nilai dalam O(log n), dan apa yang salah kalau nilai-nilainya dimasukkan dalam urutan terurut.",
-    analogy: "Binary search tree itu permainan 'tebak angkaku': setiap pertanyaan, lebih besar atau lebih kecil, membuang separuh dari sisanya. Kalau tree-nya berat sebelah, setiap pertanyaan hanya membuang satu kemungkinan, dan permainannya tidak lebih cepat daripada menghitung satu per satu.",
+    practice: "Kerjakan 'Maximum depth of a binary tree', 'Level-order traversal', dan 'Top K frequent elements' di bagian interview, lalu tulis pertanyaan rekursifnya sebelum ngoding. Setelah itu pakai `FirstTrue` untuk mencari kapasitas pengiriman harian terkecil yang mengangkut 10 order [3, 5, 2, 8, 4, 1, 7, 6, 2, 3] sesuai urutan dalam 5 hari (jawabannya 11).",
+    teach: "Jelaskan kenapa binary search tree yang seimbang bisa menemukan nilai dalam O(log n), dan apa yang terjadi kalau nilai dimasukkan dalam urutan menaik.",
+    analogy: "Binary search tree itu permainan tebak angka: setiap jawaban 'lebih besar' atau 'lebih kecil' langsung membuang separuh sisanya. Kalau tree-nya timpang ke satu sisi, tiap tebakan cuma membuang satu angka dan kecepatannya turun jadi menghitung satu per satu.",
     pitfalls: [
       "Menganggap binary tree apa pun adalah search tree, atau BST apa pun pasti seimbang.",
-      "Menyimpan list terurut lalu sort ulang setiap kali insert, padahal yang kamu butuhkan adalah heap.",
-      "Lupa menangani kasus null di awal function tree yang recursive.",
-      "Berharap `PriorityQueue` mengembalikan item berprioritas sama sesuai urutan masuknya. Itu tidak dijanjikan.",
-      "Loop binary search yang tidak pernah berhenti: dengan `lo < hi`, selalu pindahkan `lo` ke `mid + 1` atau `hi` ke `mid`, jangan pernah `lo = mid`."
+      "Menjaga list selalu terurut dan sort ulang tiap insert, padahal yang kamu butuhkan itu heap.",
+      "Lupa menangani kasus null di paling atas fungsi tree rekursif.",
+      "Berharap `PriorityQueue` mengembalikan item berprioritas sama sesuai urutan masuk. Itu tidak dijamin.",
+      "Loop binary search yang macet selamanya. Saat memakai `lo < hi`, selalu pindah `lo` ke `mid + 1` atau `hi` ke `mid`, jangan pernah `lo = mid`."
     ],
     quiz: [
-      ["Traversal mana yang mengunjungi nilai binary search tree secara terurut?", ["Pre-order", "In-order", "Post-order", "Level-order"], "Subtree kiri (lebih kecil), node, subtree kanan (lebih besar)."],
-      ["Apa yang dijamin oleh min-heap?", ["Setiap level terurut dari kiri ke kanan", "Elemen terkecil ada di root", "Mencari nilai apa pun itu O(log n)", "Prioritas yang sama keluar sesuai urutan masuk"], "Yang dijaga hanya urutan parent-child, dan itu cukup untuk menemukan minimum secara instan. Mencari nilai sembarang tetap O(n)."],
-      ["Memasukkan 1, 2, 3, 4, 5 secara berurutan ke BST biasa menghasilkan…", ["Tree yang seimbang", "Rantai child kanan dengan search O(n)", "Tree dengan tinggi 3", "Min-heap"], "Setiap nilai lebih besar dari sebelumnya, jadi tree-nya merosot menjadi linked list."]
+      ["Traversal mana yang membaca isi binary search tree dari nilai terkecil ke terbesar?", ["Pre-order", "In-order", "Post-order", "Level-order"], "Subtree kiri (lebih kecil), node, lalu subtree kanan (lebih besar)."],
+      ["Apa yang dijamin oleh min-heap?", ["Setiap level terurut dari kiri ke kanan", "Elemen terkecil ada di root", "Mencari nilai apa pun itu O(log n)", "Prioritas yang sama keluar sesuai urutan masuk"], "Heap hanya menjaga urutan parent-child sehingga minimum langsung ketemu di root. Mencari nilai acak lain tetap O(n)."],
+      ["Memasukkan 1, 2, 3, 4, 5 berurutan ke BST biasa menghasilkan…", ["Tree yang seimbang", "Rantai child kanan dengan search O(n)", "Tree dengan tinggi 3", "Min-heap"], "Setiap nilai lebih besar dari sebelumnya, jadi tree-nya memanjang seperti linked list."]
     ]
   },
   graphs: {
     terms: [
-      ['Set `seen` (sudah dikunjungi)', 'Mencatat simpul *begitu dimasukkan ke queue* supaya siklus tidak berputar tanpa henti atau mengunjungi simpul dua kali.'],
+      ['Set `seen` (sudah dikunjungi)', 'Mencatat simpul *begitu masuk queue* supaya siklus tidak berputar tanpa henti atau mengunjungi simpul dua kali.'],
       ['Jalur terpendek BFS (tanpa bobot)', 'Menyapu lingkaran jarak `0, 1, 2...` berurutan, menjamin jalur pertama yang menyentuh tujuan adalah yang terpendek.'],
-      ['Topological sort (`in-degree`)', 'Mengurutkan grafik dependensi terarah bebas siklus (`DAG` — urutan build, migrasi, installer paket) agar prasyarat selalu jalan lebih dulu.']
+      ['Topological sort (`in-degree`)', 'Mengurutkan dependensi searah tanpa siklus (`DAG`, seperti build pipeline, migrasi, atau installer) agar prasyarat selalu jalan lebih dulu.']
     ],
     title: 'Graph: BFS, DFS, dan topological order',
-    why: "Peta, jejaring sosial, build system, dan grid adalah graph, begitu juga kodemu sendiri: DI container yang me-resolve dependency constructor dan EF Core yang mengurutkan migration sama-sama sedang menelusuri graph. Dalam soal, bagian tersulitnya adalah menyadari bahwa ada graph di sana.",
+    why: "Peta, jejaring sosial, build system, dan grid itu graph, sama halnya kodemu sendiri. DI container yang merangkai dependency constructor dan EF Core yang mengurutkan migration sama-sama menelusuri graph, jadi tantangannya adalah sadar bahwa soalnya berbentuk graph.",
     points: [
-      "**Graph** adalah node (vertex) yang dihubungkan oleh edge, bisa directed atau undirected, berbobot atau tidak. Tree dan linked list adalah kasus khususnya.",
-      "Simpan sebagai **adjacency list** (node → tetangga): ringkas dan cepat ditelusuri. Grid adalah graph implisit yang tetangganya adalah sel-sel di sebelahnya.",
-      "**BFS** (dengan queue) menjelajah melingkar ke luar dan menemukan **shortest path kalau setiap edge biayanya sama**. Kalau biayanya berbeda, seperti jarak jalan, pakai algoritma Dijkstra: BFS dengan priority queue.",
-      "**DFS** (recursion atau stack) masuk sedalam mungkin lebih dulu: reachability dan connected component.",
-      "Selalu catat node yang sudah **visited**, kalau tidak, cycle membuat pencarian berputar selamanya. Kedua pencarian berjalan dalam O(V + E).",
-      "Mencari cycle di graph **directed** butuh lebih dari `visited`: kamu juga mencatat node yang ada di jalur saat ini. Bertemu lagi salah satunya berarti cycle; bertemu node yang sudah selesai sebelumnya tidak.",
-      "**Topological sort** mengurutkan graph directed sehingga setiap dependency datang lebih dulu: prasyarat mata kuliah, urutan build, migration. Kalau urutan seperti itu tidak ada, graph-nya punya cycle."
+      "**Graph** adalah node (vertex) yang dihubungkan edge, bisa berarah atau berbobot. Tree dan linked list adalah kasus khususnya.",
+      "Simpan sebagai **adjacency list** (node → tetangga) karena ringkas dan cepat ditelusuri. Grid itu graph implisit dengan tetangga berupa sel di sebelahnya.",
+      "**BFS** memakai queue untuk menyebar per lapisan dan menemukan **shortest path saat semua edge biayanya sama**. Kalau biayanya beda-beda seperti jarak jalan, pakai algoritma Dijkstra (BFS dengan priority queue).",
+      "**DFS** (rekursi atau stack) menyelam sedalam mungkin lebih dulu, pas buat cek keterjangkauan dan connected component.",
+      "Selalu catat node **visited**, kalau tidak, cycle membuat pencarian berputar terus. Keduanya berjalan dalam O(V + E).",
+      "Mencari cycle di graph **directed** butuh lebih dari `visited`: catat juga node di jalur aktif. Bertemu node di jalur aktif berarti cycle, sedangkan bertemu node yang sudah beres sebelumnya tidak.",
+      "**Topological sort** mengurutkan graph directed supaya setiap prasyarat jalan duluan: jadwal mata kuliah, urutan build, atau migration. Kalau urutan itu mustahil dibuat, berarti graph punya cycle."
     ],
-    practice: "Kerjakan 'Number of islands' (pencarian di grid) dan 'Course schedule' (topological order) di bagian interview. Sebelum coding, gambar graph-nya: apa itu node, dan apa itu edge? Lalu kerjakan 'Number of islands' sekali lagi dengan `Stack<(int, int)>` eksplisit, bukan recursion.",
-    teach: "Jelaskan kenapa BFS menemukan shortest path kalau setiap edge biayanya sama, dan kenapa DFS tidak.",
-    analogy: "BFS itu riak yang menyebar dari batu yang dijatuhkan ke kolam: ia mencapai semua yang berjarak satu langkah, lalu dua langkah, lalu tiga, jadi apa pun yang pertama kali disentuhnya, pasti disentuh lewat rute terpendek. DFS itu menjelajah labirin dengan selalu mengambil lorong pertama yang belum dijelajahi dan baru mundur di jalan buntu: kamu akan menemukan pintu keluar, tapi belum tentu lewat jalan terpendek.",
+    practice: "Kerjakan 'Number of islands' (pencarian grid) dan 'Course schedule' (topological order) di bagian interview. Sebelum coding, gambar dulu node dan edge-nya, lalu kerjakan 'Number of islands' lagi memakai `Stack<(int, int)>` sebagai pengganti rekursi.",
+    teach: "Jelaskan kenapa BFS menemukan shortest path saat biaya semua edge sama, dan kenapa DFS tidak.",
+    analogy: "BFS itu riak air saat batu jatuh ke kolam: ia menyentuh semua titik berjarak satu langkah, lalu dua, lalu tiga, jadi yang pertama disentuh pasti lewat jalur terpendek. DFS itu menyusuri labirin dengan selalu mengambil belokan baru dan baru mundur waktu mentok: pintu keluar pasti ketemu, cuma rutenya belum tentu paling singkat.",
     pitfalls: [
-      "Lupa visited set lalu berputar selamanya di sebuah cycle.",
-      "Memakai DFS padahal soalnya meminta jumlah langkah paling sedikit.",
-      "Menganggap 'sudah visited' sama dengan 'ketemu cycle' di graph directed. Dua jalur yang bertemu di node yang sama bukanlah cycle.",
-      "DFS recursive di grid besar. Sejuta sel bisa membuat call stack overflow; pakai stack eksplisit atau BFS.",
-      "Tidak menyadari ada graph: 'word ladder', 'course prerequisites', dan 'rotting oranges' tidak pernah menyebut kata graph."
+      "Lupa set visited lalu berputar selamanya di sebuah cycle.",
+      "Memakai DFS padahal soalnya minta jumlah langkah paling sedikit.",
+      "Mengira 'sudah visited' berarti 'ketemu cycle' di graph directed. Dua jalur yang bertemu di node sama bukan cycle.",
+      "DFS rekursif di grid besar. Sejuta sel bisa membuat call stack penuh, jadi pakai stack eksplisit atau BFS.",
+      "Tidak sadar soalnya berbentuk graph: 'word ladder', 'course prerequisites', dan 'rotting oranges' tidak pernah menyebut kata graph."
     ],
     quiz: [
-      ["Algoritma mana yang menemukan shortest path kalau setiap edge biayanya sama?", ["DFS", "BFS", "Topological sort", "Wajib Dijkstra"], "BFS mencapai node sesuai urutan jaraknya dari titik awal. Dijkstra baru dibutuhkan kalau biaya edge-nya berbeda-beda."],
-      ["Berapa time complexity BFS atau DFS dengan adjacency list?", ["O(V)", "O(V + E)", "O(V²)", "O(E log V)"], "Setiap vertex dikunjungi sekali dan setiap edge diperiksa sekali. O(E log V) itu Dijkstra dengan heap."],
-      ["Topological order hanya ada kalau graph directed-nya…", ["terhubung", "tidak punya cycle", "berupa tree", "hanya punya satu node awal"], "Cycle berarti ada node yang harus datang sebelum dirinya sendiri. Punya beberapa node awal tidak masalah."],
-      ["Di graph directed, DFS mencapai node D untuk kedua kalinya. Apa artinya?", ["Ada cycle", "Belum berarti apa-apa: cek apakah D masih ada di jalur saat ini", "Graph-nya undirected", "Visited set-nya rusak"], "Hanya bertemu node yang ada di jalur saat ini yang berarti cycle. Bertemu node yang sudah selesai hanya berarti dua jalur bertemu."]
+      ["Algoritma mana yang menemukan shortest path kalau setiap edge biayanya sama?", ["DFS", "BFS", "Topological sort", "Wajib Dijkstra"], "BFS mencapai node urut sesuai jarak dari titik awal. Dijkstra baru perlu kalau biaya edge berbeda."],
+      ["Berapa time complexity BFS atau DFS dengan adjacency list?", ["O(V)", "O(V + E)", "O(V²)", "O(E log V)"], "Tiap vertex dikunjungi sekali dan tiap edge dicek sekali. O(E log V) itu Dijkstra dengan heap."],
+      ["Topological order hanya ada kalau graph directed-nya…", ["terhubung", "tidak punya cycle", "berupa tree", "hanya punya satu node awal"], "Cycle artinya ada node yang harus datang sebelum dirinya sendiri. Punya beberapa node awal tidak masalah."],
+      ["Di graph directed, DFS mencapai node D untuk kedua kalinya. Apa artinya?", ["Ada cycle", "Belum tentu: cek apakah D masih di jalur aktif saat ini", "Graph-nya undirected", "Visited set-nya rusak"], "Hanya bertemu node yang masih di jalur aktif berarti cycle. Bertemu node yang sudah selesai cuma berarti dua jalur bertemu."]
     ]
   },
   backtracking: {
     terms: [
-      ['Pohon keputusan', 'Memetakan seluruh kandidat parsial di mana tiap cabang memilih satu opsi sah (`sertakan`, `lewati`, atau digit valid berikutnya).'],
-      ['Pilih → Telusuri → Batalkan pilihan', 'Masukkan kandidat ke `path`, rekursi ke dalam, lalu `pop()` (`undo`) agar cabang saudara tidak mewarisi sisa state.'],
-      ['Pruning (pemangkasan)', 'Membuang cabang mustahil lebih awal (`remaining < 0`) memangkas kerja pencarian eksponensial secara drastis.']
+      ['Pohon keputusan', 'Memetakan kandidat parsial, yang tiap cabangnya mengambil satu pilihan sah (`sertakan`, `lewati`, atau angka berikutnya).'],
+      ['Pilih → Telusuri → Batalkan pilihan', 'Masukkan kandidat ke `path`, lanjut rekursi ke bawah, lalu `pop()` (`undo`) supaya cabang lain mulai bersih.'],
+      ['Pruning (pemangkasan)', 'Membuang cabang mustahil lebih awal (`remaining < 0`) memangkas kerja pencarian eksponensial sangat jauh.']
     ],
     title: "Backtracking: menjelajahi setiap pilihan",
-    why: "Saat soal meminta 'semua kombinasi', 'setiap susunan', atau 'cara apa pun untuk mengisi ini', biasanya tidak ada rumus pintar: kamu mencoba satu pilihan, menjelajahi kelanjutannya, lalu membatalkannya. Backtracking adalah ide itu yang ditulis dengan rapi, dan pruning-lah yang membuatnya cukup cepat untuk dipakai.",
+    why: "Kalau soal minta 'semua kombinasi' atau 'setiap susunan valid', biasanya tidak ada rumus pintas. Kamu coba satu pilihan, telusuri kelanjutannya, lalu tarik kembali pilihan itu. Itulah backtracking, dan pruning menjaganya tetap kencang.",
     points: [
-      "Backtracking membangun solusi **satu pilihan demi satu pilihan**. Di tiap langkah: **pilih** sebuah opsi, **jelajahi** secara rekursif, lalu **batalkan** pilihannya, supaya opsi berikutnya mulai dari state yang sama.",
-      "Pilihan-pilihan itu membentuk **pohon keputusan**, dan backtracking adalah depth-first search atas pohon itu. Recursion stack memegang solusi parsial yang sedang dibangun.",
-      "Saat mencapai sebuah solusi, simpan **salinan** path-nya. Path itu terus berubah setelah kamu kembali, jadi menyimpan list-nya langsung membuat hasilmu kosong atau salah.",
-      "**Pruning** menghentikan sebuah cabang begitu cabang itu tidak mungkin menghasilkan jawaban yang valid: jumlahnya sudah terlalu besar, atau petaknya sudah terancam. Kasus terburuknya tetap sama, tapi dalam praktik pruning membuang sebagian besar pohon.",
-      "Tiga bentuk mencakup kebanyakan soal: **subset** (masukkan atau lewati tiap item), **kombinasi** (kirim start index supaya item sebelumnya tidak dipakai ulang), dan **permutasi** (catat item mana yang sudah dipakai).",
-      "Biayanya memang eksponensial: 2ⁿ subset, n! permutasi. Itu wajar; sebutkan di interview, lalu tunjukkan bagaimana pruning atau sorting memangkas pekerjaannya.",
-      "Kalau sub-pertanyaan yang sama muncul berulang kali dengan input yang sama, yang kamu hadapi sebenarnya dynamic programming: simpan jawabannya di cache, alih-alih menjelajahinya lagi."
+      "Backtracking membangun solusi **satu pilihan demi satu pilihan**. Di tiap langkah, **pilih** satu opsi, **telusuri** lewat rekursi, lalu **batalkan** supaya cabang berikutnya mulai dari kondisi awal.",
+      "Pilihan-pilihan itu membentuk **pohon keputusan**, dan backtracking menelusurinya dengan depth-first search. Recursion stack menyimpan solusi parsial saat itu.",
+      "Begitu solusi lengkap tercapai, simpan **salinan** path-nya. Path itu terus berubah waktu rekursi mundur, jadi menyimpan list aslinya bakal berakhir kosong.",
+      "**Pruning** menghentikan cabang begitu jelas tak mungkin valid, seperti jumlah sudah kegedean atau posisi ratu sudah diserang. Worst-case Big-O tetap eksponensial, tapi di praktik sebagian besar pohon langsung dibuang.",
+      "Tiga bentuk mencakup mayoritas soal. Pakai **subset** untuk memilih atau melewati item, **kombinasi** dengan start index agar item sebelumnya tak dipakai lagi, dan **permutasi** untuk melacak item yang sudah terpakai.",
+      "Biayanya memang eksponensial: 2ⁿ subset, n! permutasi. Itu wajar, sebutkan di interview lalu tunjukkan cara pruning atau sorting memangkas kerjanya.",
+      "Kalau sub-pertanyaan yang sama terus muncul ulang dengan input yang persis sama, berarti kamu butuh dynamic programming: cache hasilnya daripada menelusuri ulang."
     ],
-    practice: "Kerjakan 'All subsets' di bagian interview, lalu ubah supaya hanya mengembalikan subset berukuran k, dengan pruning begitu path-nya tidak mungkin lagi mencapai ukuran k. Terakhir, selesaikan N-Queens untuk n = 6 dan hitung jumlah solusinya (ada 4).",
-    teach: "Jelaskan pilih, jelajahi, dan batalkan memakai subset dari [1, 2, 3], dan kenapa kodenya menyimpan salinan path.",
-    analogy: "Mencari jalan di labirin dengan segulung benang. Di tiap persimpangan kamu memilih satu lorong sambil mengulur benang; di jalan buntu kamu menggulung benangnya kembali ke persimpangan terakhir lalu mencoba lorong berikutnya. Benang itu adalah path-mu, dan menggulungnya kembali adalah langkah membatalkan.",
+    practice: "Kerjakan 'All subsets' di bagian interview, lalu ubah supaya hanya mengembalikan subset berukuran k dengan pruning begitu path tidak mungkin lagi mencapai k. Terakhir, selesaikan N-Queens untuk n = 6 dan hitung jumlah solusinya (ada 4).",
+    teach: "Jelaskan pilih, telusuri, dan batalkan memakai subset [1, 2, 3], serta kenapa kodenya menyimpan salinan path.",
+    analogy: "Menelusuri labirin membawa segulung benang. Di tiap persimpangan kamu pilih satu lorong sambil mengulur benang, dan saat mentok kamu menggulungnya balik ke persimpangan terakhir untuk mencoba belokan lain. Benang itu path-mu, dan menggulungnya balik adalah membatalkan pilihan.",
     pitfalls: [
-      "Menambahkan `path` itu sendiri ke hasil, bukan salinannya. Semua hasil yang tersimpan lalu menunjuk ke list yang sama, yang akhirnya kosong.",
-      "Lupa membatalkan pilihan, sehingga state dari satu cabang bocor ke cabang berikutnya.",
-      "Mengirim `i + 1` padahal item boleh diulang, atau `i` padahal tidak boleh. Start index-lah yang menentukan apakah pengulangan diizinkan.",
-      "Menghasilkan semuanya lalu memfilter di akhir, padahal pengecekan selama pencarian bisa memangkas sebagian besar cabang."
+      "Menambahkan `path` aslinya ke hasil, bukan salinannya. Semua hasil akhirnya menunjuk ke list yang sama yang ujungnya kosong.",
+      "Lupa membatalkan pilihan sehingga sisa state dari satu cabang bocor ke cabang sebelahnya.",
+      "Mengirim `i + 1` saat item boleh diulang, atau `i` saat tidak boleh. Start index menentukan apakah pengulangan diizinkan.",
+      "Menghasilkan semua kemungkinan lalu memfilter di akhir, padahal cek di tengah jalan sudah bisa membuang hampir seluruh cabang."
     ],
     quiz: [
-      ["Kenapa item terakhir dihapus dari `path` setelah pemanggilan rekursif?", ["Untuk menghemat memory", "Supaya pilihan berikutnya mulai dari state yang sama dengan pilihan ini", "Karena list C# tidak bisa menampung duplikat", "Supaya rekursinya berhenti"], "Membatalkan pilihan mengembalikan state-nya, jadi tiap cabang saudara mulai dari titik yang persis sama."],
-      ["Kandidatnya sudah terurut, dan kandidat berikutnya sudah lebih besar dari sisa jumlahnya. Apa yang harus dilakukan loop-nya?", ["Lewati dan coba kandidat berikutnya", "Break: semua kandidat setelahnya juga lebih besar", "Tetap tambahkan dan cek di akhir", "Mulai lagi dari kandidat pertama"], "Itulah pruning. Sorting membuatnya aman untuk menghentikan seluruh loop, bukan hanya melewati satu item."],
-      ["Berapa banyak subset dari sebuah himpunan berisi 20 item berbeda?", ["400", "20!", "2²⁰, sekitar satu juta", "190"], "Tiap item masuk atau tidak, jadi ada 2ⁿ subset. 2²⁰ adalah 1.048.576, masih aman untuk dihasilkan; 2⁴⁰ tidak."]
+      ["Kenapa item terakhir dihapus dari `path` setelah pemanggilan rekursif?", ["Untuk menghemat memory", "Supaya pilihan berikutnya mulai dari state yang sama dengan pilihan ini", "Karena list C# tidak bisa menampung duplikat", "Supaya rekursinya berhenti"], "Membatalkan pilihan mengembalikan kondisi ke awal cabang, jadi tiap cabang saudara mulai dari titik persis sama."],
+      ["Kandidatnya sudah terurut, dan kandidat berikutnya sudah lebih besar dari sisa jumlahnya. Apa yang harus dilakukan loop-nya?", ["Lewati dan coba kandidat berikutnya", "Break: semua kandidat setelahnya juga lebih besar", "Tetap tambahkan dan cek di akhir", "Mulai lagi dari kandidat pertama"], "Itulah pruning. Karena sudah terurut, loop bisa langsung berhenti tanpa mengecek sisa kandidat."],
+      ["Berapa banyak subset dari sebuah himpunan berisi 20 item berbeda?", ["400", "20!", "2²⁰, sekitar satu juta", "190"], "Tiap item punya dua opsi, masuk atau tidak, jadi ada 2ⁿ subset. 2²⁰ adalah 1.048.576 dan masih aman dihasilkan, sedangkan 2⁴⁰ tidak."]
     ]
   },
   dp: {
     terms: [
-      ['Subproblem tumpang tindih', 'Submasalah yang dihitung berulang (`dp[3]` muncul berkali-kali) di-cache per kunci state agar tiap state unik dihitung sekali.'],
-      ['State & rumus transisi (recurrence)', 'Parameter tepat yang mendefinisikan submasalah (`dp[amount]`) serta rumus penghubungnya ke jawaban yang lebih kecil.'],
-      ['Memoization (top-down) vs Tabulasi (bottom-up)', 'Top-down meng-cache panggilan rekursif secara rapi; bottom-up mengisi array datar `0..n` bebas batas stack rekursi.']
+      ['Subproblem tumpang tindih', 'Submasalah yang dihitung berulang (`dp[3]` muncul berkali-kali) di-cache per state agar tiap state unik cukup dihitung sekali.'],
+      ['State & rumus transisi (recurrence)', 'Parameter tepat yang mendefinisikan submasalah (`dp[amount]`) dan rumus penghubungnya ke jawaban yang lebih kecil.'],
+      ['Memoization (top-down) vs Tabulasi (bottom-up)', 'Top-down meng-cache panggilan rekursif otomatis, sementara bottom-up mengisi array datar `0..n` bebas batas call stack.']
     ],
     predict: {
       prompt: 'Kamu ingin menukar uang `amount = 6` dengan koin `[1, 3, 4]`. Berapa koin yang dipakai Greedy (ambil koin terbesar dulu) dibanding DP optimal?',
       options: ['Keduanya memakai 2 koin', 'Greedy memakai 3 koin (`4 + 1 + 1`), sedangkan DP menemukan 2 koin (`3 + 3`)', 'Greedy gagal menyusun angka 6'],
-      explain: 'Memilih koin terbesar dulu (`4`) menjebak Greedy menjadi `4 + 1 + 1` (3 koin). DP memeriksa `min(dp[5], dp[3], dp[2]) + 1` dan menemukan `3 + 3 = 2` koin.'
+      explain: 'Mengambil koin terbesar duluan (`4`) menjebak Greedy ke `4 + 1 + 1` (3 koin). DP mengecek `min(dp[5], dp[3], dp[2]) + 1` lalu menemukan `3 + 3 = 2` koin.'
     },
     title: 'Dynamic programming dan strategi problem solving',
-    why: "Dynamic programming punya reputasi butuh ilham mendadak. Kenyataannya tidak: ia adalah prosedur yang bisa dipelajari. Dan kebiasaan di baliknya — coba kasus kecil, temukan pekerjaan yang berulang, pilih structure yang tepat — berguna untuk soal apa pun yang belum pernah kamu lihat.",
+    why: "Dynamic programming bukan soal menunggu ilham mendadak. Ia adalah prosedur yang bisa dilatih. Kebiasaan di baliknya: coba kasus kecil, temukan kerja yang berulang, lalu pilih struktur data yang pas untuk soal apa pun.",
     points: [
-      "DP berlaku kalau sebuah masalah punya **overlapping subproblem** (pertanyaan kecil yang sama ditanyakan berulang kali) dan **optimal substructure** (jawaban terbaik dibangun dari jawaban terbaik subproblem-nya).",
-      "Tanda-tanda kamu sedang menghadapi DP: 'ada berapa cara…', 'biaya minimum atau maksimum…', 'bisakah kamu mencapai…', di mana setiap pilihan memengaruhi pilihan yang tersisa nanti.",
-      "Prosedurnya: (1) definisikan **state**, apa arti `dp[i]` dalam kata-kata; (2) tulis **recurrence**-nya; (3) tentukan **base case**; (4) tentukan urutan pengisiannya; (5) optimasi space paling akhir.",
-      "**Top-down** (recursion plus memo) paling mudah diturunkan. **Bottom-up** (tabel yang diisi berurutan) menghindari recursion yang dalam dan kadang hanya butuh space O(1).",
-      "Keluarga klasiknya: 1D (climbing stairs, house robber), pilihan tak terbatas (coin change), dua sequence (longest common subsequence, edit distance), jalur di grid, knapsack.",
-      "**Greedy**, mengambil pilihan terbaik saat itu, lebih sederhana tapi hanya benar untuk sebagian masalah. Satu counter-example sudah cukup untuk menggugurkannya.",
-      "Untuk soal apa pun yang belum dikenal: kerjakan contoh kecil secara manual; tulis brute force beserta complexity-nya; cari pekerjaan yang terbuang (subproblem berulang → memo, scan berulang → hash map atau sorting, 'yang terkecil berikutnya' → heap); lalu cek edge case: input kosong, satu item, duplikat, n yang sangat besar."
+      "DP berlaku kalau sebuah masalah punya **overlapping subproblem** (pertanyaan kecil yang sama muncul berkali-kali) dan **optimal substructure** (jawaban terbaik dirakit dari jawaban terbaik subproblem-nya).",
+      "Ciri khas DP muncul pada soal 'berapa banyak cara…', 'biaya terkecil atau terbesar…', atau 'bisakah mencapai…' ketika tiap pilihan memengaruhi opsi setelahnya.",
+      "Prosedurnya ada lima langkah: (1) definisikan arti `dp[i]` dalam kata-kata, (2) tulis **recurrence**-nya, dan (3) tentukan **base case**. Sesudah itu pilih urutan pengisian dan optimasi space paling akhir.",
+      "**Top-down** (rekursi plus memo) paling gampang diturunkan. **Bottom-up** (isi tabel berurutan) bebas dari rekursi dalam dan kadang cuma perlu space O(1).",
+      "Keluarga klasiknya meliputi 1D (climbing stairs, house robber), pilihan bebas ulang (coin change), dua sequence (LCS, edit distance), jalur grid, dan knapsack.",
+      "**Greedy**, mengambil opsi paling menguntungkan saat itu, jauh lebih simpel tapi cuma benar untuk masalah tertentu. Satu counter-example cukup buat menggugurkannya.",
+      "Saat menghadapi soal baru, kerjakan dulu contoh kecil di kertas lalu tulis brute force beserta kompleksitasnya. Setelah itu pangkas kerja terbuang: subproblem berulang masuk memo, scan ulang diganti hash map atau sorting, dan 'terkecil berikutnya' pakai heap. Terakhir, cek edge case seperti input kosong, satu item, duplikat, dan n besar."
     ],
-    practice: "Kerjakan 'Climbing stairs' dan 'Coin change' di bagian interview, dan tulis definisi state sebagai komentar sebelum kode apa pun. Lalu cari kombinasi koin dan jumlah di mana selalu mengambil koin terbesar dulu memberi jawaban yang lebih buruk daripada DP-mu. Terakhir, pilih satu soal di bagian interview yang belum pernah kamu lihat dan tulis langkah-langkah strateginya sebelum menulis kode apa pun.",
-    teach: "Jelaskan dynamic programming sebagai 'recursion plus mengingat', pakai Fibonacci, lalu sebutkan lima langkah merancang solusi DP.",
-    analogy: "Dynamic programming itu seperti mengerjakan hitungan panjang di kertas dan menulis setiap hasil antara di pinggir halaman. Saat kamu butuh 37 × 12 lagi, kamu tinggal melihat pinggir halaman alih-alih menghitung ulang. Tekniknya adalah menyadari hasil antara mana yang terus kamu butuhkan, dan memutuskan apa yang perlu ditulis di pinggir halaman.",
+    practice: "Kerjakan 'Climbing stairs' dan 'Coin change' di bagian interview, lalu tulis definisi state sebagai komentar sebelum coding. Cari juga kombinasi nominal koin dan target saat strategi greedy selalu ambil koin terbesar menghasilkan lebih banyak koin dari DP-mu. Terakhir, pilih soal interview yang belum pernah kamu lihat dan tulis dulu langkah strateginya sebelum ngoding.",
+    teach: "Jelaskan dynamic programming sebagai 'recursion plus mengingat' memakai Fibonacci, lalu sebutkan lima langkah merancang solusi DP.",
+    analogy: "Dynamic programming seperti mengerjakan hitungan panjang di kertas dan menulis tiap hasil sementara di pinggir halaman. Waktu kamu perlu 37 × 12 lagi, tinggal intip catatan pinggir tanpa menghitung ulang. Kuncinya ada pada memilih hasil sementara mana yang layak dicatat.",
     pitfalls: [
-      "Mulai coding sebelum menyatakan dalam kata-kata apa arti `dp[i]`.",
-      "Mencoba greedy pada soal DP tanpa mencari counter-example.",
-      "Menghafal solusi alih-alih prosedur lima langkahnya.",
-      "Recursion top-down yang dalam pada input besar (n ratusan ribu) membuat stack overflow. Pindah ke bottom-up."
+      "Mulai ngoding sebelum menjelaskan dengan kata-kata apa arti `dp[i]`.",
+      "Memakai greedy pada soal DP tanpa mencari counter-example.",
+      "Menghafalkan kode jawaban daripada prosedur lima langkahnya.",
+      "Rekursi top-down yang terlalu dalam untuk input ratusan ribu sampai stack overflow. Pindah ke bottom-up."
     ],
     quiz: [
-      ["Dua sifat apa yang membuat sebuah masalah cocok untuk dynamic programming?", ["Input terurut dan nilai yang unik", "Overlapping subproblem dan optimal substructure", "Solusi recursive dan input kecil", "Solusi greedy yang gagal"], "Subproblem yang berulang membuat caching jadi bermanfaat; optimal substructure membuat penggabungan jawaban yang di-cache jadi benar."],
-      ["Apa langkah pertama dalam merancang solusi DP?", ["Optimasi space", "Definisikan dengan tepat apa arti state-nya", "Tulis nested loop-nya", "Tulis dictionary memo-nya"], "Tanpa definisi state yang jelas, recurrence-nya tidak bisa ditulis maupun dicek."],
-      ["Kapan algoritma greedy aman dipakai?", ["Kapan pun ia lebih cepat dari DP", "Kalau kamu bisa menjelaskan bahwa pilihan terbaik saat itu tidak pernah menghalangi jawaban terbaik secara keseluruhan", "Kapan pun inputnya terurut", "Tidak pernah di interview"], "Greedy butuh alasan kenapa ia selalu benar. Tanpa alasan itu, satu counter-example sudah cukup untuk mengembalikanmu ke DP."]
+      ["Dua sifat apa yang membuat sebuah masalah cocok untuk dynamic programming?", ["Input terurut dan nilai yang unik", "Overlapping subproblem dan optimal substructure", "Solusi recursive dan input kecil", "Solusi greedy yang gagal"], "Subproblem yang berulang membuat cache berguna, dan optimal substructure membuat penggabungan hasilnya sah."],
+      ["Apa langkah pertama dalam merancang solusi DP?", ["Optimasi space", "Definisikan dengan tepat apa arti state-nya", "Tulis nested loop-nya", "Tulis dictionary memo-nya"], "Tanpa definisi state yang jelas, recurrence tidak bisa ditulis atau dicek."],
+      ["Kapan algoritma greedy aman dipakai?", ["Kapan pun ia lebih cepat dari DP", "Kalau kamu bisa menjelaskan bahwa pilihan terbaik saat ini tidak pernah menghalangi jawaban terbaik ujungnya", "Kapan pun inputnya terurut", "Tidak pernah di interview"], "Greedy butuh bukti kenapa ia tetap optimal. Tanpa alasan kuat, satu counter-example mengembalikanmu ke DP."]
     ]
   },
   concurrency: {
     terms: [
-      ['Konkurensi vs Paralelisme', 'Konkurensi menyelingi banyak tugas secara logis (bahkan di 1 inti CPU); paralelisme menjalankan beberapa instruksi fisik bersamaan di multi-core.'],
-      ['Mutex / Lock eksklusif', 'Mengizinkan tepat satu thread masuk ke area kritis — urutan pengambilan dua lock yang terbalik memicu deadlock seperti halnya di SQL.'],
-      ['Event loop single-thread', 'Menghindari bentrok lock memori bersama di JS/Dart dengan menjalankan satu giliran UI pada satu waktu sambil mendelegasikan I/O.']
+      ['Konkurensi vs Paralelisme', 'Konkurensi menyelingi beberapa tugas agar jalan bersama bahkan di 1 inti CPU, sedangkan paralelisme mengeksekusinya serentak di multi-core.'],
+      ['Mutex / Lock eksklusif', 'Hanya mengizinkan satu thread masuk area kritis pada satu waktu, dan urutan lock terbalik memicu deadlock persis seperti di SQL.'],
+      ['Event loop single-thread', 'Menghindari rebutan lock memory bersama di JS dan Dart dengan memproses satu giliran UI sekaligus sambil mendelegasikan I/O.']
     ],
     title: "Concurrency: thread, lock, dan event loop",
-    why: "Lost update di SQL, thread-pool starvation di ASP.NET Core, layar Flutter yang membeku, dan update state React yang 'tidak terjadi' adalah satu topik yang dilihat dari track berbeda: lebih dari satu pekerjaan berjalan bersamaan dan menyentuh state yang sama. Memahami model bersamanya membuat masing-masing lebih mudah dinalar.",
+    why: "Lost update di SQL, thread-pool starvation di ASP.NET Core, layar Flutter yang macet, dan state React yang seakan tidak berubah sebenarnya berasal dari masalah yang sama. Banyak tugas berjalan bersamaan menyentuh state bersama, jadi memahami model intinya membuat semuanya lebih gampang dinalar.",
     points: [
-      "Sebuah **process** punya memory sendiri; **thread**-thread di dalamnya berbagi memory itu. Berbagi itulah yang membuat thread cepat berkoordinasi, sekaligus mudah salah.",
-      "**Concurrency** berarti beberapa pekerjaan sedang berjalan pada waktu yang sama; **parallelism** berarti pekerjaan itu benar-benar dieksekusi di saat yang sama pada core berbeda. Event loop memberi concurrency di satu thread.",
-      "**Race condition** adalah hasil yang bergantung pada timing. `count++` terdiri dari baca, tambah, tulis: dua thread bisa sama-sama membaca 5 dan sama-sama menulis 6, dan satu penambahan hilang.",
-      "Perbaikannya, dari yang paling sederhana: **jangan berbagi** (beri tiap pekerjaan datanya sendiri lalu gabungkan di akhir), jadikan operasinya **atomic** (`Interlocked.Increment`, atau satu `UPDATE … SET x = x + 1` di SQL), atau lindungi dengan **lock** supaya hanya satu thread yang menjalankan bagian itu pada satu waktu.",
-      "Lock membawa **deadlock** saat dua thread mengambil lock yang sama dengan urutan berbeda. Obatnya sama seperti di SQL: selalu ambil dengan urutan yang sama, dan pegang sesingkat mungkin.",
-      "**Event loop** (JavaScript, Dart, UI thread) menjalankan satu callback pada satu waktu, jadi kode synchronous di antara dua `await` tidak pernah disela. Tapi kode lain bisa berjalan di tiap `await`, jadi apa pun yang kamu cek sebelumnya bisa sudah berubah sesudahnya: alasan yang sama kenapa Cubit mengecek `isClosed`.",
-      "Pekerjaan CPU yang berat memblokir event loop sepenuhnya. Pindahkan dari thread itu: Web Worker, `compute` di Flutter, `Task.Run` di aplikasi desktop. Di ASP.NET Core, jaga kode request tetap async dan biarkan thread pool bekerja."
+      "Sebuah **process** punya memory terpisah, sedangkan **thread** di dalamnya berbagi memory yang sama. Berbagi bikin koordinasi cepat, sekaligus gampang bikin bug.",
+      "**Concurrency** berarti beberapa tugas sedang berjalan bersama, sementara **parallelism** berarti tugas itu dieksekusi di saat yang persis sama pada core berbeda. Event loop memberi concurrency di satu thread.",
+      "**Race condition** bikin hasil program bergantung pada timing. `count++` melakukan baca, tambah, tulis: dua thread bisa sama-sama baca 5 dan sama-sama tulis 6 sehingga satu hitungan lenyap.",
+      "Solusinya dari yang paling simpel: **jangan berbagi** dengan memberi tiap task datanya sendiri lalu digabung di akhir. Opsi lain adalah operasi **atomic** (`Interlocked.Increment` atau `UPDATE … SET x = x + 1` di SQL) atau membungkusnya dengan **lock**.",
+      "Lock memicu **deadlock** saat dua thread mengambil lock yang sama dengan urutan terbalik. Obatnya sama seperti SQL: ambil dalam urutan tetap dan pegang sesingkat mungkin.",
+      "**Event loop** di JavaScript, Dart, atau UI thread menjalankan satu callback sekali jalan, jadi kode sinkron di antara dua `await` tak bisa tersela. Namun task lain bisa menyelip di tiap `await`, alasan yang sama kenapa Cubit mengecek `isClosed`.",
+      "Kerja CPU berat memblokir event loop sampai macet total. Pindahkan ke Web Worker, `compute` di Flutter, atau `Task.Run` di aplikasi desktop, dan jaga request ASP.NET Core tetap async agar thread pool lancar."
     ],
-    practice: "Jalankan contoh counter beberapa kali dan catat berapa penambahan yang hilang setiap kalinya. Lalu tulis fitur 'tambah ke keranjang' in-memory di C# dengan `Dictionary<int, int>`, panggil dari 1.000 task paralel, dan buat aman dua kali: sekali dengan lock, sekali dengan `ConcurrentDictionary.AddOrUpdate`. Terakhir, hapus `SemaphoreSlim` dari `BuyAsync` dan lihat kedua pembelian sama-sama berhasil.",
+    practice: "Jalankan contoh counter beberapa kali dan catat berapa hitungan yang hilang. Lalu buat keranjang in-memory di C# memakai `Dictionary<int, int>`, jalankan dari 1.000 task paralel, dan amankan dua kali: pakai lock lalu `ConcurrentDictionary.AddOrUpdate`. Terakhir, hapus `SemaphoreSlim` dari `BuyAsync` agar kedua pembelian sama-sama lolos.",
     teach: "Jelaskan kenapa `count++` di dua thread bisa kehilangan satu update, dan tiga cara mencegahnya.",
-    analogy: "Dua kasir memperbarui buku kas kertas yang sama. Keduanya membaca saldo 500, keduanya menambahkan penjualan masing-masing, keduanya menuliskan totalnya, dan satu penjualan lenyap. Lock adalah aturan bahwa hanya orang yang memegang pena yang boleh menulis; operasi atomic adalah mesin kasir yang menambahkan penjualan dalam satu tekan.",
+    analogy: "Bayangkan dua kasir mencatat ke satu buku kas kertas yang sama. Keduanya membaca saldo 500, menambah penjualan masing-masing, lalu menulis totalnya, membuat satu penjualan lenyap. Lock adalah aturan bahwa cuma pemegang pena yang boleh menulis, sedangkan operasi atomic itu mesin kasir yang menjumlahkannya dalam satu tekan.",
     pitfalls: [
-      "Menganggap `count++` atau `List<T>.Add` aman dipanggil dari beberapa thread. Keduanya tidak; pakai `Interlocked`, concurrent collection, atau lock.",
-      "Mencoba `await` di dalam `lock`. Compiler melarangnya; pakai `SemaphoreSlim.WaitAsync`.",
-      "Mengecek sebuah kondisi, melakukan await, lalu bertindak seolah kondisinya masih berlaku. Cek lagi setelah `await`, atau pegang async lock di keduanya.",
-      "Memblokir kode async dengan `.Result` sambil memegang lock atau di UI thread: cara klasik untuk deadlock."
+      "Mengira `count++` atau `List<T>.Add` aman dipakai dari banyak thread. Keduanya tidak aman, jadi pakai `Interlocked`, concurrent collection, atau lock.",
+      "Mencoba `await` di dalam `lock`. Compiler melarangnya, jadi pakai `SemaphoreSlim.WaitAsync`.",
+      "Mengecek kondisi, melakukan `await`, lalu menganggap kondisinya masih berlaku. Cek lagi sesudah `await`, atau kunci dua-duanya dengan async lock.",
+      "Memblokir kode async memakai `.Result` sambil memegang lock atau di UI thread: cara klasik memicu deadlock."
     ],
     quiz: [
-      ["Dua thread masing-masing menjalankan `count++` 1.000 kali pada `int` bersama yang dimulai dari 0. Berapa nilai akhirnya?", ["Selalu 2.000", "Berapa pun sampai 2.000: penambahan bisa hilang", "Selalu 1.000", "Programnya melempar exception"], "`count++` adalah baca, tambah, dan tulis. Dua thread bisa membaca nilai yang sama dan sama-sama menulis hasil yang sama."],
-      ["Kenapa kode JavaScript yang synchronous tidak pernah disela callback lain?", ["Browser me-lock setiap variabel", "Event loop menjalankan satu callback pada satu waktu, di satu thread", "`await` menyalin semua variabel", "JavaScript tidak punya concurrency sama sekali"], "Callback lain hanya berjalan saat callback yang sekarang selesai atau mencapai `await`. Itu sebabnya state bisa berubah melewati `await`, tapi tidak di tengah kode synchronous."],
-      ["Di C#, kamu perlu melindungi bagian kode yang berisi `await`. Apa yang dipakai?", ["`lock (gate) { … }`", "`SemaphoreSlim` dengan `await WaitAsync()` dan `Release()`", "`Thread.Sleep` sebelum bagian itu", "`volatile` pada field-nya"], "`lock` tidak bisa berisi `await`. `SemaphoreSlim(1, 1)` berfungsi sebagai async lock; lepaskan di blok `finally`."]
+      ["Dua thread masing-masing menjalankan `count++` 1.000 kali pada `int` bersama yang dimulai dari 0. Berapa nilai akhirnya?", ["Selalu 2.000", "Berapa pun sampai 2.000: penambahan bisa hilang", "Selalu 1.000", "Program error dan crash"], "`count++` terdiri dari baca, tambah, dan tulis. Dua thread bisa membaca angka sama lalu menulis hasil yang sama."],
+      ["Kenapa kode JavaScript yang synchronous tidak pernah disela callback lain?", ["Browser me-lock setiap variabel", "Event loop menjalankan satu callback pada satu waktu, di satu thread", "`await` menyalin semua variabel", "JavaScript tidak punya concurrency sama sekali"], "Callback lain menunggu sampai callback yang aktif selesai atau menemui `await`. State bisa berubah melewati `await`, bukan di tengah blok sinkron."],
+      ["Di C#, kamu perlu melindungi bagian kode yang berisi `await`. Apa yang dipakai?", ["`lock (gate) { … }`", "`SemaphoreSlim` dengan `await WaitAsync()` dan `Release()`", "`Thread.Sleep` sebelum bagian itu", "`volatile` pada field-nya"], "`lock` tidak bisa menampung `await`. Pakai `SemaphoreSlim(1, 1)` sebagai async lock dan lepaskan di blok `finally`."]
     ]
   }
-}, { tagline: 'Fondasinya: Git, complexity, data structure, dan algoritma — di balik coding interview dan keputusan performance sehari-hari.' });
+}, { tagline: 'Fondasinya: Git, complexity, data structure, dan algoritma di balik coding interview serta keputusan performa sehari-hari.' });

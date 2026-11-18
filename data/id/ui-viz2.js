@@ -41,14 +41,14 @@ I18N.add({
 
   // Big-O
   'Big-O growth': 'Pertumbuhan Big-O',
-  'Pick an input size and compare how many steps each complexity class needs. Bars use a logarithmic scale — otherwise only the worst one would be visible.': 'Pilih ukuran input dan bandingkan berapa langkah yang dibutuhkan tiap kelas complexity. Bar memakai skala logaritmik — kalau tidak, hanya yang terburuk yang kelihatan.',
+  'Pick an input size and compare how many steps each complexity class needs. Bars use a log scale so the faster classes stay visible alongside the worst one.': 'Pilih ukuran input dan bandingkan jumlah langkah tiap kelas complexity. Bar-nya memakai skala logaritmik supaya kelas yang lebih cepat tetap terlihat di samping kelas terburuk.',
   'hash lookup': 'hash lookup', 'binary search': 'binary search', 'one loop': 'satu loop',
   'sorting': 'sorting', 'nested loops': 'nested loop', 'all subsets': 'semua subset',
   'more than 10³⁰': 'lebih dari 10³⁰',
   'longer than the age of the universe': 'lebih lama dari umur alam semesta',
   'instant': 'instan', 'hours': 'jam', 'days': 'hari', 'years': 'tahun',
   'Class': 'Kelas', 'Typical cause': 'Penyebab umum', 'Steps': 'Langkah', 'At 100 M steps/s': 'Pada 100 juta langkah/detik',
-  'Going from n = 1,000 to n = 1,000,000 multiplies O(n) work by a thousand — and O(n²) work by a million. Choosing the right algorithm matters far more than a faster computer.': 'Naik dari n = 1.000 ke n = 1.000.000 melipatgandakan pekerjaan O(n) seribu kali — dan pekerjaan O(n²) sejuta kali. Memilih algoritma yang tepat jauh lebih penting daripada komputer yang lebih cepat.',
+  'Going from n = 1,000 to n = 1,000,000 multiplies O(n) work by a thousand, and O(n²) work by a million. Choosing the right algorithm matters far more than a faster machine.': 'Naik dari n = 1.000 ke n = 1.000.000 bikin kerja O(n) naik seribu kali lipat, sementara O(n²) melonjak sejuta kali. Memilih algoritma yang tepat jauh lebih berpengaruh daripada komputer yang lebih cepat.',
 
   // sorting
   'Sorting algorithms': 'Algoritma sorting',
@@ -77,18 +77,18 @@ I18N.add({
 
   // Graph search
   "BFS and DFS on a graph": "BFS dan DFS pada graph",
-  "Search from A to F with each algorithm and compare the path each one finds. BFS uses a queue and spreads out in rings; DFS follows one path as deep as it can.": "Cari dari A ke F dengan tiap algoritma dan bandingkan path yang ditemukan masing-masing. BFS memakai queue dan menyebar seperti riak; DFS menyusuri satu path sedalam mungkin.",
+  "Search from A to F with each algorithm and compare the path each one finds. BFS uses a queue and spreads out in rings; DFS follows one path as deep as it can.": "Cari jalur dari A ke F dengan tiap algoritma dan bandingkan hasilnya. BFS memakai queue yang menyebar per lapisan, sedangkan DFS menelusuri satu cabang sedalam mungkin.",
   "Start at {node}: distance 0. It goes into the queue.": "Mulai dari {node}: jarak 0. Node ini masuk ke queue.",
   "Take {node} from the front of the queue (distance {d}). Unvisited neighbours go to the back: {added}.": "Ambil {node} dari depan queue (jarak {d}). Tetangga yang belum dikunjungi masuk ke belakang: {added}.",
-  "{node} reached at distance {d}: {path}. BFS finishes every node at distance {prev} before any at distance {d}, so the first path it finds is a shortest one.": "{node} tercapai di jarak {d}: {path}. BFS menyelesaikan semua node berjarak {prev} sebelum node mana pun berjarak {d}, jadi path pertama yang ditemukannya adalah salah satu yang terpendek.",
+  "{node} reached at distance {d}: {path}. BFS finishes every node at distance {prev} before any at distance {d}, so the first path it finds is a shortest one.": "{node} ketemu di jarak {d}: {path}. BFS menyelesaikan semua node berjarak {prev} dulu sebelum menyentuh jarak {d}, jadi rute pertamanya pasti sesingkat mungkin.",
   "Go deeper to {node}. The recursion stack is the current path: {path}.": "Masuk lebih dalam ke {node}. Recursion stack adalah path saat ini: {path}.",
   "{node} has no unvisited neighbours left, so the recursion returns to {back}.": "{node} tidak punya tetangga yang belum dikunjungi, jadi rekursinya kembali ke {back}.",
-  "{node} found via {path}: {n} steps. DFS found a path, but not the shortest: BFS needs 3.": "{node} ditemukan lewat {path}: {n} langkah. DFS menemukan sebuah path, tapi bukan yang terpendek: BFS cukup 3.",
+  "{node} found via {path}: {n} steps. DFS found a path, but not the shortest: BFS needs 3.": "{node} ketemu lewat {path} dalam {n} langkah. DFS memang dapat jalur, tapi bukan yang terpendek (BFS cuma perlu 3).", 
   "none": "tidak ada",
   "Graph with nodes A to H": "Graph dengan node A sampai H",
   "Queue (front first)": "Queue (depan lebih dulu)",
   "Recursion stack (top first)": "Recursion stack (atas lebih dulu)",
-  "Visited, in order": "Sudah dikunjungi, berurutan",
+  "Visited, in order": "Urutan dikunjungi",
   "BFS (queue)": "BFS (queue)",
   "DFS (recursion)": "DFS (rekursi)",
   "n = {n}": "n = {n}",

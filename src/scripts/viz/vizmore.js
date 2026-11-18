@@ -8,7 +8,7 @@
   // ---------- Big-O ----------
   VIZ.bigo = {
     title: 'Big-O growth', track: 'cs', trackName: 'CS Fundamentals',
-    desc: 'Pick an input size and compare how many steps each complexity class needs. Bars use a logarithmic scale — otherwise only the worst one would be visible.',
+    desc: 'Pick an input size and compare how many steps each complexity class needs. Bars use a log scale so the faster classes stay visible alongside the worst one.',
     mount(el) {
       const sizes = [10, 100, 1000, 10000, 1000000];
       const classes = [
@@ -27,7 +27,7 @@
           })))));
       };
       sizes.forEach(n => chips.append(h('button', { type: 'button', 'data-n': n, onclick: () => draw(n) }, T('n = {n}', { n: n.toLocaleString('en') }))));
-      el.append(chips, body, h('p', { class: 'viz-note' }, 'Going from n = 1,000 to n = 1,000,000 multiplies O(n) work by a thousand — and O(n²) work by a million. Choosing the right algorithm matters far more than a faster computer.'));
+      el.append(chips, body, h('p', { class: 'viz-note' }, 'Going from n = 1,000 to n = 1,000,000 multiplies O(n) work by a thousand, and O(n²) work by a million. Choosing the right algorithm matters far more than a faster machine.'));
       draw(1000);
     }
   };
