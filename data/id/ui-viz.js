@@ -12,7 +12,7 @@ I18N.add({
   'Changing b does not touch a. Two separate boxes.': 'Mengubah b tidak menyentuh a. Dua kotak yang terpisah.',
   'new Person(...) creates an object on the heap. p1 holds a reference (an address) to it, not the object.': 'new Person(...) membuat object di heap. p1 menyimpan reference (alamat) ke object itu, bukan object-nya.',
   'Assignment copies the REFERENCE. p1 and p2 now point to the same single object.': 'Assignment menyalin REFERENCE-nya. Sekarang p1 dan p2 menunjuk ke satu object yang sama.',
-  'Changing the object through p2 is visible through p1 — there is only one Person. p1.Name is now "Budi".': 'Perubahan object lewat p2 juga terlihat lewat p1 — karena Person-nya memang cuma satu. p1.Name sekarang "Budi".',
+  'Changing the object through p2 updates what p1 sees, because both point to one Person. p1.Name is now "Budi".': 'Perubahan lewat p2 langsung terlihat lewat p1 karena object Person-nya memang satu. p1.Name sekarang "Budi".',
   'empty': 'kosong',
   'Stack (local variables)': 'Stack (variabel lokal)',
   'Heap (objects)': 'Heap (object)',
@@ -22,16 +22,16 @@ I18N.add({
   'Three I/O calls take 1.0 s, 1.5 s and 0.8 s. Compare blocking, awaiting one by one, and awaiting all together.': 'Tiga pemanggilan I/O butuh 1,0 detik, 1,5 detik, dan 0,8 detik. Bandingkan antara blocking, await satu per satu, dan await semuanya sekaligus.',
   '.Result (blocking)': '.Result (blocking)',
   'await one by one': 'await satu per satu',
-  'Total 3.3 s, and the thread is BLOCKED for all 3.3 s — it can serve nobody else. Under load this starves the thread pool.': 'Total 3,3 detik, dan thread-nya TER-BLOCK selama 3,3 detik penuh — tidak bisa melayani siapa pun. Saat beban tinggi, thread pool bisa kehabisan thread.',
-  'Total still 3.3 s, but the thread is free while each call is in flight. It only works for an instant between calls — it can serve other requests meanwhile.': 'Total tetap 3,3 detik, tapi thread-nya bebas selama tiap pemanggilan berlangsung. Ia hanya bekerja sekejap di antara pemanggilan — sisanya bisa dipakai melayani request lain.',
-  'All three calls start at once. Total = the slowest call, 1.5 s — and the thread is still free while waiting.': 'Ketiga pemanggilan dimulai bersamaan. Total = pemanggilan paling lambat, 1,5 detik — dan thread tetap bebas selama menunggu.',
+  'Total 3.3 s, with the thread BLOCKED the whole time so it serves nobody else. Under load this starves the thread pool.': 'Total 3,3 detik, sementara thread TER-BLOCK penuh tanpa bisa melayani request lain. Saat beban tinggi, thread pool akan kehabisan thread.',
+  'Total stays 3.3 s, yet the thread stays free between awaits and can handle other requests meanwhile.': 'Total tetap 3,3 detik, tapi thread tetap bebas di sela-sela await dan bisa melayani request lain.',
+  'All three calls run concurrently. Total equals the slowest call (1.5 s), while the thread stays free during I/O.': 'Ketiga panggilan berjalan paralel. Totalnya mengikuti yang paling lambat (1,5 detik), dan thread tetap bebas selama I/O.',
   'Red = thread blocked · solid = thread working · green = I/O in flight, no thread used · full width = 3.3 s': 'Merah = thread ter-block · solid = thread bekerja · hijau = I/O sedang berjalan, tanpa memakai thread · lebar penuh = 3,3 detik',
 
   // linq
   'LINQ pipeline': 'Pipeline LINQ',
   'Toggle operators and follow each item through the chain. Struck-out items were dropped at that stage.': 'Nyalakan atau matikan operator, lalu ikuti perjalanan tiap item di sepanjang chain. Item yang dicoret berarti dibuang di tahap itu.',
   '.ToList()  ← runs here': '.ToList()  ← dieksekusi di sini',
-  'Deferred execution: the chain is only a description. No item moves until something enumerates it — here, ToList().': 'Deferred execution: chain-nya hanyalah deskripsi. Tidak ada item yang bergerak sampai ada yang meng-enumerate — di sini, ToList().',
+  'Deferred execution: the chain only builds a recipe. Nothing runs until enumeration starts at ToList().': 'Deferred execution: chain cuma merangkai resep. Belum ada item yang diproses sampai enumerasi dimulai oleh ToList().',
 
   // middleware
   'Middleware pipeline': 'Pipeline middleware',

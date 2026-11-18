@@ -32,7 +32,7 @@
         { stack: [['a', '5'], ['b', '9']], note: 'Changing b does not touch a. Two separate boxes.', hot: 'b' },
         { stack: [['a', '5'], ['b', '9'], ['p1', '→ #1']], heap: 'Ana', note: 'new Person(...) creates an object on the heap. p1 holds a reference (an address) to it, not the object.', hot: 'p1' },
         { stack: [['a', '5'], ['b', '9'], ['p1', '→ #1'], ['p2', '→ #1']], heap: 'Ana', note: 'Assignment copies the REFERENCE. p1 and p2 now point to the same single object.', hot: 'p2' },
-        { stack: [['a', '5'], ['b', '9'], ['p1', '→ #1'], ['p2', '→ #1']], heap: 'Budi', heapHot: true, note: 'Changing the object through p2 is visible through p1 — there is only one Person. p1.Name is now "Budi".', hot: 'p2' }
+        { stack: [['a', '5'], ['b', '9'], ['p1', '→ #1'], ['p2', '→ #1']], heap: 'Budi', heapHot: true, note: 'Changing the object through p2 updates what p1 sees, because both point to one Person. p1.Name is now "Budi".', hot: 'p2' }
       ];
       const stack = h('div', {}), heap = h('div', {}), note = h('p', { class: 'viz-note' });
       const s = stepper(steps.length, i => {
@@ -54,9 +54,9 @@
     mount(el) {
       const ops = [['Call A', 1.0], ['Call B', 1.5], ['Call C', 0.8]], total = 3.3, K = 650;
       const modes = {
-        block: { label: '.Result (blocking)', note: 'Total 3.3 s, and the thread is BLOCKED for all 3.3 s — it can serve nobody else. Under load this starves the thread pool.' },
-        seq: { label: 'await one by one', note: 'Total still 3.3 s, but the thread is free while each call is in flight. It only works for an instant between calls — it can serve other requests meanwhile.' },
-        all: { label: 'Task.WhenAll', note: 'All three calls start at once. Total = the slowest call, 1.5 s — and the thread is still free while waiting.' }
+        block: { label: '.Result (blocking)', note: 'Total 3.3 s, with the thread BLOCKED the whole time so it serves nobody else. Under load this starves the thread pool.' },
+        seq: { label: 'await one by one', note: 'Total stays 3.3 s, yet the thread stays free between awaits and can handle other requests meanwhile.' },
+        all: { label: 'Task.WhenAll', note: 'All three calls run concurrently. Total equals the slowest call (1.5 s), while the thread stays free during I/O.' }
       };
       const gantt = h('div', { class: 'gantt' }), note = h('p', { class: 'viz-note' });
       const chips = h('div', { class: 'chips' });
@@ -125,7 +125,7 @@
       };
       defs.forEach(([name], i) => { const [lab] = check(name, on[i], e => { on[i] = e.target.checked; draw(); }); ctl.append(lab); });
       ctl.append(btn('Trace item-by-item pull', stepPull, 'ghost'));
-      el.append(ctl, out, pullLog, h('p', { class: 'viz-note' }, 'Deferred execution: the chain is only a description. No item moves until something enumerates it — here, ToList().'));
+      el.append(ctl, out, pullLog, h('p', { class: 'viz-note' }, 'Deferred execution: the chain only builds a recipe. Nothing runs until enumeration starts at ToList().'));
       draw();
     }
   };

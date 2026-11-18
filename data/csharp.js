@@ -1,18 +1,18 @@
 TRACKS.push({
   id: 'csharp', name: 'C#', lang: 'cs',
-  tagline: 'The language: from variables and classes to async, memory and performance.',
+  tagline: 'The language: from types and classes to async, memory, and performance.',
   lessons: [
     // ---------------- Beginner ----------------
     {
       id: 'types', title: 'Programs, variables and types', level: 0, mins: 25,
       terms: [
-        ['Static typing', 'Every variable has a known type (`int`, `string`, `decimal`) checked at build time before the program ever runs.'],
-        ['`var` (type inference)', 'Lets the compiler infer the exact variable type from the right-hand expression — it does NOT make the type dynamic.'],
-        ['`decimal` vs `double`', '`decimal` (`0.1m`) uses base-10 arithmetic for money; `double` uses binary floating point and can round `0.1 + 0.2`.']
+        ['Static typing', 'Every variable has a known type (`int`, `string`, `decimal`) checked at build time before the program runs.'],
+        ['`var` (type inference)', 'Lets the compiler infer the exact variable type from the right-hand expression rather than making it dynamic.'],
+        ['`decimal` vs `double`', '`decimal` (`0.1m`) uses base-10 arithmetic for money, while `double` uses binary floating point and can round `0.1 + 0.2`.']
       ],
-      why: "Every C# program is values with types, moving through statements. Once you see that the compiler checks those types **before** the program runs, most beginner errors stop being mysterious: they are the compiler telling you, early, that two things don't fit.",
+      why: "Every C# program passes typed values through statements. Once you see that the compiler checks types **before** running anything, most beginner errors stop looking random. They're just early warnings that two types don't match.",
       points: [
-        "C# source compiles to IL (intermediate language); the .NET runtime (CLR) turns IL into machine code as the program runs (JIT). `dotnet run` does both steps.",
+        "C# compiles to IL (intermediate language), and the .NET runtime (CLR) turns IL into machine code at run time via JIT. `dotnet run` handles both steps.",
         "A variable is a named box with a fixed type: `int`, `double`, `decimal` (money), `bool`, `char`, `string`. The type never changes after declaration.",
         "`var` does not mean 'any type'. The compiler infers the type from the right-hand side and then locks it in.",
         "C# is statically typed: `int x = \"hello\";` fails when you build, not when a user runs the program.",
@@ -41,32 +41,32 @@ Console.WriteLine(7 / 2.0);                                       // 3.5
       teach: "Explain to someone who has never programmed what a variable and a type are, and why C# refuses to run `int x = \"hello\"`.",
       analogy: "Variables are labelled jars in a kitchen: a jar marked 'flour' only takes flour. The compiler is the strict chef who checks every jar before cooking starts, so nobody discovers salt in the sugar jar halfway through the recipe.",
       pitfalls: [
-        "Treating `var` like `let` in JavaScript. `var x = 1; x = \"a\";` does not compile: `x` is an `int` for good.",
-        "Using `double` for money. `0.1 + 0.2` prints `0.30000000000000004`; with `decimal` (`0.1m + 0.2m`) you get `0.3`.",
-        "Expecting `7 / 2` to be `3.5`. The operand types decide the operation, not the variable you store the result in: `double d = 7 / 2;` is still `3`.",
-        "Comparing your output with a tutorial and seeing `59,97` instead of `59.97`. That is regional formatting, not a bug."
+        "Treating `var` like JavaScript's `let`. `var x = 1; x = \"a\";` won't compile because `x` stays an `int`.",
+        "Using `double` for money. `0.1 + 0.2` prints `0.30000000000000004`, whereas `decimal` (`0.1m + 0.2m`) gives `0.3`.",
+        "Expecting `7 / 2` to give `3.5`. Operand types pick integer division before assignment, so `double d = 7 / 2` still yields `3`.",
+        "Comparing output with a tutorial and seeing `59,97` instead of `59.97`. That's regional number formatting, not a bug."
       ],
       quiz: [
-        { q: "What does `var total = 5;` mean in C#?", a: ["`total` is `dynamic`, so it can hold any type later", "`total` is an `int`, inferred by the compiler", "`total` is an `object` until it is first used", "`total` is a `long`, because `var` picks the largest integer type"], c: 1, why: "`var` is compile-time type inference. The variable is an `int` forever." },
-        { q: "What does `double d = 9 / 2; Console.WriteLine(d);` print?", a: ["4.5", "4", "5", "It does not compile"], c: 1, why: "`9 / 2` is integer division and happens before the assignment. The result `4` is then converted to `4.0`, which prints as `4`." },
-        { q: "Which type should hold a price?", a: ["`float`", "`double`", "`decimal`", "`string`, to avoid rounding"], c: 2, why: "`decimal` is base-10 and represents values like 0.10 exactly; binary floating point does not. A `string` cannot be added or multiplied." }
+        { q: "What does `var total = 5;` mean in C#?", a: ["`total` is `dynamic`, so it can hold any type later", "`total` is an `int`, inferred by the compiler", "`total` is an `object` until it is first used", "`total` is a `long`, because `var` picks the largest integer type"], c: 1, why: "`var` is compile-time type inference, so the variable stays an `int` forever." },
+        { q: "What does `double d = 9 / 2; Console.WriteLine(d);` print?", a: ["4.5", "4", "5", "It does not compile"], c: 1, why: "`9 / 2` runs integer division before assignment, turning `4` into `4.0`, which prints `4`." },
+        { q: "Which type should hold a price?", a: ["`float`", "`double`", "`decimal`", "`string`, to avoid rounding"], c: 2, why: "`decimal` uses base-10 arithmetic so values like 0.10 stay exact, unlike binary floats or unmathable strings." }
       ]
     },
     {
       id: 'flow', title: 'Control flow and methods', level: 0, mins: 30,
       terms: [
-        ['Guard clause (early `return`)', 'Handling invalid cases at the top of a method so the happy path stays flat instead of deeply nested.'],
-        ['Switch expression', 'Compact form (`score switch { >= 90 => "A", _ => "B" }`) that guarantees every branch returns a value.'],
-        ['Method signature', 'A method’s name, return type, and parameter types — changing it is the clearest way to spot breaking API changes.']
+        ['Guard clause (early `return`)', 'Handles invalid cases at the top of a method so the main flow stays flat instead of deeply nested.'],
+        ['Switch expression', 'Compact form (`score switch { >= 90 => "A", _ => "B" }`) ensuring every branch returns a value.'],
+        ['Method signature', "A method's name, return type, and parameter types. Changing any of those spots breaking API changes right away."]
       ],
-      why: "Decisions, repetition and named, reusable steps: that is the whole grammar of program logic. LINQ, async and web requests later on are all built out of these pieces.",
+      why: "Branching, looping, and named methods form the core building blocks of logic. Later topics like LINQ, async, and HTTP handlers are built straight from these pieces.",
       points: [
-        "`if / else if / else` picks a branch using a `bool` expression. `==` compares, `=` assigns.",
-        "`for` when you know the count, `foreach` to walk a collection, `while` to repeat until a condition changes.",
-        "A method is a named block with typed parameters and a typed return value: `static int Add(int a, int b) => a + b;`.",
-        "Arguments are passed **by value** by default: the method gets a copy of what the variable holds. For a number that is the number; for an object it is a reference to the object. The next level explains why that difference matters.",
-        "`switch` expressions turn a value into a result in one expression.",
-        "Keep methods small and name them after what they return or do. A good name is the first documentation."
+        "`if / else if / else` branches on a `bool` check (`==` compares values while `=` assigns).",
+        "Use `for` when you need the index, `foreach` to iterate a collection, and `while` until a condition stops holding.",
+        "Methods group steps with typed parameters and return types (`static int Add(int a, int b) => a + b`).",
+        "C# passes arguments **by value** by default, copying numbers directly or copying references to objects. We'll see why that matters next.",
+        "`switch` expressions map a value directly to a result in one concise expression.",
+        "Keep methods small and name them for what they return or do. Clear naming is your best first documentation."
       ],
       code: `
 static string Grade(int score) => score switch
@@ -107,18 +107,18 @@ else Console.WriteLine("Needs review");
     {
       id: 'classes', title: 'Classes, objects and properties', level: 0, mins: 35,
       terms: [
-        ['Class vs Object', 'A `class` is the blueprint (`Product`); an object is one real instance in memory created with `new Product(...)`.'],
-        ['Constructor', 'Runs when `new` builds the object to ensure required state starts valid (`init` or primary constructor parameters).'],
-        ['Invariant', 'A rule an object never breaks — for example, blocking negative prices inside a constructor or setter rather than letting callers corrupt it.']
+        ['Class vs Object', 'A `class` defines the blueprint (`Product`), while an object is one real instance in memory created via `new Product(...)`.'],
+        ['Constructor', 'Runs when `new` builds the object so required fields start valid (using primary constructors or `init`).'],
+        ['Invariant', 'A rule an object enforces for life, such as rejecting negative prices in its constructor or setter.']
       ],
-      why: "C# is object-oriented at its core. ASP.NET Core controllers, EF Core entities and DTOs are all classes, so reading a class fluently is what lets you read a real codebase at all.",
+      why: "C# revolves around objects. ASP.NET Core controllers, EF Core entities, and DTOs are all classes, so reading class definitions fluently unlocks real codebases.",
       points: [
-        "A **class** is a blueprint; an **object** is one instance built with `new`.",
-        "State lives in properties (`public string Name { get; set; }`), behavior lives in methods.",
-        "A constructor makes sure an object starts in a valid state. Required data goes in the constructor or `required` properties.",
-        "**Encapsulation**: keep fields `private` and expose only what callers need. A `private set` lets the class protect its own rules.",
-        "`static` members belong to the class itself, not to any instance.",
-        "`this` refers to the current object. Most of the time it is implied."
+        "A **class** defines a blueprint, and an **object** is one live instance built with `new`.",
+        "Properties (`public string Name { get; set; }`) store state, while methods hold behavior.",
+        "Constructors make sure objects start valid. Put must-have values in constructor parameters or `required` properties.",
+        "**Encapsulation** hides fields as `private` and exposes only safe operations. Using `private set` lets the class guard its own rules.",
+        "`static` members belong to the class itself rather than any single instance.",
+        "`this` points to the current instance, though C# lets you omit it most of the time."
       ],
       code: `
 var acct = new BankAccount("Ana", 100);
@@ -147,14 +147,14 @@ public class BankAccount
 `,
       practice: "Add a `Withdraw` method that refuses to overdraw. Then add a `Transfer(BankAccount to, decimal amount)` method. Which rule lives in which method, and why should `Balance` stay privately settable?",
       teach: "Explain the difference between a class and an object, and why `Balance` has a private setter instead of being freely writable.",
-      analogy: "A class is the architect's drawing of a house; objects are the actual houses built from it. Encapsulation is the front door: visitors ring the doorbell (public methods) instead of climbing through a window and rewiring the fuse box (private fields).",
+      analogy: "A class is the architectural plan of a house, and objects are houses built from it. Encapsulation works like a front door: visitors ring the bell (public methods) instead of climbing through a window to touch the wiring (private fields).",
       pitfalls: [
         "Calling `BankAccount.Deposit(50)` on the class itself. `Deposit` needs an object: `acct.Deposit(50)`.",
         "Making everything `public` to keep it simple. Then any code anywhere can write `acct.Balance = -500`, and the rule in `Deposit` protects nothing.",
         "Thinking properties are just fields. A property is a pair of methods and can validate or compute."
       ],
       quiz: [
-        { q: "What does `public decimal Balance { get; private set; }` allow?", a: ["Anyone can read and write", "Anyone can read; only code inside the class can write", "Only derived classes can write", "It can be written once, in the constructor only"], c: 1, why: "The getter is public and the setter is private, so the class controls every change. Write-once-in-the-constructor is what `{ get; }` alone means." },
+        { q: "What does `public decimal Balance { get; private set; }` allow?", a: ["Anyone can read and write", "Anyone can read, while only code inside the class can write", "Only derived classes can write", "It can be written once, in the constructor only"], c: 1, why: "The getter is public and the setter is private, letting the class guard changes (`{ get; }` alone sets once in the constructor)." },
         { q: "What is the job of a constructor?", a: ["To free the object's memory later", "To put a new object into a valid starting state", "To run every time a property is read", "To copy an existing object"], c: 1, why: "Constructors run once at creation and establish the object's rules from the start." },
         { q: "A `static` method…", a: ["belongs to each object separately", "belongs to the class and needs no instance", "can only be called once", "runs automatically at startup"], c: 1, why: "Static members are called on the type itself, for example `Math.Max(1, 2)`." }
       ]
@@ -163,9 +163,9 @@ public class BankAccount
     {
       id: 'memory', title: 'Value types vs reference types', level: 1, mins: 30, viz: 'stackheap',
       terms: [
-        ['Value type (`struct`, `int`)', 'Assignment copies the entire value (`b = a`), so changing `b` leaves `a` untouched.'],
-        ['Reference type (`class`)', 'The variable stores a memory address pointing to the heap object — copying the variable copies the address, not the object.'],
-        ['Immutability', 'Making properties `init`-only or returning new instances (`with`) so sharing a reference cannot cause surprise mutations.']
+        ['Value type (`struct`, `int`)', 'Assignment copies the entire value (`b = a`), so modifying `b` leaves `a` untouched.'],
+        ['Reference type (`class`)', 'The variable holds a memory address pointing to the heap object, so copying it copies the pointer rather than cloning the object.'],
+        ['Immutability', 'Marking properties `init`-only or creating new copies (`with`) so shared references can never mutate by surprise.']
       ],
       predict: {
         prompt: 'Suppose `p1 = new Person("Ana")`, `p2 = p1`, and then `p2.Name = "Budi"`. What does `Console.WriteLine(p1.Name)` print?',
@@ -175,12 +175,12 @@ public class BankAccount
       },
       why: "'I changed one variable and the other one changed too' is one of the first confusing bugs you will hit in C#. The answer is value versus reference semantics, and once it clicks it stays clicked.",
       points: [
-        "**Value types** (`int`, `bool`, `decimal`, `DateTime`, any `struct` or `enum`): the variable holds the data itself. Assignment copies the data.",
-        "**Reference types** (`class`, `string`, arrays, `List<T>`): the variable holds a reference to an object on the heap. Assignment copies the reference — two variables, one object.",
-        "Locals live in the method's stack frame; objects created with `new` on a class live on the managed heap and are cleaned up by the garbage collector.",
-        "`string` is a reference type that is **immutable**, so it behaves like a value in practice: 'changing' a string creates a new one.",
-        "`==` on a class compares references, unless the type overrides it, as `string` and records do. Built-in value types compare values. Your own `struct` has no `==` until you write one, though `Equals` compares its fields.",
-        "`null` means a reference points to nothing. Value types cannot be null unless written as `int?`."
+        "**Value types** (`int`, `bool`, `decimal`, `DateTime`, structs, enums) store data directly, so assignment copies the value.",
+        "**Reference types** (`class`, `string`, arrays, `List<T>`) store a reference to a heap object, so assignment gives two variables pointing to one object.",
+        "Local variables sit in a method's stack frame, while `new` class instances sit on the managed heap until the garbage collector frees them.",
+        "`string` is an **immutable** reference type, so in everyday code it behaves like a value: changing text returns a brand-new string.",
+        "`==` compares references on classes unless overridden (like `string` and `record`). Custom structs lack `==` until you define it, though `Equals` compares fields.",
+        "`null` means a reference points nowhere. Value types can't be null unless marked nullable like `int?`."
       ],
       code: `
 int a = 5;
@@ -207,30 +207,30 @@ class Person { public string Name { get; set; } = ""; }
       teach: "Explain why `p2.Name = \"Budi\"` also changed `p1.Name`, but `b = 9` did not change `a`.",
       analogy: "A value type is a sheet of paper: photocopy it and scribbling on the copy leaves the original untouched. A reference type is a link to a shared online document: giving a friend the link means their edits appear on your screen too.",
       pitfalls: [
-        "'Value types live on the stack, reference types on the heap' is only roughly true: a struct field inside a class lives on the heap with that class. Think copy versus share first; where the bytes live comes second.",
-        "Believing that passing an object to a method copies the object. It copies the reference.",
-        "Expecting `Replace(p1)` to change the caller's variable. Without `ref`, only the method's local reference is rebound."
+        "'Value types on stack, reference types on heap' is only a rough rule, since a struct inside a class sits on the heap. Think copy versus share first.",
+        "Thinking passing a class instance into a method clones it. Only the reference is copied.",
+        "Expecting `Replace(p1)` to swap the caller's variable. Without `ref`, only the parameter's local reference changes."
       ],
       quiz: [
-        { q: "After `var x = new List<int>{1}; var y = x; y.Add(2);` how many items does `x` have?", a: ["1, because `y` is a copy", "2", "0", "It does not compile"], c: 1, why: "`List<T>` is a reference type; `x` and `y` point to the same list." },
-        { q: "Which of these is a value type?", a: ["`string`", "`int[]`", "`DateTime`", "`List<int>`"], c: 2, why: "`DateTime` is a struct. `string`, arrays and `List<T>` are reference types — even `int[]`, an array of value types." },
-        { q: "Why does `string` feel like a value type?", a: ["It is stored on the stack", "It is immutable and `==` compares characters", "It is a struct", "The compiler copies it on every assignment"], c: 1, why: "Strings are heap objects, but they can never change and `==` is overloaded to compare their characters." }
+        { q: "After `var x = new List<int>{1}; var y = x; y.Add(2);` how many items does `x` have?", a: ["1, because `y` is a copy", "2", "0", "It does not compile"], c: 1, why: "`List<T>` is a reference type, so `x` and `y` point to the exact same list." },
+        { q: "Which of these is a value type?", a: ["`string`", "`int[]`", "`DateTime`", "`List<int>`"], c: 2, why: "`DateTime` is a struct, while `string`, `List<T>`, and even `int[]` arrays are reference types." },
+        { q: "Why does `string` feel like a value type?", a: ["It is stored on the stack", "It is immutable and `==` compares characters", "It is a struct", "The compiler copies it on every assignment"], c: 1, why: "Strings live on the heap, yet immutability plus value-based `==` makes them act like values." }
       ]
     },
     {
       id: 'interfaces', title: 'Interfaces, inheritance and polymorphism', level: 1, mins: 35,
       terms: [
-        ['Interface (`IPayment`)', 'A contract listing *what* a type can do without dictating *how* — letting tests swap real Stripe calls for fakes.'],
-        ['Polymorphism', 'Calling `.Charge(...)` through an `IPayment` variable and having each concrete class run its own implementation.'],
-        ['Composition over inheritance', 'Holding helper dependencies as fields (`class OrderService(IPayment pay)`) instead of rigid `BaseOrderService` inheritance trees.']
+        ['Interface (`IPayment`)', 'A contract listing *what* a type supports without dictating *how*, letting unit tests swap live calls for fakes.'],
+        ['Polymorphism', 'Calling `.Charge(...)` through an `IPayment` reference so each concrete class runs its own implementation.'],
+        ['Composition over inheritance', 'Holding helper dependencies (`class OrderService(IPayment pay)`) instead of building brittle base-class trees.']
       ],
-      why: "ASP.NET Core leans on interfaces everywhere: you ask for an `ILogger<T>`, register services on an `IServiceCollection`, read settings through `IConfiguration`. Dependency injection and unit testing only make sense once interfaces do.",
+      why: "ASP.NET Core relies on interfaces everywhere (`ILogger<T>`, `IServiceCollection`, `IConfiguration`). Dependency injection and testable architecture click once interfaces make sense.",
       points: [
-        "An **interface** is a contract: a list of members a class promises to provide. It holds no instance data.",
-        "**Polymorphism**: code written against `INotifier` works with any notifier, including ones written next year.",
-        "Inheritance (`class Dog : Animal`) shares implementation. `virtual` marks a method that subclasses may `override`; `abstract` marks one they must.",
-        "A class can inherit from one base class but implement many interfaces.",
-        "Prefer **composition and interfaces** over deep inheritance trees. Inheritance ties you to the parent's implementation details."
+        "An **interface** acts as a pure contract of methods and properties with no instance state.",
+        "**Polymorphism** lets code written for `INotifier` work automatically with any future implementation.",
+        "Inheritance (`class Dog : Animal`) shares base code. Mark methods `virtual` when subclasses may `override` them, or `abstract` when they must.",
+        "A class can inherit from one base class while implementing as many interfaces as needed.",
+        "Favor **composition and small interfaces** over deep inheritance trees that lock subclasses to parent details."
       ],
       code: `
 // Interfaces: one service, any notifier
@@ -286,7 +286,7 @@ public class Cat : Animal
 `,
       practice: "Add a `FakeNotifier` that records messages in a `List<string>` instead of sending them. Use it to check that `OrderService.Place` sends exactly one message. That fake is a test double, the basis of unit testing. Then add a `Bird` that overrides `Move`, and try writing `new` instead of `override` to see what changes.",
       teach: "Explain what an interface is and why `OrderService` asks for an `INotifier` instead of creating an `EmailNotifier` itself.",
-      analogy: "An interface is a wall socket. The lamp does not care whether the power comes from coal, solar or a generator; it only needs the socket shape. Swap the power plant and the lamp keeps working.",
+      analogy: "An interface works like a wall socket. A lamp doesn't care if power comes from solar panels or a turbine as long as the plug fits. Swap the power plant and the lamp stays lit.",
       pitfalls: [
         "Creating an interface for every class by reflex. An interface earns its place when there are, or will be, several implementations or a test double.",
         "Writing `new` instead of `override` on a method. It compiles (with a warning), but code holding an `Animal` reference still calls the base version.",
@@ -301,9 +301,9 @@ public class Cat : Animal
     {
       id: 'generics', title: 'Collections and generics', level: 1, mins: 30,
       terms: [
-        ['`List<T>` vs `Dictionary<K,V>` vs `HashSet<T>`', '`List` indexes by position; `Dictionary` and `HashSet` use hashes for instant O(1) lookup by key or uniqueness.'],
-        ['Generic parameter `<T>`', 'A type placeholder resolved at compile time so `Repository<Product>` gives full type safety without boxing.'],
-        ['`IEnumerable<T>`', 'A read-only forward sequence you can loop or query with LINQ without forcing callers to pass a `List`.']
+        ['`List<T>` vs `Dictionary<K,V>` vs `HashSet<T>`', '`List` looks up by index, while `Dictionary` and `HashSet` use hashes for fast O(1) key lookups and uniqueness checks.'],
+        ['Generic parameter `<T>`', 'A type placeholder resolved at compile time so `Repository<Product>` stays strongly typed with zero boxing.'],
+        ['`IEnumerable<T>`', 'A forward-only sequence supporting loops and LINQ queries without forcing callers to pass a `List`.']
       ],
       why: "Most of a real program is collections of things. Choosing between `List`, `Dictionary` and `HashSet` is usually the first performance decision you make, often without noticing.",
       points: [
@@ -344,31 +344,31 @@ Console.WriteLine(Max(new[] { "kiwi", "fig" }));  // kiwi
       teach: "Explain why finding an item in a `Dictionary` is faster than in a `List`, and what the `<T>` in `List<T>` buys you.",
       analogy: "A `List` is a queue of people: to find Budi you ask each person in turn. A `Dictionary` is a coat check: you hand over ticket 42 and the attendant walks straight to hook 42.",
       pitfalls: [
-        "Calling `list.Contains()` inside a loop over another list: an accidental O(n²). Turn one side into a `HashSet` first.",
-        "Reading `dict[key]` for a key that isn't there and getting `KeyNotFoundException`.",
-        "Adding or removing items inside a `foreach` over the same list. It throws `InvalidOperationException`; loop over a copy (`list.ToList()`) or collect the changes and apply them afterwards."
+        "Calling `list.Contains()` inside an outer loop creates hidden O(n²) scans. Convert one side to a `HashSet` first.",
+        "Reading `dict[key]` on a missing key and hitting a `KeyNotFoundException`.",
+        "Modifying a list during `foreach` throws `InvalidOperationException`. Iterate over a copy (`list.ToList()`) or queue edits until the loop finishes."
       ],
       quiz: [
-        { q: "You need to check thousands of times whether an ID has been seen. Best choice?", a: ["`List<int>` with `Contains`", "`int[]` searched with a loop", "`HashSet<int>`", "`Queue<int>`"], c: 2, why: "`HashSet.Contains` is O(1) on average; scanning a list or array is O(n)." },
-        { q: "What does `where T : new()` require?", a: ["T is a value type", "T has a public parameterless constructor", "T was created with `new` before being passed in", "T implements `ICloneable`"], c: 1, why: "The `new()` constraint lets generic code write `new T()`." },
-        { q: "Best way to read a dictionary key that may be missing?", a: ["`dict[key]` inside a try/catch", "`dict.TryGetValue(key, out var v)`", "`dict.ContainsKey(key)`, then `dict[key]`", "`dict.Keys.First(k => k == key)`"], c: 1, why: "`TryGetValue` does a single lookup. `ContainsKey` then the indexer works but looks the key up twice; try/catch is slow and hides what you mean." }
+        { q: "You need to check thousands of times whether an ID has been seen. Best choice?", a: ["`List<int>` with `Contains`", "`int[]` searched with a loop", "`HashSet<int>`", "`Queue<int>`"], c: 2, why: "`HashSet.Contains` runs in O(1) average time, while scanning lists or arrays takes O(n)." },
+        { q: "What does `where T : new()` require?", a: ["T is a value type", "T has a public parameterless constructor", "T was created with `new` before being passed in", "T implements `ICloneable`"], c: 1, why: "The `new()` constraint lets generic methods instantiate `new T()`." },
+        { q: "Best way to read a dictionary key that may be missing?", a: ["`dict[key]` inside a try/catch", "`dict.TryGetValue(key, out var v)`", "`dict.ContainsKey(key)`, then `dict[key]`", "`dict.Keys.First(k => k == key)`"], c: 1, why: "`TryGetValue` performs a single lookup. Checking `ContainsKey` first searches twice, and try/catch hides control flow." }
       ]
     },
     {
       id: 'errors', title: 'Exceptions and cleanup', level: 1, mins: 30,
       terms: [
-        ['`using` / `IDisposable`', 'Guarantees unmanaged handles (files, sockets, DB connections) close deterministically even if an exception is thrown mid-method.'],
-        ['Exception filter / catch order', 'Catch specific exceptions (`FileNotFoundException`) at boundaries where you can recover; never swallow bare `Exception` silently.'],
-        ['Result pattern vs Exceptions', 'Use expected return values (or 404/400 `Result`) for predictable validation errors; throw exceptions for unexpected failures.']
+        ['`using` / `IDisposable`', 'Closes files, sockets, and database connections deterministically even if an exception fires mid-method.'],
+        ['Exception filter / catch order', 'Catch specific exceptions (`FileNotFoundException`) where you can recover rather than swallowing bare `Exception` everywhere.'],
+        ['Result pattern vs Exceptions', 'Return validation errors as normal values (`Result` or 400/404), saving exceptions for unexpected failures.']
       ],
-      why: "Things fail: files go missing, networks drop, users type nonsense. How you throw, catch and clean up decides whether a failure becomes a clear message and a useful log line, or a crash that leaves a half-written file behind.",
+      why: "Files go missing, sockets break, and users submit bad text. Good error handling decides whether failures produce clear logs or leave half-written state behind.",
       points: [
-        "An exception stops the current method and travels up the call stack until a matching `catch`. If nothing catches it, the program ends and prints the stack trace.",
-        "Catch an exception only where you can do something useful: retry, show a message, use a fallback. Otherwise let it travel up. ASP.NET Core turns an unhandled exception into a 500 response and a log entry.",
-        "Catch specific types (`FileNotFoundException`, `FormatException`) before general ones. An empty `catch { }` hides bugs.",
-        "Inside a `catch`, `throw;` rethrows and keeps the original stack trace. `throw ex;` resets it, and you lose the line where the problem started.",
-        "`finally` always runs: on success, on an exception, even after `return`. `using` is the short form of the most common `finally`, calling `Dispose()` on files, connections and HTTP responses.",
-        "Exceptions are for failures you don't expect. For outcomes you do expect, like invalid user input, use `TryParse`-style methods or return a result."
+        "Throwing unwinds the call stack until a matching `catch` stops it. Uncaught exceptions terminate the process with a stack trace.",
+        "Catch only where you can act (retry, fall back, or translate errors). In ASP.NET Core, unhandled exceptions become logged 500 responses.",
+        "Order specific exceptions (`FileNotFoundException`, `FormatException`) ahead of general ones, and avoid empty `catch { }` blocks.",
+        "Use `throw` inside `catch` to preserve the original stack trace. Writing `throw ex` overwrites where the error actually started.",
+        "`finally` always runs after normal returns or exceptions. `using` compiles down to `finally { resource.Dispose(); }` automatically.",
+        "Save exceptions for unexpected errors. Use `TryParse` or `Result` return values for predictable validation issues."
       ],
       code: `
 Console.WriteLine(ReadFirstLine("missing.txt"));   // (no file: missing.txt)
@@ -417,17 +417,17 @@ static int ParseAge(string text)
     }
 }
 `,
-      practice: "Write a method that reads numbers from a text file, one per line, and returns their sum. Decide what should happen for a missing file, an empty line and a line like `12a`: which of those are exceptions, and which are expected input? Then make the read fail on purpose and use a breakpoint to confirm `Dispose()` still runs.",
-      teach: "Explain when you would catch an exception and when you would let it travel up, using `ReadFirstLine` and `ParseAge` as examples.",
-      analogy: "An exception is a fire alarm: it interrupts whatever is going on, and the alarm keeps ringing up the building until someone who knows what to do responds. A `catch` is that person. An empty `catch` is pulling the battery out of the alarm.",
+      practice: "Read integers line by line from a text file and sum them. Decide how a missing file, a blank line, and `12a` should behave, then force a read failure to verify `Dispose()` still executes.",
+      teach: "Explain when to catch an exception versus letting it bubble up, using `ReadFirstLine` and `ParseAge`.",
+      analogy: "An exception acts like a fire alarm ringing up the building until someone trained answers it (`catch`). Swallowing it with an empty `catch` is like pulling the alarm's battery out.",
       pitfalls: [
-        "`catch (Exception) { }` with nothing inside. The program carries on in a broken state and the logs show nothing.",
-        "`throw ex;` instead of `throw;`. The stack trace now starts at your `catch`, so the line that actually failed is gone.",
-        "Catching in every method 'to be safe'. Catch where you can act; most methods should let exceptions pass through.",
-        "Using exceptions for normal outcomes like 'user not found' or a bad form field. They are slow and make the flow hard to follow."
+        "Writing an empty `catch (Exception) { }`, leaving state corrupted with zero trace in logs.",
+        "Rethrowing `throw ex` instead of `throw`, wiping out the original failing line from the stack trace.",
+        "Wrapping every helper method in `try/catch` 'just to be safe' instead of letting callers or global handlers catch.",
+        "Throwing exceptions for expected outcomes like invalid form text or missing records."
       ],
       quiz: [
-        { q: "Inside a `catch`, how does `throw;` differ from `throw ex;`?", a: ["They are the same", "`throw;` rethrows and keeps the original stack trace", "`throw;` swallows the exception", "`throw;` throws a new `Exception` with no message"], c: 1, why: "`throw ex;` resets the stack trace to the current line; `throw;` keeps where the problem really started." },
+        { q: "Inside a `catch`, how does `throw;` differ from `throw ex;`?", a: ["They are the same", "`throw;` rethrows and keeps the original stack trace", "`throw;` swallows the exception", "`throw;` throws a new `Exception` with no message"], c: 1, why: "`throw ex;` resets the stack trace to the catch block, whereas `throw;` preserves the real origin." },
         { q: "When does a `finally` block run?", a: ["Only when an exception was thrown", "Only when no exception was thrown", "Always: on success, on an exception, and after `return`", "Only if there is no `catch` block"], c: 2, why: "That guarantee is what makes `finally`, and `using`, safe for cleanup." },
         { q: "A user types `12a` into an age field. Better way to handle it?", a: ["`int.Parse` inside a try/catch", "`int.TryParse`, then show a validation message if it returns `false`", "Let the exception reach the global error handler", "`Convert.ToInt32` inside an empty catch"], c: 1, why: "Bad input is expected, not exceptional. `TryParse` reports it without the cost and noise of an exception." },
         { q: "What does `using var conn = new SqlConnection(cs);` guarantee?", a: ["The connection stays open until the program exits", "`Dispose()` is called when the scope ends, even on an exception", "The connection opens automatically", "The connection is shared by every thread"], c: 1, why: "`using` compiles to try/finally with `Dispose()` in the `finally` block." }
@@ -436,18 +436,18 @@ static int ParseAge(string text)
     {
       id: 'linq', title: 'LINQ: querying anything', level: 1, mins: 35, viz: 'linq',
       terms: [
-        ['Deferred execution', 'Query operators (`Where`, `Select`) only build a recipe; no elements are tested until `.ToList()`, `.First()`, or `foreach` runs.'],
-        ['`IEnumerable<T>` vs `IQueryable<T>`', '`IEnumerable` runs lambdas in C# memory; `IQueryable` keeps an expression tree so EF Core can translate it into SQL.'],
-        ['`Any()` vs `Count() > 0`', '`Any()` stops at the first matching item (`EXISTS` in SQL), while `Count()` can scan every row unnecessarily.']
+        ['Deferred execution', 'Operators like `Where` and `Select` only build a recipe. Nothing executes until `.ToList()`, `.First()`, or `foreach` iterates it.'],
+        ['`IEnumerable<T>` vs `IQueryable<T>`', '`IEnumerable` runs lambdas over objects in memory, whereas `IQueryable` keeps an expression tree EF Core translates into SQL.'],
+        ['`Any()` vs `Count() > 0`', '`Any()` stops on the first matching item (`EXISTS` in SQL), while `Count()` may count every row unnecessarily.']
       ],
       why: "LINQ is how C# code filters, transforms and summarises data: in memory and, through EF Core, in SQL. It is the bridge between this track and the SQL track.",
       points: [
-        "LINQ methods are extension methods on `IEnumerable<T>`: `Where` filters, `Select` transforms, `OrderBy` sorts, `GroupBy` groups.",
-        "Lambdas such as `x => x.Price > 10` are tiny inline functions passed as arguments.",
-        "**Deferred execution**: building a query does nothing. It runs when you enumerate it (`foreach`, `ToList()`, `Count()`, `First()`).",
-        "Each enumeration re-runs the query. Call `ToList()` once if you will use the results several times.",
-        "`First()` throws on an empty sequence, `FirstOrDefault()` returns `null` or the default value, `Single()` insists on exactly one.",
-        "On `IQueryable<T>` (EF Core) the same methods are translated to SQL instead of running in memory."
+        "LINQ provides extension methods on `IEnumerable<T>` like `Where` (filter), `Select` (map), `OrderBy` (sort), and `GroupBy` (group).",
+        "Lambdas such as `x => x.Price > 10` act as compact inline functions passed right into operators.",
+        "With **deferred execution**, defining a query moves zero items. It runs only when enumerated via `foreach`, `ToList()`, `Count()`, or `First()`.",
+        "Enumerating a query twice runs it twice, so materialize once with `ToList()` if you'll read the items multiple times.",
+        "`First()` throws on empty sequences, `FirstOrDefault()` returns `null` or `default`, and `Single()` insists on one exact match.",
+        "On EF Core's `IQueryable<T>`, those same operators compile into SQL queries rather than C# loops."
       ],
       code: `
 var products = new List<Product>
@@ -482,7 +482,7 @@ record Product(string Name, string Category, decimal Price);
         "Calling `ToList()` in the middle of an EF Core query and quietly pulling the whole table into memory."
       ],
       quiz: [
-        { q: "When does `var q = items.Where(x => x > 5);` filter the items?", a: ["Immediately, when the line runs", "When `q` is enumerated", "When the method returns", "The first time `q` is assigned to another variable"], c: 1, why: "LINQ operators are lazy; the work happens on enumeration." },
+        { q: "When does `var q = items.Where(x => x > 5);` filter the items?", a: ["Immediately, when the line runs", "When `q` is enumerated", "When the method returns", "The first time `q` is assigned to another variable"], c: 1, why: "LINQ queries evaluate lazily when you enumerate them." },
         { q: "Which call throws if the sequence is empty?", a: ["`FirstOrDefault()`", "`Any()`", "`First()`", "`Where()`"], c: 2, why: "`First()` requires at least one element." },
         { q: "Best way to ask 'is there at least one match?'", a: ["`Count() > 0`", "`Any()`", "`ToList().Count > 0`", "`FirstOrDefault() != null`"], c: 1, why: "`Any()` stops at the first match. `FirstOrDefault() != null` is wrong for value types, where the default is `0`, not `null`." }
       ]
@@ -491,18 +491,18 @@ record Product(string Name, string Category, decimal Price);
     {
       id: 'delegates', title: 'Delegates, lambdas and events', level: 2, mins: 30,
       terms: [
-        ['Delegate (`Func<>` / `Action<>`)', 'A strongly typed reference to a function (`Func<int, bool>` takes an `int` and returns a `bool`; `Action` returns nothing).'],
+        ['Delegate (`Func<>` / `Action<>`)', 'A strongly typed function reference (`Func<int, bool>` takes an `int` and returns `bool`, while `Action` returns void).'],
         ['Lambda (`x => x * 2`)', 'An inline anonymous function passed straight into LINQ, middleware, or event handlers.'],
-        ['Closure capture', 'A lambda remembering outer variables — beware capturing a mutated loop variable or holding large objects alive in memory.']
+        ['Closure capture', 'A lambda keeping live access to outer variables. Watch out for mutated loop counters or objects kept alive in memory.']
       ],
-      why: "Passing a function around as a value is what LINQ, middleware and minimal API handlers are made of. Once you can read `Func<T, bool>`, a lot of framework code becomes readable.",
+      why: "Passing functions as arguments powers LINQ, middleware, and Minimal APIs. Once signatures like `Func<T, bool>` feel natural, framework code becomes easy to read.",
       points: [
-        "A **delegate** is a type that holds a method: 'something that takes an `int` and returns a `bool`'.",
-        "`Func<T, TResult>` returns a value, `Action<T>` returns nothing, `Predicate<T>` returns `bool`. You rarely need your own delegate types.",
-        "A **lambda** `x => x * 2` is an inline method. If it uses outer variables it becomes a **closure** and captures the variable itself, not a snapshot.",
-        "An **extension method** (`this` before the first parameter) adds a method to an existing type, and `yield return` hands out items one at a time. Together they are how LINQ itself is written.",
-        "An **event** is a delegate with restricted access: outsiders may only subscribe (`+=`) and unsubscribe (`-=`). Forgetting to unsubscribe keeps the subscriber alive as long as the publisher.",
-        "`app.MapGet(\"/\", () => \"hi\")` is simply passing a delegate to the framework."
+        "A **delegate** defines a typed slot for a method, like 'takes an `int` and returns a `bool`'.",
+        "`Func<T, TResult>` returns a value, `Action<T>` returns nothing, and `Predicate<T>` returns `bool`. You rarely need custom delegate types.",
+        "A **lambda** (`x => x * 2`) writes a function inline. Using outer variables turns it into a **closure** holding live references, not copied snapshots.",
+        "**Extension methods** (`this` on the first parameter) attach helpers to existing types, and `yield return` streams results lazily like LINQ does.",
+        "An **event** wraps a delegate so callers can only attach (`+=`) or detach (`-=`). Failing to unsubscribe leaks short-lived listeners on long-lived publishers.",
+        "`app.MapGet(\"/\", () => \"hi\")` passes a lambda straight into ASP.NET Core's router."
       ],
       code: `
 Func<int, int> twice = x => x * 2;
@@ -569,20 +569,20 @@ public class Thermostat
       ],
       predict: {
         prompt: 'An endpoint calls two independent 200 ms queries: `await db.GetUserAsync(); await db.GetOrdersAsync();` versus starting both and awaiting `Task.WhenAll(u, o)`. Roughly how fast is the sequential vs parallel version?',
-        options: ['Both take ~200 ms because both use `await`', 'Sequential takes ~400 ms; `Task.WhenAll` takes ~200 ms', 'Parallel fails unless you open two processes'],
+        options: ['Both take ~200 ms because both use `await`', 'Sequential takes ~400 ms, while `Task.WhenAll` takes ~200 ms', 'Parallel fails unless you open two processes'],
         answer: 1,
-        explain: 'Writing two `await` statements back-to-back pauses after the first before starting the second (~400 ms total). Starting both Tasks first and awaiting `Task.WhenAll` overlaps their I/O wait (~200 ms).'
+        explain: 'Writing two `await` calls back to back pauses for the first query before starting the second (~400 ms total). Launching both tasks first with `Task.WhenAll` overlaps both waits (~200 ms).'
       },
-      why: "Most of what a web server does is wait: for the database, for another API, for the disk. Async code lets a thread do other work during that wait. Getting it wrong rarely shows in development; it shows under load, as requests that queue up and time out.",
+      why: "Web servers spend most of their time waiting on databases, APIs, or disks. Async code frees threads to handle other requests during those waits instead of starving the pool and timing out under load.",
       points: [
-        "A `Task` represents work that will finish later; `Task<T>` also carries a result.",
-        "`await` does **not** block. It registers 'continue here when the task finishes' and gives the thread back to do other work.",
-        "Async is about **not wasting threads while waiting** for I/O (database, HTTP, disk). It does not make a single operation faster.",
-        "Async all the way: don't call `.Result` or `.Wait()` on a task. In ASP.NET Core that ties up a thread-pool thread for the whole wait, and under load the pool runs out (thread-pool starvation). In desktop apps (WinForms, WPF) it can also deadlock.",
-        "Start independent operations first, then `await Task.WhenAll(...)` to run them concurrently.",
-        "`async void` is only for event handlers: callers cannot await it or catch its exceptions.",
-        "Pass a `CancellationToken` down every async call, so work stops when the user gives up or the request is aborted.",
-        "`IAsyncEnumerable<T>` is a stream of results that arrive over time: produce it with `async` and `yield return`, consume it with `await foreach`. EF Core's `AsAsyncEnumerable()` and an ASP.NET Core endpoint returning one stream rows instead of collecting them all in memory first."
+        "A `Task` represents an ongoing operation, while `Task<T>` produces a result when it completes.",
+        "`await` doesn't block a thread. It attaches a continuation for later and frees the thread right away.",
+        "Async keeps threads from idling on I/O (SQL, HTTP, disk), though one query won't finish faster on its own.",
+        "Go async end-to-end and avoid `.Result` or `.Wait()`, which tie up ASP.NET Core pool threads and cause thread-pool starvation (or deadlocks on UI threads).",
+        "Kick off independent tasks first and await `Task.WhenAll(...)` so their waits overlap without extra threads.",
+        "Save `async void` only for UI event handlers, since callers can't await it or catch its exceptions.",
+        "Thread `CancellationToken` through async methods so canceled HTTP requests abort DB queries immediately.",
+        "`IAsyncEnumerable<T>` yields items asynchronously with `yield return` and reads them with `await foreach`, streaming big EF Core results without buffering everything in RAM."
       ],
       code: `
 using System.Diagnostics;
@@ -635,15 +635,15 @@ static async IAsyncEnumerable<string> LoadPagesAsync(int count, [EnumeratorCance
 `,
       practice: "Change the code to load five things concurrently with `Task.WhenAll` and print the total time. Then cancel after 500 ms and check that every unfinished load stops. Finally, replace `Task.Delay` with a real `HttpClient.GetStringAsync` call to a public URL and check that the timings behave the same way.",
       teach: "Explain what happens to the thread when code reaches `await`, and why that lets a web server handle more requests.",
-      analogy: "A waiter takes your order to the kitchen and does not stand at the stove until the food is cooked: they serve other tables and come back when the bell rings. `await` is the bell. Blocking with `.Result` is the waiter who stands staring at the stove while the restaurant fills up.",
+      analogy: "Think of a waiter handing your ticket to the kitchen. Instead of staring at the stove until cooked, the waiter serves other tables until the bell rings (`await`). Blocking with `.Result` stalls that waiter at the stove while the dining room backs up.",
       pitfalls: [
-        "'Async makes code run in parallel on another thread.' No: for I/O there is no thread at all while waiting.",
-        "Wrapping synchronous CPU work in `Task.Run` inside ASP.NET Core and calling it async. That just moves the work to another pool thread.",
-        "Forgetting `await`. The method carries on before the work finishes, and if the task fails nobody sees the exception. The compiler warns you (CS4014); don't ignore it.",
-        "Calling `ToListAsync()` on a huge result only to loop over it once. Stream it with `AsAsyncEnumerable()` and `await foreach`, and memory stays flat however many rows there are."
+        "Believing async magically runs I/O on extra threads. While waiting on a socket or database, no thread is needed.",
+        "Wrapping CPU loops in `Task.Run` inside ASP.NET Core, which only moves blocking work onto another pool thread.",
+        "Forgetting `await` lets the caller continue early and drops unhandled exceptions. Fix every CS4014 compiler warning.",
+        "Calling `ToListAsync()` on huge exports just to loop once instead of streaming rows via `AsAsyncEnumerable()`."
       ],
       quiz: [
-        { q: "What happens to the current thread at `await http.GetAsync(url)` while the network call is in flight?", a: ["It sleeps until the response arrives", "It is released to do other work", "It polls the network in a loop", "It hands the request to a new thread it creates"], c: 1, why: "`await` gives the thread back; a continuation resumes the method when the response arrives." },
+        { q: "What happens to the current thread at `await http.GetAsync(url)` while the network call is in flight?", a: ["It sleeps until the response arrives", "It is released to do other work", "It polls the network in a loop", "It hands the request to a new thread it creates"], c: 1, why: "`await` returns the thread to the pool and resumes the method via a continuation once data arrives." },
         { q: "Three independent 1-second I/O calls. Fastest correct approach?", a: ["Await each in turn", "Start all three, then `await Task.WhenAll`", "Wrap each in `Task.Run` and read `.Result`", "`Parallel.For` with `.Wait()` on each"], c: 1, why: "Starting the tasks before awaiting lets the waits overlap: about 1 second in total instead of 3, without blocking any thread." },
         { q: "Why avoid `.Result` in ASP.NET Core?", a: ["It returns a different value from `await`", "It blocks a thread-pool thread for the whole wait, and under load the pool runs out", "It always deadlocks", "It is not allowed inside controllers"], c: 1, why: "ASP.NET Core has no synchronization context, so the classic deadlock doesn't happen there. But every blocked thread is one that can't serve another request." },
         { q: "A method returns `IAsyncEnumerable<Order>`. How do you consume it?", a: ["`foreach (var o in GetOrders())`", "`await foreach (var o in GetOrders())`", "`GetOrders().Result`", "`await Task.WhenAll(GetOrders())`"], c: 1, why: "`await foreach` awaits each next item, so the loop can start before the last item exists. A plain `foreach` doesn't compile against an async stream." }
@@ -658,11 +658,11 @@ static async IAsyncEnumerable<string> LoadPagesAsync(int count, [EnumeratorCance
       ],
       why: "Modern C# lets the compiler catch whole categories of bugs before you run anything: null references, unhandled shapes of data, accidental mutation. Code that uses these features well is shorter and harder to break.",
       points: [
-        "**Nullable reference types** are on by default in new projects: `string` means never null, `string?` means might be null, and the compiler warns when you use a maybe-null value without checking it.",
-        "`?.` (null-conditional), `??` (fallback) and `??=` (assign if null) make null handling short and explicit.",
-        "`!` (the null-forgiving operator) tells the compiler 'trust me'. Use it only when you really know more than the compiler; each one is a place a `NullReferenceException` can still happen.",
-        "**Records** give value-based equality, immutability and `with` copies, which suits DTOs and messages.",
-        "**Pattern matching** (`is`, and `switch` with type, property and relational patterns) replaces chains of casts and `if`s. A small record hierarchy plus a `switch` expression is a clean way to model 'one of these shapes'."
+        "New projects turn on **nullable reference types** by default. `string` expects non-null values, while `string?` warns you to check before dereferencing.",
+        "`?.` (null-conditional), `??` (fallback), and `??=` (assign if null) handle optional values concisely.",
+        "`!` (null-forgiving) silences compiler warnings without adding runtime guards. Avoid it unless you know a value can't be null, or `NullReferenceException` waits right there.",
+        "**Records** provide built-in value equality, immutability, and `with` expressions, ideal for DTOs and events.",
+        "**Pattern matching** (`is` and `switch` with property or relational checks) replaces clumsy cast chains and pairs nicely with record hierarchies."
       ],
       code: `
 Console.WriteLine(Describe(new Card("4242")));            // Card ending 4242
@@ -711,19 +711,19 @@ public record Transfer(string Iban) : Payment;
     {
       id: 'gc', title: 'Memory, the GC and performance', level: 3, mins: 40,
       terms: [
-        ['Generations (Gen 0 / 1 / 2)', 'Short-lived objects die cheaply in Gen 0; objects that survive are promoted to heavier Gen 2 / LOH collections.'],
+        ['Generations (Gen 0 / 1 / 2)', 'Short-lived objects clear cheaply in Gen 0, while survivors move to heavier Gen 2 / LOH collections.'],
         ['`Span<T>`', 'A stack-only view over contiguous memory (array, slice, or string) allowing parsing with zero heap allocations.'],
-        ['Boxing', 'Wrapping a value type (`int`) inside an `object` on the heap — silent allocation hotspot in non-generic collections or `string.Format`.']
+        ['Boxing', 'Wrapping a value type (`int`) inside an `object` on the heap, creating hidden allocations in non-generic collections or `string.Format`.']
       ],
-      why: "At scale, allocation rate turns into latency. This lesson is about reading what the garbage collector is doing, finding the allocations that matter on a hot path, and removing them without making the code unreadable.",
+      why: "Under heavy load, high allocation rates directly add tail latency. Learn how the garbage collector works, spot costly hot-path allocations, and trim them without hurting code clarity.",
       points: [
-        "The GC is **generational**: new objects start in Gen 0; survivors are promoted to Gen 1, then Gen 2. Most objects die young, so Gen 0 collections are cheap.",
-        "Objects of about 85 KB or more go to the **Large Object Heap**, collected with Gen 2 and not compacted by default, so large temporary buffers are expensive.",
-        "A full Gen 2 collection can pause the app. Reduce garbage in hot paths: reuse buffers (`ArrayPool<T>`), avoid needless LINQ and string concatenation in tight loops.",
-        "`Span<T>` and `ReadOnlySpan<T>` are views over existing memory: slice arrays and strings with **zero allocation**. They are `ref struct`s, so they cannot live on the heap or be held across an `await`.",
-        "`Memory<T>` is the heap-friendly cousin of `Span<T>` for async code.",
-        "Order of work when something is slow: the algorithm and I/O first (fixing an N+1 query beats any micro-optimisation), allocations second, micro-optimisations last.",
-        "Measure, don't guess: `dotnet-counters` and `dotnet-trace` for a running app, BenchmarkDotNet with `[MemoryDiagnoser]` for a single method. A `Stopwatch` loop misleads, because the JIT recompiles hot code while it runs (tiered compilation)."
+        ".NET's GC is **generational**. New allocations start in Gen 0 where short-lived objects clear cheaply, while survivors move up to Gen 1 and Gen 2.",
+        "Allocations over ~85 KB land on the **Large Object Heap**, which collects only alongside Gen 2 without compaction by default, making large temporary buffers costly.",
+        "Avoid Gen 2 pauses on hot loops by renting buffers (`ArrayPool<T>`) and cutting string concatenation or LINQ churn.",
+        "`Span<T>` and `ReadOnlySpan<T>` slice arrays and strings with **zero allocations**. As `ref struct` types, they stay off the heap and can't cross an `await`.",
+        "`Memory<T>` provides the heap-safe equivalent of `Span<T>` when passing buffers through async calls.",
+        "Fix performance in order: algorithms and database I/O first (cutting N+1 queries beats everything), allocations next, micro-tweaks last.",
+        "Measure with `dotnet-counters`, `dotnet-trace`, and BenchmarkDotNet's `[MemoryDiagnoser]`. Avoid naive `Stopwatch` loops, which tiered JIT compilation skews."
       ],
       code: `
 using System.Buffers;
@@ -767,18 +767,18 @@ finally { ArrayPool<byte>.Shared.Return(buffer); }
     {
       id: 'concurrency', title: 'Concurrency and thread safety', level: 3, mins: 40,
       terms: [
-        ['Race condition', 'Two threads reading and writing shared state without coordination so the final outcome depends on random timing.'],
-        ['`ConcurrentDictionary` vs `lock`', '`ConcurrentDictionary` coordinates bucket access safely; `SemaphoreSlim(1, 1)` coordinates async critical sections (never `lock` around `await`).'],
-        ['`Channel<T>`', 'Lock-free async producer/consumer queue for handing background jobs cleanly from HTTP requests to worker tasks.']
+        ['Race condition', 'Two threads reading and writing shared state without coordination so outcomes depend on lucky thread timing.'],
+        ['`ConcurrentDictionary` vs `lock`', '`ConcurrentDictionary` makes map calls thread-safe, while `SemaphoreSlim(1, 1)` guards async sections (never `lock` across `await`).'],
+        ['`Channel<T>`', 'Fast async producer/consumer queue for offloading background jobs from HTTP endpoints to worker loops.']
       ],
-      why: "A web server runs many requests at the same time. Any shared state — a static field, a singleton service, an in-memory cache — gets touched by several threads at once, and the resulting bugs are rare, hard to reproduce and expensive when they happen.",
+      why: "Web APIs process many concurrent requests at once. Any shared static field, singleton collection, or cache gets hit from multiple threads simultaneously, creating rare and painful bugs.",
       points: [
-        "A **race condition** is when the result depends on thread timing. `count++` is read, add, write, and it is **not atomic**.",
-        "Protect shared mutable state: `lock` for short critical sections, `Interlocked` for single counters, `SemaphoreSlim` for async code (`lock` cannot contain an `await`).",
-        "Better still, don't share: immutable data, per-request (scoped) objects, or message passing with `Channel<T>`.",
-        "`ConcurrentDictionary` is safe per operation, but check-then-act sequences still race. Use `GetOrAdd` and `AddOrUpdate`.",
-        "**Deadlock**: two threads each hold a lock the other needs. Acquire locks in a consistent order and hold them briefly.",
-        "`Parallel.ForEachAsync` and `Task.WhenAll` for throughput; channels for producer/consumer pipelines with back-pressure."
+        "A **race condition** makes correctness depend on thread timing. Even `count++` runs read, add, and write separately, so it isn't atomic.",
+        "Guard mutable state with `lock` (sync only), `Interlocked` for single counters, or `SemaphoreSlim.WaitAsync` when guarding an `await`.",
+        "Even better, share nothing mutable: prefer immutable records, scoped per-request state, or `Channel<T>` message queues.",
+        "`ConcurrentDictionary` protects single calls, yet check-then-act pairs still race. Use atomic methods like `GetOrAdd` or `AddOrUpdate`.",
+        "A **deadlock** occurs when two threads wait on each other's locks. Always grab locks in one consistent order and release fast.",
+        "Reach for `Parallel.ForEachAsync` or `Task.WhenAll` for parallel I/O, and `Channel<T>` for bounded producer/consumer pipelines."
       ],
       code: `
 using System.Threading.Channels;
@@ -831,16 +831,16 @@ await consumer;
       ],
       quiz: [
         { q: "Why is `count++` unsafe across threads?", a: ["`++` is slow on shared memory", "It is three steps (read, add, write) that can interleave", "`int` is a reference type", "The JIT moves it to the end of the method"], c: 1, why: "Two threads can read the same old value and both write old + 1, losing an update." },
-        { q: "Which primitive gives mutual exclusion across an `await`?", a: ["`lock`", "`SemaphoreSlim`", "`volatile`", "`Interlocked.Increment`"], c: 1, why: "`SemaphoreSlim.WaitAsync` can be awaited; a `lock` block cannot contain `await`." },
+        { q: "Which primitive gives mutual exclusion across an `await`?", a: ["`lock`", "`SemaphoreSlim`", "`volatile`", "`Interlocked.Increment`"], c: 1, why: "`SemaphoreSlim.WaitAsync` works with `await`, whereas `lock` rejects `await` inside its body." },
         { q: "Best strategy for thread safety overall?", a: ["Wrap every method in `lock`", "Avoid shared mutable state where possible", "Use `ConcurrentDictionary` for everything", "Mark shared fields `volatile`"], c: 1, why: "State that is not shared, or cannot change, cannot race." }
       ]
     },
     {
       id: 'internals', title: 'How frameworks work: variance, reflection and generated code', level: 3, mins: 35,
       terms: [
-        ['Covariance / Contravariance (`out` / `in`)', 'Lets `IEnumerable<Dog>` satisfy `IEnumerable<Animal>` (`out`) and `IComparer<Animal>` satisfy `IComparer<Dog>` (`in`) safely.'],
-        ['Reflection vs Source Generators', 'Reflection inspects types dynamically at run time (slower, harder to trim/AOT); Source Generators emit plain C# at compile time.'],
-        ['Expression tree (`Expression<Func<>>`)', 'Captures code as a data AST rather than compiled IL so EF Core can walk it and emit parameterized SQL.']
+        ['Covariance / Contravariance (`out` / `in`)', 'Lets `IEnumerable<Dog>` pass where `IEnumerable<Animal>` is expected (`out`) and `IComparer<Animal>` pass for `Dog` (`in`).'],
+        ['Reflection vs Source Generators', 'Reflection inspects types at runtime (slower and hurts AOT trimming), while Source Generators emit C# at build time.'],
+        ['Expression tree (`Expression<Func<>>`)', 'Stores a lambda as an abstract syntax tree instead of compiled IL so EF Core can convert it into parameterized SQL.']
       ],
       why: "This is the layer frameworks are written in. It explains how a DI container finds constructors, how a JSON serializer finds properties, and how EF Core turns a lambda into SQL.",
       points: [

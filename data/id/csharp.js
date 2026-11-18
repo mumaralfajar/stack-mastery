@@ -2,439 +2,444 @@
 I18N.lessons('csharp', {
   types: {
     terms: [
-      ['Static typing', 'Setiap variabel punya type tetap (`int`, `string`, `decimal`) yang diperiksa waktu build sebelum program berjalan.'],
-      ['`var` (type inference)', 'Membiarkan compiler menyimpulkan type variabel dari sisi kanan — bukan berarti type-nya bisa berubah-ubah (dynamic).'],
-      ['`decimal` vs `double`', '`decimal` (`0.1m`) memakai basis 10 untuk uang; `double` memakai binary floating point dan bisa membulatkan `0.1 + 0.2`.']
+      ['Static typing', 'Setiap variabel punya type pasti (`int`, `string`, `decimal`) yang dicek waktu build sebelum program jalan.'],
+      ['`var` (type inference)', 'Membuat compiler menebak type variabel dari sisi kanan tanda sama dengan, bukan membuatnya jadi dynamic.'],
+      ['`decimal` vs `double`', '`decimal` (`0.1m`) memakai basis 10 untuk hitungan uang, sedangkan `double` memakai binary floating point dan bisa membulatkan `0.1 + 0.2`.']
     ],
     title: 'Program, variabel, dan type',
-    why: "Setiap program C# pada dasarnya adalah value ber-type yang mengalir lewat statement. Begitu kamu paham bahwa compiler mengecek type itu **sebelum** program jalan, sebagian besar error pemula tidak lagi terasa misterius: itu cuma compiler yang memberi tahu lebih awal bahwa ada dua hal yang tidak cocok.",
+    why: "Setiap program C# memproses nilai bertipe lewat rangkaian statement. Begitu paham bahwa compiler mengecek type **sebelum** program jalan, error pemula tidak lagi terasa acak. Itu cuma peringatan awal soal type yang tidak cocok.",
     points: [
-      "Source code C# di-compile menjadi IL (intermediate language); .NET runtime (CLR) mengubah IL jadi machine code saat program berjalan (JIT). `dotnet run` mengerjakan kedua langkah itu.",
-      "Variabel adalah kotak bernama dengan type yang tetap: `int`, `double`, `decimal` (uang), `bool`, `char`, `string`. Type-nya tidak pernah berubah setelah dideklarasikan.",
-      "`var` bukan berarti 'type apa saja'. Compiler menyimpulkan type-nya dari sisi kanan, lalu menguncinya.",
-      "C# itu statically typed: `int x = \"hello\";` sudah gagal saat build, bukan saat user menjalankan programnya.",
-      "String interpolation `$\"Total: {price * qty}\"` adalah cara sehari-hari untuk menyusun teks.",
-      "Angka diformat mengikuti regional setting komputermu. Di PC dengan setting Indonesia, `59.97` tercetak sebagai `59,97`. Pakai `CultureInfo.InvariantCulture` kalau teksnya harus sama di mana pun: file, API, log.",
-      "Pembagian integer membuang pecahannya: `7 / 2` hasilnya `3`. Jadikan salah satu sisinya `double` atau `decimal` supaya pecahannya tetap ada."
+      "C# di-compile menjadi IL, lalu .NET runtime (CLR) mengubah IL itu jadi machine code lewat JIT saat jalan. `dotnet run` menjalankan keduanya.",
+      "Variabel itu kotak bernama dengan type tetap: `int`, `double`, `decimal` (uang), `bool`, `char`, `string`. Type-nya tidak berubah setelah deklarasi.",
+      "`var` bukan berarti 'bebas isi type apa saja'. Compiler menebak type-nya dari sisi kanan lalu menguncinya.",
+      "C# itu statically typed, jadi `int x = \"hello\";` langsung gagal saat build sebelum aplikasi dipakai user.",
+      "String interpolation `$\"Total: {price * qty}\"` adalah cara paling praktis untuk menyusun teks.",
+      "Format angka mengikuti setting regional PC kamu. Di Windows berbahasa Indonesia, `59.97` tercetak `59,97`, jadi pakai `CultureInfo.InvariantCulture` untuk file, API, atau log.",
+      "Pembagian bilangan bulat membuang sisanya: `7 / 2` jadi `3`. Ubah salah satu angka ke `double` atau `decimal` kalau mau pecahannya ikut."
     ],
-    practice: "Buat console app dengan `dotnet new console`. Deklarasikan nama, tahun lahir, dan tarif per jam kamu, lalu cetak satu kalimat yang memuat umurmu dan penghasilanmu untuk 40 jam kerja seminggu. Setelah itu, isi variabel angkamu dengan teks, build, dan baca pesan compiler-nya pelan-pelan: di situ ada nomor baris, kedua type-nya, dan apa yang sebenarnya diharapkan.",
-    teach: "Jelaskan ke orang yang belum pernah programming apa itu variabel dan type, dan kenapa C# menolak menjalankan `int x = \"hello\"`.",
-    analogy: "Variabel itu seperti toples berlabel di dapur: toples bertuliskan 'tepung' hanya boleh diisi tepung. Compiler adalah koki galak yang memeriksa semua toples sebelum mulai memasak, jadi tidak ada yang baru sadar ada garam di toples gula saat masakan sudah setengah jadi.",
+    practice: "Buat aplikasi console pakai `dotnet new console`. Deklarasikan nama, tahun lahir, dan tarif per jam kamu, lalu cetak kalimat berisi umur dan gaji 40 jam kerja seminggu. Setelah itu coba isi angka dengan teks, build, dan baca pesan compiler-nya perlahan.",
+    teach: "Jelaskan ke orang awam apa itu variabel dan type, lalu kenapa C# menolak menjalankan `int x = \"hello\"`.",
+    analogy: "Variabel itu toples berlabel di dapur: toples bertuliskan 'tepung' cuma boleh diisi tepung. Compiler bekerja seperti chef galak yang mengecek semua toples sebelum masak supaya gula tidak tertukar garam di tengah jalan.",
     pitfalls: [
-      "Memperlakukan `var` seperti `let` di JavaScript. `var x = 1; x = \"a\";` tidak bisa di-compile: `x` selamanya `int`.",
-      "Memakai `double` untuk uang. `0.1 + 0.2` tercetak `0.30000000000000004`; dengan `decimal` (`0.1m + 0.2m`) hasilnya `0.3`.",
-      "Berharap `7 / 2` menghasilkan `3.5`. Yang menentukan operasinya adalah type operand, bukan variabel tempat hasilnya disimpan: `double d = 7 / 2;` tetap `3`.",
-      "Membandingkan output-mu dengan tutorial lalu melihat `59,97`, bukan `59.97`. Itu regional format, bukan bug."
+      "Menyamakan `var` dengan `let` di JavaScript. `var x = 1; x = \"a\";` ditolak compiler karena `x` tetap `int`.",
+      "Memakai `double` untuk uang. `0.1 + 0.2` tercetak `0.30000000000000004`, padahal `decimal` (`0.1m + 0.2m`) pas `0.3`.",
+      "Mengira `7 / 2` menghasilkan `3.5`. Pembagian dua integer dibulatkan sebelum masuk variabel, jadi `double d = 7 / 2` tetap bernilai `3`.",
+      "Bingung melihat output `59,97` padahal di tutorial tertulis `59.97`. Itu efek format angka regional, bukan bug."
     ],
     quiz: [
-      ["Apa arti `var total = 5;` di C#?", ["`total` adalah `dynamic`, jadi nanti bisa menyimpan type apa saja", "`total` adalah `int`, disimpulkan oleh compiler", "`total` adalah `object` sampai pertama kali dipakai", "`total` adalah `long`, karena `var` memilih type integer terbesar"], "`var` adalah type inference saat compile time. Variabelnya akan selamanya `int`."],
-      ["Apa yang dicetak `double d = 9 / 2; Console.WriteLine(d);`?", ["4.5", "4", "5", "Tidak bisa di-compile"], "`9 / 2` adalah pembagian integer dan dihitung sebelum assignment. Hasilnya `4` lalu diubah jadi `4.0`, yang tercetak sebagai `4`."],
-      ["Type mana yang cocok untuk menyimpan harga?", ["`float`", "`double`", "`decimal`", "`string`, supaya tidak ada pembulatan"], "`decimal` berbasis 10 dan bisa merepresentasikan nilai seperti 0.10 secara persis; binary floating point tidak bisa. `string` tidak bisa dijumlahkan atau dikalikan."]
+      ["Apa arti `var total = 5;` di C#?", ["`total` bertipe `dynamic`, jadi nanti bisa diisi type lain", "`total` bertipe `int`, ditebak compiler saat build", "`total` bertipe `object` sampai pertama kali dipakai", "`total` bertipe `long` karena `var` selalu memilih integer terbesar"], "`var` itu type inference saat compile time, jadi `total` selamanya bertipe `int`."],
+      ["Apa yang tercetak dari `double d = 9 / 2; Console.WriteLine(d);`?", ["4.5", "4", "5", "Tidak lolos compile"], "`9 / 2` dihitung sebagai pembagian integer dulu menjadi `4`, baru diubah ke `4.0` dan tercetak `4`."],
+      ["Type mana yang cocok untuk menyimpan harga barang?", ["`float`", "`double`", "`decimal`", "`string` agar tidak dibulatkan"], "`decimal` memakai basis 10 sehingga angka seperti 0.10 tetap akurat, berbeda dari float biner atau string."]
     ]
   },
   flow: {
     terms: [
-      ['Guard clause (`return` dini)', 'Menangani kasus tidak valid di awal method supaya jalur utama tetap datar dan mudah dibaca.'],
-      ['Switch expression', 'Bentuk ringkas (`score switch { >= 90 => "A", _ => "B" }`) yang memastikan semua cabang mengembalikan nilai.'],
-      ['Signature method', 'Nama, return type, dan daftar parameter method — cara termudah mengenali breaking change pada API.']
+      ['Guard clause (early `return`)', 'Menangani kasus tidak valid di awal method agar alur utamanya tetap datar dan mudah dibaca.'],
+      ['Switch expression', 'Bentuk ringkas (`score switch { >= 90 => "A", _ => "B" }`) yang memaksa setiap cabang menghasilkan nilai.'],
+      ['Method signature', 'Nama method, return type, dan daftar tipe parameternya. Mengubah salah satunya berarti mengubah kontrak API.']
     ],
-    title: 'Control flow dan method',
-    why: "Keputusan, pengulangan, dan langkah bernama yang bisa dipakai ulang: itulah seluruh tata bahasa logika program. LINQ, async, dan web request nanti semuanya dirakit dari potongan-potongan ini.",
+    title: 'Alur kontrol dan method',
+    why: "Percabangan, perulangan, dan method menjadi pondasi semua logika program. Materi lanjutan seperti LINQ, async, dan HTTP handler tersusun dari pola dasar ini.",
     points: [
-      "`if / else if / else` memilih cabang berdasarkan ekspresi `bool`. `==` membandingkan, `=` meng-assign.",
-      "`for` kalau jumlah pengulangannya sudah diketahui, `foreach` untuk menelusuri collection, `while` untuk mengulang sampai sebuah kondisi berubah.",
-      "Method adalah blok bernama dengan parameter ber-type dan return value ber-type: `static int Add(int a, int b) => a + b;`.",
-      "Secara default, argumen dikirim **by value**: method menerima salinan dari isi variabelnya. Untuk angka, yang disalin angkanya; untuk object, yang disalin reference ke object itu. Level berikutnya menjelaskan kenapa bedanya penting.",
-      "Ekspresi `switch` mengubah sebuah value jadi hasil dalam satu ekspresi.",
-      "Jaga method tetap kecil dan beri nama sesuai apa yang dikembalikan atau dikerjakannya. Nama yang bagus adalah dokumentasi pertama."
+      "`if / else if / else` memilih jalur berdasarkan kondisi `bool` (`==` membandingkan nilai, sedangkan `=` mengisi nilai).",
+      "Pakai `for` saat butuh nomor indeks, `foreach` untuk menyusuri koleksi, dan `while` selama syaratnya masih terpenuhi.",
+      "Method membungkus langkah kerja dengan parameter dan tipe hasil (`static int Add(int a, int b) => a + b`).",
+      "Default di C# mengirim argumen **by value**. Untuk angka yang disalin nilainya, sedangkan untuk object yang disalin referensinya.",
+      "Satu nilai bisa dipetakan langsung ke hasil lewat `switch` expression yang ringkas.",
+      "Jaga method tetap singkat dan beri nama sesuai tugasnya. Penamaan yang jelas adalah dokumentasi paling efektif."
     ],
-    practice: "Tulis FizzBuzz untuk 1 sampai 30 sebagai method `string FizzBuzz(int n)` plus sebuah loop yang memanggilnya. Lalu tulis ulang isi method-nya sebagai ekspresi `switch` terhadap tuple `(n % 3, n % 5)`.",
-    teach: "Jelaskan perbedaan loop `for` dan `foreach`, dan kapan kamu memilih membuat method daripada menyalin kode.",
-    analogy: "Method itu kartu resep: punya nama, daftar bahan (parameter), dan menghasilkan sebuah masakan (return value). Memanggil method sama dengan meminta seseorang memasak sesuai kartu itu. Kamu tidak menulis ulang resepnya setiap kali lapar.",
+    practice: "Tulis FizzBuzz untuk angka 1 sampai 30 lewat method `string FizzBuzz(int n)` yang dipanggil dalam loop. Setelah jalan, ubah isi method menjadi `switch` expression pada tuple `(n % 3, n % 5)`.",
+    teach: "Jelaskan beda perulangan `for` dan `foreach`, serta kapan kode lebih baik dipisah ke method ketimbang disalin berulang.",
+    analogy: "Method itu kartu resep berisi nama masakan, daftar bahan (parameter), dan hasil jadinya (return value). Saat lapar kamu tinggal mengikuti kartu itu tanpa menulis ulang resepnya dari nol.",
     pitfalls: [
-      "Loop yang off-by-one: `i <= array.Length` membaca melewati ujung array. Array mulai dari 0 dan berakhir di `Length - 1`.",
-      "Mengetik `if (x = 5)`. C# menolak meng-compile-nya kecuali `x` bertipe `bool`, dan itu menyelamatkanmu dari bug klasik di C: `=` meng-assign, `==` membandingkan.",
-      "Berharap method bisa mengubah argumen `int` milikmu. Yang diubah hanya salinannya sendiri, kecuali parameternya `ref` atau `out`."
+      "Salah batas indeks seperti `i <= array.Length` yang membaca lewat ujung array. Indeks dimulai dari 0 sampai `Length - 1`.",
+      "Salah ketik `if (x = 5)`. C# langsung menolak karena `x` bukan `bool`, mencegah bug klasik tertukarnya `=` dan `==`.",
+      "Mengira method bisa mengubah nilai `int` milik pemanggil. Tanpa `ref` atau `out`, method hanya mengubah salinannya sendiri."
     ],
     quiz: [
-      ["Loop mana yang paling pas untuk mengunjungi setiap item `List<string>` secara berurutan?", ["`for (int i = 0; i <= list.Count; i++)`", "`foreach`", "`while (list.Any())`", "`do … while`"], "`foreach` langsung mengekspresikan 'setiap elemen' dan tidak mungkin keluar batas. Loop `for` di pilihan itu membaca satu item melewati ujung."],
-      ["Method `void Reset(int n) { n = 0; }` dipanggil dengan `Reset(count)`. Berapa nilai `count` setelahnya?", ["0", "Tidak berubah", "Tergantung apakah `count` dideklarasikan dengan `var`", "Compile error"], "`int` dikirim by value: method itu hanya me-nol-kan salinannya sendiri."],
-      ["Apa arti `_` pada arm ekspresi `switch`?", ["Variabel yang bisa dibaca di dalam arm itu", "Hanya cocok dengan `null`", "Arm default yang cocok dengan apa pun yang tersisa", "Mengulang hasil arm sebelumnya"], "`_` adalah discard pattern. Ia cocok dengan value apa pun yang belum tertangkap arm sebelumnya."]
+      ["Perulangan mana yang paling pas untuk menyusuri tiap item di `List<string>` dari awal sampai akhir?", ["`for (int i = 0; i <= list.Count; i++)`", "`foreach`", "`while (list.Any())`", "`do … while`"], "`foreach` langsung mengambil tiap elemen tanpa risiko kelewatan batas indeks, sedangkan loop `for` di pilihan pertama membaca lewat ujung list."],
+      ["Method `void Reset(int n) { n = 0; }` dipanggil lewat `Reset(count)`. Berapa nilai `count` setelahnya?", ["0", "Tidak berubah", "Tergantung apakah `count` dideklarasikan dengan `var`", "Error compile"], "`int` dikirim by value, sehingga method hanya mengubah salinan `n` di dalamnya."],
+      ["Apa fungsi pola `_` di dalam cabang `switch` expression?", ["Variabel penampung nilai di dalam cabang", "Hanya cocok kalau nilainya `null`", "Cabang bawaan yang menangkap sisa nilai apa pun", "Mengulang hasil dari cabang sebelumnya"], "`_` adalah discard pattern yang menangkap nilai apa pun jika cabang di atasnya tidak ada yang cocok."]
     ]
   },
   classes: {
     terms: [
-      ['Class vs Object', '`class` adalah cetak birunya (`Product`); object adalah satu instance nyata di memori yang dibuat dengan `new Product(...)`.'],
-      ['Constructor', 'Berjalan saat `new` membuat object agar state wajib langsung valid (parameter primary constructor atau `init`).'],
-      ['Invariant', 'Aturan yang tidak pernah boleh dilanggar object — misalnya menolak harga negatif di constructor atau setter.']
+      ['Class vs Object', '`class` adalah rancangannya (`Product`), sedangkan object adalah wujud nyata di memori yang dibuat lewat `new Product(...)`.'],
+      ['Constructor', 'Dijalankan saat `new` dipanggil agar data wajib sudah valid sejak awal (bisa memakai primary constructor atau `init`).'],
+      ['Invariant', 'Aturan yang wajib dijaga seumur hidup oleh sebuah object, misalnya harga tidak boleh minus.']
     ],
     title: 'Class, object, dan property',
-    why: "Inti C# adalah object-oriented. Controller ASP.NET Core, entity EF Core, dan DTO semuanya class, jadi lancar membaca class adalah syarat untuk bisa membaca codebase sungguhan.",
+    why: "C# dibangun di sekitar object. Controller ASP.NET Core, entity EF Core, hingga DTO semuanya berupa class, jadi paham anatomi class membantumu membaca kode nyata lebih cepat.",
     points: [
-      "**Class** adalah cetak biru; **object** adalah satu instance yang dibuat dengan `new`.",
-      "State disimpan di property (`public string Name { get; set; }`), behavior ada di method.",
-      "Constructor memastikan object dimulai dalam state yang valid. Data yang wajib ada ditaruh di constructor atau property `required`.",
-      "**Encapsulation**: jadikan field `private` dan buka hanya yang dibutuhkan pemanggil. `private set` membuat class bisa menjaga aturannya sendiri.",
-      "Member `static` adalah milik class-nya, bukan milik instance mana pun.",
-      "`this` merujuk ke object yang sedang aktif. Biasanya tidak perlu ditulis."
+      "**Class** mendefinisikan cetakan dasar, lalu **object** adalah satu wujud hidupnya yang dibuat lewat `new`.",
+      "Property (`public string Name { get; set; }`) menyimpan data, sedangkan method menjalankan perilaku.",
+      "Constructor menjaga object mulai dalam keadaan valid. Masukkan data wajib lewat parameter constructor atau properti `required`.",
+      "Dalam **encapsulation**, jadikan field `private` dan buka akses seperlunya saja. Memberi `private set` menjaga aturan class tetap aman.",
+      "Anggota `static` menempel pada class-nya sendiri, bukan pada tiap object hasil instan.",
+      "`this` merujuk ke object yang sedang aktif, walaupun C# jarang mengharuskan kamu menulisnya."
     ],
-    practice: "Tambahkan method `Withdraw` yang menolak penarikan melebihi saldo. Lalu tambahkan method `Transfer(BankAccount to, decimal amount)`. Aturan mana yang tinggal di method mana, dan kenapa `Balance` sebaiknya tetap private set?",
-    teach: "Jelaskan perbedaan class dan object, dan kenapa `Balance` memakai private setter alih-alih bebas ditulis siapa saja.",
-    analogy: "Class adalah gambar rancangan arsitek; object adalah rumah-rumah yang benar-benar dibangun dari rancangan itu. Encapsulation adalah pintu depan: tamu memencet bel (public method), bukan memanjat jendela lalu mengutak-atik sekring (private field).",
+    practice: "Tambahkan method `Withdraw` yang menolak penarikan melebihi saldo, lalu buat `Transfer(BankAccount to, decimal amount)`. Pikirkan aturan mana masuk ke method mana, dan kenapa `Balance` perlu setter privat.",
+    teach: "Jelaskan beda class dan object, lalu alasan `Balance` memakai private setter bukan bebas diubah dari luar.",
+    analogy: "Class mirip gambar denah rumah dari arsitek, dan tiap rumah yang berdiri adalah object-nya. Encapsulation berfungsi seperti pintu depan: tamu memencet bel (public method), bukan memanjat jendela dan mengutak-atik kabel (private field).",
     pitfalls: [
-      "Memanggil `BankAccount.Deposit(50)` langsung pada class-nya. `Deposit` butuh object: `acct.Deposit(50)`.",
-      "Membuat semuanya `public` biar simpel. Akibatnya kode mana pun bisa menulis `acct.Balance = -500`, dan aturan di `Deposit` tidak melindungi apa-apa.",
-      "Mengira property sama saja dengan field. Property adalah sepasang method, dan bisa memvalidasi atau menghitung."
+      "Memanggil `BankAccount.Deposit(50)` langsung lewat nama class-nya. `Deposit` milik object, jadi panggil `acct.Deposit(50)`.",
+      "Membuka semua hal jadi `public` biar cepat. Kode luar bisa menulis `acct.Balance = -500` dan menerobos validasi di `Deposit`.",
+      "Mengira property sama persis seperti field. Di balik layar, property adalah sepasang method yang bisa memvalidasi atau menghitung nilai."
     ],
     quiz: [
-      ["Apa yang diizinkan oleh `public decimal Balance { get; private set; }`?", ["Siapa saja boleh membaca dan menulis", "Siapa saja boleh membaca; hanya kode di dalam class itu yang boleh menulis", "Hanya class turunan yang boleh menulis", "Hanya bisa ditulis sekali, di constructor"], "Getter-nya public dan setter-nya private, jadi class itu mengontrol setiap perubahan. Ditulis-sekali-di-constructor adalah arti dari `{ get; }` saja."],
-      ["Apa tugas constructor?", ["Membebaskan memory object nanti", "Menempatkan object baru dalam state awal yang valid", "Dijalankan setiap kali sebuah property dibaca", "Menyalin object yang sudah ada"], "Constructor dijalankan sekali saat object dibuat dan menegakkan aturan object itu sejak awal."],
-      ["Method `static`…", ["dimiliki tiap object secara terpisah", "dimiliki class-nya dan tidak butuh instance", "hanya bisa dipanggil sekali", "otomatis dijalankan saat startup"], "Member static dipanggil lewat type-nya langsung, misalnya `Math.Max(1, 2)`."]
+      ["Apa izin akses yang diberikan `public decimal Balance { get; private set; }`?", ["Siapa saja bebas membaca dan menulis", "Siapa saja bisa membaca, tapi hanya kode di dalam class yang boleh mengubah", "Hanya class turunan yang boleh mengubah", "Hanya bisa diisi sekali di constructor saja"], "Getter-nya public sedangkan setter-nya private, sehingga class tetap memegang kendali perubahan (jika ingin sekali isi di constructor, pakai `{ get; }`)."],
+      ["Apa tugas utama constructor?", ["Membebaskan memori object saat selesai dipakai", "Menyiapkan object baru dalam kondisi awal yang valid", "Berjalan setiap kali ada property dibaca", "Menyalin seluruh data dari object lain"], "Constructor berjalan tepat saat object dibuat untuk menegakkan aturan awalnya sejak pertama ada."],
+      ["Sebuah method `static` itu…", ["dimiliki terpisah oleh masing-masing object", "menempel di tipe class-nya sehingga bisa dipanggil tanpa instance", "hanya bisa dipanggil satu kali saja", "otomatis jalan saat aplikasi mulai"], "Member static dipanggil langsung lewat nama tipenya, seperti `Math.Max(1, 2)`."]
     ]
   },
   memory: {
     terms: [
-      ['Value type (`struct`, `int`)', 'Assignment menyalin seluruh nilainya (`b = a`), jadi mengubah `b` tidak menyentuh `a`.'],
-      ['Reference type (`class`)', 'Variabel menyimpan alamat memori menuju object di heap — menyalin variabel hanya menyalin alamatnya, bukan object-nya.'],
-      ['Immutability', 'Membuat property bertipe `init`-only atau mengembalikan instance baru (`with`) agar referensi bersama tidak menyebabkan mutasi tak sengaja.']
+      ['Value type (`struct`, `int`)', 'Assignment menyalin seluruh nilainya (`b = a`), jadi mengubah `b` tidak akan menyentuh `a`.'],
+      ['Reference type (`class`)', 'Variabel hanya memegang alamat memori menuju object di heap, jadi menyalin variabel cuma menggandakan penunjuknya.'],
+      ['Immutability', 'Mengunci properti dengan `init` atau membuat salinan baru lewat `with` agar referensi bersama tidak berubah diam-diam.']
     ],
-    predict: {
-      prompt: 'Misalkan `p1 = new Person("Ana")`, `p2 = p1`, lalu `p2.Name = "Budi"`. Apa yang dicetak `Console.WriteLine(p1.Name)`?',
-      options: ['`Ana` (`p2` menerima salinan terpisah)', '`Budi` (kedua variabel menunjuk object heap yang sama)', 'Error compiler saat re-assignment'],
-      explain: 'Karena `Person` adalah `class` (reference type), `p2 = p1` menyalin alamat referensinya, bukan object-nya. Mengubah `p2.Name` mengubah satu instance yang dipakai bersama.'
-    },
     title: 'Value type vs reference type',
-    why: "'Kok mengubah satu variabel bikin variabel lain ikut berubah?' adalah salah satu bug membingungkan pertama yang akan kamu temui di C#. Jawabannya soal value semantics versus reference semantics, dan sekali paham, kamu tidak akan lupa.",
+    viz: 'stackheap',
+    predict: {
+      prompt: 'Misalkan `p1 = new Person("Ana")`, lalu `p2 = p1`, kemudian `p2.Name = "Budi"`. Apa yang dicetak `Console.WriteLine(p1.Name)`?',
+      options: ['`Ana` karena `p2` menerima salinan terpisah', '`Budi` karena kedua variabel menunjuk ke object heap yang sama', 'Error compile saat mengubah property'],
+      answer: 1,
+      explain: 'Karena `Person` adalah `class` (reference type), baris `p2 = p1` menyalin alamat referensinya, bukan menggandakan object-nya. Mengubah `p2.Name` langsung mengubah satu-satunya object tersebut.'
+    },
+    why: "'Aku cuma mengubah satu variabel, kok yang lain ikut berubah?' adalah kebingungan paling umum saat belajar C#. Jawabannya ada di aturan value type vs reference type, dan sekali paham kamu takkan tertipu lagi.",
     points: [
-      "**Value type** (`int`, `bool`, `decimal`, `DateTime`, semua `struct` dan `enum`): variabelnya menyimpan datanya langsung. Assignment menyalin datanya.",
-      "**Reference type** (`class`, `string`, array, `List<T>`): variabelnya menyimpan reference ke object di heap. Assignment menyalin reference-nya — dua variabel, satu object.",
-      "Variabel lokal tinggal di stack frame milik method; object yang dibuat dengan `new` dari sebuah class tinggal di managed heap dan dibersihkan oleh garbage collector.",
-      "`string` adalah reference type yang **immutable**, jadi dalam praktik ia berperilaku seperti value: 'mengubah' string sebenarnya membuat string baru.",
-      "`==` pada class membandingkan reference, kecuali type-nya meng-override operator itu, seperti `string` dan record. Value type bawaan membandingkan nilai. `struct` buatanmu sendiri belum punya `==` sampai kamu menulisnya, meski `Equals` membandingkan field-nya.",
-      "`null` berarti reference tidak menunjuk ke apa pun. Value type tidak bisa null kecuali ditulis sebagai `int?`."
+      "**Value type** (`int`, `bool`, `decimal`, `DateTime`, struct, enum) menyimpan data langsung di tempatnya, jadi assignment selalu menyalin nilai.",
+      "**Reference type** (`class`, `string`, array, `List<T>`) menyimpan petunjuk ke object di heap, jadi menyalinnya membuat dua variabel menunjuk satu object.",
+      "Variabel lokal hidup di stack frame method, sedangkan object hasil `new` tinggal di managed heap sampai dibersihkan garbage collector.",
+      "`string` adalah reference type yang **immutable**, sehingga terasa seperti value type karena teks baru selalu menghasilkan object string baru.",
+      "Operator `==` pada class membandingkan alamat memori kecuali di-override seperti pada `string` dan `record`. Struct buatan sendiri belum punya `==` meski `Equals` bisa membandingkan field.",
+      "`null` artinya referensi tidak menunjuk ke mana pun. Value type tidak bisa bernilai null kecuali ditandai nullable seperti `int?`."
     ],
-    practice: "Tebak dulu, baru jalankan: buat `struct Point { public int X; }` dan `class PointC { public int X; }`. Assign masing-masing ke variabel kedua, ubah `X` di variabel kedua, lalu cetak keduanya. Jelaskan kenapa hasilnya berbeda.",
-    teach: "Jelaskan kenapa `p2.Name = \"Budi\"` ikut mengubah `p1.Name`, sedangkan `b = 9` tidak mengubah `a`.",
-    analogy: "Value type itu selembar kertas: kalau difotokopi, coretan di fotokopiannya tidak mengubah aslinya. Reference type itu link ke dokumen online bersama: begitu link-nya kamu bagikan ke teman, editan mereka langsung muncul di layarmu juga.",
+    practice: "Tebak hasilnya lalu jalankan: buat `struct Point { public int X; }` dan `class PointC { public int X; }`. Salin masing-masing ke variabel kedua, ubah `X` pada salinannya, lalu cetak keduanya dan jelaskan perbedaannya.",
+    teach: "Jelaskan kenapa mengubah `p2.Name = \"Budi\"` ikut mengganti `p1.Name`, tapi `b = 9` membiarkan `a` tetap utuh.",
+    analogy: "Value type seperti selembar kertas yang difotokopi: coretan di fotokopian tidak mengubah kertas asli. Reference type mirip link Google Docs: kalau temanmu mengedit lewat link tersebut, layar kamu ikut berubah.",
     pitfalls: [
-      "'Value type tinggal di stack, reference type di heap' itu hanya kira-kira benar: field struct di dalam class ikut tinggal di heap bersama class itu. Pikirkan dulu disalin atau dibagi; lokasi byte-nya urusan kedua.",
-      "Mengira mengirim object ke method berarti menyalin object-nya. Yang disalin adalah reference-nya.",
-      "Berharap `Replace(p1)` mengubah variabel milik pemanggil. Tanpa `ref`, yang diarahkan ulang hanya reference lokal di dalam method."
+      "Patokan 'value type selalu di stack, reference di heap' hanya kasar. Field struct di dalam class tetap duduk di heap, jadi pikirkan aturan disalin atau dibagi dulu.",
+      "Mengira mengirim class ke parameter method otomatis menggandakannya. Yang disalin tetap cuma referensinya.",
+      "Mengharapkan `Replace(p1)` mengganti variabel milik pemanggil. Tanpa kata kunci `ref`, yang tertukar cuma referensi lokal di parameter."
     ],
     quiz: [
-      ["Setelah `var x = new List<int>{1}; var y = x; y.Add(2);`, ada berapa item di `x`?", ["1, karena `y` adalah salinan", "2", "0", "Tidak bisa di-compile"], "`List<T>` adalah reference type; `x` dan `y` menunjuk ke list yang sama."],
-      ["Mana yang termasuk value type?", ["`string`", "`int[]`", "`DateTime`", "`List<int>`"], "`DateTime` adalah struct. `string`, array, dan `List<T>` adalah reference type — termasuk `int[]`, array berisi value type."],
-      ["Kenapa `string` terasa seperti value type?", ["Karena disimpan di stack", "Karena immutable dan `==` membandingkan karakternya", "Karena ia sebuah struct", "Karena compiler menyalinnya di setiap assignment"], "String adalah object di heap, tapi tidak pernah bisa berubah, dan `==` di-overload untuk membandingkan karakternya."]
+      ["Setelah `var x = new List<int>{1}; var y = x; y.Add(2);` berapa jumlah isi `x`?", ["1, karena `y` hasil salinan", "2", "0", "Error compile"], "`List<T>` bertipe reference, jadi `x` dan `y` sama-sama menunjuk ke satu list."],
+      ["Manakah dari pilihan berikut yang termasuk value type?", ["`string`", "`int[]`", "`DateTime`", "`List<int>`"], "`DateTime` adalah struct. Sebaliknya, `string`, `List<T>`, dan array `int[]` semuanya reference type."],
+      ["Kenapa `string` terasa seperti value type saat dipakai?", ["Disimpan langsung di stack", "Sifatnya immutable dan `==` membandingkan isi teksnya", "Bentuk aslinya adalah struct", "Compiler otomatis menggandakannya di tiap assignment"], "Meskipun tinggal di heap, sifat immutable dan perbandingan isi pada `==` membuatnya berperilaku seperti nilai."]
     ]
   },
   interfaces: {
     terms: [
-      ['Interface (`IPayment`)', 'Kontrak tentang *apa* yang bisa dilakukan sebuah type tanpa mendikte *bagaimana* — memungkinkan test mengganti Stripe asli dengan fake.'],
-      ['Polimorfisme', 'Memanggil `.Charge(...)` lewat variabel bertipe `IPayment` dan tiap class konkret menjalankan implementasinya sendiri.'],
-      ['Composition over inheritance', 'Menyimpan dependency sebagai field (`class OrderService(IPayment pay)`) alih-alih pohon inheritance `BaseOrderService` yang kaku.']
+      ['Interface (`IPayment`)', 'Kontrak tentang *apa* kemampuan suatu tipe tanpa mengatur caranya, memudahkan unit test menukar layanan asli dengan tiruan.'],
+      ['Polymorphism', 'Memanggil `.Charge(...)` lewat referensi `IPayment` agar tiap class konkret menjalankan kodenya sendiri.'],
+      ['Composition over inheritance', 'Menyimpan helper di field (`class OrderService(IPayment pay)`) ketimbang membangun pohon pewarisan class yang kaku.']
     ],
-    title: 'Interface, inheritance, dan polymorphism',
-    why: "ASP.NET Core bersandar pada interface di mana-mana: kamu meminta `ILogger<T>`, mendaftarkan service di `IServiceCollection`, membaca setting lewat `IConfiguration`. Dependency injection dan unit testing baru masuk akal setelah interface dipahami.",
+    title: 'Interface, pewarisan, dan polymorphism',
+    why: "ASP.NET Core penuh dengan interface seperti `ILogger<T>`, `IServiceCollection`, dan `IConfiguration`. Begitu mengerti interface, cara kerja dependency injection dan kode yang mudah di-test langsung masuk akal.",
     points: [
-      "**Interface** adalah kontrak: daftar member yang dijanjikan akan disediakan oleh sebuah class. Interface tidak menyimpan data instance.",
-      "**Polymorphism**: kode yang ditulis terhadap `INotifier` bisa bekerja dengan notifier apa pun, termasuk yang baru ditulis tahun depan.",
-      "Inheritance (`class Dog : Animal`) berbagi implementasi. `virtual` menandai method yang boleh di-`override` oleh subclass; `abstract` menandai yang wajib.",
-      "Sebuah class hanya bisa mewarisi satu base class, tapi bisa mengimplementasikan banyak interface.",
-      "Utamakan **composition dan interface** daripada pohon inheritance yang dalam. Inheritance mengikatmu ke detail implementasi milik parent."
+      "**Interface** berisi kontrak murni berupa daftar method dan property tanpa menyimpan data instance.",
+      "Dengan **polymorphism**, kode yang memakai `INotifier` tetap cocok dengan implementasi baru apa pun nanti.",
+      "Pewarisan (`class Dog : Animal`) dipakai untuk berbagi kode induk. Beri penanda `virtual` agar subclass boleh me-`override`, atau `abstract` jika wajib diisi.",
+      "Satu class hanya boleh mewarisi satu class induk, tapi bebas mengimplementasikan banyak interface.",
+      "Lebih baik mengutamakan komposisi dan interface kecil ketimbang hierarki class yang dalam dan saling mengunci."
     ],
-    practice: "Tambahkan `FakeNotifier` yang mencatat pesan ke `List<string>` alih-alih mengirimkannya. Pakai untuk memastikan `OrderService.Place` mengirim tepat satu pesan. Fake itu adalah test double, dasar dari unit testing. Lalu tambahkan `Bird` yang meng-override `Move`, dan coba tulis `new` alih-alih `override` untuk melihat apa yang berubah.",
-    teach: "Jelaskan apa itu interface dan kenapa `OrderService` meminta `INotifier` alih-alih membuat `EmailNotifier` sendiri.",
-    analogy: "Interface itu stopkontak di dinding. Lampu tidak peduli listriknya berasal dari batu bara, panel surya, atau genset; ia hanya butuh bentuk colokannya pas. Ganti pembangkitnya, lampunya tetap menyala.",
+    practice: "Buat `FakeNotifier` yang menampung pesan ke `List<string>` dan pakai untuk mengecek apakah `OrderService.Place` mengirim satu pesan. Setelah itu tambahkan `Bird` yang meng-override `Move`, lalu coba ganti `override` dengan `new`.",
+    teach: "Jelaskan apa fungsi interface dan kenapa `OrderService` lebih baik meminta `INotifier` ketimbang membuat `EmailNotifier` sendiri.",
+    analogy: "Interface itu seperti stopkontak dinding. Lampu tak peduli listrik datang dari panel surya atau PLTA selama colokannya pas. Pembangkitnya boleh diganti, lampunya tetap menyala.",
     pitfalls: [
-      "Refleks membuat interface untuk setiap class. Interface baru layak ada kalau memang ada, atau akan ada, beberapa implementasi atau sebuah test double.",
-      "Menulis `new` alih-alih `override` pada method. Kodenya tetap ter-compile (dengan warning), tapi kode yang memegang reference `Animal` tetap memanggil versi base-nya.",
-      "Memakai inheritance hanya untuk reuse kode di antara hal yang tidak berhubungan. Hubungan 'is-a' harus benar di setiap tempat base type-nya dipakai."
+      "Kebiasaan membuat interface untuk setiap class. Interface baru berguna saat memang ada banyak implementasi atau butuh fake untuk test.",
+      "Menulis `new` padahal maunya `override` pada method turunan. Kode lolos compile dengan warning, tapi referensi induk tetap memanggil method lama.",
+      "Memakai pewarisan cuma demi menyalin kode antar benda yang tak nyambung. Hubungan pewarisan harus selalu masuk akal."
     ],
     quiz: [
-      ["Berapa banyak interface yang bisa diimplementasikan satu class C#?", ["Satu", "Maksimal dua", "Berapa pun", "Tidak bisa kalau sudah punya base class"], "Sebuah class punya paling banyak satu base class, tapi bisa mengimplementasikan interface sebanyak apa pun."],
-      ["Method di base class harus ditandai apa supaya `override` bisa dipakai?", ["`static`", "`virtual` atau `abstract`", "`sealed`", "`public` saja sudah cukup"], "Hanya member yang virtual, abstract, atau sudah di-override yang bisa di-override. Sekadar public tidak cukup."],
-      ["Keuntungan utama `OrderService(INotifier notifier)` dibanding `new EmailNotifier()` di dalam class adalah…", ["Pemanggilannya jadi lebih cepat", "Dependency-nya bisa diganti atau dipalsukan tanpa mengubah `OrderService`", "`OrderService` tidak lagi butuh constructor", "`OrderService` jadi tidak bisa diwarisi"], "Bergantung pada abstraksi melepaskan class dari implementasi konkret. Itulah dasar DI dan testing."]
+      ["Berapa banyak interface yang boleh diimplementasikan satu class C#?", ["Satu saja", "Maksimal dua", "Bebas sebanyak apa pun", "Tidak boleh jika sudah punya class induk"], "Satu class hanya boleh punya satu induk class, tapi bebas menerapkan berapapun interface."],
+      ["Penanda apa yang wajib ada di method induk agar bisa di-`override`?", ["`static`", "`virtual` atau `abstract`", "`sealed`", "`public` saja sudah cukup"], "Hanya member `virtual`, `abstract`, atau hasil override sebelumnya yang boleh di-override lagi."],
+      ["Keuntungan utama `OrderService(INotifier notifier)` dibanding langsung `new EmailNotifier()` di dalam class adalah…", ["Panggilan method jadi lebih cepat", "Implementasinya bisa ditukar atau dibuatkan fake tanpa mengubah `OrderService`", "`OrderService` jadi tak butuh constructor", "Mencegah `OrderService` diwarisi class lain"], "Bergantung pada abstraksi memisahkan class dari implementasi konkret, dan itulah dasar dependency injection."]
     ]
   },
   generics: {
     terms: [
-      ['`List<T>` vs `Dictionary<K,V>` vs `HashSet<T>`', '`List` diakses berdasar indeks; `Dictionary` dan `HashSet` memakai hash untuk pencarian key atau keunikan O(1) instan.'],
-      ['Parameter generik `<T>`', 'Placeholder type yang diisi saat compile time sehingga `Repository<Product>` aman terhadap type tanpa boxing.'],
-      ['`IEnumerable<T>`', 'Urutan data baca-saja maju satu arah untuk di-loop atau di-query dengan LINQ tanpa mewajibkan pemanggil mengirim `List`.']
+      ['`List<T>` vs `Dictionary<K,V>` vs `HashSet<T>`', '`List` mencari lewat urutan, sementara `Dictionary` dan `HashSet` memakai hashing untuk lookup O(1) dan cek keunikan instan.'],
+      ['Generic parameter `<T>`', 'Placeholder tipe yang diisi saat compile time agar `Repository<Product>` aman tipe tanpa boxing.'],
+      ['`IEnumerable<T>`', 'Urutan data sekali jalan yang mendukung loop dan LINQ tanpa mewajibkan pemanggil mengirim `List`.']
     ],
-    title: 'Collection dan generics',
-    why: "Sebagian besar isi program sungguhan adalah kumpulan data. Memilih antara `List`, `Dictionary`, dan `HashSet` biasanya jadi keputusan performance pertamamu, sering tanpa kamu sadari.",
+    title: 'Koleksi dan generics',
+    why: "Sebagian besar program nyata mengolah daftar data. Memilih antara `List`, `Dictionary`, dan `HashSet` sering menjadi keputusan performa pertama kamu, kadang tanpa disadari.",
     points: [
-      "`List<T>`: berurutan, bisa diakses lewat index, membesar otomatis. Mencari item berdasarkan value itu O(n).",
-      "`Dictionary<TKey, TValue>`: dari key ke value dalam O(1) rata-rata. Pakai `TryGetValue`, jangan menangkap exception.",
-      "`HashSet<T>`: item unik dengan `Contains` yang cepat. `Queue<T>` dan `Stack<T>` untuk yang masuk-pertama-keluar-pertama dan masuk-terakhir-keluar-pertama.",
-      "**Generics** membuat satu class bisa dipakai untuk type apa pun sambil tetap type-safe: `List<int>` tidak bisa diisi string, dan tidak perlu casting.",
-      "Constraint mempersempit apa saja yang boleh jadi `T`: `where T : IComparable<T>`, `where T : class, new()`.",
-      "Terima type paling umum yang kamu butuhkan (`IEnumerable<T>`, `IReadOnlyList<T>`) dan kembalikan type paling spesifik yang berguna."
+      "`List<T>` rapi sesuai urutan, punya indeks, dan ukurannya fleksibel. Namun mencari isi di dalamnya butuh waktu O(n).",
+      "`Dictionary<TKey, TValue>` memetakan key ke nilai dalam rata-rata O(1). Pakai `TryGetValue` untuk membaca agar tak butuh try/catch.",
+      "`HashSet<T>` menjamin item unik dengan pencarian `Contains` yang ngebut, sedangkan `Queue<T>` (antrean) dan `Stack<T>` (tumpukan) mengatur urutan keluar-masuk.",
+      "**Generics** membuat satu kode bisa melayani banyak tipe dengan aman: `List<int>` menolak teks tanpa perlu cast manual.",
+      "Constraint membatasi tipe `T` yang boleh masuk, misalnya `where T : IComparable<T>` atau `where T : class, new()`.",
+      "Terima tipe parameter yang longgar seperti `IEnumerable<T>` atau `IReadOnlyList<T>`, lalu kembalikan hasil yang cukup spesifik."
     ],
-    practice: "Hitung frekuensi kata dalam sebuah paragraf memakai `Dictionary<string, int>`, lalu cetak tiga teratas. Setelah itu tulis class generic `Result<T>` yang menyimpan value atau pesan error.",
-    teach: "Jelaskan kenapa mencari item di `Dictionary` lebih cepat daripada di `List`, dan apa manfaat `<T>` pada `List<T>`.",
-    analogy: "`List` itu antrean orang: untuk mencari Budi kamu harus bertanya ke tiap orang satu per satu. `Dictionary` itu penitipan barang: kamu serahkan nomor 42, petugasnya langsung berjalan ke rak nomor 42.",
+    practice: "Hitung frekuensi kata dalam satu paragraf memakai `Dictionary<string, int>`, lalu cetak tiga besarnya. Kemudian tulis class generik `Result<T>` yang menyimpan nilai sukses atau pesan error.",
+    teach: "Jelaskan alasan mencari data di `Dictionary` jauh lebih cepat daripada di `List`, dan apa manfaat `<T>` di `List<T>`.",
+    analogy: "Mencari di `List` seperti menyusuri antrean orang satu per satu demi menemukan Budi. `Dictionary` itu tempat penitipan jaket: kamu serahkan karcis nomor 42 dan petugas langsung menuju gantungan 42.",
     pitfalls: [
-      "Memanggil `list.Contains()` di dalam loop atas list lain: O(n²) tanpa sengaja. Ubah salah satunya jadi `HashSet` dulu.",
-      "Membaca `dict[key]` untuk key yang tidak ada lalu kena `KeyNotFoundException`.",
-      "Menambah atau menghapus item di dalam `foreach` atas list yang sama. Hasilnya `InvalidOperationException`; loop atas salinannya (`list.ToList()`) atau kumpulkan perubahannya lalu terapkan setelah loop selesai."
+      "Memanggil `list.Contains()` di dalam loop lain sehingga kompleksitasnya membengkak diam-diam jadi O(n kuadrat). Pindahkan dulu ke `HashSet`.",
+      "Membaca langsung `dict[key]` saat key-nya tidak ada dan berujung `KeyNotFoundException`.",
+      "Menambah atau menghapus item di tengah `foreach`. Salin dulu (`list.ToList()`) atau catat perubahan lalu terapkan setelah loop selesai."
     ],
     quiz: [
-      ["Kamu perlu mengecek ribuan kali apakah sebuah ID sudah pernah muncul. Pilihan terbaik?", ["`List<int>` dengan `Contains`", "`int[]` yang dicari dengan loop", "`HashSet<int>`", "`Queue<int>`"], "`HashSet.Contains` rata-rata O(1); menelusuri list atau array itu O(n)."],
-      ["Apa yang disyaratkan `where T : new()`?", ["T adalah value type", "T punya public constructor tanpa parameter", "T sudah dibuat dengan `new` sebelum dikirim", "T mengimplementasikan `ICloneable`"], "Constraint `new()` membuat kode generic bisa menulis `new T()`."],
-      ["Cara terbaik membaca key dictionary yang mungkin tidak ada?", ["`dict[key]` di dalam try/catch", "`dict.TryGetValue(key, out var v)`", "`dict.ContainsKey(key)`, lalu `dict[key]`", "`dict.Keys.First(k => k == key)`"], "`TryGetValue` hanya melakukan satu lookup. `ContainsKey` lalu indexer memang jalan, tapi mencari key-nya dua kali; try/catch lambat dan menyembunyikan maksudmu."]
+      ["Kamu harus mengecek ribuan kali apakah suatu ID sudah pernah muncul. Pilihan paling tepat?", ["`List<int>` dengan `Contains`", "`int[]` dicari pakai loop", "`HashSet<int>`", "`Queue<int>`"], "Pengecekan `HashSet.Contains` rata-rata O(1), jauh lebih cepat dibanding menyapu list atau array satu-satu (O(n))."],
+      ["Apa syarat yang diminta oleh constraint `where T : new()`?", ["T harus berupa value type", "T punya constructor public tanpa parameter", "T harus sudah dibuat dengan `new` sebelum dikirim", "T mengimplementasikan `ICloneable`"], "Constraint `new()` mengizinkan kode generik memanggil `new T()` dengan aman."],
+      ["Cara paling pas membaca key dictionary yang belum tentu ada?", ["Pakai `dict[key]` di dalam try/catch", "`dict.TryGetValue(key, out var v)`", "Cek `dict.ContainsKey(key)` dulu lalu baca `dict[key]`", "Cari lewat `dict.Keys.First(k => k == key)`"], "`TryGetValue` hanya mencari sekali di tabel hash. Menggabungkan `ContainsKey` dan indexer mencari dua kali, dan try/catch lambat."]
     ]
   },
   errors: {
     terms: [
-      ['`using` / `IDisposable`', 'Menjamin handle eksternal (file, soket, koneksi DB) tertutup deterministik meski exception dilempar di tengah method.'],
-      ['Urutan filter / catch', 'Tangkap exception spesifik (`FileNotFoundException`) di batas tempat kamu bisa memulihkannya; jangan telan `Exception` diam-diam.'],
-      ['Pattern Result vs Exception', 'Kembalikan nilai hasil/error validasi (seperti 404/400 `Result`) untuk alur wajar; lempar exception hanya untuk kegagalan tak terduga.']
+      ['`using` / `IDisposable`', 'Menutup file, socket, dan koneksi database tepat saat blok selesai meski terjadi error di tengah method.'],
+      ['Exception filter / catch order', 'Tangkap error spesifik (`FileNotFoundException`) di tempat yang bisa pulih daripada menelan semua `Exception` begitu saja.'],
+      ['Result pattern vs Exceptions', 'Kembalikan error validasi sebagai nilai biasa (`Result` atau HTTP 400/404), dan simpan exception untuk kejadian tak terduga.']
     ],
-    title: 'Exception dan cleanup',
-    why: "Hal-hal bisa gagal: file hilang, jaringan putus, user mengetik asal. Cara kamu melempar, menangkap, dan membereskan sesudahnya menentukan apakah kegagalan itu jadi pesan yang jelas dan baris log yang berguna, atau crash yang meninggalkan file setengah tertulis.",
+    title: 'Exception dan bersih-bersih resource',
+    why: "File bisa hilang, koneksi jaringan bisa putus, dan user bisa mengisi input aneh. Penanganan error menentukan apakah kegagalan menghasilkan log yang rapi atau merusak data di tengah jalan.",
     points: [
-      "Exception menghentikan method yang sedang jalan lalu naik ke atas call stack sampai bertemu `catch` yang cocok. Kalau tidak ada yang menangkap, program berhenti dan mencetak stack trace.",
-      "Tangkap exception hanya di tempat kamu bisa melakukan sesuatu yang berguna: retry, menampilkan pesan, memakai fallback. Selain itu, biarkan naik. ASP.NET Core mengubah exception yang tidak tertangani menjadi response 500 dan sebuah log entry.",
-      "Tangkap type yang spesifik (`FileNotFoundException`, `FormatException`) sebelum yang umum. `catch { }` yang kosong menyembunyikan bug.",
-      "Di dalam `catch`, `throw;` melempar ulang dan mempertahankan stack trace aslinya. `throw ex;` me-reset-nya, dan kamu kehilangan baris tempat masalahnya bermula.",
-      "`finally` selalu jalan: saat sukses, saat ada exception, bahkan setelah `return`. `using` adalah bentuk singkat dari `finally` yang paling umum, yaitu memanggil `Dispose()` pada file, koneksi, dan HTTP response.",
-      "Exception itu untuk kegagalan yang tidak kamu duga. Untuk hasil yang memang bisa diduga, seperti input user yang tidak valid, pakai method gaya `TryParse` atau kembalikan sebuah result."
+      "Saat exception muncul, eksekusi mundur melewati call stack sampai bertemu `catch` yang cocok. Bila tak ada yang menangkap, program berhenti.",
+      "Tangkap error hanya di titik kamu sanggup mengambil tindakan (retry, fallback, atau bungkus ulang). Di ASP.NET Core, error bebas naik lalu dicatat handler global.",
+      "Urutkan penangkap spesifik (`FileNotFoundException`, `FormatException`) sebelum yang umum, dan jangan tinggalkan blok `catch { }` kosong.",
+      "Di dalam `catch`, pakai `throw;` tanpa nama variabel agar stack trace asli tidak hilang. Menulis `throw ex;` menimpa lokasi awal error.",
+      "Blok `finally` pasti jalan entah sukses ataupun gagal. Menulis `using` otomatis diterjemahkan compiler menjadi `finally { resource.Dispose(); }`.",
+      "Simpan exception untuk gangguan tak terduga. Untuk validasi input yang wajar, pakai `TryParse` atau tipe balikan `Result`."
     ],
-    practice: "Tulis method yang membaca angka dari file teks, satu per baris, lalu mengembalikan jumlahnya. Tentukan apa yang harus terjadi untuk file yang tidak ada, baris kosong, dan baris seperti `12a`: mana yang exception, dan mana yang input biasa? Lalu buat pembacaannya gagal dengan sengaja dan pakai breakpoint untuk memastikan `Dispose()` tetap jalan.",
-    teach: "Jelaskan kapan kamu menangkap exception dan kapan kamu membiarkannya naik, pakai `ReadFirstLine` dan `ParseAge` sebagai contoh.",
-    analogy: "Exception itu alarm kebakaran: ia menyela apa pun yang sedang terjadi, dan bunyinya terus naik ke lantai atas sampai ada orang yang tahu harus berbuat apa. `catch` adalah orang itu. `catch` yang kosong sama dengan mencabut baterai alarmnya.",
+    practice: "Baca file teks baris per baris dan jumlahkan angkanya. Tentukan respons untuk file hilang, baris kosong, dan teks `12a`, lalu paksakan gagal baca untuk memastikan `Dispose()` tetap terpanggil.",
+    teach: "Jelaskan kapan harus menangkap exception dan kapan membiarkannya naik lewat contoh `ReadFirstLine` dan `ParseAge`.",
+    analogy: "Exception mirip alarm kebakaran yang berbunyi naik ke lantai atas sampai ada petugas terlatih (`catch`) yang menanganinya. Memakai `catch` kosong sama seperti mencabut baterai alarm saat ada api.",
     pitfalls: [
-      "`catch (Exception) { }` tanpa isi. Program jalan terus dalam keadaan rusak dan log-nya tidak menunjukkan apa-apa.",
-      "`throw ex;` alih-alih `throw;`. Stack trace-nya sekarang dimulai di `catch` milikmu, jadi baris yang sebenarnya gagal hilang.",
-      "Menangkap exception di setiap method 'biar aman'. Tangkap di tempat kamu bisa bertindak; kebanyakan method sebaiknya membiarkan exception lewat.",
-      "Memakai exception untuk hasil yang normal seperti 'user tidak ditemukan' atau field form yang salah. Lambat, dan alurnya jadi susah diikuti."
+      "Menulis `catch (Exception) { }` kosong lalu membiarkan aplikasi lanjut dengan data rusak tanpa jejak di log.",
+      "Memakai `throw ex;` padahal harusnya `throw;`, sehingga baris sumber masalahnya terhapus dari stack trace.",
+      "Membungkus semua method kecil pakai `try/catch` 'untuk jaga-jaga', bukan membiarkannya ditangani di pemanggil terluar atau handler global.",
+      "Memakai exception untuk kasus wajar seperti format angka salah atau data tidak ditemukan."
     ],
     quiz: [
-      ["Di dalam `catch`, apa bedanya `throw;` dengan `throw ex;`?", ["Sama saja", "`throw;` melempar ulang dan mempertahankan stack trace aslinya", "`throw;` menelan exception-nya", "`throw;` melempar `Exception` baru tanpa pesan"], "`throw ex;` me-reset stack trace ke baris saat ini; `throw;` mempertahankan tempat masalahnya benar-benar bermula."],
-      ["Kapan blok `finally` dijalankan?", ["Hanya kalau ada exception", "Hanya kalau tidak ada exception", "Selalu: saat sukses, saat ada exception, dan setelah `return`", "Hanya kalau tidak ada blok `catch`"], "Jaminan itulah yang membuat `finally`, dan `using`, aman untuk cleanup."],
-      ["User mengetik `12a` di field umur. Cara yang lebih baik untuk menanganinya?", ["`int.Parse` di dalam try/catch", "`int.TryParse`, lalu tampilkan pesan validasi kalau hasilnya `false`", "Biarkan exception-nya sampai ke global error handler", "`Convert.ToInt32` di dalam catch kosong"], "Input yang salah itu bisa diduga, bukan kejadian luar biasa. `TryParse` melaporkannya tanpa biaya dan keributan sebuah exception."],
-      ["Apa yang dijamin oleh `using var conn = new SqlConnection(cs);`?", ["Koneksinya tetap terbuka sampai program selesai", "`Dispose()` dipanggil saat scope berakhir, bahkan kalau ada exception", "Koneksinya terbuka otomatis", "Koneksinya dipakai bersama oleh semua thread"], "`using` di-compile menjadi try/finally dengan `Dispose()` di blok `finally`."]
+      ["Di dalam blok `catch`, apa beda `throw;` dengan `throw ex;`?", ["Keduanya sama persis", "`throw;` meneruskan error dengan tetap menjaga stack trace aslinya", "`throw;` langsung menelan exception", "`throw;` membuat `Exception` baru tanpa pesan"], "`throw ex;` mengatur ulang posisi error ke baris catch sekarang, sedangkan `throw;` menjaga asal masalah sesungguhnya."],
+      ["Kapan blok `finally` dijalankan?", ["Hanya kalau terjadi exception", "Hanya kalau tidak ada exception", "Selalu jalan: saat sukses, saat gagal, dan bahkan setelah `return`", "Hanya jika tidak ada blok `catch`"], "Jaminan selalu jalan inilah yang membuat `finally` dan `using` aman untuk membersihkan resource."],
+      ["User mengetik `12a` di kolom umur. Cara terbaik menanganinya?", ["`int.Parse` di dalam try/catch", "`int.TryParse`, lalu tampilkan pesan validasi jika hasilnya `false`", "Biarkan error naik ke global error handler", "`Convert.ToInt32` dengan blok catch kosong"], "Input salah itu kejadian biasa, bukan error sistem. `TryParse` memeriksanya cepat tanpa biaya exception."],
+      ["Apa jaminan dari baris `using var conn = new SqlConnection(cs);`?", ["Koneksi terus terbuka sampai program selesai", "`Dispose()` otomatis dipanggil di akhir scope, meski ada exception", "Koneksi terbuka seketika tanpa dipanggil", "Koneksi aman dipakai bersamaan banyak thread"], "`using` diubah compiler menjadi blok try/finally yang selalu memanggil `Dispose()`."]
     ]
   },
   linq: {
     terms: [
-      ['Deferred execution', 'Operator query (`Where`, `Select`) baru menyusun resepnya; belum ada item yang diuji sampai `.ToList()`, `.First()`, atau `foreach` berjalan.'],
-      ['`IEnumerable<T>` vs `IQueryable<T>`', '`IEnumerable` menjalankan lambda di memori C#; `IQueryable` menyimpan expression tree supaya EF Core menerjemahkannya jadi SQL.'],
-      ['`Any()` vs `Count() > 0`', '`Any()` berhenti di item cocok pertama (`EXISTS` di SQL), sedangkan `Count()` bisa memindai seluruh baris secara percuma.']
+      ['Deferred execution', 'Operator seperti `Where` dan `Select` baru mencatat rencananya. Data baru diproses waktu `.ToList()`, `.First()`, atau `foreach` berjalan.'],
+      ['`IEnumerable<T>` vs `IQueryable<T>`', '`IEnumerable` menjalankan lambda atas object di memori, sementara `IQueryable` menyimpan pohon ekspresi untuk diterjemahkan EF Core jadi SQL.'],
+      ['`Any()` vs `Count() > 0`', '`Any()` langsung berhenti pada item cocok pertama (`EXISTS` di SQL), sedangkan `Count()` berisiko menghitung seluruh baris sia-sia.']
     ],
-    title: 'LINQ: query untuk apa saja',
-    why: "LINQ adalah cara kode C# memfilter, mengubah, dan merangkum data: di memory, dan lewat EF Core, di SQL. Inilah jembatan antara track ini dan track SQL.",
+    title: 'LINQ: mengolah data apa saja',
+    viz: 'linq',
+    why: "LINQ adalah cara C# menyaring, mengubah, dan meringkas data baik di memori maupun di SQL lewat EF Core. Ini jembatan langsung antara track C# dan SQL.",
     points: [
-      "Method LINQ adalah extension method pada `IEnumerable<T>`: `Where` memfilter, `Select` mengubah, `OrderBy` mengurutkan, `GroupBy` mengelompokkan.",
-      "Lambda seperti `x => x.Price > 10` adalah function kecil inline yang dikirim sebagai argumen.",
-      "**Deferred execution**: menyusun query belum mengerjakan apa-apa. Query baru jalan saat di-enumerate (`foreach`, `ToList()`, `Count()`, `First()`).",
-      "Setiap enumerasi menjalankan ulang query-nya. Panggil `ToList()` sekali kalau hasilnya mau dipakai berkali-kali.",
-      "`First()` melempar exception kalau sequence-nya kosong, `FirstOrDefault()` mengembalikan `null` atau nilai default, `Single()` menuntut tepat satu.",
-      "Pada `IQueryable<T>` (EF Core), method yang sama diterjemahkan jadi SQL, bukan dijalankan di memory."
+      "LINQ menambah extension method ke `IEnumerable<T>` seperti `Where` (saring), `Select` (ubah bentuk), `OrderBy` (urutkan), dan `GroupBy` (kelompokkan).",
+      "Lambda ringkas seperti `x => x.Price > 10` ditulis langsung sebagai argumen ke dalam operator LINQ.",
+      "Berkat **deferred execution**, menyusun query tidak langsung mengolah data. Data baru diproses saat diulang memakai `foreach`, `ToList()`, `Count()`, atau `First()`.",
+      "Mengulang query yang sama dua kali ikut menjalankan kodenya dua kali. Simpan hasilnya lewat `ToList()` kalau datanya mau dibaca berulang.",
+      "`First()` mengeluarkan error bila kosong, `FirstOrDefault()` mengembalikan `null` atau nilai `default`, dan `Single()` mewajibkan pas satu hasil.",
+      "Pada `IQueryable<T>` milik EF Core, operator LINQ diterjemahkan menjadi query SQL, bukan perulangan di memori C#."
     ],
-    practice: "Dari list order (customer, amount, date), pakai LINQ untuk mencari total belanja tiap customer, diurutkan dari yang terbesar, ambil tiga teratas saja. Lalu taruh `Console.WriteLine` di dalam lambda `Where` dan amati kapan persisnya ia tercetak.",
-    teach: "Jelaskan deferred execution: kenapa query LINQ dengan `Where` dan `Select` tidak mengerjakan apa pun sampai ada `foreach` atau `ToList()`?",
-    analogy: "Query LINQ itu lembar instruksi yang ditempel di atas jalur perakitan: 'ambil yang merah, cat, kemas tiga yang pertama'. Menulis instruksinya tidak menggerakkan satu kotak pun. Jalurnya baru bergerak saat ada orang berdiri di ujung dan meminta hasilnya.",
+    practice: "Dari daftar pesanan (pelanggan, total, tanggal), hitung belanja tiap pelanggan memakai LINQ, urutkan tertinggi ke terendah, lalu ambil tiga besar. Setelah itu selipkan `Console.WriteLine` di dalam lambda `Where` dan amati kapan teksnya tercetak.",
+    teach: "Jelaskan maksud deferred execution: kenapa query LINQ berisi `Where` dan `Select` diam saja sebelum bertemu `foreach` atau `ToList()`?",
+    analogy: "Query LINQ itu daftar instruksi di atas ban berjalan: 'ambil yang merah, cat ulang, masukkan tiga pertama ke dus'. Menulis aturan itu belum menggerakkan satu dus pun sampai ada petugas datang meminta barang jadinya.",
     pitfalls: [
-      "Meng-enumerate query yang sama dua kali sehingga langkah yang mahal, atau panggilan ke database, jalan dua kali.",
-      "Menulis `Count() > 0` untuk bertanya 'ada atau tidak?'. Pada sequence biasa `Count()` menelusuri semuanya, sedangkan `Any()` berhenti di item pertama. Pada `List` bedanya kecil, tapi `Any()` lebih jelas maksudnya, dan di EF Core ia jadi query `EXISTS` yang lebih murah.",
-      "Memanggil `ToList()` di tengah query EF Core dan diam-diam menarik seluruh isi tabel ke memory."
+      "Menjalankan loop pada satu query LINQ berkali-kali hingga tanpa sadar memanggil database dua kali.",
+      "Menulis `Count() > 0` sekadar untuk mengecek ketersediaan data. `Any()` lebih tepat maksudnya dan berubah jadi `EXISTS` yang hemat di EF Core.",
+      "Memanggil `ToList()` di tengah query EF Core sehingga seluruh isi tabel tersedot ke memori dulu baru disaring."
     ],
     quiz: [
-      ["Kapan `var q = items.Where(x => x > 5);` memfilter item-nya?", ["Saat itu juga, ketika baris itu dijalankan", "Saat `q` di-enumerate", "Saat method-nya selesai", "Saat `q` pertama kali di-assign ke variabel lain"], "Operator LINQ itu lazy; pekerjaannya baru terjadi saat enumerasi."],
-      ["Pemanggilan mana yang melempar exception kalau sequence-nya kosong?", ["`FirstOrDefault()`", "`Any()`", "`First()`", "`Where()`"], "`First()` menuntut minimal satu elemen."],
-      ["Cara terbaik untuk bertanya 'apakah ada minimal satu yang cocok?'", ["`Count() > 0`", "`Any()`", "`ToList().Count > 0`", "`FirstOrDefault() != null`"], "`Any()` berhenti di kecocokan pertama. `FirstOrDefault() != null` salah untuk value type, karena default-nya `0`, bukan `null`."]
+      ["Kapan baris `var q = items.Where(x => x > 5);` mulai menyaring item?", ["Langsung saat baris itu dieksekusi", "Ketika `q` mulai dibaca atau diulang", "Saat method-nya selesai dipanggil", "Saat `q` disalin ke variabel baru"], "Query LINQ bersifat lazy dan baru bekerja saat enumerasi dimulai."],
+      ["Panggilan mana yang gagal dengan error jika urutannya kosong?", ["`FirstOrDefault()`", "`Any()`", "`First()`", "`Where()`"], "`First()` mengharuskan minimal ada satu elemen yang cocok."],
+      ["Cara paling tepat untuk mengecek 'apakah ada minimal satu data yang cocok?'", ["`Count() > 0`", "`Any()`", "`ToList().Count > 0`", "`FirstOrDefault() != null`"], "`Any()` berhenti saat ketemu yang pertama. Menguji `FirstOrDefault() != null` justru salah pada angka karena nilai bakunya `0`, bukan `null`."]
     ]
   },
   delegates: {
     terms: [
-      ['Delegate (`Func<>` / `Action<>`)', 'Referensi bertipe aman ke sebuah fungsi (`Func<int, bool>` menerima `int` dan mengembalikan `bool`; `Action` tanpa nilai balik).'],
+      ['Delegate (`Func<>` / `Action<>`)', 'Referensi fungsi bertipe aman (`Func<int, bool>` menerima `int` lalu kembali `bool`, sedangkan `Action` tanpa nilai balik).'],
       ['Lambda (`x => x * 2`)', 'Fungsi anonim sebaris yang langsung diteruskan ke LINQ, middleware, atau event handler.'],
-      ['Closure capture', 'Lambda mengingat variabel luar — hati-hati menangkap variabel loop yang berubah atau menahan object besar tetap hidup di memori.']
+      ['Closure capture', 'Lambda yang menjaga akses langsung ke variabel luar. Hati-hati terhadap loop counter yang berubah atau object besar yang tertahan di memori.']
     ],
     title: 'Delegate, lambda, dan event',
-    why: "Mengoper function sebagai value adalah bahan dasar LINQ, middleware, dan handler minimal API. Begitu kamu bisa membaca `Func<T, bool>`, banyak kode framework jadi bisa dibaca.",
+    why: "Mengirim fungsi sebagai nilai menjadi tulang punggung LINQ, middleware, dan Minimal API. Begitu terbiasa membaca bentuk `Func<T, bool>`, kode framework langsung terasa ramah.",
     points: [
-      "**Delegate** adalah type yang menyimpan method: 'sesuatu yang menerima `int` dan mengembalikan `bool`'.",
-      "`Func<T, TResult>` mengembalikan value, `Action<T>` tidak mengembalikan apa-apa, `Predicate<T>` mengembalikan `bool`. Kamu jarang butuh delegate type buatan sendiri.",
-      "**Lambda** `x => x * 2` adalah method inline. Kalau ia memakai variabel dari luar, ia menjadi **closure** dan meng-capture variabelnya, bukan snapshot nilainya.",
-      "**Extension method** (`this` sebelum parameter pertama) menambahkan method ke type yang sudah ada, dan `yield return` menyerahkan item satu per satu. Gabungan keduanya adalah cara LINQ sendiri ditulis.",
-      "**Event** adalah delegate dengan akses terbatas: pihak luar hanya boleh subscribe (`+=`) dan unsubscribe (`-=`). Lupa unsubscribe membuat subscriber tetap hidup selama publisher-nya hidup.",
-      "`app.MapGet(\"/\", () => \"hi\")` sebenarnya hanya mengirim sebuah delegate ke framework."
+      "**Delegate** mendefinisikan wadah bertipe untuk sebuah method, seperti 'terima `int` dan kembalikan `bool`'.",
+      "`Func<T, TResult>` mengembalikan nilai, `Action<T>` tanpa nilai balik, dan `Predicate<T>` mengembalikan `bool`. Kamu hampir tak butuh bikin tipe delegate sendiri.",
+      "**Lambda** (`x => x * 2`) menulis fungsi singkat di tempat. Jika menyentuh variabel luar, ia menjadi **closure** yang memantau variabel aslinya, bukan nilainya saja.",
+      "**Extension method** (`this` sebelum parameter pertama) menambah fungsi ke tipe yang sudah ada, sedangkan `yield return` mengeluarkan item satu per satu seperti cara kerja LINQ.",
+      "**Event** membungkus delegate agar kode luar cuma bisa mendaftar (`+=`) atau mencabut (`-=`). Lupa mencabut langganan menahan listener agar tak bisa dibersihkan memori.",
+      "`app.MapGet(\"/\", () => \"hi\")` sebenarnya cuma mengirim sebuah lambda langsung ke sistem routing ASP.NET Core."
     ],
-    practice: "Tambahkan extension method `Transform` di sebelah `KeepIf` (versi `Select` buatanmu, memakai `Func<T, TResult>` dan `yield return`), lalu rangkai keduanya. Taruh `Console.WriteLine` di masing-masing dan lihat item mengalir satu per satu. Kamu baru saja membangun ulang inti LINQ.",
-    teach: "Jelaskan apa maksudnya lambda 'meng-capture' sebuah variabel, pakai contoh `count`.",
-    analogy: "Delegate itu nomor telepon di selembar kartu. Kartunya bisa kamu berikan ke orang lain, dan mereka bisa meneleponnya nanti tanpa tahu siapa yang mengangkat. Event itu mailing list: siapa pun boleh daftar atau keluar, tapi hanya pemiliknya yang mengirim newsletter.",
+    practice: "Tambahkan extension method `Transform` di sebelah `KeepIf` (mirip `Select`, memakai `Func<T, TResult>` dan `yield return`), lalu rangkai keduanya. Letakkan `Console.WriteLine` di tiap langkah agar terlihat data mengalir satu per satu seperti di LINQ.",
+    teach: "Jelaskan apa artinya lambda 'menangkap' variabel luar dengan merujuk contoh `count`.",
+    analogy: "Delegate mirip nomor telepon di kartu nama: kamu titip kartunya ke orang lain untuk ditelepon nanti tanpa tahu siapa yang mengangkat. Event seperti milis newsletter: semua boleh daftar atau berhenti, tapi hanya pemilik milis yang berhak mengirim siaran.",
     pitfalls: [
-      "Mengira closure menyalin value-nya. Closure berbagi variabel yang sama, jadi perubahan setelahnya ikut terlihat oleh lambda.",
-      "Publisher berumur panjang yang menahan subscriber berumur pendek lewat event yang tidak pernah mereka tinggalkan. Subscriber itu tidak bisa dibersihkan garbage collector.",
-      "Mendeklarasikan delegate type sendiri padahal `Func` atau `Action` sudah cukup."
+      "Mengira closure menyalin isi variabelnya. Ia justru memegang variabel aslinya, jadi perubahan nilai belakangan ikut terbaca.",
+      "Publisher tahan lama yang masih memegang referensi subscriber sementara lewat event karena lupa berhenti berlangganan.",
+      "Membuat tipe delegate kustom baru padahal sudah tersedia `Func` atau `Action`."
     ],
     quiz: [
-      ["Type mana yang menggambarkan method yang menerima `string` dan mengembalikan `int`?", ["`Action<string, int>`", "`Func<string, int>`", "`Func<int, string>`", "`Predicate<string>`"], "Pada `Func`, type argument terakhir adalah return type-nya."],
-      ["`int n = 1; Func<int> f = () => n; n = 5;` Apa yang dikembalikan `f()`?", ["1", "5", "0", "Melempar exception"], "Closure meng-capture variabel `n`, bukan nilainya saat lambda dibuat."],
-      ["Apa yang bisa dilakukan kode di luar class terhadap `event` public milik class itu?", ["Meng-invoke-nya", "Mengganti semua subscriber dengan `=`", "Hanya subscribe dan unsubscribe", "Membaca daftar subscriber-nya"], "Event membatasi pihak luar hanya pada `+=` dan `-=`. Hanya class pemiliknya yang bisa memicu event itu."]
+      ["Tipe manakah yang cocok untuk method berparameter `string` dan menghasilkan `int`?", ["`Action<string, int>`", "`Func<string, int>`", "`Func<int, string>`", "`Predicate<string>`"], "Pada `Func`, parameter tipe paling kanan selalu menjadi tipe kembaliannya."],
+      ["`int n = 1; Func<int> f = () => n; n = 5;` Apa hasil panggilan `f()`?", ["1", "5", "0", "Error saat jalan"], "Closure menyimpan referensi ke variabel `n` itu sendiri, bukan nilainya saat lambda dibuat."],
+      ["Apa saja yang boleh dilakukan kode luar terhadap `event` publik di sebuah class?", ["Menjalankan atau memicu event tersebut", "Menghapus semua subscriber dengan tanda `=`", "Cuma mendaftar dan berhenti berlangganan", "Membaca seluruh daftar subscriber-nya"], "Event membatasi kode luar hanya pada `+=` dan `-=`. Hanya class pemiliknya yang bisa memicu event."]
     ]
   },
   async: {
     terms: [
-      ['I/O non-blocking (`await`)', 'Mengembalikan thread ke thread pool ASP.NET Core selagi menunggu SQL/HTTP agar satu server melayani ribuan request paralel.'],
-      ['`Task.WhenAll(...)`', 'Menunggu beberapa operasi async independen secara bersamaan alih-alih satu per satu berurutan.'],
-      ['`CancellationToken`', 'Meneruskan sinyal saat klien memutus koneksi atau timeout agar query database yang batal berhenti membuang beban.']
+      ['Non-blocking I/O (`await`)', 'Membebaskan thread agar ASP.NET Core bisa melayani ribuan request lain selama menunggu balasan SQL atau HTTP.'],
+      ['`Task.WhenAll(...)`', 'Menjalankan beberapa tugas async yang tidak saling tergantung berbarengan agar tidak perlu menunggu satu per satu.'],
+      ['`CancellationToken`', 'Meneruskan sinyal batal saat client memutus koneksi atau timeout agar query database langsung berhenti bekerja.']
     ],
-    predict: {
-      prompt: 'Sebuah endpoint memanggil dua query independen masing-masing 200 ms: `await db.GetUserAsync(); await db.GetOrdersAsync();` dibanding memulai keduanya dulu lalu `Task.WhenAll(u, o)`. Kira-kira berapa lama versi berurutan vs paralel?',
-      options: ['Keduanya ~200 ms karena sama-sama memakai `await`', 'Berurutan ~400 ms; `Task.WhenAll` ~200 ms', 'Paralel gagal kecuali membuka dua proses'],
-      explain: 'Menulis dua `await` berurutan menahan yang kedua sampai yang pertama selesai (~400 ms). Memulai kedua Task dulu lalu menunggu dengan `Task.WhenAll` menumpuk waktu tunggu I/O-nya (~200 ms).'
-    },
     title: 'async, await, dan Task',
-    why: "Sebagian besar kerja web server adalah menunggu: menunggu database, API lain, atau disk. Kode async membuat thread bisa mengerjakan hal lain selama menunggu. Kalau salah, biasanya tidak kelihatan saat development; masalahnya muncul saat beban tinggi, berupa request yang mengantre lalu timeout.",
+    viz: 'async',
+    predict: {
+      prompt: 'Sebuah endpoint memanggil dua query independen masing-masing 200 ms: `await db.GetUserAsync(); await db.GetOrdersAsync();` dibanding menjalankan keduanya dulu lalu menunggu `Task.WhenAll(u, o)`. Berapa perkiraan waktunya?',
+      options: ['Keduanya ~200 ms karena sama-sama memakai `await`', 'Berurutan makan ~400 ms, sedangkan `Task.WhenAll` hanya ~200 ms', 'Jalan bersamaan butuh dua proses aplikasi terpisah'],
+      answer: 1,
+      explain: 'Dua `await` berturut-turut membuat query kedua menunggu query pertama kelar (~400 ms). Menjalankan keduanya sekaligus lewat `Task.WhenAll` menumpuk waktu tunggunya menjadi ~200 ms.'
+    },
+    why: "Tugas utama web server sebenarnya menunggu database, API luar, atau disk. Kode async membebaskan thread agar melayani request lain selama jeda itu, mencegah antrean macet dan timeout saat traffic padat.",
     points: [
-      "`Task` merepresentasikan pekerjaan yang akan selesai nanti; `Task<T>` juga membawa hasilnya.",
-      "`await` **tidak** mem-block. Ia mendaftarkan 'lanjutkan dari sini kalau task-nya selesai' lalu menyerahkan thread untuk mengerjakan hal lain.",
-      "Async itu soal **tidak menyia-nyiakan thread selama menunggu** I/O (database, HTTP, disk). Ia tidak membuat satu operasi jadi lebih cepat.",
-      "Async dari ujung ke ujung: jangan memanggil `.Result` atau `.Wait()` pada task. Di ASP.NET Core itu menahan satu thread dari thread pool selama menunggu, dan saat beban tinggi pool-nya habis (thread-pool starvation). Di aplikasi desktop (WinForms, WPF) itu juga bisa deadlock.",
-      "Mulai dulu operasi-operasi yang independen, lalu `await Task.WhenAll(...)` supaya semuanya berjalan secara concurrent.",
-      "`async void` hanya untuk event handler: pemanggil tidak bisa meng-await-nya atau menangkap exception-nya.",
-      "Teruskan `CancellationToken` ke setiap pemanggilan async, supaya pekerjaan berhenti saat user menyerah atau request-nya dibatalkan.",
-      "`IAsyncEnumerable<T>` adalah aliran hasil yang datang seiring waktu: buat dengan `async` dan `yield return`, konsumsi dengan `await foreach`. `AsAsyncEnumerable()` di EF Core dan endpoint ASP.NET Core yang mengembalikannya men-stream baris, alih-alih mengumpulkan semuanya di memory dulu."
+      "`Task` mewakili pekerjaan yang sedang berjalan, sedangkan `Task<T>` nantinya juga menghasilkan nilai.",
+      "`await` tidak menahan thread untuk diam menunggu. Ia menempelkan kelanjutan kode lalu memulangkan thread ke pool seketika.",
+      "Async menghindari pemborosan thread saat menunggu I/O (SQL, HTTP, disk), walaupun tidak mempercepat satu query tunggal.",
+      "Pakai async dari ujung ke ujung dan hindari `.Result` maupun `.Wait()`. Memblokir thread pool membuat server ASP.NET Core kehabisan thread saat sibuk (dan bikin UI macet).",
+      "Mulai dulu tugas yang tidak saling menunggu, lalu tutup dengan `await Task.WhenAll(...)` supaya waktunya bertumpuk tanpa menambah thread.",
+      "Gunakan `async void` hanya untuk event handler tombol di UI, karena pemanggil tak bisa menunggu atau menangkap error-nya.",
+      "Oper `CancellationToken` ke seluruh method async agar query database segera dibatalkan jika pengguna menutup tab browser.",
+      "`IAsyncEnumerable<T>` menghasilkan data bertahap lewat `yield return` dan dibaca memakai `await foreach`, cocok untuk men-stream hasil EF Core tanpa menumpuknya di RAM."
     ],
-    practice: "Ubah kodenya supaya memuat lima hal secara concurrent dengan `Task.WhenAll` dan cetak total waktunya. Lalu batalkan setelah 500 ms dan pastikan semua yang belum selesai ikut berhenti. Terakhir, ganti `Task.Delay` dengan panggilan `HttpClient.GetStringAsync` sungguhan ke URL publik, dan cek apakah perilaku waktunya tetap sama.",
-    teach: "Jelaskan apa yang terjadi pada thread saat kode sampai di `await`, dan kenapa itu membuat web server bisa menangani lebih banyak request.",
-    analogy: "Pelayan mengantar pesananmu ke dapur dan tidak berdiri menunggu di depan kompor sampai makanannya matang: ia melayani meja lain dan kembali saat bel berbunyi. `await` adalah belnya. Mem-block dengan `.Result` adalah pelayan yang berdiri memelototi kompor sementara restoran makin penuh.",
+    practice: "Ubah kode contoh agar memuat lima data bersamaan dengan `Task.WhenAll` lalu cetak durasinya. Setelah itu batalkan di 500 ms dan cek apakah tugas sisanya berhenti, lalu ganti `Task.Delay` dengan `HttpClient.GetStringAsync` ke URL publik.",
+    teach: "Jelaskan nasib thread saat eksekusi menyentuh `await`, dan kenapa pola ini membuat web server sanggup menampung jauh lebih banyak pengguna.",
+    analogy: "Bayangkan pelayan mengantar bon pesanan ke dapur. Daripada melamun di depan kompor menunggu matang, ia melayani meja lain lalu kembali pas bel (`await`) berbunyi. Memaksa `.Result` persis seperti pelayan yang mogok berdiri di dapur saat restoran penuh.",
     pitfalls: [
-      "'Async membuat kode jalan paralel di thread lain.' Bukan: untuk I/O, selama menunggu tidak ada thread sama sekali.",
-      "Membungkus pekerjaan CPU yang synchronous dengan `Task.Run` di ASP.NET Core lalu menyebutnya async. Itu cuma memindahkan pekerjaannya ke thread lain di pool.",
-      "Lupa menulis `await`. Method langsung lanjut sebelum pekerjaannya selesai, dan kalau task-nya gagal, tidak ada yang melihat exception-nya. Compiler memberi warning (CS4014); jangan diabaikan.",
-      "Memanggil `ToListAsync()` pada hasil yang sangat besar hanya untuk di-loop sekali. Stream dengan `AsAsyncEnumerable()` dan `await foreach`, maka pemakaian memory tetap datar berapa pun jumlah barisnya."
+      "Mengira async otomatis menambah thread untuk I/O. Selama menunggu respons jaringan atau disk, tidak ada thread yang dipakai sama sekali.",
+      "Membungkus pekerjaan CPU berat dengan `Task.Run` di ASP.NET Core lalu menganggapnya async. Itu cuma memindahkan beban ke thread pool lain.",
+      "Lupa menaruh `await`. Method langsung lewat dan error dari task hilang tanpa ketahuan, jadi selalu bereskan warning CS4014.",
+      "Memanggil `ToListAsync()` pada data raksasa hanya untuk satu kali loop, padahal streaming pakai `AsAsyncEnumerable()` menjaga memori tetap ringan."
     ],
     quiz: [
-      ["Apa yang terjadi pada thread saat ini di `await http.GetAsync(url)` selama panggilan network masih berlangsung?", ["Tidur sampai response datang", "Dilepas untuk mengerjakan hal lain", "Terus mengecek network dalam loop", "Menyerahkan request ke thread baru yang ia buat"], "`await` menyerahkan thread; sebuah continuation melanjutkan method-nya saat response tiba."],
-      ["Ada tiga panggilan I/O independen, masing-masing 1 detik. Pendekatan benar yang paling cepat?", ["Await satu per satu", "Mulai ketiganya, lalu `await Task.WhenAll`", "Bungkus masing-masing dengan `Task.Run` lalu baca `.Result`", "`Parallel.For` dengan `.Wait()` di tiap panggilan"], "Memulai semua task sebelum meng-await membuat waktu tunggunya tumpang-tindih: total sekitar 1 detik, bukan 3, tanpa mem-block thread mana pun."],
-      ["Kenapa `.Result` perlu dihindari di ASP.NET Core?", ["Nilainya berbeda dengan hasil `await`", "Menahan satu thread dari thread pool selama menunggu, dan saat beban tinggi pool-nya habis", "Selalu menyebabkan deadlock", "Tidak boleh dipakai di dalam controller"], "ASP.NET Core tidak punya synchronization context, jadi deadlock klasiknya tidak terjadi di sana. Tapi setiap thread yang ter-block adalah thread yang tidak bisa melayani request lain."],
-      ["Sebuah method mengembalikan `IAsyncEnumerable<Order>`. Bagaimana cara mengonsumsinya?", ["`foreach (var o in GetOrders())`", "`await foreach (var o in GetOrders())`", "`GetOrders().Result`", "`await Task.WhenAll(GetOrders())`"], "`await foreach` menunggu tiap item berikutnya, jadi loop bisa mulai sebelum item terakhir ada. `foreach` biasa tidak bisa di-compile untuk async stream."]
+      ["Apa yang terjadi pada thread aktif ketika sampai di `await http.GetAsync(url)` saat data jaringan masih di jalan?", ["Thread tidur pulas sampai jawaban tiba", "Thread dilepas agar bisa mengurus request lain", "Thread sibuk memeriksa status jaringan tiap milidetik", "Thread menyerahkan request itu ke thread baru"], "`await` mengembalikan thread ke pool dan meneruskan sisa method saat data sudah datang."],
+      ["Tiga panggilan I/O independen berdurasi masing-masing 1 detik. Cara tercepat yang benar?", ["Menunggu satu demi satu dengan await", "Mulai ketiganya dulu, lalu `await Task.WhenAll`", "Bungkus tiap panggilan dalam `Task.Run` lalu ambil `.Result`", "Jalankan `Parallel.For` dan `.Wait()`"], "Memulai ketiganya dulu menyatukan waktu tunggunya menjadi sekitar 1 detik tanpa menahan satu thread pun."],
+      ["Kenapa `.Result` harus dihindari di dalam ASP.NET Core?", ["Nilainya bisa berbeda dengan hasil `await`", "Ia menyandera satu thread pool selama menunggu, membuat server kehabisan thread saat ramai", "Pasti selalu mengalami deadlock", "Dilarang keras di dalam controller"], "ASP.NET Core memang bebas dari deadlock UI klasik, tapi tiap thread yang tersandera berarti satu thread hilang dari antrean layanan."],
+      ["Sebuah method mengembalikan `IAsyncEnumerable<Order>`. Bagaimana cara membacanya?", ["`foreach (var o in GetOrders())`", "`await foreach (var o in GetOrders())`", "`GetOrders().Result`", "`await Task.WhenAll(GetOrders())`"], "`await foreach` menunggu tiap baris berikutnya hadir, sehingga data bisa langsung diproses sebelum semuanya selesai."]
     ]
   },
   modern: {
     terms: [
-      ['Nullable reference type (`string?`)', 'Analisis aliran compiler memperingatkan sebelum kamu mengakses variabel yang berpotensi `null`.'],
-      ['`record`', 'Class data immutable ringkas dengan equality berdasar nilai (`a == b` membandingkan field) serta penyalinan `with`.'],
-      ['Pattern matching', 'Percabangan deklaratif berdasar type dan bentuk data (`is Order { Total: > 100 } o`) yang diperiksa kelengkapannya oleh compiler.']
+      ['Nullable reference types (`string?`)', 'Analisis alur oleh compiler memperingatkan sebelum kamu mengakses nilai yang mungkin `null`.'],
+      ['`record`', 'Class data ringkas dan immutable dengan perbandingan nilai otomatis (`a == b`) serta dukungan salin cepat lewat `with`.'],
+      ['Pattern matching', 'Percabangan deklaratif berbasis tipe dan bentuk data (`is Order { Total: > 100 } o`) yang keutuhannya dicek compiler.']
     ],
     title: 'Null safety, record, dan pattern',
-    why: "C# modern membuat compiler bisa menangkap beberapa kategori bug sekaligus sebelum kamu menjalankan apa pun: null reference, bentuk data yang tidak ditangani, dan perubahan yang tidak disengaja. Kode yang memakai fitur-fitur ini dengan baik jadi lebih pendek dan lebih susah rusak.",
+    why: "C# modern membantu compiler mencegah beberapa jenis bug sebelum program dijalankan: null reference, kondisi data yang terlewat, dan mutasi tak sengaja. Kodenya jadi jauh lebih pendek namun tetap kokoh.",
     points: [
-      "**Nullable reference type** aktif secara default di project baru: `string` berarti tidak pernah null, `string?` berarti mungkin null, dan compiler memberi warning kalau kamu memakai value yang mungkin null tanpa mengeceknya.",
-      "`?.` (null-conditional), `??` (fallback), dan `??=` (assign kalau null) membuat penanganan null jadi ringkas dan eksplisit.",
-      "`!` (null-forgiving operator) berkata ke compiler 'percaya saja'. Pakai hanya kalau kamu benar-benar tahu lebih banyak daripada compiler; setiap tanda seru itu adalah tempat `NullReferenceException` masih bisa terjadi.",
-      "**Record** memberi value-based equality, immutability, dan salinan dengan `with`, cocok untuk DTO dan message.",
-      "**Pattern matching** (`is`, dan `switch` dengan type pattern, property pattern, dan relational pattern) menggantikan rentetan cast dan `if`. Hierarki record kecil ditambah ekspresi `switch` adalah cara yang rapi untuk memodelkan 'salah satu dari bentuk-bentuk ini'."
+      "Project baru otomatis mengaktifkan **nullable reference type**. `string` menjanjikan nilai selalu ada, sementara `string?` memintamu mengecek null terlebih dahulu.",
+      "`?.` (null-conditional), `??` (nilai cadangan), dan `??=` (isi jika masih null) merapikan pengecekan nilai kosong.",
+      "Tanda `!` (null-forgiving) membungkam peringatan compiler tanpa menambah penjagaan di runtime. Hindari memakainya sembarangan atau `NullReferenceException` menanti di sana.",
+      "**Record** membawa kesetaraan nilai, immutability, dan ekspresi `with` bawaan, sangat cocok untuk DTO dan event.",
+      "**Pattern matching** (`is` dan `switch` dengan cek properti atau rentang angka) menggantikan rantai cast bertele-tele dan pas disandingkan dengan record."
     ],
-    practice: "Modelkan hierarki `Shape` dengan record (`Circle`, `Rect`, `Triangle`) dan tulis satu method `Area` memakai ekspresi `switch`. Lalu build project-mu dan bereskan semua warning nullable tanpa memakai operator `!`.",
-    teach: "Jelaskan perbedaan `string` dan `string?`, dan bagaimana itu mengubah apa yang dicek compiler untukmu.",
-    analogy: "Anotasi nullable itu label di kotak: 'selalu ada isinya' atau 'mungkin kosong, lihat dulu sebelum merogoh'. Compiler membaca label itu dan mencegahmu merogoh kotak yang belum kamu cek.",
+    practice: "Buat model hierarki `Shape` memakai record (`Circle`, `Rect`, `Triangle`) lalu hitung `Area` dengan satu `switch` expression. Setelah jalan, build project dan bereskan semua warning nullable tanpa memakai operator `!` sama sekali.",
+    teach: "Jelaskan perbedaan `string` dan `string?` serta bagaimana hal itu mengubah bantuan pemeriksaan dari compiler.",
+    analogy: "Penanda nullable mirip stiker di atas kotak: 'selalu berisi' atau 'bisa kosong, intip dulu'. Compiler membaca stiker itu dan menegur kalau tanganmu asal merogoh kotak yang belum diperiksa.",
     pitfalls: [
-      "Membungkam warning nullable dengan `!` alih-alih memperbaiki penyebabnya.",
-      "Mengira `record` cuma 'class versi pendek'. Intinya justru value equality dan immutability.",
-      "Memberi record property `{ get; set; }` lalu mengubahnya saat record itu sedang jadi key dictionary atau ada di `HashSet`. Hash-nya berubah dan lookup tidak lagi menemukannya."
+      "Menempelkan `!` demi membungkam warning nullable tanpa membereskan akar masalahnya.",
+      "Menganggap `record` sekadar 'class versi singkat'. Nilai jual utamanya ada pada perbandingan isi dan sifat immutable.",
+      "Memasang `{ get; set; }` di record lalu mengubah isinya saat sudah menjadi key `HashSet` atau dictionary, membuat kode hash-nya meleset."
     ],
     quiz: [
-      ["Berapa hasil `a?.B ?? c` kalau `a` null?", ["Melempar `NullReferenceException`", "`null`", "`c`", "`default(B)`"], "`a?.B` menghasilkan null, lalu `??` memberikan fallback `c`."],
-      ["Dua record dengan nilai property yang identik, kalau dibandingkan dengan `==`, hasilnya…", ["tidak pernah sama kecuali instance-nya sama", "sama", "sama hanya kalau salah satunya dibuat dengan `with`", "compile error"], "Record mengimplementasikan value-based equality."],
-      ["Apa yang disampaikan `string? name` ke compiler?", ["`name` opsional dan boleh tidak diisi saat pemanggilan", "`name` mungkin null, jadi beri warning sebelum aku memakainya tanpa dicek", "`name` adalah nullable value type", "`name` akan otomatis dicek null saat run time"], "Anotasi nullable hanya berlaku saat compile time. Yang berubah adalah warning yang kamu dapat, bukan apa yang terjadi saat run time."]
+      ["Apa hasil evaluasi `a?.B ?? c` saat `a` bernilai null?", ["Menghasilkan `NullReferenceException`", "`null`", "`c`", "`default(B)`"], "`a?.B` berhenti dan bernilai null, lalu `??` langsung memilih cadangan `c`."],
+      ["Dua record dengan seluruh isi property persis sama saat dicek dengan `==` hasilnya…", ["selalu berbeda kecuali menunjuk object yang persis sama", "sama (equal)", "sama hanya jika salah satunya dibuat lewat `with`", "gagal compile"], "Record otomatis membandingkan isi nilai sebagai bawaan, bukan alamat memori."],
+      ["Apa pesan dari deklarasi `string? name` kepada compiler?", ["`name` bersifat opsional dan boleh dilewati saat memanggil fungsi", "`name` mungkin null, jadi beri peringatan kalau kupakai sebelum dicek", "`name` adalah value type yang boleh kosong", "`name` akan dicek null otomatis saat aplikasi berjalan"], "Anotasi nullable cuma berlaku saat compile time untuk memberi peringatan, tanpa mengubah perilaku runtime."]
     ]
   },
   gc: {
     terms: [
-      ['Generasi GC (Gen 0 / 1 / 2)', 'Object berumur pendek dibersihkan murah di Gen 0; object yang bertahan lama naik ke koleksi Gen 2 / LOH yang lebih berat.'],
-      ['`Span<T>`', 'Tampilan stack-only atas potongan memori berurutan (array, slice, atau string) untuk mem-parsing tanpa alokasi heap baru.'],
-      ['Boxing', 'Membungkus value type (`int`) ke dalam `object` di heap — sumber alokasi diam-diam pada koleksi non-generik atau `string.Format`.']
+      ['Generations (Gen 0 / 1 / 2)', 'Object sementara dibersihkan cepat di Gen 0, sedangkan object bertahan lama pindah ke Gen 2 / LOH yang pembersihannya berat.'],
+      ['`Span<T>`', 'Tampilan irisan memori di stack tanpa alokasi heap untuk parsing array atau string.'],
+      ['Boxing', 'Membungkus value type (`int`) ke dalam `object` di heap, memicu alokasi tersembunyi di koleksi non-generik atau `string.Format`.']
     ],
-    title: 'Memory, GC, dan performance',
-    why: "Dalam skala besar, allocation rate berubah jadi latency. Materi ini tentang membaca apa yang sedang dikerjakan garbage collector, menemukan alokasi yang penting di hot path, dan membuangnya tanpa membuat kode sulit dibaca.",
+    title: 'Memori, GC, dan performa',
+    why: "Pada beban traffic tinggi, kecepatan alokasi memori langsung berubah menjadi jeda latensi. Memahami cara kerja garbage collector membantumu menemukan alokasi boros di jalur panas lalu merapikannya tanpa membuat kode sulit dibaca.",
     points: [
-      "GC itu **generational**: object baru mulai di Gen 0; yang selamat dipromosikan ke Gen 1, lalu Gen 2. Kebanyakan object mati muda, jadi collection di Gen 0 itu murah.",
-      "Object berukuran sekitar 85 KB ke atas masuk **Large Object Heap**, di-collect bersama Gen 2 dan secara default tidak di-compact, jadi buffer besar yang sementara itu mahal.",
-      "Collection Gen 2 penuh bisa membuat aplikasi berhenti sejenak. Kurangi sampah di hot path: pakai ulang buffer (`ArrayPool<T>`), hindari LINQ dan string concatenation yang tidak perlu di dalam loop yang ketat.",
-      "`Span<T>` dan `ReadOnlySpan<T>` adalah view ke memory yang sudah ada: memotong array dan string dengan **zero allocation**. Keduanya `ref struct`, jadi tidak bisa tinggal di heap atau dipegang melewati `await`.",
-      "`Memory<T>` adalah saudara `Span<T>` yang ramah heap, untuk kode async.",
-      "Urutan kerja saat ada yang lambat: algoritma dan I/O dulu (memperbaiki query N+1 mengalahkan micro-optimisation apa pun), alokasi kedua, micro-optimisation paling akhir.",
-      "Ukur, jangan menebak: `dotnet-counters` dan `dotnet-trace` untuk aplikasi yang sedang jalan, BenchmarkDotNet dengan `[MemoryDiagnoser]` untuk satu method. Loop `Stopwatch` menyesatkan, karena JIT meng-compile ulang kode yang sering jalan selagi program berjalan (tiered compilation)."
+      "GC di .NET bekerja bertahap (**generational**). Object baru mulai di Gen 0 yang bersih cepat, lalu yang awet naik kelas ke Gen 1 dan Gen 2.",
+      "Alokasi 85 KB ke atas langsung masuk Large Object Heap dan dibersihkan bareng Gen 2 tanpa dirapatkan ulang. Karena itu buffer besar sementara terasa berat.",
+      "Hindari jeda Gen 2 di loop sibuk dengan menyewa buffer (`ArrayPool<T>`) serta mengurangi penyambungan string dan rantai LINQ berulang.",
+      "`Span<T>` dan `ReadOnlySpan<T>` memotong array atau string dengan nol alokasi. Karena bertipe `ref struct`, ia dilarang masuk heap atau melewati `await`.",
+      "`Memory<T>` menjadi pasangan aman dari `Span<T>` ketika buffer harus dibawa melintasi pemanggilan async.",
+      "Urutan membenahi performa: algoritma dan query I/O dulu (membereskan N+1 jauh lebih berdampak), baru pemangkasan alokasi, lalu optimasi mikro paling akhir.",
+      "Ukur pakai `dotnet-counters`, `dotnet-trace`, atau BenchmarkDotNet berlabel `[MemoryDiagnoser]`. Hindari tes loop `Stopwatch` polos karena tertipu optimasi JIT bertingkat."
     ],
-    practice: "Benchmark `SumSlow` dan `SumFast` dengan BenchmarkDotNet dan `[MemoryDiagnoser]`. Laporkan jumlah byte yang dialokasikan per pemanggilan untuk masing-masing, lalu jelaskan dari mana asal setiap alokasi di versi yang lambat.",
-    teach: "Jelaskan kenapa sebagian besar garbage collection di .NET itu cepat, dan kode seperti apa yang membuatnya lambat.",
-    analogy: "Gen 0 itu meja kerjamu: kertas coretan kamu bersihkan berkali-kali sehari dalam hitungan detik. Gen 2 itu gudang: membersihkannya berarti menghentikan semua kegiatan selama satu sore. Kode yang bagus membiarkan kertas berumur pendek tetap di meja dan tidak menyeretnya ke gudang.",
+    practice: "Ukur perbandingan `SumSlow` dan `SumFast` memakai BenchmarkDotNet dengan `[MemoryDiagnoser]`. Catat jumlah byte yang terpakai tiap panggilan lalu jelaskan sumber seluruh alokasi di versi lambat.",
+    teach: "Jelaskan kenapa kebanyakan pembersihan GC di .NET berjalan sangat cepat, dan pola kode apa yang bikin proses itu melambat.",
+    analogy: "Gen 0 mirip meja kerjamu yang kertas coretannya disapu bersih berkali-kali tiap hari hanya dalam hitungan detik. Gen 2 itu gudang: membersihkannya memaksa seluruh pekerjaan berhenti setengah hari, jadi usahakan sampah sementara tak terbawa sampai ke gudang.",
     pitfalls: [
-      "Memanggil `GC.Collect()` untuk 'membantu'. Itu mempromosikan object yang masih hidup ke generasi tua terlalu dini dan biasanya malah merugikan.",
-      "Mengubah semuanya jadi struct demi menghindari alokasi, lalu membayar lebih mahal untuk penyalinan.",
-      "Mengoptimasi kode yang bukan hot path. Profile dulu.",
-      "Mempercayai loop `Stopwatch` sebagai benchmark."
+      "Memanggil `GC.Collect()` manual untuk 'membantu'. Ini malah menaikkan paksa object aktif ke generasi tua dan memperburuk jeda.",
+      "Mengubah semuanya jadi struct demi menghindari heap, lalu malah terbebani biaya menyalin ukuran besar.",
+      "Mengoptimasi bagian kode yang jarang lewat jalur sibuk. Selalu ukur dengan profiler dulu.",
+      "Mengandalkan loop `Stopwatch` sederhana sebagai tolok ukur performa."
     ],
     quiz: [
-      ["Kenapa collection Gen 0 biasanya murah?", ["Karena jalan di background thread, jadi gratis", "Sebagian besar object baru sudah mati, jadi sedikit yang perlu ditelusuri atau disalin", "Karena hanya memeriksa object di atas 85 KB", "Karena melewati object yang direferensikan dari stack"], "Object muda cenderung mati muda, jadi Gen 0 hanya punya sedikit survivor yang perlu diurus."],
-      ["Kenapa `Span<T>` tidak bisa jadi field sebuah class?", ["Terlalu besar untuk class", "Ia `ref struct` yang bisa menunjuk ke memory di stack, jadi tidak boleh lolos ke heap", "Span selalu read-only", "Class tidak bisa menyimpan struct"], "Span bisa menunjuk ke stack frame yang hilang saat method selesai, jadi compiler mencegahnya sampai ke heap."],
-      ["Langkah pertama sebelum mengoptimasi pemakaian memory?", ["Tulis ulang type yang sering dipakai jadi struct", "Panggil `GC.Collect()` setelah operasi besar", "Ukur dengan profiler atau benchmark", "Ganti semua LINQ dengan loop"], "Tanpa mengukur, kamu tidak tahu di mana alokasinya terjadi dan apakah itu berpengaruh."]
+      ["Kenapa pembersihan memori Gen 0 biasanya sangat murah dan cepat?", ["Berjalan di thread latar belakang tanpa biaya CPU", "Hampir semua object baru sudah tidak terpakai lagi sehingga sedikit yang perlu disalin", "Hanya memeriksa object berukuran di atas 85 KB", "Melewati object yang masih dipegang stack"], "Karena sebagian besar alokasi cepat tidak terpakai lagi, hanya sedikit yang selamat dan perlu dipindahkan."],
+      ["Mengapa `Span<T>` dilarang dijadikan field di dalam sebuah class?", ["Ukurannya terlalu besar untuk muat di class", "Ia bertipe `ref struct` yang mungkin menunjuk ke memori stack sehingga tidak boleh bocor ke heap", "Span selalu bersifat read-only", "Class memang tidak pernah boleh berisi struct"], "Span bisa menunjuk ke stack frame yang lenyap saat method usai, jadi compiler mencegahnya tersimpan di heap."],
+      ["Langkah pertama yang wajib diambil sebelum memangkas pemakaian memori?", ["Ubah semua tipe data sibuk jadi struct", "Panggil `GC.Collect()` setiap habis kerja berat", "Ukur dan profil dulu titik alokasinya", "Ganti semua LINQ dengan loop biasa"], "Tanpa mengukur lebih dulu, kamu tidak tahu persis di mana alokasi besar terjadi atau apakah itu memang sumber lambatnya."]
     ]
   },
   concurrency: {
     terms: [
-      ['Race condition', 'Dua thread membaca dan menulis state bersama tanpa koordinasi sehingga hasil akhirnya bergantung pada kecepatan acak.'],
-      ['`ConcurrentDictionary` vs `lock`', '`ConcurrentDictionary` mengoordinasikan bucket dengan aman; `SemaphoreSlim(1, 1)` mengoordinasikan bagian kritis async (jangan `lock` mengelilingi `await`).'],
-      ['`Channel<T>`', 'Antrean producer/consumer async bebas-lock untuk menyerahkan tugas latar belakang secara bersih dari request HTTP ke worker.']
+      ['Race condition', 'Dua thread membaca dan mengubah data bersama tanpa pengatur urutan sehingga hasil akhirnya mengandalkan keberuntungan waktu.'],
+      ['`ConcurrentDictionary` vs `lock`', '`ConcurrentDictionary` mengamankan akses peta data per operasi, sementara `SemaphoreSlim(1, 1)` mengunci blok async (jangan taruh `await` di dalam `lock`).'],
+      ['`Channel<T>`', 'Antrean async producer/consumer berkecepatan tinggi untuk menyalurkan pekerjaan latar belakang dari endpoint HTTP ke worker.']
     ],
     title: 'Concurrency dan thread safety',
-    why: "Web server menjalankan banyak request sekaligus. Shared state apa pun — static field, singleton service, cache in-memory — disentuh beberapa thread bersamaan, dan bug yang muncul jarang terjadi, susah direproduksi, dan mahal akibatnya.",
+    why: "Web API memproses banyak request sekaligus di saat bersamaan. Static field, koleksi singleton, atau cache memori disentuh serempak banyak thread hingga memicu bug langka yang susah dilacak.",
     points: [
-      "**Race condition** terjadi ketika hasilnya bergantung pada timing antar-thread. `count++` itu baca, tambah, tulis, dan **tidak atomic**.",
-      "Lindungi shared mutable state: `lock` untuk critical section yang pendek, `Interlocked` untuk satu counter, `SemaphoreSlim` untuk kode async (`lock` tidak boleh berisi `await`).",
-      "Lebih baik lagi, jangan berbagi: data immutable, object per-request (scoped), atau message passing dengan `Channel<T>`.",
-      "`ConcurrentDictionary` aman per operasi, tapi urutan check-then-act tetap bisa race. Pakai `GetOrAdd` dan `AddOrUpdate`.",
-      "**Deadlock**: dua thread masing-masing memegang lock yang dibutuhkan thread lainnya. Ambil lock dengan urutan yang konsisten dan pegang sebentar saja.",
-      "`Parallel.ForEachAsync` dan `Task.WhenAll` untuk throughput; channel untuk pipeline producer/consumer dengan back-pressure."
+      "Pada **race condition**, kebenaran hasil bergantung pada keberuntungan urutan thread. Operasi seperti `count++` memecah langkah baca, tambah, dan tulis sehingga tak aman.",
+      "Amankan data berubah dengan `lock` untuk kode sinkron, `Interlocked` untuk penghitung tunggal, atau `SemaphoreSlim.WaitAsync` jika di dalamnya ada `await`.",
+      "Cara lebih bersih lagi adalah menghindari berbagi data berubah: pakai record immutable, state khusus per request, atau antrean `Channel<T>`.",
+      "`ConcurrentDictionary` mengamankan tiap panggilan tunggal, tapi urutan cek-lalu-isi tetap rawan bentrok. Gunakan method atomik seperti `GetOrAdd` dan `AddOrUpdate`.",
+      "Terjadi **deadlock** saat dua thread saling menunggu gembok milik lawannya. Selalu ambil kunci dengan urutan yang seragam dan lepas secepatnya.",
+      "Pakai `Parallel.ForEachAsync` atau `Task.WhenAll` untuk kerja paralel, dan pilih `Channel<T>` untuk jalur produksi-konsumsi dengan batas antrean."
     ],
-    practice: "Bangun rate limiter in-memory kecil (maksimal N panggilan per detik per key) yang tetap benar di bawah `Parallel.For`. Jalankan versi naif berbasis `Dictionary` dan versimu dengan banyak thread, beberapa kali, lalu bandingkan hitungannya. Versi naif gagal di sebagian run, tidak semuanya, dan justru itulah alasan kamu harus menalar thread safety, bukan percaya pada satu test yang hijau.",
-    teach: "Jelaskan langkah demi langkah kenapa `count++` pada shared variable menghasilkan total yang salah kalau thread-nya banyak.",
-    analogy: "Dua kasir berbagi satu kertas rekap. Dua-duanya membaca '41', dua-duanya menambah satu di kepala, dua-duanya menulis '42', dan satu penjualan hilang. Lock adalah aturan bahwa hanya orang yang memegang pulpen yang boleh membaca dan menulis rekap itu.",
+    practice: "Bangun rate limiter sederhana di memori (maksimal N panggilan per detik per key) yang aman diuji memakai `Parallel.For`. Bandingkan hasilnya melawan `Dictionary` biasa lewat tes multi-thread berulang dan amati kenapa versi polosnya kadang lolos lalu kadang meleset.",
+    teach: "Jelaskan langkah demi langkah kenapa `count++` pada satu variabel bersama menghasilkan angka akhir yang salah saat dikerjakan banyak thread.",
+    analogy: "Dua kasir menulis nota di satu papan hitung bersama. Keduanya sama-sama melihat angka '41', menambah 1 di kepala, lalu menulis '42', membuat satu transaksi hilang. Lock bertugas memaksa hanya pemegang spidol yang boleh mencatat.",
     pitfalls: [
-      "'Di laptop saya jalan kok.' Race bergantung pada timing dan jumlah core, jadi satu run yang lolos hampir tidak membuktikan apa-apa.",
-      "Menganggap singleton service dengan field `List` itu aman di ASP.NET Core. Semua request berbagi list yang sama.",
-      "Mencoba `await` di dalam `lock` (tidak akan ter-compile), atau me-lock `this` maupun sebuah string, yang bisa ikut di-lock oleh kode lain."
+      "Percaya alasan 'di laptopku jalan lancar'. Race bug bergantung pada jumlah core dan timing, jadi satu kali tes hijau tidak menjamin apa-apa.",
+      "Menganggap field `List` di dalam service singleton ASP.NET Core itu aman. Semua request pengguna masuk menyentuh list yang sama.",
+      "Mencoba menulis `await` di dalam blok `lock` (ditolak compiler), atau memasang gembok pada `this` dan `string` yang bisa ikut dikunci kode lain."
     ],
     quiz: [
-      ["Kenapa `count++` tidak aman antar-thread?", ["`++` lambat pada shared memory", "Karena terdiri dari tiga langkah (baca, tambah, tulis) yang bisa saling menyela", "Karena `int` adalah reference type", "Karena JIT memindahkannya ke akhir method"], "Dua thread bisa membaca nilai lama yang sama lalu sama-sama menulis nilai lama + 1, sehingga satu update hilang."],
-      ["Primitive mana yang memberi mutual exclusion yang bisa melewati `await`?", ["`lock`", "`SemaphoreSlim`", "`volatile`", "`Interlocked.Increment`"], "`SemaphoreSlim.WaitAsync` bisa di-await; blok `lock` tidak boleh berisi `await`."],
-      ["Strategi terbaik untuk thread safety secara keseluruhan?", ["Bungkus setiap method dengan `lock`", "Sebisa mungkin hindari shared mutable state", "Pakai `ConcurrentDictionary` untuk semuanya", "Tandai shared field sebagai `volatile`"], "State yang tidak dibagi, atau tidak bisa berubah, tidak mungkin mengalami race."]
+      ["Mengapa operasi `count++` tidak aman bila diakses beberapa thread sekaligus?", ["Operator `++` lambat di memori bersama", "Aslinya terdiri dari tiga langkah (baca, tambah, tulis) yang bisa saling menyalip", "`int` itu reference type", "JIT menunda penambahan ke akhir method"], "Dua thread bisa membaca angka lama yang sama lalu menulis hasil penjumlahan yang sama, membuat satu hitungan hilang."],
+      ["Alat pengunci mana yang mendukung penggunaan `await` di dalamnya?", ["`lock`", "`SemaphoreSlim`", "`volatile`", "`Interlocked.Increment`"], "`SemaphoreSlim.WaitAsync` kompatibel penuh dengan `await`, berbeda dengan `lock` yang melarang `await` di bloknya."],
+      ["Strategi paling aman untuk menjaga thread safety di seluruh aplikasi?", ["Pasang `lock` di setiap method", "Hindari data mutable bersama sedapat mungkin", "Ganti semua koleksi jadi `ConcurrentDictionary`", "Beri penanda `volatile` di semua field"], "Data yang tidak dibagi antar thread, atau tidak bisa diubah isinya, mustahil mengalami race condition."]
     ]
   },
   internals: {
     terms: [
-      ['Covariance / Contravariance (`out` / `in`)', 'Membuat `IEnumerable<Dog>` diterima sebagai `IEnumerable<Animal>` (`out`) dan `IComparer<Animal>` sebagai `IComparer<Dog>` (`in`).'],
-      ['Reflection vs Source Generator', 'Reflection membaca type saat run time (lebih lambat, sulit untuk AOT); Source Generator menghasilkan kode C# polos saat compile time.'],
-      ['Expression tree (`Expression<Func<>>`)', 'Menangkap kode sebagai pohon data AST bukan IL terkompilasi sehingga EF Core bisa membacanya menjadi SQL berparameter.']
+      ['Covariance / Contravariance (`out` / `in`)', 'Membuat `IEnumerable<Dog>` diterima saat butuh `IEnumerable<Animal>` (`out`) dan `IComparer<Animal>` bisa dipakai untuk `Dog` (`in`).'],
+      ['Reflection vs Source Generators', 'Reflection memeriksa tipe saat aplikasi berjalan (lebih lambat dan menyulitkan AOT), sedangkan Source Generator membuat kode C# polos saat build.'],
+      ['Expression tree (`Expression<Func<>>`)', 'Menyimpan lambda sebagai pohon struktur kode bukan IL terkompilasi agar EF Core bisa menyusun query SQL berparameter.']
     ],
-    title: 'Cara kerja framework: variance, reflection, dan kode hasil generate',
-    why: "Inilah lapisan tempat framework ditulis. Di sini terjawab bagaimana DI container menemukan constructor, bagaimana JSON serializer menemukan property, dan bagaimana EF Core mengubah lambda jadi SQL.",
+    title: 'Cara kerja framework: variance, reflection, dan code generation',
+    why: "Di sinilah lapisan tempat framework dibangun. Materi ini membuka tabir bagaimana DI container merangkai constructor, cara serializer membaca property, hingga trik EF Core menerjemahkan lambda menjadi SQL.",
     points: [
-      "**Covariance** (`out T`): `IEnumerable<Dog>` bisa dipakai sebagai `IEnumerable<Animal>` karena value-nya hanya keluar. **Contravariance** (`in T`): `Action<Animal>` bisa dipakai sebagai `Action<Dog>` karena value-nya hanya masuk.",
-      "**Reflection** memeriksa type saat run time. Begitulah DI container menemukan constructor dan serializer menemukan property. Fleksibel, tapi lambat, dan melewati pengecekan compiler.",
-      "**Source generator** menulis kode itu saat compile time: context `System.Text.Json`, `[GeneratedRegex]`, `LoggerMessage`. Sama praktisnya, tanpa pencarian saat run time.",
-      "Trimming dan Native AOT membuang kode yang kelihatannya tidak direferensikan siapa pun, jadi library yang banyak memakai reflection bisa rusak di sana. Kode hasil generate tetap jalan.",
-      "**Expression tree** merepresentasikan kode sebagai data. Begitulah EF Core mengubah `x => x.Age > 18` menjadi `WHERE Age > 18`."
+      "**Covariance** (`out T`) membuat `IEnumerable<Dog>` berlaku sebagai `IEnumerable<Animal>` karena data cuma keluar. **Contravariance** (`in T`) membuat `Action<Animal>` berlaku untuk `Action<Dog>` karena data cuma masuk.",
+      "**Reflection** mengintip tipe object saat runtime untuk kebutuhan DI container maupun serializer. Pendekatan ini fleksibel namun lambat dan tak terlindung pengecekan compiler.",
+      "**Source generator** memindahkan tugas itu ke waktu compile lewat context `System.Text.Json`, `[GeneratedRegex]`, atau `LoggerMessage` tanpa beban pencarian di runtime.",
+      "Fitur trimming dan Native AOT membuang kode yang tampak tak dipakai sehingga library berbasis reflection rentan gagal, sementara kode hasil generate tetap aman.",
+      "**Expression tree** memperlakukan kode sebagai struktur data. Begitulah caranya EF Core menerjemahkan `x => x.Age > 18` menjadi `WHERE Age > 18`."
     ],
-    practice: "Tulis DI container minimal (`Register<TInterface, TImpl>()`, `Resolve<T>()`) yang memakai reflection untuk menemukan constructor dan me-resolve parameternya secara rekursif. Lalu jelaskan apa yang akan dilakukan container berbasis source generator secara berbeda.",
-    teach: "Jelaskan kenapa `IEnumerable<Dog>` bisa diperlakukan sebagai `IEnumerable<Animal>`, tapi `List<Dog>` tidak bisa diperlakukan sebagai `List<Animal>`.",
-    analogy: "Vending machine yang hanya mengeluarkan apel bisa dipakai di mana pun dibutuhkan 'mesin pengeluar buah' (covariance: output). Keranjang yang menerima buah apa saja bisa dipakai di mana pun dibutuhkan 'keranjang apel' (contravariance: input). Kotak yang menerima sekaligus mengeluarkan harus cocok persis, kalau tidak, akan ada yang memasukkan pisang ke kotak apel.",
+    practice: "Buat DI container sederhana (`Register<TInterface, TImpl>()`, `Resolve<T>()`) berbasis reflection yang mencari constructor dan menyiapkan parameternya berulang ke dalam. Setelah jalan, jelaskan apa perbedaan rancangan container yang memakai source generator.",
+    teach: "Jelaskan kenapa `IEnumerable<Dog>` boleh diperlakukan seperti `IEnumerable<Animal>`, sedangkan `List<Dog>` dilarang masuk sebagai `List<Animal>`.",
+    analogy: "Mesin penjual khusus apel aman menggantikan slot 'mesin buah' karena cuma mengeluarkan apel (covariance). Keranjang buah umum bisa menggantikan 'keranjang apel' karena menerima apel (contravariance). Sebaliknya, kotak keluar-masuk harus persis agar jangan ada yang menyelipkan pisang ke kotak apel.",
     pitfalls: [
-      "Menganggap generics selalu covariant. `List<T>` itu invariant karena ia membaca sekaligus menulis `T`.",
-      "Memakai reflection di hot path tanpa meng-cache hasilnya.",
-      "Memakai reflection padahal generic atau interface sudah cukup. Property yang di-rename jadi rusak saat run time, bukan saat build."
+      "Mengira semua tipe generik pasti covariant. `List<T>` bersifat invariant karena membaca sekaligus menuliskan `T`.",
+      "Memakai reflection di jalur sibuk terus-menerus tanpa menyimpan hasil pencariannya di cache.",
+      "Memilih reflection padahal cukup diselesaikan lewat generic atau interface. Penggantian nama property jadi baru meledak pas program jalan, bukan waktu build."
     ],
     quiz: [
-      ["Kenapa `List<Dog>` tidak bisa di-assign ke `List<Animal>`?", ["`List<T>` itu sealed", "Karena nanti orang bisa `Add(new Cat())` ke list berisi anjing", "`Dog` harus berupa struct", "Sebenarnya bisa, dengan implicit cast"], "`List<T>` menghasilkan sekaligus menerima `T`, jadi harus invariant supaya tetap type-safe."],
-      ["Bagaimana EF Core menerjemahkan `p => p.Price > 10` menjadi SQL?", ["Menjalankan lambda itu di setiap baris di memory", "Menerima expression tree lalu menerjemahkan strukturnya", "Men-decompile IL milik lambda itu", "Mencocokkan teks source lambda-nya"], "Method `IQueryable` menerima `Expression<Func<…>>`, yaitu data yang mendeskripsikan kodenya."],
-      ["Keunggulan utama source generator dibanding reflection?", ["Kode bisa berubah saat run time", "Pekerjaannya pindah ke compile time: startup lebih cepat, dan jalan di Native AOT", "Tidak butuh compiler lagi", "Membuat kode jadi dynamically typed"], "Kode hasil generate adalah kode ter-compile biasa, tanpa biaya pencarian saat run time."]
+      ["Mengapa `List<Dog>` tidak bisa langsung dimasukkan ke variabel bertipe `List<Animal>`?", ["`List<T>` adalah class sealed", "Nanti ada yang bisa memanggil `Add(new Cat())` ke dalam list khusus anjing", "`Dog` harus berbentuk struct", "Sebenarnya bisa dengan cast otomatis"], "`List<T>` memproduksi sekaligus menerima `T`, sehingga harus invariant agar tipe data tetap aman."],
+      ["Bagaimana EF Core mengubah lambda `p => p.Price > 10` menjadi perintah SQL?", ["Menjalankan lambda itu pada tiap baris data di memori", "Menerima struktur expression tree lalu menerjemahkan node-nya", "Membongkar ulang IL dari lambda tersebut", "Membaca teks source file kode aslinya"], "Parameter di `IQueryable` bertipe ekspresi terstruktur yang menggambarkan isi kodenya sebagai data."],
+      ["Keuntungan utama source generator dibanding reflection?", ["Kode bisa bebas bermutasi pas aplikasi berjalan", "Pekerjaannya bergeser ke compile time: startup lebih cepat dan lolos Native AOT", "Menghilangkan kebutuhan terhadap compiler", "Mengubah tipe kode menjadi dynamic"], "Kode hasil generator berupa C# biasa yang sudah terkompilasi tanpa ongkos pencarian saat runtime."]
     ]
   }
-}, { tagline: 'Bahasanya: dari variabel dan class sampai async, memory, dan performance.' });
+}, { tagline: 'Bahasanya: mulai dari tipe data dan class sampai async, memori, dan performa.' });
