@@ -43,14 +43,14 @@
           { a: 'BEGIN TRAN', b: 'BEGIN TRAN', locks: '—', res: 'deadlock-pending', note: 'Both sessions start uncommitted transactions at the same instant.' },
           { a: 'UPDATE Orders WHERE id=1 (holds X)', b: 'waiting…', locks: 'Orders#1 → A (X)', res: 'ok', note: 'Session A acquires an exclusive lock (X) on Orders#1.' },
           { a: 'holding Orders#1', b: 'UPDATE Stock WHERE id=7 (holds X)', locks: 'Orders#1 → A · Stock#7 → B', res: 'ok', note: 'Session B locks Stock#7 in the opposite order.' },
-          { a: 'requests Stock#7 → BLOCKED', b: 'holding Stock#7', locks: 'A waits for B on Stock#7', res: 'wait', note: 'Session A cannot touch Stock#7 while B holds its exclusive lock.' },
+          { a: 'requests Stock#7 → BLOCKED', b: 'holding Stock#7', locks: 'A waits for B on Stock#7', res: 'wait', note: "Session A can't touch Stock#7 while B holds its exclusive lock." },
           { a: 'waiting on B…', b: 'requests Orders#1 → CYCLE! Error 1205', locks: 'DEADLOCK (A ↔ B) → B rolled back', res: 'bad', note: 'Cycle detected! SQL Server kills the cheaper session (victim, error 1205) so A can finish.' }
         ],
         ordered: [
           { a: 'BEGIN TRAN', b: 'BEGIN TRAN', locks: '—', res: 'ok', note: 'Rule: every transaction acquires Orders before Stock.' },
-          { a: 'UPDATE Orders WHERE id=1 (holds X)', b: 'requests Orders#1 → waits cleanly', locks: 'Orders#1 → A (B queued)', res: 'wait', note: 'B waits on Orders#1 before touching Stock#7 — zero cycle is possible.' },
-          { a: 'UPDATE Stock WHERE id=7 → COMMIT', b: 'waiting on Orders#1…', locks: 'A releases all locks', res: 'ok', note: 'Session A finishes Stock#7 and commits immediately.' },
-          { a: 'done', b: 'acquires Orders#1 → Stock#7 → COMMIT', locks: 'B holds & commits cleanly', res: 'good', note: 'Now B acquires both rows in the same order and succeeds with zero errors.' }
+          { a: 'UPDATE Orders WHERE id=1 (holds X)', b: 'requests Orders#1 → waits', locks: 'Orders#1 → A (B queued)', res: 'wait', note: 'B waits on Orders#1 before locking Stock#7, so a cycle cannot form.' },
+          { a: 'UPDATE Stock WHERE id=7 → COMMIT', b: 'waiting on Orders#1…', locks: 'A releases all locks', res: 'ok', note: 'Session A finishes Stock#7 and commits right away.' },
+          { a: 'done', b: 'acquires Orders#1 → Stock#7 → COMMIT', locks: 'B locks & commits', res: 'good', note: 'Now B acquires both rows in the same order and succeeds with zero errors.' }
         ],
         rcsi: [
           { a: 'BEGIN TRAN: UPDATE Products SET price=99 (old 80 in version store)', b: 'SELECT price FROM Products WHERE id=3', locks: 'Products#3 → A (X) · row v1=80 in tempdb', res: 'ok', note: 'Session A modifies price without committing yet. The old committed value (80) stays in the version store.' },
@@ -99,7 +99,7 @@
           box.replaceChildren(window.tableWrap('GROUP BY result', h('table', { class: 't' },
             h('thead', {}, h('tr', {}, ['category', 'total'].map(c => h('th', { scope: 'col' }, c)))),
             h('tbody', {}, rows.map(([c, s2]) => h('tr', {}, h('td', {}, c), h('td', {}, s2)))))));
-          note.textContent = T('GROUP BY collapsed 6 individual order rows into 3 category totals — you lose per-order columns like order id and date.');
+          note.textContent = T('GROUP BY collapsed 6 order rows into 3 category totals, so per-order columns like order id and date disappear.');
         } else {
           const run = {}, rank = {};
           const rows = orders.map(([id, cat, dt, amt]) => {

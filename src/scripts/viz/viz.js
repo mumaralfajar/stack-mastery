@@ -206,8 +206,8 @@
         INNER: 'Only pairs that match on both sides. Dewi and order 105 disappear.',
         LEFT: 'Every customer is kept. Dewi appears once with NULL order columns.',
         RIGHT: 'Every order is kept. Order 105 appears with NULL customer columns.',
-        'FULL OUTER': 'Everything from both sides; unmatched rows are padded with NULL.',
-        CROSS: 'No condition: every customer paired with every order — 4 × 5 = 20 rows.'
+        'FULL OUTER': 'Everything from both sides, padding unmatched rows with NULL.',
+        CROSS: 'No join condition: every customer pairs with every order (4 × 5 = 20 rows).'
       };
       const draw = type => {
         [...chips.children].forEach(c => c.classList.toggle('on', c.textContent === type));
@@ -224,7 +224,7 @@
             h('div', { class: 'viz-box' }, h('h4', {}, 'customers c'), table(['id', 'name'], C, r => keptC.has(r[0]) ? '' : 'dim')),
             h('div', { class: 'viz-box' }, h('h4', {}, 'orders o'), table(['id', 'customer_id', 'item'], O, r => keptO.has(r[0]) ? '' : 'dim'))),
           codeBlock(`SELECT c.id, c.name, o.id AS order_id, o.item\nFROM customers AS c\n${type} JOIN orders AS o${on};`, 'sql'),
-          h('div', { class: 'viz-box', style: { marginTop: '.8rem' } }, h('h4', {}, T('Result — {n} rows', { n: rows.length })), table(['c.id', 'c.name', 'order_id', 'item'], rows)));
+          h('div', { class: 'viz-box', style: { marginTop: '.8rem' } }, h('h4', {}, T('Result: {n} rows', { n: rows.length })), table(['c.id', 'c.name', 'order_id', 'item'], rows)));
         note.textContent = T(notes[type]);
       };
       types.forEach(t => chips.append(h('button', { type: 'button', onclick: () => draw(t) }, t)));
@@ -242,13 +242,13 @@
       const all = [[1, 'Ana', 'paid', 50], [2, 'Ana', 'paid', 70], [3, 'Budi', 'paid', 20], [4, 'Budi', 'cancelled', 90], [5, 'Citra', 'paid', 200], [6, 'Citra', 'paid', 30], [7, 'Dewi', 'paid', 40]];
       const base = ['id', 'customer', 'status', 'amount'];
       const steps = [
-        { line: 1, cols: base, rows: all, note: '1. FROM — start with every row of the source table: 7 rows.' },
-        { line: 2, cols: base, rows: all, dim: r => r[2] !== 'paid', note: '2. WHERE — filter individual rows. The cancelled order is removed before any grouping happens.' },
-        { line: 3, cols: ['customer', 'rows in group (amount)'], rows: [['Ana', '50, 70'], ['Budi', '20'], ['Citra', '200, 30'], ['Dewi', '40']], note: '3. GROUP BY — the remaining 6 rows collapse into 4 groups, one per customer.' },
-        { line: 4, cols: ['customer', 'SUM(amount)'], rows: [['Ana', 120], ['Budi', 20], ['Citra', 230], ['Dewi', 40]], dim: r => r[1] <= 50, note: '4. HAVING — filter whole groups using aggregates. Budi (20) and Dewi (40) are removed.' },
-        { line: 0, cols: ['customer', 'total'], rows: [['Ana', 120], ['Citra', 230]], note: '5. SELECT — only now are the output columns computed and the alias “total” created. That is why WHERE cannot see it.' },
-        { line: 5, cols: ['customer', 'total'], rows: [['Citra', 230], ['Ana', 120]], note: '6. ORDER BY — sorting runs after SELECT, so it CAN use the alias.' },
-        { line: 6, cols: ['customer', 'total'], rows: [['Citra', 230]], note: '7. LIMIT — finally, cut the result to the first row.' }
+        { line: 1, cols: base, rows: all, note: '1. FROM: start with every row of the source table (7 rows).' },
+        { line: 2, cols: base, rows: all, dim: r => r[2] !== 'paid', note: '2. WHERE: filter individual rows. The cancelled order drops out before any grouping.' },
+        { line: 3, cols: ['customer', 'rows in group (amount)'], rows: [['Ana', '50, 70'], ['Budi', '20'], ['Citra', '200, 30'], ['Dewi', '40']], note: '3. GROUP BY: collapse the remaining 6 rows into 4 groups, one per customer.' },
+        { line: 4, cols: ['customer', 'SUM(amount)'], rows: [['Ana', 120], ['Budi', 20], ['Citra', 230], ['Dewi', 40]], dim: r => r[1] <= 50, note: '4. HAVING: filter whole groups using aggregates. Budi (20) and Dewi (40) drop out.' },
+        { line: 0, cols: ['customer', 'total'], rows: [['Ana', 120], ['Citra', 230]], note: "5. SELECT: output columns and the 'total' alias are computed here, so WHERE can't see it." },
+        { line: 5, cols: ['customer', 'total'], rows: [['Citra', 230], ['Ana', 120]], note: "6. ORDER BY: sorting runs after SELECT, so using the 'total' alias works." },
+        { line: 6, cols: ['customer', 'total'], rows: [['Citra', 230]], note: '7. LIMIT: cut the sorted result down to the first row.' }
       ];
       const out = h('div', {}), note = h('p', { class: 'viz-note' });
       const seen = [];
@@ -289,11 +289,11 @@
           }
         })();
         const [a, b] = await Promise.all([scan, seek]);
-        if (me === run) note.textContent = T('Scan read {a} rows; the index needed {b} comparisons. With 1,000,000 rows a scan reads up to 1,000,000 — a seek needs about 20. That is O(n) versus O(log n).', { a, b });
+        if (me === run) note.textContent = T("Scan read {a} rows, while the index took {b} comparisons. Across 1,000,000 rows, a scan reads up to 1,000,000 while a seek takes about 20. That's O(n) versus O(log n).", { a, b });
       };
       el.append(h('div', { class: 'viz-ctl' }, sel, btn('Find', find)),
-        h('div', { class: 'viz-box' }, h('h4', {}, 'Table scan — rows in storage order · rows read: ', n1), h('div', { class: 'cells' }, hc)),
-        h('div', { class: 'viz-box', style: { marginTop: '.8rem' } }, h('h4', {}, 'Index seek — sorted keys · comparisons: ', n2), h('div', { class: 'cells' }, ic)), note);
+        h('div', { class: 'viz-box' }, h('h4', {}, 'Table scan (storage order) · rows read: ', n1), h('div', { class: 'cells' }, hc)),
+        h('div', { class: 'viz-box', style: { marginTop: '.8rem' } }, h('h4', {}, 'Index seek (sorted keys) · comparisons: ', n2), h('div', { class: 'cells' }, ic)), note);
     }
   };
 

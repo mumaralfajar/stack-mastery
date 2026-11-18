@@ -167,9 +167,9 @@ PRAGMA foreign_keys = ON;`;
     { lvl: 1, t: 'Above average', task: 'Return the names of products priced above the average product price.', sol: 'SELECT name FROM products WHERE price > (SELECT AVG(price) FROM products);' },
     { lvl: 2, t: 'Top per category', task: 'Return category and name of the most expensive product in each category. Use a window function.', sol: 'WITH r AS (SELECT category, name, ROW_NUMBER() OVER (PARTITION BY category ORDER BY price DESC) AS rn FROM products) SELECT category, name FROM r WHERE rn = 1;' },
     { lvl: 2, t: 'Running total', task: 'For paid orders, return order id and the running total of order value, ordered by order date.', ordered: true, sol: "WITH t AS (SELECT o.id, o.order_date, SUM(i.quantity * i.unit_price) AS total FROM orders o JOIN order_items i ON i.order_id = o.id WHERE o.status = 'paid' GROUP BY o.id, o.order_date) SELECT id, SUM(total) OVER (ORDER BY order_date, id) FROM t ORDER BY order_date, id;" },
-    { lvl: 3, t: 'Best sellers with ties', task: 'For paid orders, return category, product name and units sold for the top two sales figures in each category. Products with equal sales share a place, so a category can return more than two rows.', sol: "WITH s AS (SELECT p.category, p.name, SUM(i.quantity) AS sold FROM order_items i JOIN orders o ON o.id = i.order_id JOIN products p ON p.id = i.product_id WHERE o.status = 'paid' GROUP BY p.id, p.category, p.name), r AS (SELECT category, name, sold, DENSE_RANK() OVER (PARTITION BY category ORDER BY sold DESC) AS rk FROM s) SELECT category, name, sold FROM r WHERE rk <= 2;" },
-    { lvl: 3, t: 'Next page without OFFSET', task: 'Products are listed cheapest first, ties broken by id. The last row on the current page was Lamp (price 40, id 6). Return name and price of the next three products, using that (price, id) pair instead of OFFSET.', ordered: true, sol: "SELECT name, price FROM products WHERE price > 40 OR (price = 40 AND id > 6) ORDER BY price, id LIMIT 3;" },
-    { lvl: 3, t: 'Streaks of active months', task: 'For each customer, find the runs of consecutive months in which they had at least one paid order. Return the customer name, the first and last month of each run as \'YYYY-MM\', and the number of months in it.', sol: "WITH m AS (SELECT DISTINCT c.name, CAST(strftime('%Y', o.order_date) AS INTEGER) * 12 + CAST(strftime('%m', o.order_date) AS INTEGER) - 1 AS mi FROM orders o JOIN customers c ON c.id = o.customer_id WHERE o.status = 'paid'), g AS (SELECT name, mi, mi - ROW_NUMBER() OVER (PARTITION BY name ORDER BY mi) AS grp FROM m) SELECT name, printf('%04d-%02d', MIN(mi) / 12, MIN(mi) % 12 + 1), printf('%04d-%02d', MAX(mi) / 12, MAX(mi) % 12 + 1), COUNT(*) FROM g GROUP BY name, grp;" }
+    { lvl: 3, t: 'Best sellers with ties', task: 'For paid orders, list category, product name, and units sold for the top two totals per category. Ties keep the same rank, so a category can return more than two rows.', sol: "WITH s AS (SELECT p.category, p.name, SUM(i.quantity) AS sold FROM order_items i JOIN orders o ON o.id = i.order_id JOIN products p ON p.id = i.product_id WHERE o.status = 'paid' GROUP BY p.id, p.category, p.name), r AS (SELECT category, name, sold, DENSE_RANK() OVER (PARTITION BY category ORDER BY sold DESC) AS rk FROM s) SELECT category, name, sold FROM r WHERE rk <= 2;" },
+    { lvl: 3, t: 'Next page without OFFSET', task: 'Sort products cheapest first, breaking ties by id. The current page ended on Lamp (price 40, id 6). Return name and price of the next three rows using (price, id) instead of OFFSET.', ordered: true, sol: "SELECT name, price FROM products WHERE price > 40 OR (price = 40 AND id > 6) ORDER BY price, id LIMIT 3;" },
+    { lvl: 3, t: 'Streaks of active months', task: "For each customer, find stretches of consecutive months with at least one paid order. Return customer name, first month, last month as 'YYYY-MM', and month count.", sol: "WITH m AS (SELECT DISTINCT c.name, CAST(strftime('%Y', o.order_date) AS INTEGER) * 12 + CAST(strftime('%m', o.order_date) AS INTEGER) - 1 AS mi FROM orders o JOIN customers c ON c.id = o.customer_id WHERE o.status = 'paid'), g AS (SELECT name, mi, mi - ROW_NUMBER() OVER (PARTITION BY name ORDER BY mi) AS grp FROM m) SELECT name, printf('%04d-%02d', MIN(mi) / 12, MIN(mi) % 12 + 1), printf('%04d-%02d', MAX(mi) / 12, MAX(mi) % 12 + 1), COUNT(*) FROM g GROUP BY name, grp;" }
   ];
 
   let SQLp;
@@ -189,7 +189,7 @@ PRAGMA foreign_keys = ON;`;
     let db = null, cur = -1;
     const solved = new Set(store.get('stackmastery.sql'));
     const out = h('div', { class: 'out', 'aria-live': 'polite' }, h('p', { class: 'muted' }, 'Loading SQLite…'));
-    const task = h('p', { class: 'prompt' }, 'Free play — or pick a challenge above.');
+    const task = h('p', { class: 'prompt' }, 'Free play, or pick a challenge above.');
     const dialectTip = h('p', { class: 'fb', hidden: true });
     const chips = h('div', { class: 'chips' });
     const norm = (res, ordered) => {
@@ -197,7 +197,7 @@ PRAGMA foreign_keys = ON;`;
       return JSON.stringify(ordered ? rows : rows.map(r => JSON.stringify(r)).sort());
     };
     const show = res => {
-      if (!res.length) return out.replaceChildren(h('p', { class: 'ok' }, T('OK — {n} row(s) changed.', { n: db.getRowsModified() })));
+      if (!res.length) return out.replaceChildren(h('p', { class: 'ok' }, T('OK: {n} row(s) changed.', { n: db.getRowsModified() })));
       out.replaceChildren(...res.map(r => h('div', {}, h('p', { class: 'muted' }, r.values.length + ' ' + T('row(s)')),
         window.tableWrap('Query results', h('table', { class: 't' }, h('thead', {}, h('tr', {}, r.columns.map(c => h('th', { scope: 'col' }, c)))),
           h('tbody', {}, r.values.map(row => h('tr', {}, row.map(v => v === null ? h('td', { class: 'null' }, 'NULL') : h('td', {}, v))))))))));
@@ -221,7 +221,7 @@ PRAGMA foreign_keys = ON;`;
       const mine = run(); if (!mine) return;
       const c = CHALLENGES[cur], good = norm(mine, c.ordered) === norm(db.exec(c.sol), c.ordered);
       if (good) { solved.add(cur); store.set('stackmastery.sql', [...solved]); drawChips(); }
-      out.prepend(h('p', { class: good ? 'ok' : 'err' }, T(good ? '✓ Correct — now explain out loud why it works.' : c.ordered ? '✗ Not the expected rows yet. Compare your output with the task — row order matters here.' : '✗ Not the expected rows yet. Compare your output with the task.')));
+      out.prepend(h('p', { class: good ? 'ok' : 'err' }, T(good ? '✓ Correct. Now explain out loud why it works.' : c.ordered ? '✗ Not the expected rows yet. Compare your output with the task (row order matters here).' : '✗ Not the expected rows yet. Compare your output with the task.')));
     };
     const reset = () => { if (!SQL) return; db = new SQL.Database(); db.run(SEED); out.replaceChildren(h('p', { class: 'ok' }, 'Database reset to its original contents.')); };
     const selectChallenge = (i, focusEd = true) => {
@@ -252,7 +252,7 @@ PRAGMA foreign_keys = ON;`;
     el.style.setProperty('--tc', 'var(--sql)');
     el.append(
       h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Practice'), h('h1', {}, 'SQL playground'),
-        h('p', { class: 'lede' }, 'A real SQLite database running in your browser. Queries and writes are live; reset whenever you like. The lessons use SQL Server, and most of it works here too. The differences to know: write LIMIT at the end instead of TOP, use strftime() instead of YEAR(), and expect money to show float rounding, because SQLite has no exact DECIMAL. SQLite is also more forgiving: it accepts an alias in WHERE, a bare column next to an aggregate and "double-quoted" text, all of which SQL Server rejects.')),
+        h('p', { class: 'lede' }, 'A real SQLite database running right in your browser. Queries and writes run live, and you can reset anytime. Lessons use SQL Server syntax, which mostly runs here with a few quirks. Write LIMIT at the end instead of TOP, use strftime() instead of YEAR(), and expect float rounding on money since SQLite has no exact DECIMAL type. SQLite is also looser: it accepts aliases in WHERE, ungrouped columns beside aggregates, and "double-quoted" strings, all of which SQL Server rejects.')),
       schemaDrawer,
       chips, task,
       h('div', { class: 'play' },
