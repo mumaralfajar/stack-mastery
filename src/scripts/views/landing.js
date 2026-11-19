@@ -56,7 +56,7 @@ export function landingView(onCleanup) {
       if (AC) audioCtx = new AC();
     }
     if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume().catch(() => {});
+      audioCtx.resume().catch(() => { });
     }
     return audioCtx;
   };
@@ -98,7 +98,7 @@ export function landingView(onCleanup) {
   // Top bar
   const nextLang = LANG === 'id' ? 'en' : 'id';
   const nextLangName = LANG === 'id' ? 'English' : 'Bahasa Indonesia';
-  let refreshTheme = () => {};
+  let refreshTheme = () => { };
 
   const topBar = h('header', { class: 'lp-bar' },
     h('a', { href: '#/', class: 'brand' }, h('span', { class: 'logo', html: LOGO_SVG }), 'Stack Mastery'),
@@ -129,7 +129,7 @@ export function landingView(onCleanup) {
   const mottoLines = T('Learn it. Prove it. Teach it.').split(/(?<=\.)\s+/).filter(Boolean);
   const heroCopy = h('div', { class: 'lp-copy' },
     h('h1', {}, ...mottoLines.flatMap((line, i) => [i > 0 ? ' ' : null, h('span', { class: 'lp-line' }, line)])),
-    h('p', { class: 'lp-lede' }, T('Ten full-stack tracks, {lessons} verified lessons, 40 interactive labs, and 4 browser playgrounds. Drag the nodes, trigger packet storms, or enter the workspace.', { lessons: totalLessons })),
+    h('p', { class: 'lp-lede' }, T('Ten full-stack tracks, {lessons} verified lessons, 40 interactive labs, and 4 browser playgrounds.', { lessons: totalLessons })),
     h('div', { class: 'lp-actions' },
       h('a', { class: 'btn', href: '#/dashboard' }, T('Open Dashboard →')),
       h('a', { class: 'btn ghost', href: '#/lab' }, T('Explore 40 Live Labs'))),
@@ -146,9 +146,9 @@ export function landingView(onCleanup) {
   let paused = reducedMotion;
   let rpsBoost = 0;
 
-  let fireSpike = () => {};
-  let toggleCacheKill = () => {};
-  let syncPause = () => {};
+  let fireSpike = () => { };
+  let toggleCacheKill = () => { };
+  let syncPause = () => { };
 
   const spikeBtn = h('button', { type: 'button', class: 'lp-toy', onclick: () => fireSpike() }, T('50× Spike'));
   const cacheBtn = h('button', { type: 'button', class: 'lp-toy danger', onclick: () => toggleCacheKill() }, T('Kill Cache'));
@@ -188,7 +188,7 @@ export function landingView(onCleanup) {
     }
   }, paused ? T('Play') : T('Pause'));
 
-  let releaseGravity = () => {};
+  let releaseGravity = () => { };
 
   const dock = h('div', { class: 'lp-dock', role: 'group', 'aria-label': T('Reactor interactive controls') },
     spikeBtn, cacheBtn, gravBtn, slowBtn, h('span', { class: 'lp-dock-sep', 'aria-hidden': 'true' }), soundBtn, pauseBtn);
@@ -1215,7 +1215,7 @@ export function landingView(onCleanup) {
       ioStage?.disconnect();
       roStage?.disconnect();
       if (audioCtx) {
-        audioCtx.close().catch(() => {});
+        audioCtx.close().catch(() => { });
         audioCtx = null;
       }
     });
@@ -1226,7 +1226,7 @@ export function landingView(onCleanup) {
     destroyed = true;
     if (rafId) cancelAnimationFrame(rafId);
     if (audioCtx) {
-      audioCtx.close().catch(() => {});
+      audioCtx.close().catch(() => { });
       audioCtx = null;
     }
   });
