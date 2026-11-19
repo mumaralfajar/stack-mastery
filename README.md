@@ -2,7 +2,7 @@
 
 **Learn it. Prove it. Teach it.**
 
-A free, self-paced program covering **C#, ASP.NET Core, Go, SQL, CSS + Tailwind, TypeScript + React, Angular, Dart + Flutter**, and **CS fundamentals**. It takes you from beginner setup through technical interviews.
+A free, self-paced program covering **C#, ASP.NET Core, Go, SQL, CSS + Tailwind, TypeScript + React, Angular, Dart + Flutter, System Design**, and **CS fundamentals**. It takes you from beginner setup through technical interviews.
 
 Open [Stack Mastery](https://mumaralfajar.github.io/stack-mastery/) in your browser.
 
@@ -47,7 +47,7 @@ What this means in practice:
 
 ## What is inside
 
-### Nine tracks, 119 lessons, four levels each
+### Ten tracks, 135 lessons, four levels each
 
 | Track | Lessons | Scope |
 | --- | --- | --- |
@@ -56,6 +56,7 @@ What this means in practice:
 | **SQL** | 12 | SELECT and joins through indexes, transactions, execution plans, and scaling (SQL Server syntax) |
 | **ASP.NET Core** | 14 | HTTP and routing through auth, EF Core, performance, architecture, and production ops |
 | **Go** | 14 | Packages, slices, and zero values through interfaces, errors, `net/http`, `json/v2`, goroutines, `context`, and `pprof` |
+| **System Design** | 16 | Capacity math, DNS/CDN/NGINX/Envoy, caching, rate limiting, B-Tree vs LSM, sharding, consistent hashing, outbox/CDC, resilience, quorums, OTel/SLOs, and Kubernetes |
 | **CSS + Tailwind** | 13 | HTML, cascade, and layout through Tailwind in React, design systems, and rendering |
 | **TypeScript + React** | 14 | JavaScript and types through hooks, performance, advanced types, and reconciliation internals |
 | **Angular** | 14 | Components and Signals through DI, routing, Signal Forms, HTTP, zoneless testing, SSR, and ARIA |
@@ -71,12 +72,12 @@ Every lesson follows three steps and counts as mastered only when all three are 
 
 | Tool | What it gives you |
 | --- | --- |
-| **Interactive diagrams** | 34 live widgets covering memory, async, ASP.NET middleware, Go concurrency, SQL locks, CSS layout, React, Angular Signals, Flutter layout, and Big-O. |
+| **Interactive diagrams** | 40 live widgets covering memory, async, ASP.NET middleware, Go concurrency, System Design caching/rate-limiting/sharding/hashing/outbox/resilience, SQL locks, CSS layout, React, Angular Signals, Flutter layout, and Big-O. |
 | **SQL playground** | In-browser SQLite engine with 14 auto-checked challenges from basic `SELECT` to keyset pagination and streaks. |
 | **TypeScript playground** | Monaco editor featuring live type checking and React 19 previews. |
 | **Dart + Flutter playground** | Embedded DartPad preloaded with runnable lesson samples. |
 | **CSS + Tailwind playground** | Resizable live preview for testing responsive breakpoints. |
-| **Flashcard review** | 376 quiz questions scheduled on a 1, 2, 4, 8, and 16-day spaced-repetition loop. |
+| **Flashcard review** | 424 quiz questions scheduled on a 1, 2, 4, 8, and 16-day spaced-repetition loop. |
 | **Mock exam** | Ten random questions filtered by track and level. |
 | **Capstone projects** | Four full-stack projects, one per mastery level. |
 | **Search** | Press `/` anywhere to search lessons, problems, questions, and diagrams. |
@@ -86,9 +87,9 @@ Every lesson follows three steps and counts as mastered only when all three are 
 | Section | Details |
 | --- | --- |
 | **Coding** | 21 classic problems across 12 patterns judged against tests, with hints, TypeScript and C# solutions, complexity notes, and follow-ups. |
-| **System design** | 45-minute framework, 6 worked cases, capacity estimator, and a building-blocks glossary. |
+| **System design** | 45-minute framework, 8 worked cases, capacity estimator, and a building-blocks glossary. |
 | **Behavioral** | STAR + Reflection method, 32 questions across 8 themes, an example story, and a personal story bank. |
-| **Rapid-fire** | 61 stack questions paired with short model answers. |
+| **Rapid-fire** | 67 stack questions paired with short model answers. |
 | **Getting hired** | Eight-week study schedule, big-tech loop advice, and tips on take-homes and remote roles. |
 | **SQL and frontend rounds** | Graded SQL challenges plus 10 UI component prompts covering React, TypeScript, Angular, and Flutter. |
 | **Mock interviews** | Timed rounds with hints hidden until finish plus a scorecard. |
@@ -215,7 +216,7 @@ Add a lesson by pushing an object onto `lessons` in a track file inside `data/`:
   why: "Why this matters in clear language.",
   points: ["Key idea with `code` and **bold**.", "Another key idea."],
   code: `// example code`,
-  lang: 'cs',                 // cs, go, sql, ts, tsx, dart, css, html, sh
+  lang: 'cs',                 // cs, go, sql, yaml, http, ts, tsx, dart, css, html, sh
   viz: 'stackheap',           // optional VIZ key
   practice: "What the learner should build.",
   teach: "The explain-it-back prompt.",
@@ -246,6 +247,7 @@ Every stack track includes real compiler and runtime verification scripts inside
 | **C# & CS** | `bun run verify:cs` | Runs all 96 C# problem tests, 12 pattern templates, and lesson samples (.NET 10) |
 | **ASP.NET Core** | `bun run verify:aspnet` | Builds, boots, and tests all ASP.NET Core 10 samples + xUnit suite |
 | **Go** | `bun run verify:go` | Runs `go vet`, `go build`, execution checks, and `go test -bench` on Go 1.27+ |
+| **System Design** | `bun run verify:sysdesign` | Runs `go vet`/`go build`/execution on 10 Go 1.27 samples, parses 3 YAML configs, checks SQL/HTTP/splits/VIZ |
 | **SQL** | `bun run verify:sql` | Executes every SQL Server sample against `.\SQLEXPRESS` |
 | **CSS + Tailwind** | `bun run verify:css` | Validates CSS in Chrome (`CSS.supports`), checks 360px overflow, builds Tailwind 4.3.4, type-checks TSX |
 | **TypeScript + React** | `bun run verify:react` | Strict `tsc` checks plus Vitest + MSW React tests and event-loop verification |

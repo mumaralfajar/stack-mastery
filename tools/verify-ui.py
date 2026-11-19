@@ -138,11 +138,26 @@ def run_suite():
             page.get_by_role("button", name="Restart app").click()
             check("#5" in page.inner_text("#view table"), "Restart app in VIZ.di must generate new singleton #5")
 
-            # Visualizations (fixed + 7 new + 4 Go labs)
-            for vid in ["boxmodel", "async", "graphsearch", "sqllock", "sqlwindow", "ngrxjs", "useeffect", "stacking", "backtrack", "dptable", "goslices", "goiface", "goroutine", "gocontext"]:
+            # Visualizations (fixed + 7 new + 4 Go labs + 6 System Design labs)
+            for vid in ["boxmodel", "async", "graphsearch", "sqllock", "sqlwindow", "ngrxjs", "useeffect", "stacking", "backtrack", "dptable", "goslices", "goiface", "goroutine", "gocontext", "syscache", "sysratelimit", "sysdbscale", "syshash", "sysqueue", "sysresilience"]:
                 goto_hash(page, base, "#/lab/" + vid)
                 check(len(page.inner_text("#view .viz")) > 20, f"viz {vid} rendered empty")
                 check(len(page.evaluate(WCAG_DOM_AUDIT)) == 0, f"viz {vid} WCAG issues: {page.evaluate(WCAG_DOM_AUDIT)}")
+
+            # System Design track, Predict-first caching, rate limiter boundary burst, and code tabs
+            goto_hash(page, base, "#/track/sysdesign")
+            check(page.locator("#view .rows a.row").count() == 16, "System Design track should list 16 lessons")
+            goto_hash(page, base, "#/lesson/sysdesign/caching")
+            check(page.locator(".predict-card").is_visible(), "sysdesign/caching should render Predict first card")
+            check(page.locator("#view .viz .sd-slots").count() == 1, "sysdesign/caching should mount syscache lab")
+            goto_hash(page, base, "#/lesson/sysdesign/ratelimiting")
+            page.locator("#view .viz button", has_text="Jump to :09").click()
+            page.locator("#view .viz button", has_text="Burst ×4").click()
+            page.locator("#view .viz button", has_text="Advance +2s").click()
+            page.locator("#view .viz button", has_text="Burst ×4").click()
+            check("Seam 2× risk" in page.inner_text("#view .viz"), "Fixed Window must flag Seam 2x risk across :09..:11 burst")
+            goto_hash(page, base, "#/lesson/sysdesign/containers-k8s")
+            check(page.locator(".code-tabs [role='tab']").count() == 3, "sysdesign/containers-k8s should render 3 tabs (2 slices + Full file)")
 
             # Go track, Predict-first slice aliasing, and code-tabs split
             goto_hash(page, base, "#/track/go")
@@ -177,10 +192,14 @@ def run_suite():
             page.wait_for_timeout(80)
             check(page.locator("#view mark").count() >= 1, "Search should highlight matches using <mark>")
 
-            # Interview routes + coding arena (PLAY.editor) + scorecard labels + reset modal dialog
-            for ir in ["#/interview", "#/interview/coding", "#/interview/patterns", "#/interview/design", "#/interview/behavioral", "#/interview/rapid"]:
+            # Interview routes + coding arena (PLAY.editor) + System Design cases + scorecard labels + reset modal dialog
+            for ir in ["#/interview", "#/interview/coding", "#/interview/patterns", "#/interview/design", "#/interview/design/notification-system", "#/interview/design/search-autocomplete", "#/interview/behavioral", "#/interview/rapid"]:
                 goto_hash(page, base, ir)
                 check(len(page.inner_text("#view")) > 40, f"Interview route {ir} rendered empty")
+            goto_hash(page, base, "#/interview/design")
+            check("Multi-channel notification service" in page.inner_text("#view") and "Search typeahead" in page.inner_text("#view"), "Interview design should list 8 worked cases including notification and search autocomplete")
+            goto_hash(page, base, "#/interview/rapid")
+            check("System design" in page.inner_text("#view") and "Kleppmann" in page.inner_text("#view"), "Rapid-fire page must render 6 System design Q&As")
             goto_hash(page, base, "#/interview/coding")
             first_prob_href = page.locator("#view .rows a.row").first.get_attribute("href")
             page.locator("#view .rows a.row").first.click()
@@ -230,6 +249,13 @@ def run_suite():
             check("Istilah penting" in go_id and "Tebak dulu" in go_id, "Indonesian Go collections lesson must translate")
             goto_hash(page_id, base, "#/lab/gocontext")
             check("Pohon pembatalan context.Context" in page_id.inner_text("#view"), "Indonesian ui-vizgo must translate gocontext")
+            goto_hash(page_id, base, "#/lesson/sysdesign/caching")
+            sys_id = page_id.inner_text("#view")
+            check("Istilah penting" in sys_id and "Tebak dulu" in sys_id, "Indonesian sysdesign/caching lesson must translate")
+            goto_hash(page_id, base, "#/lab/sysqueue")
+            check("Lab transactional outbox" in page_id.inner_text("#view"), "Indonesian ui-vizsys must translate sysqueue")
+            goto_hash(page_id, base, "#/interview/design/notification-system")
+            check("Layanan notifikasi multi-kanal" in page_id.inner_text("#view"), "Indonesian notification-system design case must translate")
             goto_hash(page_id, base, "#/interview/mock")
             check("Skorcard pewawancara" in page_id.inner_text("#view") or "pewawancara" in page_id.inner_text("#view").lower() or len(page_id.evaluate(WCAG_DOM_AUDIT)) == 0, "ID interview loaded cleanly")
             check(len(errs_id) == 0, f"ID pass runtime/console errors: {errs_id}")
@@ -239,7 +265,7 @@ def run_suite():
             ctx_m = browser.new_context(viewport={"width": 360, "height": 780})
             pm = ctx_m.new_page()
             pm.add_init_script("localStorage.setItem('stackmastery.lang', 'en');")
-            for r in ["#/", "#/track/angular", "#/track/go", "#/lesson/angular/signals", "#/lesson/go/collections", "#/lesson/aspnet/arch", "#/lab/goslices", "#/lab/gocontext", "#/play/sql", "#/interview/coding", "#/interview/design", "#/interview/mock", "#/projects", "#/exam"]:
+            for r in ["#/", "#/track/angular", "#/track/go", "#/track/sysdesign", "#/lesson/angular/signals", "#/lesson/go/collections", "#/lesson/sysdesign/caching", "#/lesson/aspnet/arch", "#/lab/goslices", "#/lab/gocontext", "#/lab/syscache", "#/lab/sysratelimit", "#/lab/sysdbscale", "#/lab/syshash", "#/lab/sysqueue", "#/lab/sysresilience", "#/play/sql", "#/interview/coding", "#/interview/design", "#/interview/design/notification-system", "#/interview/mock", "#/projects", "#/exam"]:
                 goto_hash(pm, base, r)
                 ov = pm.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1")
                 check(ov, f"360px mobile overflow on {r}")

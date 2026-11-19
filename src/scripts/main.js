@@ -28,7 +28,7 @@ let vizP, playP, ivP;
 const ensureViz = () => vizP || (vizP = Promise.all([
   import('./viz/viz.js'), import('./viz/vizcss.js'), import('./viz/vizmore.js'),
   import('./viz/vizangular.js'), import('./viz/vizflutter.js'), import('./viz/vizplus.js'),
-  import('./viz/vizgo.js')
+  import('./viz/vizgo.js'), import('./viz/vizsys.js')
 ]));
 const ensurePlay = () => playP || (playP = import('./playground.js'));
 const ensureInterview = () => ivP || (ivP = (async () => {

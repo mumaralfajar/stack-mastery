@@ -1,7 +1,7 @@
 :root {
   --bg: #f6f5f1; --surface: #ffffff; --sunken: #efede7; --text: #1b2030; --muted: #5d6677; --border: #e0ddd4;
   --accent: #3b47d6; --good: #0f7b4f; --bad: #c0362c; --good-bg: #e3f4ea; --bad-bg: #fbe9e6;
-  --csharp: #7c3aed; --aspnet: #4338ca; --go: #0e7490; --sql: #b45309; --css: #0d9488; --react: #0284c7; --angular: #b8145e; --flutter: #1d4ed8; --cs: #be123c;
+  --csharp: #7c3aed; --aspnet: #4338ca; --go: #0e7490; --sql: #b45309; --css: #0d9488; --react: #0284c7; --angular: #b8145e; --flutter: #1d4ed8; --cs: #be123c; --sysdesign: #c2410c;
   --code-bg: #14171f; --code-text: #e4e7ee;
   --tc: var(--accent);
   --mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, Menlo, monospace;
@@ -12,13 +12,13 @@
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0e1117; --surface: #161a23; --sunken: #1d222d; --text: #e7eaf0; --muted: #9aa3b4; --border: #272d3a;
   --accent: #8b95ff; --good: #4fd19a; --bad: #ff8b7e; --good-bg: #12301f; --bad-bg: #3a1a17;
-  --csharp: #b79cff; --aspnet: #818cf8; --go: #22d3ee; --sql: #f5b955; --css: #2dd4bf; --react: #38bdf8; --angular: #f472b6; --flutter: #60a5fa; --cs: #fb7185;
+  --csharp: #b79cff; --aspnet: #818cf8; --go: #22d3ee; --sql: #f5b955; --css: #2dd4bf; --react: #38bdf8; --angular: #f472b6; --flutter: #60a5fa; --cs: #fb7185; --sysdesign: #fb923c;
   --code-bg: #0a0c11; color-scheme: dark;
 } }
 :root[data-theme="dark"], :root:has(> head > meta[name="color-scheme"][content="dark"]) {
   --bg: #0e1117; --surface: #161a23; --sunken: #1d222d; --text: #e7eaf0; --muted: #9aa3b4; --border: #272d3a;
   --accent: #8b95ff; --good: #4fd19a; --bad: #ff8b7e; --good-bg: #12301f; --bad-bg: #3a1a17;
-  --csharp: #b79cff; --aspnet: #818cf8; --go: #22d3ee; --sql: #f5b955; --css: #2dd4bf; --react: #38bdf8; --angular: #f472b6; --flutter: #60a5fa; --cs: #fb7185;
+  --csharp: #b79cff; --aspnet: #818cf8; --go: #22d3ee; --sql: #f5b955; --css: #2dd4bf; --react: #38bdf8; --angular: #f472b6; --flutter: #60a5fa; --cs: #fb7185; --sysdesign: #fb923c;
   --code-bg: #0a0c11; color-scheme: dark;
 }
 :root[data-theme="light"], :root:has(> head > meta[name="color-scheme"][content="light"]) {
@@ -46,6 +46,7 @@
     --flutter: light-dark(#1d4ed8, #60a5fa);
     --go: light-dark(#0e7490, #22d3ee);
     --cs: light-dark(#be123c, #fb7185);
+    --sysdesign: light-dark(#c2410c, #fb923c);
     --code-bg: light-dark(#14171f, #0a0c11);
   }
 }
@@ -617,3 +618,20 @@ dialog.sm-dialog p { margin: 0 0 1.1rem; color: var(--muted); max-width: 65ch; }
 .dp-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: .45rem; }
 .dp-strip .slot { flex-direction: column; align-items: center; text-align: center; }
 mark { background: color-mix(in srgb, var(--tc) 24%, transparent); color: var(--text); padding: 0 .15em; border-radius: 3px; font-weight: 600; }
+
+/* System Design visualizers: hash ring, algorithm comparison grid, status pills */
+.sd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); gap: .7rem; margin: .7rem 0; }
+.sd-card { min-inline-size: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: .75rem .85rem; display: flex; flex-direction: column; gap: .45rem; }
+.sd-card h4 { margin: 0; font-size: .88rem; color: var(--text); display: flex; align-items: center; justify-content: space-between; gap: .4rem; flex-wrap: wrap; }
+.sd-badge { font-size: .74rem; font-weight: 700; padding: .14rem .48rem; border-radius: 999px; border: 1px solid var(--border); background: var(--sunken); color: var(--text); font-family: var(--mono); }
+.sd-badge.ok { background: var(--good-bg); color: var(--good); border-color: color-mix(in srgb, var(--good) 45%, var(--border)); }
+.sd-badge.bad { background: var(--bad-bg); color: var(--bad); border-color: color-mix(in srgb, var(--bad) 45%, var(--border)); }
+.sd-badge.warn { background: color-mix(in srgb, var(--tc) 16%, var(--surface)); color: var(--tc); border-color: color-mix(in srgb, var(--tc) 45%, var(--border)); }
+.sd-ring svg { display: block; width: 100%; max-width: 260px; height: auto; margin: 0 auto; }
+.sd-ring circle.ring-track { fill: none; stroke: var(--border); stroke-width: 2.5; }
+.sd-ring circle.ring-node { fill: var(--tc); stroke: var(--surface); stroke-width: 2; }
+.sd-ring circle.ring-vnode { fill: var(--surface); stroke: var(--tc); stroke-width: 2; }
+.sd-ring circle.ring-key { fill: var(--muted); }
+.sd-ring circle.ring-key.moved { fill: var(--bad); }
+.sd-ring text { fill: var(--text); font: 700 11px var(--mono); }
+.sd-slots { display: grid; grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); gap: .4rem; }

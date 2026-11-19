@@ -58,14 +58,17 @@ const KW = {
   sql: 'select from where group by having order limit offset insert into values update set delete create table index primary key foreign references join inner left right full outer cross on as and or not null is in exists between like distinct union all case when then else end with over partition rows begin commit rollback transaction unique check default asc desc top view constraint alter add drop include integer int text real varchar nvarchar decimal date datetime2 bit',
   dart: 'abstract as assert async await base bool break case catch class const continue default do double dynamic else enum extends extension external factory false final finally for get if implements import in int interface is late library mixin new null num on operator part required return sealed set show static super switch sync this throw true try typedef var void when while with yield',
   go: 'any append bool break byte cap case chan clear close cmp complex complex64 complex128 const continue copy default defer delete else error fallthrough false float32 float64 for func go goto if imag import int int8 int16 int32 int64 interface iota len make map max min new nil package print println range real recover return rune select string struct switch true type uint uint8 uint16 uint32 uint64 uintptr var',
+  lua: 'and break do else elseif end false for function goto if in local nil not or repeat return then true until while redis call pcall tonumber tostring math table',
   ts: 'any as async await boolean break case catch class const continue default do else enum export extends false finally for from function if implements import in infer interface is keyof let never new null number of override private protected public readonly return satisfies string switch this throw true try type typeof undefined unknown var void while'
 };
 const RX = {};
-// Markup languages get their own token patterns: comment, string, keyword, number, name.
+// Markup, protocol, and config languages get their own token patterns: comment, string, keyword, number, name.
 const SPEC = {
   css: ['\\/\\*[\\s\\S]*?\\*\\/', '"[^"]*"|\'[^\']*\'', '@[\\w-]+|!important', '-?\\b\\d+(?:\\.\\d+)?(?:px|rem|em|fr|vh|vw|dvh|ch|ms|s|deg|%)?', '--[\\w-]+|[a-z-]+(?=\\s*:)'],
   html: ['<!--[\\s\\S]*?-->', '"[^"]*"', '<\\/?[a-zA-Z][\\w-]*|\\/?>', '(?!)', '[a-z-]+(?==)'],
-  sh: ['#[^\\n]*', '"[^"]*"|\'[^\']*\'', '\\b(?:dotnet|npm|npx|git|node|cd|code|docker|go|flutter|dart|bun|mkdir|curl)\\b', '(?!)', '(?<=\\s)--?[a-zA-Z][\\w-]*']
+  http: ['#[^\\n]*', '"[^"]*"', '\\b(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\\b|HTTP\\/[123](?:\\.[01])?|\\b[1-5]\\d\\d\\b', '-?\\b\\d+(?:\\.\\d+)?\\b', '(?<![A-Za-z0-9-])[A-Za-z][A-Za-z0-9-]*(?=:(?!\\/\\/))'],
+  yaml: ['#[^\\n]*', '"[^"]*"|\'[^\']*\'', '\\b(?:true|false|null|yes|no)\\b', '-?\\b\\d+(?:\\.\\d+)?(?:ms|s|m|h|Mi|Gi|%)?\\b', '[a-zA-Z_][\\w.-]*(?=\\s*:)'],
+  sh: ['#[^\\n]*', '"[^"]*"|\'[^\']*\'', '\\b(?:dotnet|npm|npx|git|node|cd|code|docker|go|flutter|dart|bun|mkdir|curl|kubectl|redis-cli)\\b', '(?!)', '(?<=\\s)--?[a-zA-Z][\\w-]*']
 };
 const TPL_RX = /(<!--[\s\S]*?-->)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(@(?:if|else\s+if|else|for|empty|switch|case|default|defer|placeholder|loading|error)\b|\{\{|\}\})|(<\/?[a-zA-Z][\w-]*|\/?>)|([([]?[a-zA-Z][\w.-]*[\])]?(?==))/g;
 function highlightTemplate(raw) {
@@ -131,7 +134,7 @@ let lastCopyMsg = '';
 
 W.codeBlock = function (code, lang, opts = {}) {
   code = code.replace(/^\n+|\s+$/g, '');
-  const label = { cs: 'C#', sql: 'SQL', ts: 'TypeScript', tsx: 'TSX', dart: 'Dart', go: 'Go', sh: 'Shell', css: 'CSS', html: 'HTML' }[lang] || lang;
+  const label = { cs: 'C#', sql: 'SQL', ts: 'TypeScript', tsx: 'TSX', dart: 'Dart', go: 'Go', lua: 'Lua', http: 'HTTP', yaml: 'YAML', sh: 'Shell', css: 'CSS', html: 'HTML' }[lang] || lang;
   const tip = W.h('span', { class: 'copy-tip', role: 'status' });
   const pre = W.h('pre', {}, W.h('code', { html: W.highlight(code, lang === 'tsx' ? 'ts' : lang) }));
   let hidden = !!opts.blurComments;

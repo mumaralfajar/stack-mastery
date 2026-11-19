@@ -20,6 +20,7 @@
     "verify:angular": "node tools/verify-angular.mjs",
     "verify:dart": "node tools/verify-dart.mjs",
     "verify:go": "node tools/verify-go.mjs",
+    "verify:sysdesign": "node tools/verify-sysdesign.mjs",
     "verify:ui": "python -u tools/verify-ui.py"
   },
   "dependencies": {

@@ -12,9 +12,9 @@ if (typeof window !== 'undefined' && !window.INTERVIEW) {
         const beh = new Set((d.stories || []).flatMap(s => s.tags || []));
         const parts = [
           Object.keys(d.solved || {}).length / 21,
-          Object.values(d.design || {}).filter(Boolean).length / 6,
+          Object.values(d.design || {}).filter(Boolean).length / 8,
           Math.min(beh.size, 8) / 8,
-          Object.values(d.rapid || {}).filter(v => v === 2).length / 61,
+          Object.values(d.rapid || {}).filter(v => v === 2).length / 67,
           Math.min((d.mocks || []).length, 8) / 8
         ];
         return Math.round(parts.reduce((a, x) => a + x, 0) / parts.length * 100);

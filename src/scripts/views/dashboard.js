@@ -16,7 +16,7 @@ export function dashboard() {
       h('div', {},
         h('p', { class: 'eyebrow' }, 'Beginner → Expert → Teacher'),
         h('h1', {}, 'Learn it. Prove it. Teach it.'),
-        h('p', { class: 'lede' }, 'Eight stack tracks cover C#, ASP.NET Core, Go, SQL, CSS with Tailwind, TypeScript with React, Angular, and Dart with Flutter, plus CS fundamentals. You finish a lesson once you can teach it.'),
+        h('p', { class: 'lede' }, 'Nine stack tracks and CS fundamentals cover C#, ASP.NET Core, Go, SQL, CSS with Tailwind, TypeScript with React, Angular, Dart with Flutter, and System Design. You finish a lesson once you can teach it.'),
         overall() === 0 ? h('div', { class: 'actions' },
           h('a', { class: 'btn', href: '#/start' }, 'New here? Set up your machine first →'),
           h('a', { class: 'btn ghost', href: '#/lab/journey' }, 'See how one click travels through the whole stack →')) : null),
@@ -45,7 +45,7 @@ export function dashboard() {
       h('p', {}, 'Work level by level across tracks instead of finishing one first. The stack clicks best when learned together.'),
       h('ol', { class: 'steps' },
         h('li', {}, h('b', {}, 'Beginner: '), 'C# → CS Fundamentals → SQL → ASP.NET Core → Go → CSS → React → Angular → Flutter, then build Capstone 1.'),
-        h('li', {}, h('b', {}, 'Intermediate: '), 'same order, then build Capstone 2 as your first full-stack app.'),
+        h('li', {}, h('b', {}, 'Intermediate: '), 'same order plus System Design, then build Capstone 2 as your first full-stack app.'),
         h('li', {}, h('b', {}, 'Advanced and Expert: '), "follow whichever capstone requirement you can't explain yet."),
         h('li', {}, h('b', {}, 'Alongside, from Intermediate on: '), 'the eight-week interview plan. Steady weekly practice beats cramming.')),
       h('p', {}, h('a', { href: '#/lab/journey' }, 'See how one click travels through the whole stack →'))));

@@ -5,3 +5,5 @@ import '../../data/id/css.js';
 import '../../data/id/react.js';
 import '../../data/id/angular.js';
 import '../../data/id/flutter.js';
+import '../../data/id/sysdesign.js';
+import '../../data/id/ui-vizsys.js';

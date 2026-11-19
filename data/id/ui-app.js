@@ -49,7 +49,7 @@ I18N.add({
   // dashboard
   'Beginner → Expert → Teacher': 'Pemula → Expert → Pengajar',
   'Learn it. Prove it. Teach it.': 'Pelajari. Buktikan. Ajarkan.',
-  'Eight stack tracks cover C#, ASP.NET Core, Go, SQL, CSS with Tailwind, TypeScript with React, Angular, and Dart with Flutter, plus CS fundamentals. You finish a lesson once you can teach it.': 'Ada delapan track (C#, ASP.NET Core, Go, SQL, CSS + Tailwind, TypeScript + React, Angular, Dart + Flutter) plus CS fundamentals. Satu materi baru tuntas kalau kamu sudah bisa mengajarkannya.',
+  'Nine stack tracks and CS fundamentals cover C#, ASP.NET Core, Go, SQL, CSS with Tailwind, TypeScript with React, Angular, Dart with Flutter, and System Design. You finish a lesson once you can teach it.': 'Sepuluh track mencakup C#, ASP.NET Core, Go, SQL, CSS + Tailwind, TypeScript + React, Angular, Dart + Flutter, System Design, dan CS fundamentals. Satu materi baru tuntas kalau kamu sudah bisa mengajarkannya.',
   'New here? Set up your machine first →': 'Baru mulai? Siapkan dulu komputermu →',
   'day streak': 'hari beruntun',
   'cards due': 'kartu jatuh tempo',
@@ -69,7 +69,7 @@ I18N.add({
   'Beginner: ': 'Pemula: ',
   'C# → CS Fundamentals → SQL → ASP.NET Core → Go → CSS → React → Angular → Flutter, then build Capstone 1.': 'C# → CS Fundamentals → SQL → ASP.NET Core → Go → CSS → React → Angular → Flutter, lalu bangun Capstone 1.',
   'Intermediate: ': 'Menengah: ',
-  'same order, then build Capstone 2 as your first full-stack app.': 'urutan sama, lalu bangun Capstone 2 sebagai app full-stack pertamamu.',
+  'same order plus System Design, then build Capstone 2 as your first full-stack app.': 'urutan sama ditambah System Design, lalu bangun Capstone 2 sebagai app full-stack pertamamu.',
   'Advanced and Expert: ': 'Mahir dan Expert: ',
   "follow whichever capstone requirement you can't explain yet.": 'ikuti bagian capstone mana pun yang belum bisa kamu jelaskan.',
   'Alongside, from Intermediate on: ': 'Sambil jalan, sejak level Menengah: ',

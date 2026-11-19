@@ -210,9 +210,9 @@ self.onmessage = e => {
         h('span', { class: 'card-k' }, D.design[x.id] ? '✓ mastered' : 'case study'), h('strong', {}, x.title), h('p', {}, x.prompt))))),
       sec('Back-of-envelope estimator', h('p', {}, 'Estimation is arithmetic with round numbers. Change the inputs and learn which ones dominate.'), estimator()),
       sec('Building blocks', h('dl', { class: 'kv' }, IV.design.blocks.flatMap(([a, b]) => [h('dt', {}, a), h('dd', {}, b)]))),
-      sec('Use what you already know', h('p', {}, 'Design answers get their depth from fundamentals in this program: ',
-        h('a', { href: '#/lesson/sql/indexes' }, 'indexes'), ', ', h('a', { href: '#/lesson/sql/transactions' }, 'transactions'), ', ', h('a', { href: '#/lesson/sql/scale' }, 'scaling a database'), ', ',
-        h('a', { href: '#/lesson/aspnet/perf' }, 'caching and rate limiting'), ', ', h('a', { href: '#/lesson/aspnet/arch' }, 'queues and the outbox'), ' and ', h('a', { href: '#/lesson/aspnet/prod' }, 'resilience'), '.')));
+      sec('Use what you already know', h('p', {}, 'Design answers get their depth from the ', h('a', { href: '#/track/sysdesign' }, 'System Design'), ' track and fundamentals: ',
+        h('a', { href: '#/lesson/sysdesign/caching' }, 'caching'), ', ', h('a', { href: '#/lesson/sysdesign/ratelimiting' }, 'rate limiting'), ', ', h('a', { href: '#/lesson/sysdesign/db-scaling' }, 'scaling a database'), ', ',
+        h('a', { href: '#/lesson/sysdesign/hashing' }, 'consistent hashing'), ', ', h('a', { href: '#/lesson/sysdesign/messaging' }, 'queues and the outbox'), ', ', h('a', { href: '#/lesson/sysdesign/resilience' }, 'resilience'), ' and ', h('a', { href: '#/lesson/sysdesign/consistency' }, 'fencing tokens and sagas'), '.')));
   }
 
   // ---------- behavioral ----------
@@ -364,7 +364,7 @@ self.onmessage = e => {
       ['Coding', '#/interview/coding', 'Two rounds in most loops. Data structures and algorithms, solved out loud in 35–45 minutes.'],
       ['System design', '#/interview/design', 'From mid-level up. Design a large system on a whiteboard and defend the trade-offs.'],
       ['Behavioral', '#/interview/behavioral', 'Evidence of ownership, collaboration and judgement, told as specific stories.'],
-      ['Stack knowledge', '#/interview/rapid', 'Depth in your own technologies: C#, ASP.NET Core, Go, SQL, TypeScript, React, Angular, CSS, Flutter, the web.'],
+      ['Stack knowledge', '#/interview/rapid', 'Depth in your own technologies: C#, ASP.NET Core, Go, SQL, TypeScript, React, Angular, CSS, Flutter, System design, the web.'],
       ['Mock interviews', '#/interview/mock', 'Timed, scored simulations of every round to build speed and confidence.']
     ];
     return h('div', { class: 'page iv' },
