@@ -68,7 +68,7 @@ def goto_hash(page, base, h):
         page.evaluate("(h) => { location.hash = h; }", h)
     else:
         page.goto(base + h, wait_until="domcontentloaded")
-    page.wait_for_function("(h) => location.hash === h && document.querySelector('#view .page') !== null", arg=h, timeout=10000)
+    page.wait_for_function("(h) => location.hash === h && document.querySelector('#view .page, #view .lp-root') !== null", arg=h, timeout=10000)
     page.wait_for_timeout(180)
 
 
@@ -92,7 +92,27 @@ def run_suite():
             page.on("console", lambda m: errs.append(f"console.{m.type}: {m.text}") if m.type == "error" else None)
 
             page.add_init_script("localStorage.setItem('stackmastery.lang', 'en');")
+            # 1a. Full-bleed interactive Distributed Packet Reactor at #/
             goto_hash(page, base, "#/")
+            check(page.evaluate("document.body.classList.contains('is-landing')"), "#/' must apply body.is-landing full-bleed mode")
+            check(not page.locator("#nav").is_visible(), "Sidebar #nav must be hidden on landing route #/")
+            rect = page.evaluate("() => { const r = document.querySelector('#view canvas.lp-canvas')?.getBoundingClientRect(); return r ? {w: r.width, h: r.height} : null; }")
+            check(rect and rect["w"] > 400 and rect["h"] > 300, f"Reactor canvas must fill landing stage, got {rect}")
+            page.locator("#view .lp-dock button", has_text="50× Spike").click()
+            page.locator("#view .lp-dock button", has_text="Kill Cache").click()
+            check("Circuit OPEN" in page.inner_text("#view .lp-telemetry"), "Kill Cache must flip telemetry to Circuit OPEN")
+            page.locator("#view .lp-dock button", has_text="Restore Cache").click()
+            page.locator("#view .lp-dock button", has_text="Gravity Well").click()
+            page.locator("#view .lp-dock button", has_text="Slow-Mo").click()
+            page.locator("#view .lp-dock button", has_text="Pause").click()
+            check(page.locator("#view .lp-dock button", has_text="Play").count() == 1, "Pause must flip label to Play cleanly")
+            check(page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), "Desktop landing overflowed")
+            check(len(page.evaluate(WCAG_DOM_AUDIT)) == 0, f"Landing WCAG issues: {page.evaluate(WCAG_DOM_AUDIT)}")
+            page.locator("#view .lp-copy a.btn", has_text="Open Dashboard").click()
+            page.wait_for_function("() => location.hash === '#/dashboard' && document.querySelector('#view .page') !== null", timeout=10000)
+
+            # 1b. Workspace Dashboard at #/dashboard
+            goto_hash(page, base, "#/dashboard")
             check("Recommended first lesson" in page.inner_text("#view"), "0% dashboard should show 1 Recommended first lesson instead of 8 continue cards")
             check(page.locator("#nav .nav-actions").count() == 1, "nav-actions should live inside sidebar nav-top on desktop")
             check(page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), "Desktop dashboard overflowed")
@@ -238,6 +258,11 @@ def run_suite():
             page_id.on("pageerror", lambda e: errs_id.append(f"pageerror: {e}"))
             page_id.on("console", lambda m: errs_id.append(f"console.{m.type}: {m.text}") if m.type == "error" else None)
             page_id.add_init_script("localStorage.setItem('stackmastery.lang', 'id');")
+            goto_hash(page_id, base, "#/")
+            lp_id = page_id.inner_text("#view")
+            check("Pelajari. Buktikan. Ajarkan." in lp_id and "Buka Dashboard" in lp_id, "Indonesian landing page must translate headline and CTA")
+            goto_hash(page_id, base, "#/dashboard")
+            check("Materi pertama yang disarankan" in page_id.inner_text("#view"), "Indonesian dashboard must load cleanly at #/dashboard")
             goto_hash(page_id, base, "#/lesson/angular/signals")
             body_id = page_id.inner_text("#view")
             check("Istilah penting" in body_id, "Indonesian Angular lesson must translate Key words -> Istilah penting (ui-angular.js Map fix)")
@@ -265,10 +290,11 @@ def run_suite():
             ctx_m = browser.new_context(viewport={"width": 360, "height": 780})
             pm = ctx_m.new_page()
             pm.add_init_script("localStorage.setItem('stackmastery.lang', 'en');")
-            for r in ["#/", "#/track/angular", "#/track/go", "#/track/sysdesign", "#/lesson/angular/signals", "#/lesson/go/collections", "#/lesson/sysdesign/caching", "#/lesson/aspnet/arch", "#/lab/goslices", "#/lab/gocontext", "#/lab/syscache", "#/lab/sysratelimit", "#/lab/sysdbscale", "#/lab/syshash", "#/lab/sysqueue", "#/lab/sysresilience", "#/play/sql", "#/interview/coding", "#/interview/design", "#/interview/design/notification-system", "#/interview/mock", "#/projects", "#/exam"]:
+            for r in ["#/", "#/dashboard", "#/track/angular", "#/track/go", "#/track/sysdesign", "#/lesson/angular/signals", "#/lesson/go/collections", "#/lesson/sysdesign/caching", "#/lesson/aspnet/arch", "#/lab/goslices", "#/lab/gocontext", "#/lab/syscache", "#/lab/sysratelimit", "#/lab/sysdbscale", "#/lab/syshash", "#/lab/sysqueue", "#/lab/sysresilience", "#/play/sql", "#/interview/coding", "#/interview/design", "#/interview/design/notification-system", "#/interview/mock", "#/projects", "#/exam"]:
                 goto_hash(pm, base, r)
                 ov = pm.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1")
                 check(ov, f"360px mobile overflow on {r}")
+            goto_hash(pm, base, "#/dashboard")
             pm.locator(".nav-toggle").click()
             pm.wait_for_timeout(120)
             check(pm.evaluate("document.getElementById('view').inert === true && document.querySelector('#nav .nav-top').inert === true"), "Mobile drawer open must set inert on BOTH #view and .nav-top")

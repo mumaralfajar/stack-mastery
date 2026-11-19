@@ -24,7 +24,9 @@ const view = document.getElementById('view');
 const nav = document.getElementById('nav');
 
 let routed = false, routeSeq = 0;
-let vizP, playP, ivP;
+let landingP, vizP, playP, ivP;
+let cleanupView = null;
+const ensureLanding = () => landingP || (landingP = import('./views/landing.js'));
 const ensureViz = () => vizP || (vizP = Promise.all([
   import('./viz/viz.js'), import('./viz/vizcss.js'), import('./viz/vizmore.js'),
   import('./viz/vizangular.js'), import('./viz/vizflutter.js'), import('./viz/vizplus.js'),
@@ -61,12 +63,15 @@ async function route() {
   const seq = ++routeSeq;
   setMenu(false);
   const [a, b, c] = location.hash.replace(/^#\/?/, '').split('/');
-  if (a === 'play') await ensurePlay();
+  let landingMod = null;
+  if (!a) landingMod = await ensureLanding();
+  else if (a === 'play') await ensurePlay();
   else if (a === 'lab' || a === 'lesson') await ensureViz();
   else if (a === 'interview') await ensureInterview();
   else if (a === 'search') await Promise.all([ensureViz(), ensureInterview()]);
   if (seq !== routeSeq) return;
   const r = {
+    dashboard,
     track: () => trackView(b),
     lesson: () => lessonView(b, c),
     plan: () => planView(b, c),
@@ -79,8 +84,11 @@ async function route() {
     interview: () => window.INTERVIEW.view(b, c),
     search: searchView,
     start: startView
-  }[a] || dashboard;
+  }[a] || (() => landingMod.landingView(fn => { cleanupView = fn; }));
   const updateDOM = () => {
+    cleanupView?.();
+    cleanupView = null;
+    document.body.classList.toggle('is-landing', !a);
     view.replaceChildren(r());
     renderNav();
     const h1 = view.querySelector('h1');

@@ -22,7 +22,7 @@ export function review() {
   trackSel.onchange = resetQueue;
   const show = () => {
     if (!queue.length) return stage.replaceChildren(h('div', { class: 'empty' }, h('strong', {}, 'Nothing due.'), h('p', {}, allLessons().some(e => peek(e.k).read) ? "You're caught up. Come back tomorrow, or try a mock exam." : 'Mark a lesson as learned and its questions will appear here.')));
-    if (n >= queue.length) { renderNav(); return stage.replaceChildren(h('div', { class: 'empty' }, h('strong', {}, T('Session complete: {got} of {n} recalled.', { got, n: queue.length })), h('p', {}, 'Missed cards return tomorrow.'), h('a', { class: 'btn', href: '#/' }, 'Back to dashboard'))); }
+    if (n >= queue.length) { renderNav(); return stage.replaceChildren(h('div', { class: 'empty' }, h('strong', {}, T('Session complete: {got} of {n} recalled.', { got, n: queue.length })), h('p', {}, 'Missed cards return tomorrow.'), h('a', { class: 'btn', href: '#/dashboard' }, 'Back to dashboard'))); }
     const c = queue[n], nextBox = Math.min((S.cards[c.id]?.box || 0) + 1, 5), nextGap = GAPS[nextBox - 1];
     const back = h('div', { class: 'fc-back', hidden: true },
       h('p', { class: 'fc-a', html: md(c.q.a[c.q.c]) }), h('p', { html: md(c.q.why) }),

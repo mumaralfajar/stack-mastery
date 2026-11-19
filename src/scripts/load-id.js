@@ -1,6 +1,7 @@
 // Dynamically loaded when Indonesian (LANG === 'id') is selected.
 // Split across two async chunks so every chunk stays well below Vite's 600 kB limit.
 import '../../data/id/ui-app.js';
+import '../../data/id/ui-landing.js';
 import '../../data/id/ui-interview.js';
 import '../../data/id/ui-play.js';
 import '../../data/id/ui-viz.js';

@@ -6,7 +6,12 @@ stack-mastery-backup-*.json
 .vscode/
 .idea/
 .agents/
+.impeccable/
+DESIGN.md
+PRODUCT.md
 skills-lock.json
+__pycache__/
+*.pyc
 
 # OS files
 .DS_Store

@@ -74,7 +74,7 @@ export function renderNav() {
         brand(),
         h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Close menu', title: 'Close menu', onclick: () => setMenu(false, { restoreFocus: true }), html: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>' })),
       h('nav', { 'aria-label': 'Main' },
-        link('#/', 'Dashboard', a === ''),
+        link('#/dashboard', 'Dashboard', a === 'dashboard'),
         link('#/start', 'Start here: setup', a === 'start'),
         link('#/search', 'Search', a === 'search', h('small', { class: 'kbd' }, '/')),
         h('p', { class: 'nav-h' }, 'Tracks'),
@@ -105,7 +105,7 @@ export function renderNav() {
         h('button', { type: 'button', class: 'ghost', onclick: async () => {
           if (await window.confirmDialog(T('Erase all progress, notes, flashcard history and interview prep data? This cannot be undone.'), { title: 'Reset progress', confirmText: 'Reset progress', danger: true })) {
             try { ['stackmastery.v1', 'stackmastery.sql', 'stackmastery.interview'].forEach(k => localStorage.removeItem(k)); } catch { /* ignore */ }
-            location.hash = '#/'; location.reload();
+            location.hash = '#/dashboard'; location.reload();
           }
         } }, 'Reset progress'))));
   nav.classList.toggle('open', menuOpen);
