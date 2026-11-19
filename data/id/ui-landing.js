@@ -3,7 +3,7 @@ I18N.add({
   'Landing navigation': 'Navigasi halaman utama',
   'Live Labs': 'Lab Interaktif',
   'Open Dashboard →': 'Buka Dashboard →',
-  'Drag any node, click canvas to burst, double-click a node to explore.': 'Seret node mana saja, klik kanvas untuk burst paket, klik ganda node untuk membuka track.',
+  'Drag any node, click or hold canvas to charge a ripple, double-click a node to explore.': 'Seret node mana saja, klik atau tahan kanvas untuk mengisi riak, klik ganda node untuk membuka track.',
   'Cache Nominal': 'Cache Normal',
   'Ten full-stack tracks, {lessons} verified lessons, 40 interactive labs, and 4 browser playgrounds. Drag the nodes, trigger packet storms, or enter the workspace.': 'Sepuluh track full-stack, {lessons} materi terverifikasi, 40 lab interaktif, dan 4 sandbox browser. Seret node, picu badai paket, atau masuk ke workspace belajarmu.',
   'Explore 40 Live Labs': 'Jelajahi 40 Lab Interaktif',

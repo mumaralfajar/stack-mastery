@@ -119,7 +119,7 @@ export function landingView(onCleanup) {
   // Reactor stage elements
   const canvas = h('canvas', { class: 'lp-canvas', 'aria-hidden': 'true' });
   const inspDot = h('span', { class: 'lp-insp-dot', 'aria-hidden': 'true' });
-  const inspText = h('span', {}, T('Drag any node, click canvas to burst, double-click a node to explore.'));
+  const inspText = h('span', {}, T('Drag any node, click or hold canvas to charge a ripple, double-click a node to explore.'));
   const inspector = h('div', { class: 'lp-inspector', 'aria-live': 'polite' }, inspDot, inspText);
 
   const pulseDot = h('span', { class: 'lp-pulse-dot', 'data-broken': 'false' });
@@ -288,6 +288,7 @@ export function landingView(onCleanup) {
     let meteors = [];
     let meteorClock = 0;
     let sparkTick = 0;
+    const charge = { active: false, x: 0, y: 0, level: 0, heldFrames: 0, soundTick: 0, moteTick: 0 };
 
     // Deterministic seeded celestial starfield + Keplerian orbital dust
     let prng = 1337;
@@ -316,11 +317,16 @@ export function landingView(onCleanup) {
       alpha: 0.11 + nextSeed() * 0.14
     }));
 
-    const emitSparks = (x, y, color, nSparks = 5) => {
+    const addWave = ({ x, y, startR = 8, maxR = 240, duration = 64, maxAlpha = 0.72, maxWidth = 2, color, delay = 0 }) => {
+      waves.push({ x, y, startR, maxR, age: -delay, duration, maxAlpha, maxWidth, color });
+      if (waves.length > 28) waves.shift();
+    };
+
+    const emitSparks = (x, y, color, nSparks = 5, speedScale = 1) => {
       for (let i = 0; i < nSparks; i++) {
-        if (sparks.length >= 140) sparks.shift();
+        if (sparks.length >= 160) sparks.shift();
         const ang = (Math.PI * 2 * i) / nSparks + Math.random() * 0.7;
-        const spd = 1.4 + Math.random() * 2.4;
+        const spd = (1.4 + Math.random() * 2.4) * speedScale;
         sparks.push({ x, y, vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd, life: 1, color });
       }
     };
@@ -403,32 +409,83 @@ export function landingView(onCleanup) {
       });
     };
 
-    const emitBurst = (x, y, count = 12, playSound = true) => {
+    const emitBurst = (x, y, count = 12, playSound = true, chargePower = 0) => {
       const burstCol = cacheKilled ? colors.bad : colors.accent;
-      waves.push({ x, y, r: 8, maxR: Math.min(W, H) * 0.32, alpha: 0.72, color: burstCol });
-      if (waves.length > 10) waves.shift();
-      emitSparks(x, y, burstCol, Math.min(18, count));
+      const baseSpan = Math.min(W, H);
+      const bigSpan = Math.max(W, H);
+      const primaryMaxR = chargePower > 0
+        ? baseSpan * 0.34 + (bigSpan * 0.64 - baseSpan * 0.34) * Math.pow(chargePower, 0.85)
+        : baseSpan * 0.32;
+
+      addWave({
+        x, y,
+        startR: 8 + chargePower * 10,
+        maxR: primaryMaxR,
+        duration: Math.round(64 + chargePower * 62),
+        maxAlpha: 0.68 + chargePower * 0.26,
+        maxWidth: 1.9 + chargePower * 2.5,
+        color: burstCol
+      });
+      if (chargePower >= 0.18) {
+        addWave({
+          x, y,
+          delay: 7,
+          startR: 6 + chargePower * 6,
+          maxR: primaryMaxR * 0.84,
+          duration: Math.round(60 + chargePower * 54),
+          maxAlpha: 0.44 + chargePower * 0.20,
+          maxWidth: 1.4 + chargePower * 1.4,
+          color: burstCol
+        });
+      }
+      if (chargePower >= 0.55) {
+        addWave({
+          x, y,
+          delay: 15,
+          startR: 4,
+          maxR: primaryMaxR * 0.66,
+          duration: Math.round(54 + chargePower * 46),
+          maxAlpha: 0.30 + chargePower * 0.16,
+          maxWidth: 1.1 + chargePower * 0.9,
+          color: cacheKilled ? colors.bad : (isDark ? '#e2e8f0' : burstCol)
+        });
+      }
+
+      emitSparks(x, y, burstCol, Math.round(Math.min(18, count) + chargePower * 20), 1 + chargePower * 0.95);
+      const reach = 280 + chargePower * 360;
+      const strength = 9.5 + chargePower * 15.5;
       for (const n of nodes) {
         const dx = n.x - x, dy = n.y - y;
         const dist = Math.hypot(dx, dy) || 1;
-        if (dist < 280) {
-          const force = (1 - dist / 280) * 9.5;
+        if (dist < reach) {
+          const falloff = 1 - dist / reach;
+          const force = falloff * strength;
           n.vx += (dx / dist) * force;
           n.vy += (dy / dist) * force;
+          n.pulse = Math.min(1.2, n.pulse + falloff * (0.35 + chargePower * 0.85));
         }
       }
       for (let i = 0; i < count; i++) {
         spawnPacket(EDGES[i % EDGES.length], true);
       }
-      rpsBoost = Math.min(1800, rpsBoost + count * 18);
-      if (playSound && hoverIdx >= 0) playChime(hoverIdx);
-      else if (playSound) playChime(Math.floor(Math.random() * 10));
+      rpsBoost = Math.min(2400, rpsBoost + count * (18 + chargePower * 10));
+      if (playSound) {
+        if (chargePower >= 0.35) {
+          const baseIdx = hoverIdx >= 0 ? hoverIdx : Math.floor(Math.random() * 6);
+          playChime(baseIdx, 0.045 + chargePower * 0.02);
+          playChime(baseIdx + 2, 0.032 + chargePower * 0.015);
+          if (chargePower >= 0.72) playChime(baseIdx + 4, 0.028);
+        } else if (hoverIdx >= 0) {
+          playChime(hoverIdx);
+        } else {
+          playChime(Math.floor(Math.random() * 10));
+        }
+      }
     };
 
     fireSpike = () => {
       const center = byId.sysdesign || nodes[0];
-      emitBurst(center.x, center.y, 50, false);
-      waves.push({ x: center.x, y: center.y, r: 12, maxR: Math.min(W, H) * 0.44, alpha: 0.9, color: colors.accent });
+      emitBurst(center.x, center.y, 50, false, 0.78);
       for (let i = 0; i < nodes.length; i++) {
         nodes[i].pulse = 1;
         if (i < 5) playChime(i * 2, 0.032);
@@ -443,7 +500,9 @@ export function landingView(onCleanup) {
       statusTag.textContent = cacheKilled ? T('Circuit OPEN · Bypassing Cache') : T('Cache Nominal');
       const sys = byId.sysdesign;
       if (sys) {
-        waves.push({ x: sys.x, y: sys.y, r: 12, maxR: 220, alpha: 0.95, color: cacheKilled ? colors.bad : colors.good });
+        const cacheCol = cacheKilled ? colors.bad : colors.good;
+        addWave({ x: sys.x, y: sys.y, startR: 12, maxR: 250, duration: 72, maxAlpha: 0.86, maxWidth: 2.5, color: cacheCol });
+        addWave({ x: sys.x, y: sys.y, delay: 8, startR: 8, maxR: 185, duration: 60, maxAlpha: 0.45, maxWidth: 1.5, color: cacheCol });
         sys.pulse = 1.2;
       }
       playChime(4, 0.06, cacheKilled);
@@ -481,7 +540,7 @@ export function landingView(onCleanup) {
       return [mx, my];
     };
 
-    const stepPhysics = dt => {
+    const stepPhysics = (dt, rawDt = dt) => {
       const k = 0.085 * dt;
       const damp = Math.pow(0.86, dt);
       for (const n of nodes) {
@@ -495,10 +554,58 @@ export function landingView(onCleanup) {
         n.pulse = Math.max(0, n.pulse - 0.03 * dt);
       }
 
-      // Pointer hold rapid fire
-      if (pointer.down && dragIdx < 0 && (sparkTick++ % 5 === 0)) {
-        spawnPacket(EDGES[sparkTick % EDGES.length], true);
-        rpsBoost = Math.min(1800, rpsBoost + 22);
+      // Hold-click energy charge & coiled gravitational intake
+      if (charge.active && dragIdx < 0) {
+        charge.heldFrames += rawDt;
+        const ct = Math.min(1, charge.heldFrames / 108);
+        charge.level = 1 - Math.pow(1 - ct, 2.0);
+
+        if (charge.level > 0.12) {
+          const pullReach = 240 + charge.level * 180;
+          for (const n of nodes) {
+            const dx = charge.x - n.x, dy = charge.y - n.y;
+            const dist = Math.hypot(dx, dy) || 1;
+            if (dist < pullReach && dist > 26) {
+              const pullF = (1 - dist / pullReach) * (0.28 + charge.level * 0.72) * dt;
+              n.vx += (dx / dist) * pullF;
+              n.vy += (dy / dist) * pullF;
+            }
+          }
+        }
+
+        if (charge.level > 0.10) {
+          charge.moteTick += rawDt * (0.5 + charge.level * 1.6);
+          if (charge.moteTick >= 4) {
+            charge.moteTick = 0;
+            if (sparks.length < 160) {
+              const ang = Math.random() * Math.PI * 2;
+              const dist = 48 + Math.random() * (44 + charge.level * 36);
+              const sx = charge.x + Math.cos(ang) * dist;
+              const sy = charge.y + Math.sin(ang) * dist;
+              const intakeCol = cacheKilled ? colors.bad : colors.accent;
+              sparks.push({
+                x: sx, y: sy,
+                vx: (charge.x - sx) * 0.068 - (sy - charge.y) * 0.018,
+                vy: (charge.y - sy) * 0.068 + (sx - charge.x) * 0.018,
+                life: 0.75,
+                color: intakeCol
+              });
+            }
+          }
+        }
+
+        sparkTick += dt * (0.55 + charge.level * 1.45);
+        if (sparkTick >= 6) {
+          sparkTick = 0;
+          spawnPacket(EDGES[Math.floor(Math.random() * EDGES.length)], true);
+          rpsBoost = Math.min(2000, rpsBoost + 18 + charge.level * 26);
+        }
+
+        charge.soundTick += rawDt;
+        if (soundOn && charge.level > 0.12 && charge.soundTick >= 18) {
+          charge.soundTick = 0;
+          playChime(Math.min(9, Math.floor(charge.level * 9)), 0.016 + charge.level * 0.014, cacheKilled);
+        }
       }
 
       // Ambient steady traffic
@@ -557,9 +664,8 @@ export function landingView(onCleanup) {
 
       for (let i = waves.length - 1; i >= 0; i--) {
         const w = waves[i];
-        w.r += 5.2 * dt;
-        w.alpha *= Math.pow(0.955, dt);
-        if (w.alpha < 0.03 || w.r >= w.maxR) waves.splice(i, 1);
+        w.age += dt;
+        if (w.age >= w.duration) waves.splice(i, 1);
       }
 
       rpsBoost = Math.max(0, rpsBoost * Math.pow(0.96, dt));
@@ -607,6 +713,13 @@ export function landingView(onCleanup) {
           const dx = gxCenter - sx, dy = gyCenter - sy;
           const dist = Math.hypot(dx, dy) + 60;
           const pull = Math.min(26, (2600 / dist) * st.depth * 0.38);
+          sx += (dx / dist) * pull;
+          sy += (dy / dist) * pull;
+        }
+        if (charge.active && charge.level > 0.08) {
+          const dx = charge.x - sx, dy = charge.y - sy;
+          const dist = Math.hypot(dx, dy) + 55;
+          const pull = Math.min(22, (1900 / dist) * st.depth * charge.level * 0.42);
           sx += (dx / dist) * pull;
           sy += (dy / dist) * pull;
         }
@@ -718,15 +831,95 @@ export function landingView(onCleanup) {
         ctx.restore();
       }
 
-      // Shockwaves
+      // Shockwaves (eased expansion & silky opacity dissipation)
       for (const w of waves) {
+        if (w.age < 0) continue;
+        const p = Math.min(1, w.age / w.duration);
+        const easeR = 1 - Math.pow(1 - p, 3.2);
+        const r = w.startR + (w.maxR - w.startR) * easeR;
+        const fadeIn = Math.min(1, p / 0.07);
+        const fadeOut = Math.pow(1 - p, 2.5);
+        const alpha = w.maxAlpha * fadeIn * fadeOut;
+        if (alpha < 0.002) continue;
+
         ctx.save();
-        ctx.beginPath();
-        ctx.arc(w.x, w.y, w.r, 0, Math.PI * 2);
         ctx.strokeStyle = w.color;
-        ctx.lineWidth = 2;
-        ctx.globalAlpha = w.alpha;
+        // Outer diffused halo
+        ctx.beginPath();
+        ctx.arc(w.x, w.y, r, 0, Math.PI * 2);
+        ctx.lineWidth = Math.max(1.2, w.maxWidth * (1 - p * 0.45) * 3.4);
+        ctx.globalAlpha = alpha * (isDark ? 0.22 : 0.14);
         ctx.stroke();
+
+        // Crisp tapering core ring
+        ctx.beginPath();
+        ctx.arc(w.x, w.y, r, 0, Math.PI * 2);
+        ctx.lineWidth = Math.max(0.55, w.maxWidth * (1 - p * 0.65));
+        ctx.globalAlpha = alpha;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Charging singularity indicator (on canvas hold)
+      if (charge.active && charge.heldFrames > 5) {
+        const lvl = charge.level;
+        const col = cacheKilled ? colors.bad : colors.accent;
+        const colRGB = cacheKilled ? '248, 113, 113' : (isDark ? '129, 140, 248' : '79, 70, 229');
+        const breath = 0.5 + 0.5 * Math.sin(charge.heldFrames * 0.11);
+
+        ctx.save();
+        // Soft radial aura
+        const auraR = 26 + lvl * 52;
+        const aura = ctx.createRadialGradient(charge.x, charge.y, 1, charge.x, charge.y, auraR);
+        aura.addColorStop(0, `rgba(${colRGB}, ${isDark ? 0.16 + lvl * 0.24 : 0.10 + lvl * 0.16})`);
+        aura.addColorStop(1, `rgba(${colRGB}, 0)`);
+        ctx.fillStyle = aura;
+        ctx.beginPath();
+        ctx.arc(charge.x, charge.y, auraR, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Contracting outer gravitational boundary
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 1.1;
+        ctx.setLineDash([3, 5]);
+        ctx.globalAlpha = 0.16 + lvl * 0.24;
+        ctx.beginPath();
+        ctx.arc(charge.x, charge.y, 56 - lvl * 22 + breath * 2.5, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Sweeping circular charge gauge arc
+        const ringR = 16 + lvl * 14;
+        const startAng = -Math.PI / 2;
+        const endAng = startAng + Math.PI * 2 * Math.max(0.04, lvl);
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.arc(charge.x, charge.y, ringR, startAng, endAng);
+        ctx.lineWidth = 6 + lvl * 4;
+        ctx.globalAlpha = 0.14 + lvl * 0.12;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(charge.x, charge.y, ringR, startAng, endAng);
+        ctx.lineWidth = 2 + lvl * 1.6;
+        ctx.globalAlpha = 0.68 + lvl * 0.28;
+        ctx.stroke();
+
+        // Primed full-charge subtle outer halo
+        if (lvl >= 0.99) {
+          ctx.beginPath();
+          ctx.arc(charge.x, charge.y, 35 + breath * 4, 0, Math.PI * 2);
+          ctx.lineWidth = 1.4;
+          ctx.globalAlpha = 0.26 + breath * 0.16;
+          ctx.stroke();
+        }
+
+        // Luminous focal core pinpoint
+        ctx.fillStyle = col;
+        ctx.globalAlpha = 0.8 + lvl * 0.2;
+        ctx.beginPath();
+        ctx.arc(charge.x, charge.y, 2.6 + lvl * 4.2 + breath * 0.8, 0, Math.PI * 2);
+        ctx.fill();
         ctx.restore();
       }
 
@@ -783,7 +976,7 @@ export function landingView(onCleanup) {
           ctx.arc(n.x, n.y, radius + n.pulse * 12, 0, Math.PI * 2);
           ctx.strokeStyle = (isSys && cacheKilled) ? colors.bad : n.color;
           ctx.lineWidth = 2;
-          ctx.globalAlpha = n.pulse * 0.55;
+          ctx.globalAlpha = Math.min(1, Math.pow(n.pulse, 1.8) * 0.55);
           ctx.stroke();
           ctx.restore();
         }
@@ -839,7 +1032,7 @@ export function landingView(onCleanup) {
         inspText.textContent = T('{name} · {n} lessons · Double-click to open track', { name: n.name, n: n.count });
       } else {
         inspDot.style.background = cacheKilled ? colors.bad : colors.accent;
-        inspText.textContent = T('Drag any node, click canvas to burst, double-click a node to explore.');
+        inspText.textContent = T('Drag any node, click or hold canvas to charge a ripple, double-click a node to explore.');
       }
     };
 
@@ -850,6 +1043,7 @@ export function landingView(onCleanup) {
 
     const onDown = e => {
       if (e.target !== canvas) return;
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
       const [px, py] = stageCoords(e);
       pointer.x = px; pointer.y = py; pointer.active = true; pointer.down = true;
       const hit = hitNode(px, py);
@@ -861,7 +1055,22 @@ export function landingView(onCleanup) {
         playChime(hit);
         canvas.setPointerCapture?.(e.pointerId);
       } else {
-        emitBurst(px, py, 12, true);
+        charge.active = true;
+        charge.x = px;
+        charge.y = py;
+        charge.level = 0;
+        charge.heldFrames = 0;
+        charge.soundTick = 0;
+        charge.moteTick = 0;
+        canvas.setPointerCapture?.(e.pointerId);
+        addWave({
+          x: px, y: py,
+          startR: 4, maxR: 46,
+          duration: 28,
+          maxAlpha: 0.42,
+          maxWidth: 1.5,
+          color: cacheKilled ? colors.bad : colors.accent
+        });
       }
       if (paused) drawFrame();
     };
@@ -876,6 +1085,10 @@ export function landingView(onCleanup) {
         nodes[dragIdx].vy = 0;
         if (paused) drawFrame();
         return;
+      }
+      if (charge.active) {
+        charge.x = px;
+        charge.y = py;
       }
       if (e.target === canvas) {
         const hit = hitNode(px, py);
@@ -897,6 +1110,29 @@ export function landingView(onCleanup) {
       if (dragIdx >= 0) {
         dragIdx = -1;
         stage.setAttribute('data-dragging', 'false');
+        return;
+      }
+      if (charge.active) {
+        const cx = charge.x;
+        const cy = charge.y;
+        const lvl = charge.level;
+        charge.active = false;
+        charge.level = 0;
+        charge.heldFrames = 0;
+        const power = lvl < 0.15 ? 0 : Math.min(1, (lvl - 0.15) / 0.85);
+        emitBurst(cx, cy, Math.round(12 + power * 42), true, power);
+        if (paused) drawFrame();
+      }
+    };
+
+    const onCancel = () => {
+      pointer.down = false;
+      charge.active = false;
+      charge.level = 0;
+      charge.heldFrames = 0;
+      if (dragIdx >= 0) {
+        dragIdx = -1;
+        stage.setAttribute('data-dragging', 'false');
       }
     };
 
@@ -910,7 +1146,8 @@ export function landingView(onCleanup) {
     canvas.addEventListener('pointerdown', onDown);
     stage.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
-    canvas.addEventListener('pointercancel', onUp);
+    canvas.addEventListener('pointercancel', onCancel);
+    window.addEventListener('blur', onCancel);
     canvas.addEventListener('dblclick', onDblClick);
 
     let lastTs = performance.now();
@@ -919,7 +1156,7 @@ export function landingView(onCleanup) {
       const rawDt = Math.min(2.5, Math.max(0.2, (ts - lastTs) / 16.6667));
       lastTs = ts;
       if (!paused && stageInView && !document.hidden) {
-        stepPhysics(rawDt * (slowMo ? 0.25 : 1));
+        stepPhysics(rawDt * (slowMo ? 0.25 : 1), rawDt);
         drawFrame();
         rafId = requestAnimationFrame(tick);
       } else {
@@ -934,7 +1171,10 @@ export function landingView(onCleanup) {
       }
     };
 
-    const onVis = () => syncPause();
+    const onVis = () => {
+      if (document.hidden) onCancel();
+      syncPause();
+    };
     document.addEventListener('visibilitychange', onVis);
 
     if (typeof IntersectionObserver !== 'undefined') {
@@ -968,7 +1208,8 @@ export function landingView(onCleanup) {
       canvas.removeEventListener('pointerdown', onDown);
       stage.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
-      canvas.removeEventListener('pointercancel', onUp);
+      canvas.removeEventListener('pointercancel', onCancel);
+      window.removeEventListener('blur', onCancel);
       canvas.removeEventListener('dblclick', onDblClick);
       document.removeEventListener('visibilitychange', onVis);
       ioStage?.disconnect();
