@@ -3,6 +3,7 @@ stack-mastery-backup-*.json
 
 # Local tooling and editor settings
 .claude/
+.codex/
 .vscode/
 .idea/
 .agents/

@@ -260,7 +260,7 @@ def run_suite():
             page_id.add_init_script("localStorage.setItem('stackmastery.lang', 'id');")
             goto_hash(page_id, base, "#/")
             lp_id = page_id.inner_text("#view")
-            check("Pelajari. Buktikan. Ajarkan." in lp_id and "Buka Dashboard" in lp_id, "Indonesian landing page must translate headline and CTA")
+            check("Pelajari." in lp_id and "Buktikan." in lp_id and "Ajarkan." in lp_id and "Buka Dashboard" in lp_id, "Indonesian landing page must translate headline and CTA")
             goto_hash(page_id, base, "#/dashboard")
             check("Materi pertama yang disarankan" in page_id.inner_text("#view"), "Indonesian dashboard must load cleanly at #/dashboard")
             goto_hash(page_id, base, "#/lesson/angular/signals")

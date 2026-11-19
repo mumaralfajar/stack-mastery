@@ -126,8 +126,9 @@ export function landingView(onCleanup) {
   const rpsValue = h('b', {}, '48 RPS');
   const statusTag = h('span', {}, T('Cache Nominal'));
 
+  const mottoLines = T('Learn it. Prove it. Teach it.').split(/(?<=\.)\s+/).filter(Boolean);
   const heroCopy = h('div', { class: 'lp-copy' },
-    h('h1', {}, T('Learn it. Prove it. Teach it.')),
+    h('h1', {}, ...mottoLines.flatMap((line, i) => [i > 0 ? ' ' : null, h('span', { class: 'lp-line' }, line)])),
     h('p', { class: 'lp-lede' }, T('Ten full-stack tracks, {lessons} verified lessons, 40 interactive labs, and 4 browser playgrounds. Drag the nodes, trigger packet storms, or enter the workspace.', { lessons: totalLessons })),
     h('div', { class: 'lp-actions' },
       h('a', { class: 'btn', href: '#/dashboard' }, T('Open Dashboard →')),
@@ -284,7 +285,36 @@ export function landingView(onCleanup) {
     let packets = [];
     let waves = [];
     let sparks = [];
+    let meteors = [];
+    let meteorClock = 0;
     let sparkTick = 0;
+
+    // Deterministic seeded celestial starfield + Keplerian orbital dust
+    let prng = 1337;
+    const nextSeed = () => ((prng = (prng * 1664525 + 1013904223) >>> 0) / 0x100000000);
+    const STAR_TINTS_DARK = ['#dbeafe', '#f8fafc', '#fde68a', '#ddd6fe'];
+    const STAR_TINTS_LIGHT = ['#64748b', '#475569', '#6366f1', '#94a3b8'];
+    const stars = Array.from({ length: 95 }, () => {
+      const layer = nextSeed();
+      const depth = layer < 0.55 ? 0.22 : (layer < 0.87 ? 0.52 : 0.90);
+      return {
+        nx: nextSeed(),
+        ny: nextSeed(),
+        r: depth > 0.8 ? 1.3 + nextSeed() * 0.65 : 0.55 + nextSeed() * 0.8,
+        depth,
+        alpha: 0.08 + nextSeed() * 0.24,
+        phase: nextSeed() * Math.PI * 2,
+        speed: 0.008 + nextSeed() * 0.014,
+        tintIdx: Math.floor(nextSeed() * 4)
+      };
+    });
+    const orbitalDust = Array.from({ length: 26 }, (_, i) => ({
+      ring: i % 2 === 0 ? 0.54 : 0.96,
+      angle: nextSeed() * Math.PI * 2,
+      speed: (i % 2 === 0 ? 0.0036 : 0.0017) * (0.85 + nextSeed() * 0.35),
+      r: 0.75 + nextSeed() * 0.65,
+      alpha: 0.11 + nextSeed() * 0.14
+    }));
 
     const emitSparks = (x, y, color, nSparks = 5) => {
       for (let i = 0; i < nSparks; i++) {
@@ -535,6 +565,27 @@ export function landingView(onCleanup) {
       rpsBoost = Math.max(0, rpsBoost * Math.pow(0.96, dt));
       const shownRps = Math.round(42 + rpsBoost + (cacheKilled ? 140 : 0) + packets.length * 1.4);
       rpsValue.textContent = `${shownRps} RPS`;
+
+      // Twinkle celestial stars, advance orbital dust, occasional whisper-faint meteor
+      for (const st of stars) st.phase += st.speed * dt;
+      for (const m of orbitalDust) m.angle = (m.angle + m.speed * dt) % (Math.PI * 2);
+
+      meteorClock += dt;
+      if (meteorClock >= 340) {
+        meteorClock = 0;
+        if (meteors.length < 2) {
+          const sx = (0.35 + Math.random() * 0.62) * W;
+          const sy = (0.04 + Math.random() * 0.35) * H;
+          meteors.push({ x: sx, y: sy, vx: -(3.8 + Math.random() * 2.2), vy: 1.6 + Math.random() * 1.4, life: 1 });
+        }
+      }
+      for (let i = meteors.length - 1; i >= 0; i--) {
+        const m = meteors[i];
+        m.x += m.vx * dt;
+        m.y += m.vy * dt;
+        m.life -= 0.025 * dt;
+        if (m.life <= 0) meteors.splice(i, 1);
+      }
     };
 
     const drawFrame = () => {
@@ -542,7 +593,71 @@ export function landingView(onCleanup) {
       ctx.clearRect(0, 0, W, H);
 
       const sys = byId.sysdesign;
-      // Orbital guide rings around topology center
+      const gxCenter = pointer.active ? pointer.x : sys.x;
+      const gyCenter = pointer.active ? pointer.y : sys.y;
+      const parX = pointer.active ? ((pointer.x / W) - 0.5) * -22 : 0;
+      const parY = pointer.active ? ((pointer.y / H) - 0.5) * -16 : 0;
+
+      // 1. Faintly vague celestial starfield + rare micro-meteors
+      const tintSet = isDark ? STAR_TINTS_DARK : STAR_TINTS_LIGHT;
+      for (const st of stars) {
+        let sx = st.nx * W + parX * st.depth;
+        let sy = st.ny * H + parY * st.depth;
+        if (gravityOn) {
+          const dx = gxCenter - sx, dy = gyCenter - sy;
+          const dist = Math.hypot(dx, dy) + 60;
+          const pull = Math.min(26, (2600 / dist) * st.depth * 0.38);
+          sx += (dx / dist) * pull;
+          sy += (dy / dist) * pull;
+        }
+        const twinkle = 0.62 + 0.38 * Math.sin(st.phase);
+        const textFade = (W >= 960 && st.nx < 0.38) ? 0.42 : 1;
+        const themeScale = isDark ? 1 : 0.58;
+        const a = st.alpha * twinkle * textFade * themeScale;
+        ctx.save();
+        ctx.fillStyle = tintSet[st.tintIdx];
+        if (st.depth > 0.8) {
+          ctx.globalAlpha = a * 0.16;
+          ctx.beginPath();
+          ctx.arc(sx, sy, st.r * 3.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = a;
+        ctx.beginPath();
+        ctx.arc(sx, sy, st.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      for (const m of meteors) {
+        ctx.save();
+        const len = 18;
+        ctx.strokeStyle = isDark ? '#e2e8f0' : '#475569';
+        ctx.globalAlpha = Math.max(0, m.life * (isDark ? 0.30 : 0.16));
+        ctx.lineWidth = 1;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(m.x, m.y);
+        ctx.lineTo(m.x - m.vx * len, m.y - m.vy * len);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // 2. Central solar corona behind System Design
+      const coronaR = Math.max(90, orbitRy * 0.65);
+      const corona = ctx.createRadialGradient(sys.x, sys.y, 4, sys.x, sys.y, coronaR);
+      const coronaRGB = cacheKilled ? '248, 113, 113' : (isDark ? '251, 146, 60' : '194, 65, 12');
+      corona.addColorStop(0, `rgba(${coronaRGB}, ${isDark ? 0.14 : 0.08})`);
+      corona.addColorStop(0.55, `rgba(${coronaRGB}, ${isDark ? 0.045 : 0.025})`);
+      corona.addColorStop(1, `rgba(${coronaRGB}, 0)`);
+      ctx.save();
+      ctx.fillStyle = corona;
+      ctx.beginPath();
+      ctx.arc(sys.x, sys.y, coronaR, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // 3. Orbital guide rings + Keplerian orbital dust motes
       ctx.save();
       ctx.strokeStyle = colors.border;
       ctx.globalAlpha = isDark ? 0.55 : 0.75;
@@ -555,6 +670,18 @@ export function landingView(onCleanup) {
       }
       ctx.setLineDash([]);
       ctx.restore();
+
+      for (const d of orbitalDust) {
+        const dx = sys.ax + Math.cos(d.angle) * orbitRx * d.ring;
+        const dy = sys.ay + Math.sin(d.angle) * orbitRy * d.ring;
+        ctx.save();
+        ctx.fillStyle = colors.muted;
+        ctx.globalAlpha = d.alpha * (isDark ? 1 : 0.7);
+        ctx.beginPath();
+        ctx.arc(dx, dy, d.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
 
       // Gravity well vortex indicator
       if (gravityOn) {

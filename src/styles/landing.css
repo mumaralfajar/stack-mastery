@@ -141,6 +141,9 @@ body:not(.is-landing) #nav .nav-top .brand {
   color: var(--text);
   margin: 0 0 .9rem;
 }
+.lp-copy h1 .lp-line {
+  display: block;
+}
 .lp-lede {
   color: var(--muted);
   font-size: clamp(1rem, .94rem + .25vw, 1.15rem);
