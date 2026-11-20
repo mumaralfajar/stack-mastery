@@ -2,24 +2,24 @@
 // Inside JS template literals, every backslash (\) and backtick (`) inside Go/SQL/YAML/HTTP code must be escaped (\\, \`).
 TRACKS.push({
   id: 'sysdesign', name: 'System Design', lang: 'go',
-  tagline: 'Architecture, caching, rate limiting, storage engines, sharding, queues, resilience, observability, and picking the right tools for scale.',
+  tagline: 'Architecture, caching, rate limiting, storage engines, sharding, queues, resilience, observability, and tool selection for scale.',
   lessons: [
     // ---------------- Beginner ----------------
     {
       id: 'thinking', title: 'Latency, throughput, and back-of-the-envelope math', level: 0, mins: 30, lang: 'go',
       terms: [
-        ['Tail latency (`p95`, `p99`)', 'The response time 95% or 99% of requests stay under. Averages hide slow outliers that degrade checkout and login flows under load.'],
-        ["Little's Law (`L = λW`)", 'Average concurrent work in progress (`L`) equals arrival rate (`λ`) times average time spent in the system (`W`). Rising latency multiplies open connections even at constant QPS.'],
-        ['Vertical vs horizontal scaling', 'Vertical scaling upgrades one machine (more CPU/RAM, simple transactions, hardware ceiling). Horizontal scaling adds stateless nodes behind a balancer (higher capacity, distributed coordination cost).']
+        ['Tail latency (`p95`, `p99`)', 'The response time 95% or 99% of requests stay under. Averages hide slow outliers that hurt checkout and login flows under load.'],
+        ["Little's Law (`L = λW`)", 'Average active work in progress (`L`) equals arrival rate (`λ`) times average time in the system (`W`). Rising latency multiplies open connections even when QPS stays flat.'],
+        ['Vertical vs horizontal scaling', 'Vertical scaling upgrades one machine with more CPU or RAM. Horizontal scaling adds stateless nodes behind a load balancer for higher capacity at extra coordination cost.']
       ],
-      why: "System design starts with orders of magnitude, not box diagrams. Before picking a cache or sharding a database, you need to estimate request rate, storage growth, bandwidth, and how tail latency multiplies concurrency under Little's Law.",
+      why: "System design starts with orders of magnitude before box diagrams. Before adding a cache or sharding a database, estimate request rate, storage growth, bandwidth, and how tail latency multiplies concurrency under Little's Law.",
       points: [
-        "**Latency** measures one request's duration (`ms`), while **throughput** measures volume (`RPS` / `QPS`). Adding worker replicas raises throughput without automatically cutting a slow single query's latency.",
-        'Measure **p50, p95, and p99** rather than averages. If a page fans out to 10 backend calls in parallel, the page waits on the slowest one, pushing 1% tail spikes onto nearly 10% of page loads (`1 - 0.99^10`).',
-        'Know hardware orders of magnitude: RAM read **~100 ns**, NVMe SSD read **~100 µs**, same-AZ network round-trip **~0.5 ms**, cross-region round-trip **50–150 ms**.',
-        'Back-of-the-envelope anchor: a day has `86,400` seconds (~`100,000`), so **1 million events/day ≈ 12 RPS** average (plan **3×–10×** higher for peak traffic).',
-        "Apply **Little's Law (`L = λW`)**: at `2,000 RPS` with `50 ms` (`0.05 s`) latency, the server holds `100` concurrent slots; if DB locks push latency to `500 ms`, concurrency jumps to `1,000` and exhausts connection pools.",
-        'Verify assumptions with real load generators like **k6**, **bombardier**, or **NBomber** instead of trusting local laptop benchmarks.'
+        "Latency measures one request's duration (`ms`), while throughput measures request volume (`RPS` or `QPS`). Adding worker replicas raises throughput without speeding up a single slow query.",
+        'Measure `p50`, `p95`, and `p99` because averages hide outliers. A page making 10 parallel backend calls waits for the slowest one, putting 1% tail spikes on ~10% of loads (`1 - 0.99^10`).',
+        'Keep hardware latencies in mind: RAM takes ~100 ns, and NVMe SSD takes ~100 µs. A same-AZ network trip takes ~0.5 ms, while cross-region takes 50 to 150 ms.',
+        'One day has `86,400` seconds (~`100,000`), so 1 million events per day averages ~12 RPS. Provision 3× to 10× higher capacity for peak traffic bursts.',
+        "Check concurrency with Little's Law (`L = λW`): at `2,000 RPS` and `50 ms` (`0.05 s`) latency, the server holds `100` in-flight slots. If DB locks push latency to `500 ms`, concurrency jumps to `1,000` and drains your connection pool.",
+        'Test traffic assumptions with real load generators like `k6`, `bombardier`, or `NBomber` before sizing production clusters.'
       ],
       code: `
 package main
@@ -61,18 +61,18 @@ func main() {
 	fmt.Printf("yearlyWriteStorage=%.1f GB\\n", yearlyStorageGB)
 }
 `,
-      practice: "Save this as `main.go` and run `go run .`. Modify `latencies` to hold twenty 15 ms responses and one 900 ms DB lock pause: compare `p50` vs `p99`, then compute how many concurrent DB connections your pool needs under Little's Law at `3,000` peak RPS.",
-      teach: "Explain why two APIs with the same average latency of 25 ms can feel completely different in production, and walk through `L = λW` using a slow downstream query example.",
-      analogy: "A highway lane counts cars passing per hour (throughput), while trip duration (latency) depends on speed and tollbooths. If tollbooths stall for 30 seconds each, cars back up onto the ramp (`L = λW`) even if the entry rate never increased.",
+      practice: "Save this file as `main.go` and run `go run .`. Edit `latencies` to hold twenty 15 ms responses plus one 900 ms DB lock pause. Compare `p50` to `p99`, then size the DB pool under Little's Law at `3,000` peak RPS.",
+      teach: "Explain why two APIs with the same 25 ms average latency feel different in production. Walk through `L = λW` using a slow downstream query.",
+      analogy: "A highway lane counts cars passing per hour (throughput), while trip time (latency) depends on speed and tollbooths. If booths stall for 30 seconds each, cars back up onto the ramp (`L = λW`) even at the same entry rate.",
       pitfalls: [
-        'Sizing a cluster from average daily RPS (`daily / 86,400`) instead of peak load and burst factors (login mornings, flash sales, payroll runs).',
-        'Reporting only average latency (`mean`), which masks `p99` tail spikes affecting active users and fan-out pages.',
-        'Throwing more CPU cores at an I/O-bound system whose bottleneck is actually connection-pool contention or cross-region round trips.'
+        'Sizing a cluster from daily average RPS (`daily / 86,400`) and forgetting peak bursts during login mornings, flash sales, or payroll runs.',
+        'Reporting only average latency (`mean`), which hides `p99` spikes affecting real users.',
+        'Adding CPU cores to an I/O-bound service when the bottleneck is connection-pool contention or cross-region network trips.'
       ],
       quiz: [
-        { q: "At 1,000 RPS, a downstream DB slowdown raises average response time from 20 ms to 400 ms. What happens to in-flight requests (`L = λW`)?", a: ["Stays at 20 because RPS is unchanged", "Drops from 20 to 1", "Jumps from 20 to 400, risking thread or connection exhaustion", "Halves to 10"], c: 2, why: "By Little's Law (`L = λW`), `1,000 * 0.4 s = 400` concurrent requests in flight instead of `20`." },
-        { q: "Approximately how many requests per second is 8.6 million events per day on average?", a: ["10 RPS", "100 RPS", "1,000 RPS", "8,600 RPS"], c: 1, why: "`8,640,000 / 86,400 s = 100 RPS` average (remember the quick heuristic: ~1M/day ≈ 12 RPS)." },
-        { q: "Why does fan-out to 10 independent microservices amplify tail latency?", a: ["Serialization doubles payload size", "The parent request waits for the slowest of the 10 responses", "HTTP/1.1 drops every tenth packet", "DNS caches expire per hop"], c: 1, why: "If each service has a 1% slow tail, calling 10 in parallel exposes roughly `1 - 0.99^10 ≈ 9.6%` of requests to a slow dependency." }
+        { q: "At 1,000 RPS, a DB slowdown raises average response time from 20 ms to 400 ms. What happens to in-flight requests (`L = λW`)?", a: ["Stays at 20 because RPS is unchanged", "Drops from 20 to 1", "Jumps from 20 to 400, risking thread or connection exhaustion", "Halves to 10"], c: 2, why: "Under Little's Law (`L = λW`), `1,000 * 0.4 s` equals `400` concurrent in-flight requests up from `20`." },
+        { q: "About how many requests per second is 8.6 million events per day on average?", a: ["10 RPS", "100 RPS", "1,000 RPS", "8,600 RPS"], c: 1, why: "Dividing `8,640,000` by `86,400` seconds gives `100 RPS` on average (around 12 RPS per 1 million daily events)." },
+        { q: "Why does calling 10 independent microservices in parallel amplify tail latency?", a: ["Serialization doubles payload size", "The parent request waits for the slowest of the 10 responses", "HTTP/1.1 drops every tenth packet", "DNS caches expire per hop"], c: 1, why: "When each dependency has a 1% slow tail, calling 10 in parallel exposes roughly `1 - 0.99^10 ≈ 9.6%` of requests to a slow call." }
       ]
     },
     {
@@ -82,18 +82,18 @@ func main() {
         ['Envoy Cluster + Outlier', '# --- 2. Envoy']
       ],
       terms: [
-        ['L4 vs L7 load balancer', 'L4 routes packets/TCP streams by IP and port at ultra-high speed; L7 terminates TLS and parses HTTP headers, paths, cookies, and gRPC frames for smart routing.'],
-        ['Active vs passive health checks', 'Active checks poll a `/readyz` endpoint periodically (supported natively in Envoy and NGINX Plus); passive checks (Outlier Detection) eject backends when live traffic hits consecutive 5xx or timeouts.'],
-        ['HTTP/3 (QUIC)', 'Runs multiplexed streams over UDP with faster 0-RTT/1-RTT handshakes and no TCP head-of-line blocking when packets drop on mobile networks.']
+        ['L4 vs L7 load balancer', 'L4 routes TCP/UDP packets by IP and port at high speed. L7 terminates TLS and reads HTTP headers, paths, and gRPC frames for smart routing.'],
+        ['Active vs passive health checks', 'Active checks poll `/readyz` on a schedule (built into Envoy and NGINX Plus). Passive checks (Outlier Detection) eject backends after consecutive 5xx errors or timeouts.'],
+        ['HTTP/3 (QUIC)', 'Multiplexes streams over UDP with 0-RTT or 1-RTT handshakes. A lost packet stalls only its own stream, avoiding TCP head-of-line blocking on mobile links.']
       ],
-      why: "Every request crosses DNS, TLS termination, and at least one reverse proxy or load balancer before touching your application code. Misconfigured health checks, buffering, or timeouts at the edge break streaming APIs and overload struggling instances.",
+      why: "Every request crosses DNS, TLS termination, and at least one reverse proxy or load balancer before reaching your app. Bad edge timeouts, buffering, or health checks break streaming APIs and overload struggling instances.",
       points: [
-        'Use **Anycast DNS + CDN** (**Cloudflare**, **AWS CloudFront**) to terminate TLS near the user and serve cacheable static assets and edge redirects without touching origin servers.',
-        'Pair **L4 balancing** (AWS NLB, IPVS) for raw throughput or sticky TCP protocols with **L7 balancing** (**NGINX**, **Envoy**, **HAProxy**, AWS ALB) for path/header routing, TLS termination, and rate-limiting.',
-        'Pick balancing algorithms to match workload duration: **Round Robin** works for uniform fast calls; **Least Connections** or **Power of Two Random Choices (P2C)** protects uneven requests.',
-        'Combine **active health checks** (`/readyz`) with **passive Outlier Detection** (ejecting an upstream host after e.g. 5 consecutive 5xx errors in Envoy) so dead or degraded pods leave the pool fast.',
-        'Remember reverse-proxy traps: open-source **NGINX** disables active health checks without NGINX Plus, enables `proxy_buffering on` by default (which stalls **SSE** unless disabled), and drops idle **WebSockets** after 60s without longer `proxy_read_timeout`.',
-        'Enable **HTTP/3 (QUIC)** at the edge (NGINX `ngx_http_v3_module` with `Alt-Svc`, or Envoy QUICHE) to avoid TCP head-of-line stalls on lossy mobile links.'
+        'Put Anycast DNS and a CDN (Cloudflare, AWS CloudFront) in front to terminate TLS near users and serve static assets from the edge.',
+        'Pair L4 balancing (AWS NLB, IPVS) for raw throughput with L7 balancing (NGINX, Envoy, HAProxy, AWS ALB) for path routing and rate limiting.',
+        'Match the balancing algorithm to request duration. Round Robin fits fast uniform endpoints, while Least Connections or Power of Two Random Choices (`P2C`) protects endpoints with uneven latency.',
+        'Combine active `/readyz` checks with passive Outlier Detection (like ejecting a backend after 5 straight 5xx errors in Envoy). Unhealthy pods leave fast.',
+        'Watch NGINX proxy defaults: open-source NGINX omits active health checks without NGINX Plus and turns `proxy_buffering on` by default, stalling SSE. Set a longer `proxy_read_timeout` so idle WebSockets stay open past 60 seconds.',
+        'Enable HTTP/3 (QUIC) at the edge (NGINX `ngx_http_v3_module` with `Alt-Svc`, or Envoy QUICHE) to avoid TCP head-of-line stalls on lossy mobile links.'
       ],
       code: `
 # --- 1. NGINX Edge Reference Config (YAML representation) ---
@@ -144,18 +144,18 @@ static_resources:
                   address:
                     socket_address: { address: orders-1, port_value: 8080 }
 `,
-      practice: "Compare the two blocks above against your app edge: map where TLS terminates, check whether your streaming endpoints bypass proxy buffering, and decide what `max_ejection_percent` prevents Outlier Detection from ejecting every node during a partial outage.",
-      teach: "Contrast an L4 load balancer with an L7 reverse proxy like Envoy, and explain why combining active `/readyz` checks with passive Outlier Detection beats either check alone.",
-      analogy: "An L4 balancer acts like a toll operator waving cars into lanes without looking inside; an L7 proxy opens the manifest to route VIP shipments, turn back broken trucks, and cache identical flyers at the gate.",
+      practice: "Compare the two blocks with your app edge. Map where TLS terminates and turn off proxy buffering on streams. Pick a `max_ejection_percent` that keeps capacity up during partial outages.",
+      teach: "Compare an L4 load balancer with an L7 proxy like Envoy. Explain why combining active `/readyz` checks with passive Outlier Detection beats using only one.",
+      analogy: "An L4 balancer waves trucks into lanes by license plate without looking inside. An L7 proxy reads the manifest to route priority freight, hold back broken trucks, and hand out cached flyers at the gate.",
       pitfalls: [
-        'Setting health checks to ping `/health` without verifying critical dependencies—or failing readiness whenever an optional non-critical downstream blips, causing cluster-wide ejection.',
-        'Enabling Round Robin on endpoints whose response times vary from 2 ms to 4 s, piling slow requests onto one overloaded server.',
-        'Putting an L7 proxy with default `proxy_buffering on` in front of an SSE endpoint so events stay stuck in memory until the buffer fills.'
+        'Wiring `/health` checks that miss core dependencies, or failing readiness on optional dependency blips so the balancer ejects every healthy instance.',
+        'Using Round Robin when response times span 2 ms to 4 s, piling slow requests onto one overloaded server.',
+        'Putting an L7 proxy with default `proxy_buffering on` in front of an SSE stream so events sit in memory until the buffer fills.'
       ],
       quiz: [
-        { q: "Why can Envoy's `max_ejection_percent: 50` save an API cluster during a transient spike?", a: ["It compresses 50% of JSON bodies", "It prevents Outlier Detection from ejecting every backend host simultaneously during a brief glitch", "It caps CPU usage at 50%", "It forces HTTP/3 downgrade"], c: 1, why: "Capping ejections guarantees some capacity remains available instead of emptying the upstream pool when every instance logs errors together." },
-        { q: "Which NGINX behavior silently breaks Server-Sent Events (SSE) if left at its default setting?", a: ["gzip compression disabled", "`proxy_buffering on`, which batches chunks before flushing to the client", "Least connections routing", "TLS 1.3 resumption"], c: 1, why: "SSE expects immediate chunk delivery; disabling with `proxy_buffering off` stops NGINX from holding small event chunks." },
-        { q: "What makes HTTP/3 (QUIC) faster than HTTP/2 on packet-loss-prone cellular connections?", a: ["No encryption overhead", "UDP-based streams avoid head-of-line blocking across independent streams in one connection", "Larger TCP congestion windows", "Stateless DNS lookup"], c: 1, why: "In HTTP/2 over TCP, one lost packet stalls every multiplexed stream until retransmitted; QUIC isolates loss to the affected stream." }
+        { q: "Why does Envoy's `max_ejection_percent: 50` protect a cluster during a short network spike?", a: ["It compresses 50% of JSON bodies", "It stops Outlier Detection from ejecting every backend host at once during a brief glitch", "It caps CPU usage at 50%", "It forces an HTTP/3 downgrade"], c: 1, why: "Capping ejections keeps half of your capacity online when every instance logs brief errors at once." },
+        { q: "Which default NGINX setting stalls Server-Sent Events (SSE)?", a: ["Disabled gzip compression", "`proxy_buffering on`, which batches response chunks before flushing to clients", "Least Connections routing", "TLS 1.3 resumption"], c: 1, why: "SSE clients expect immediate event chunks. Setting `proxy_buffering off` stops NGINX from holding small chunks in memory." },
+        { q: "Why does HTTP/3 (QUIC) beat HTTP/2 on packet-loss-prone mobile networks?", a: ["No encryption overhead", "UDP-based streams isolate packet loss to the affected stream without stalling others", "Larger TCP congestion windows", "Stateless DNS lookups"], c: 1, why: "In HTTP/2 over TCP, one lost packet blocks every multiplexed stream until retransmitted. QUIC limits the wait to that single stream." }
       ]
     },
     {
@@ -166,17 +166,17 @@ static_resources:
         ['WebSocket Upgrade', '# --- 3. WebSocket']
       ],
       terms: [
-        ['Idempotency key', 'A unique client-generated ID (IETF `Idempotency-Key` header) stored alongside the response so retried `POST` requests replay the original outcome instead of duplicating side effects.'],
-        ['Cursor vs offset pagination', 'Offset (`OFFSET 10000`) scans discarded rows and shifts as items insert; cursor pagination seeks directly via `WHERE (created_at, id) < (@ts, @id)`.'],
-        ['gRPC vs REST', 'gRPC pairs HTTP/2 multiplexing with binary Protocol Buffers for fast internal service-to-service contracts; REST/JSON prioritizes browser compatibility, HTTP caching, and human readability.']
+        ['Idempotency key', 'A client-generated ID (IETF `Idempotency-Key` header) stored with the response so retried `POST` requests replay the first result without running side effects twice.'],
+        ['Cursor vs offset pagination', 'Offset (`OFFSET 10000`) scans and discards rows, and page boundaries shift as new rows arrive. Cursor pagination seeks directly using `WHERE (created_at, id) < (@ts, @id)`.'],
+        ['gRPC vs REST', 'gRPC pairs HTTP/2 multiplexing with binary Protocol Buffers for fast service-to-service contracts. REST/JSON prioritizes browser compatibility, HTTP caching, and readability.']
       ],
-      why: "Picking the wrong communication model creates silent double-charges on retries, duplicate feed rows under pagination, or wasted server memory holding idle connections.",
+      why: "Picking the wrong communication pattern causes double-charges on retries, duplicate feed items during pagination, or servers wasting RAM on idle open sockets.",
       points: [
-        'Use **REST/JSON** at public edges for universal tooling, proxies, and CDN cacheability; switch to **gRPC** internally where typed `.proto` schemas, binary payloads, and HTTP/2 streaming cut latency and CPU.',
-        'Make non-idempotent `POST` and `PATCH` writes safe against network retries using the IETF **`Idempotency-Key`** header backed by a unique constraint `(idempotency_key)` in storage.',
-        'Default to **keyset / cursor pagination** (`?after=2026-11-19T08:00:00Z,9842`) on feeds and ledgers so inserts never skip or duplicate items and deep pages stay `O(log n)`.',
-        'Pick the simplest real-time transport that fits traffic direction: **Server-Sent Events (SSE)** for one-way server-to-client feeds (auto-reconnects with `Last-Event-ID`), **WebSockets** only for true full-duplex bidirectional traffic (chat, live collaboration).',
-        'Prefer **short/long polling** or **webhooks** for infrequent updates (minutes apart) instead of paying RAM and load-balancer timeout complexity for persistent sockets.'
+        'Use REST/JSON at public edges for broad client tooling and CDN caching. Use gRPC internally when typed `.proto` contracts, binary payloads, and HTTP/2 streams lower latency and CPU.',
+        'Protect non-idempotent `POST` and `PATCH` calls from network retries with the IETF `Idempotency-Key` header, enforced by a unique constraint `(idempotency_key)` in storage.',
+        'Use keyset cursor pagination (`?after=2026-11-19T08:00:00Z,9842`) on live feeds and ledgers. New inserts never cause skipped or duplicate items, and deep pages stay `O(log n)`.',
+        'Pick Server-Sent Events (SSE) for one-way server-to-client feeds because browsers reconnect automatically with `Last-Event-ID`. Reserve WebSockets for true bidirectional traffic like chat or live collaboration.',
+        'Use short polling, long polling, or webhooks when updates arrive minutes apart so you avoid keeping idle persistent sockets open.'
       ],
       code: `
 # --- 1. Idempotent Write & Keyset Pagination (HTTP/1.1 + IETF Idempotency-Key) ---
@@ -220,18 +220,18 @@ Upgrade: websocket
 Connection: Upgrade
 Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
 `,
-      practice: "Trace a mobile checkout retry where the client times out after the server already committed an order. List every column needed in `orders` or `idempotency_records` (key, request hash, HTTP status, serialized response, `expires_at`) and explain what should happen if a client reuses the same key with a different payload.",
+      practice: "Trace a mobile checkout retry when the client times out after commit. List all columns for `orders` or `idempotency_records` (key, request hash, HTTP status, serialized response, `expires_at`). Explain how you handle reused keys with new payloads.",
       teach: "Compare Short Polling, Long Polling, Server-Sent Events, and WebSockets across connection count, firewall compatibility, auto-reconnect, and message direction.",
-      analogy: "REST is mailing letters, gRPC is a pneumatic tube system between office desks, SSE is listening to a radio broadcast that resumes cleanly via `Last-Event-ID`, and WebSockets are keeping an open two-way phone call.",
+      analogy: "REST is mailing tracked letters, and gRPC is a pneumatic tube between office desks. SSE is a radio broadcast resuming at `Last-Event-ID`, while WebSockets hold an open two-way phone line.",
       pitfalls: [
-        'Accepting the same `Idempotency-Key` with a different JSON payload without returning `422 Unprocessable Content`, masking client key-reuse bugs.',
-        'Using `OFFSET` pagination on an active timeline or ledger (`OFFSET 50000`), burning DB I/O and showing duplicate rows when new items arrive.',
-        'Picking WebSockets for one-way live scoreboards or progress bars where SSE over plain HTTP/2 works with fewer proxy headaches.'
+        'Accepting an existing `Idempotency-Key` with a different JSON payload without returning `422 Unprocessable Content`, hiding client key-reuse bugs.',
+        'Using `OFFSET` pagination on an active timeline (`OFFSET 50000`), wasting DB I/O and showing duplicate rows when new items arrive.',
+        'Choosing WebSockets for one-way live scoreboards or progress bars when SSE over plain HTTP/2 works with fewer proxy issues.'
       ],
       quiz: [
-        { q: "You only need to stream real-time stock price ticks from the server to web clients, with automatic browser reconnect on network drops. Which protocol fits best?", a: ["WebSockets", "Server-Sent Events (SSE)", "Short polling every 50 ms", "SMTP"], c: 1, why: "SSE runs over standard HTTP, reconnects automatically, and resumes via `Last-Event-ID` without stateful bidirectional handshake overhead." },
-        { q: "Why should a server reject a retried `POST` carrying an existing `Idempotency-Key` if its request body differs from the first call?", a: ["HTTP/2 forbids duplicate keys", "Reusing one key for different payloads indicates a client bug and risks silently returning the wrong response", "Redis expires hashes on mismatch", "JSON parsers disallow POST retries"], c: 1, why: "Comparing a fingerprint/hash of the request payload ensures a key represents one logical operation and flags mismatched retries with 422." },
-        { q: "Why does cursor/keyset pagination outperform `OFFSET 20000` on large tables?", a: ["Offset deletes old rows", "Cursor seeks directly via an indexed predicate (`WHERE (ts, id) < ...`) in O(log n) without scanning skipped rows", "Cursor compresses JSON payloads", "Offset locks the entire table"], c: 1, why: "`OFFSET 20000` forces the database to read and discard 20,000 rows; a keyset cursor jumps straight to the next key." }
+        { q: "You only need to stream real-time stock ticks from the server to browsers, with automatic reconnect on drops. Which protocol fits best?", a: ["WebSockets", "Server-Sent Events (SSE)", "Short polling every 50 ms", "SMTP"], c: 1, why: "SSE runs over standard HTTP, reconnects automatically, and resumes with `Last-Event-ID` without stateful bidirectional handshake overhead." },
+        { q: "Why reject a retried `POST` carrying an existing `Idempotency-Key` if its request body differs from the first call?", a: ["HTTP/2 forbids duplicate keys", "Reusing one key for a different payload exposes a client bug that can return the wrong cached response", "Redis expires hashes on mismatch", "JSON parsers disallow POST retries"], c: 1, why: "Comparing a payload hash ensures one key maps to one logical operation and flags mismatches with HTTP 422." },
+        { q: "Why does cursor pagination beat `OFFSET 20000` on large tables?", a: ["Offset deletes old rows", "Cursor seeks directly using an indexed predicate (`WHERE (ts, id) < ...`) in O(log n) and skips scanning discarded rows", "Cursor compresses JSON payloads", "Offset locks the entire table"], c: 1, why: "`OFFSET 20000` forces the database to read and discard 20,000 rows, while a keyset cursor jumps straight to the next key." }
       ]
     },
 
@@ -243,11 +243,11 @@ Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
         ['HTTP RFC 9111 Freshness', '// --- 2. HTTP RFC 9111']
       ],
       terms: [
-        ['Cache-Aside (Lazy Loading)', 'Application checks cache first; on miss it queries the database, populates the cache, and returns the value. Only hot data enters RAM.'],
-        ['Write-Through vs Write-Behind', 'Write-Through updates cache and DB synchronously (fresh data, slower writes); Write-Behind buffers writes in cache and flushes asynchronously (fast writes, crash-loss risk).'],
-        ['Eviction policies (`LRU`, `LFU`)', 'LRU drops the key untouched longest; LFU tracks access frequency (logarithmic counter in Redis) so rare batch scans do not evict evergreen hot items.']
+        ['Cache-Aside (Lazy Loading)', 'The app checks the cache first. On a miss, it queries the database, populates the cache, and returns the value so only hot data uses RAM.'],
+        ['Write-Through vs Write-Behind', 'Write-Through updates cache and DB synchronously for fresh reads at slower write speed. Write-Behind buffers writes in cache and flushes asynchronously for fast writes, risking data loss on a crash.'],
+        ['Eviction policies (`LRU`, `LFU`)', 'LRU drops the key untouched longest. LFU tracks access frequency with a logarithmic counter in Redis so rare batch scans do not evict popular items.']
       ],
-      why: "Caching cuts read latency from milliseconds to microseconds and absorbs read traffic away from your database—yet a bad invalidation or eviction strategy serves stale prices, overflows RAM, or adds write latency.",
+      why: "Caching cuts read latency from milliseconds to microseconds and absorbs read load off your database. Bad invalidation or eviction rules, however, serve stale data, fill RAM, or slow down writes.",
       predict: {
         prompt: "Thread A reads `sku:42` on a cache miss (DB holds price `100`). Before Thread A writes Redis, Thread B updates DB to `120` and deletes `sku:42` in Redis. Then Thread A writes `100` into Redis with a 10-minute TTL. What do readers see for the next 10 minutes?",
         options: [
@@ -257,14 +257,14 @@ Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
           "Cache miss on every read until DB restarts"
         ],
         answer: 1,
-        explain: "Thread A fetched `100` before Thread B wrote `120`, then populated Redis afterward. That classic Cache-Aside race leaves stale data until the TTL expires—another reason to keep TTLs finite and pair invalidation with versioning or CDC."
+        explain: "Thread A fetched `100` before Thread B wrote `120`, then wrote Redis afterward. That classic Cache-Aside race leaves stale data until the TTL expires, which is why keys need bounded TTLs plus versioning or CDC invalidation."
       },
       points: [
-        'Layer caches closest to the caller first: **Browser HTTP cache** → **CDN edge** (`s-maxage`) → **L1 local memory** (`HybridCache` / `ristretto`) → **L2 distributed memory** (**Redis / Valkey / Memcached**).',
-        'Use **RFC 9111** HTTP headers on public reads: `Cache-Control: public, max-age=60, s-maxage=300, stale-while-revalidate=30`, `ETag` (`304 Not Modified`), and `Vary` (never `Cache-Control: public` on personalized cookies/auth).',
-        'Choose write strategy by consistency vs latency: **Cache-Aside** fits read-heavy apps, **Write-Through** enforces immediate cache freshness, and **Write-Behind** fits high-volume analytics counters where losing the tail window on crash is acceptable.',
-        'Configure **Redis `maxmemory`** eviction deliberately: **`allkeys-lru`** for general caches, **`allkeys-lfu`** when background scans might pollute recency, and never leave default `noeviction` on an unmonitored cache.',
-        'Every cache key needs three decisions upfront: a deterministic **key schema** (`sku:42:v2`), a bounded **TTL** (with jitter), and an **invalidation path**.'
+        'Layer caches closest to callers first: browser HTTP cache, CDN edge (`s-maxage`), and L1 RAM (HybridCache or `ristretto`). Add Redis or Valkey as shared L2 RAM.',
+        'Set RFC 9111 HTTP headers on public reads: `Cache-Control: public, max-age=60, s-maxage=300, stale-while-revalidate=30`, `ETag` (`304 Not Modified`), and `Vary`. Never put `Cache-Control: public` on responses personalized by auth or cookies.',
+        'Pick write strategies for your consistency tolerance. Cache-Aside fits read-heavy apps, Write-Through enforces immediate freshness, and Write-Behind fits high-volume analytics counters where losing buffered tail writes on a crash is acceptable.',
+        'Choose Redis `maxmemory` eviction deliberately: use `allkeys-lru` for general caches, `allkeys-lfu` when batch scans pollute recency, and avoid default `noeviction` on caches.',
+        'Every cache key needs three decisions upfront: a deterministic schema (`sku:42:v2`), a bounded TTL with jitter, and an invalidation path.'
       ],
       code: `
 package main
@@ -351,18 +351,18 @@ func main() {
 	fmt.Println(evalHTTPCache(120, 60, 30))
 }
 `,
-      practice: "Run the Go sample with `go run .` and open `VIZ.syscache`. Switch eviction from `LRU` to `LFU`, read keys `A` three times and `B`/`C`/`D` once, and compare which key survives eviction.",
-      teach: "Compare Cache-Aside, Write-Through, and Write-Behind using a product price or view-counter example, explaining what happens on a Redis reboot under each one.",
-      analogy: "A cache is keeping top-selling items on a small front counter (`LRU`/`LFU`) instead of walking to the warehouse (database) every time. A `TTL` forces you to verify the shelf label periodically.",
+      practice: "Run the Go sample with `go run .` and open `VIZ.syscache`. Switch eviction from `LRU` to `LFU`, read key `A` three times and `B`/`C`/`D` once, and check which key survives eviction.",
+      teach: "Compare Cache-Aside, Write-Through, and Write-Behind using a product price or view counter. Explain what happens when Redis restarts under each pattern.",
+      analogy: "A cache keeps fast-moving items on a front counter (`LRU` or `LFU`) so staff skip walking to the warehouse on every order. A `TTL` forces periodic shelf checks.",
       pitfalls: [
-        'Setting `Cache-Control: public` or missing `Vary: Authorization` on user-specific responses, causing a CDN to serve User A’s profile to User B.',
-        'Leaving Redis `maxmemory-policy` on `noeviction` for cache workloads so every subsequent write errors once RAM fills.',
-        'Relying solely on manual invalidation without a finite TTL—one missed delete leaves stale data forever.'
+        'Setting `Cache-Control: public` or omitting `Vary: Authorization` on user-specific responses, causing a CDN to serve User A\'s profile to User B.',
+        'Leaving Redis `maxmemory-policy` at `noeviction` on a cache cluster so writes fail once RAM fills.',
+        'Relying only on manual cache deletes without a TTL, leaving stale entries forever after one missed delete.'
       ],
       quiz: [
-        { q: "Why might `allkeys-lfu` outperform `allkeys-lru` when a nightly report scans 50,000 old items?", a: ["LFU compresses keys automatically", "LFU remembers frequency, so one-off cold scans don't evict frequently accessed hot keys", "LRU blocks reads during eviction", "LFU guarantees strong consistency"], c: 1, why: "A one-time scan floods an LRU cache's recent end, whereas LFU keeps frequently hit items intact." },
-        { q: "Which RFC 9111 `Cache-Control` directive lets a CDN serve slightly expired data immediately while updating it in the background?", a: ["`no-store`", "`must-revalidate`", "`stale-while-revalidate`", "`private`"], c: 2, why: "`stale-while-revalidate=N` hides origin revalidation latency from visitors inside the grace window." },
-        { q: "When is Write-Behind caching usually a dangerous fit?", a: ["View counters and analytics", "Immutable static thumbnails", "Account balances or inventory writes where losing buffered cache on crash loses committed operations", "DNS records"], c: 2, why: "Write-Behind acks before flushing to persistent disk; an unexpected cache crash drops buffered writes." }
+        { q: "Why can `allkeys-lfu` beat `allkeys-lru` when a nightly report scans 50,000 old items?", a: ["LFU compresses keys automatically", "LFU tracks access frequency, so one-off cold scans don't evict frequently used hot keys", "LRU blocks reads during eviction", "LFU guarantees strong consistency"], c: 1, why: "A batch scan floods the recent end of an LRU list, while LFU keeps frequently hit items intact." },
+        { q: "Which RFC 9111 `Cache-Control` directive lets a CDN serve slightly expired data while refreshing it in the background?", a: ["`no-store`", "`must-revalidate`", "`stale-while-revalidate`", "`private`"], c: 2, why: "`stale-while-revalidate=N` hides origin revalidation latency from visitors inside the grace window." },
+        { q: "When is Write-Behind caching a risky choice?", a: ["View counters and analytics", "Immutable static thumbnails", "Account balances or inventory writes where losing buffered cache on a crash drops committed updates", "DNS records"], c: 2, why: "Write-Behind acknowledges the write before flushing to persistent storage, so a cache crash drops buffered changes." }
       ]
     },
     {
@@ -373,13 +373,13 @@ func main() {
         ['TTL Jitter', '// --- 3. TTL Jitter']
       ],
       terms: [
-        ['Cache stampede (dog-piling)', 'Many concurrent requests miss an expired hot key at the exact same instant and hammer the database simultaneously to recompute the identical value.'],
-        ['Cache penetration', 'Lookups for keys that exist in neither cache nor database (e.g., invalid IDs `-1` or enumeration scans) bypass cache every time and saturate DB reads.'],
-        ['Cache avalanche', 'Large batches of keys expiring together—or an entire cache shard failing—causing sudden traffic spikes that cascade through the database.']
+        ['Cache stampede (dog-piling)', 'Concurrent requests miss an expired hot key at the exact same moment and send duplicate queries to recompute the identical value.'],
+        ['Cache penetration', 'Lookups for keys missing in both cache and DB (like invalid IDs `-1` or scan bots) skip the cache every time and overload the database.'],
+        ['Cache avalanche', 'Many keys expire at once or a cache shard drops, sending sudden traffic spikes straight to the database.']
       ],
-      why: "A cache that boosts throughput 50× in normal operation can take down your database in seconds when a hot key expires under burst traffic, when attackers query non-existent IDs, or when all TTLs expire on the hour.",
+      why: "A cache that handles 50× normal load can still crush your database in seconds. That happens when a hot key expires during peak traffic, bots query missing IDs, or every TTL expires on the hour.",
       predict: {
-        prompt: "Your homepage banner key expires at `12:00:00`. At `12:00:00.010`, 500 concurrent requests miss Redis and call `db.GetBanner()` cleanly in parallel. Each request populates Redis afterward. With naive Cache-Aside and no coalescing, how many DB queries fire at `12:00:00`?",
+        prompt: "Your homepage banner expires at `12:00:00`. At `12:00:00.010`, 500 concurrent requests miss Redis and call `db.GetBanner()` in parallel before updating Redis. Without coalescing, how many DB queries fire at `12:00:00`?",
         options: [
           "1 query, because Redis locks the missing key",
           "Up to 500 identical DB queries while the first fetch is still in flight",
@@ -387,14 +387,14 @@ func main() {
           "Exactly 2 queries (primary + replica)"
         ],
         answer: 1,
-        explain: "All 500 cache reads see a miss before any request finishes computing and writing back to Redis, sending a 500× thundering herd straight into the database."
+        explain: "All 500 cache reads see a miss before the first caller writes back to Redis, sending a 500× herd straight to the database."
       },
       points: [
-        'Stop **Cache Stampedes** by coalescing misses per key (**single-flight / mutex** — built into Go `golang.org/x/sync/singleflight` and .NET `HybridCache`), serving stale-while-refreshing, or using **XFetch** probabilistic early expiration.',
-        'Stop **Cache Avalanches** by adding **random TTL jitter** (`baseTTL + rand(0, 20%)`) so keys populated during a deploy or warm-up do not all expire at once, backed by a circuit breaker and multi-AZ failover.',
-        'Stop **Cache Penetration** (requests for non-existent IDs) by **negative caching** (`""` or `__NULL__` with a short 30–60s TTL) and placing a compact **Bloom filter** in front of DB lookups.',
-        'Handle extreme **Hot Keys** (one viral celebrity or flash-sale SKU saturating a single Redis shard) by adding a tiny **L1 in-process cache** (1–5s TTL) or salting read keys across N shard copies (`sku:42#0..3`).',
-        'Always bound negative caches and single-flight waits with **contexts/timeouts** so one stuck upstream rebuild does not hang 500 waiting requests indefinitely.'
+        'Stop cache stampedes by coalescing concurrent misses per key with singleflight (`golang.org/x/sync/singleflight` in Go, `HybridCache` in .NET), serving stale-while-refreshing, or using XFetch early expiration.',
+        'Stop cache avalanches by adding random TTL jitter (`baseTTL + rand(0, 20%)`) so keys warmed during a deploy expire at staggered times. Pair jitter with circuit breakers and multi-AZ replicas.',
+        'Stop cache penetration on invalid IDs with negative caching (`""` or `__NULL__` for 30 to 60 seconds). Place a Bloom filter ahead of DB reads.',
+        'Prevent viral hot keys from saturating one Redis shard. Add a 1 to 5 second L1 app cache, or salt read keys across shards (`sku:42#0..3`).',
+        'Attach context timeouts to negative caches and singleflight calls so one stuck rebuild never hangs 500 waiting callers.'
       ],
       code: `
 package main
@@ -501,18 +501,18 @@ func main() {
 	fmt.Printf("jitteredTTLs=%v %v\\n", jitteredTTL(5*time.Minute, rng), jitteredTTL(5*time.Minute, rng))
 }
 `,
-      practice: "Run `go run .` to watch 25 concurrent callers trigger `dbCalls=1`. Remove the `SingleFlight` wrapper in a copy and run it again to observe `dbCalls=25`, then verify how a Bloom filter false positive (when bits collide) still safely falls back to DB + negative cache.",
-      teach: "Draw the difference between a Cache Stampede, Cache Penetration, and a Cache Avalanche, and name one primary mitigation and trade-off for each.",
-      analogy: "Single-flight is twenty roommates noticing the milk is empty and sending only one person to the store while the others wait; a Bloom filter is a guest list at the door that rejects obvious non-members before anyone checks the main ledger.",
+      practice: "Run `go run .` to watch 25 concurrent callers trigger `dbCalls=1`. Remove the `SingleFlight` wrapper in a copy and run it again to observe `dbCalls=25`. Check how a Bloom filter false positive still falls back to a DB read plus a negative cache entry.",
+      teach: "Draw the difference between a Cache Stampede, Cache Penetration, and a Cache Avalanche. Name one primary mitigation and one trade-off for each.",
+      analogy: "Singleflight is twenty roommates noticing an empty milk carton and sending one shopper for the whole apartment. A Bloom filter is a door guest list that turns away non-members before checking the ledger.",
       pitfalls: [
-        'Expecting a Bloom filter to return zero false positives or support key deletes natively (standard Bloom filters guarantee zero false negatives, never zero false positives; deletions require a Counting Bloom Filter or periodic rebuild).',
-        'Caching negative results without an upper cap on key diversity or short TTL, allowing random invalid IDs to evict valid cache keys.',
-        'Using single-flight without a timeout so one slow or failed DB lookup stalls every waiting caller.'
+        'Expecting a Bloom filter to have zero false positives or support deletes directly. Standard filters guarantee zero false negatives only, so deletes need a Counting Bloom Filter or periodic rebuild.',
+        'Caching negative results without a cap on key count or a short TTL, letting random missing IDs evict valid cache keys.',
+        'Running singleflight without a timeout so one stalled DB call hangs every waiting caller.'
       ],
       quiz: [
-        { q: "What can a standard Bloom filter guarantee with 100% certainty?", a: ["That a key definitely exists in the DB", "If the filter returns `false`, the key definitely does NOT exist", "Zero false positives", "O(1) key deletion"], c: 1, why: "Bloom filters have zero false negatives: if any hashed bit is 0, the key was never added." },
-        { q: "Which technique directly fixes a single flash-sale SKU saturating one Redis node even though cache hit rate is 99.9%?", a: ["Longer Redis RDB snapshots", "Switching to Fixed Window limits", "L1 local in-memory micro-cache (e.g., 1s TTL) or salting read replicas (`sku:42#0..N`)", "Turning off eviction"], c: 2, why: "A hot key hits one Redis shard on every request; absorbing reads in L1 app RAM or spreading reads across salted keys removes the single-shard bottleneck." },
-        { q: "Why add ±10–20% random jitter to cache TTLs during bulk warm-up?", a: ["To prevent an entire batch of keys from expiring together (cache avalanche)", "To shrink key memory usage in Redis", "To enforce LRU ordering", "To bypass CDN Origin Shield"], c: 0, why: "Jitter spreads expiration across minutes so background rebuild load stays smooth instead of spiking together." }
+        { q: "What does a standard Bloom filter guarantee with 100% certainty?", a: ["That a key definitely exists in the DB", "If the filter returns `false`, the key definitely does NOT exist", "Zero false positives", "O(1) key deletion"], c: 1, why: "Bloom filters never produce false negatives. If any hashed bit is 0, the key was never inserted." },
+        { q: "Which technique stops one flash-sale SKU from saturating a single Redis shard when hit rate is already 99.9%?", a: ["Longer Redis RDB snapshots", "Switching to Fixed Window limits", "L1 local in-memory micro-cache (1s TTL) or salting read keys (`sku:42#0..N`)", "Turning off eviction"], c: 2, why: "A hot key hits one Redis shard on every read. Absorbing reads in L1 app RAM or spreading reads across salted keys removes that single-shard bottleneck." },
+        { q: "Why add 10% to 20% random jitter to cache TTLs during bulk warm-up?", a: ["To stop an entire batch of keys from expiring at the same moment (cache avalanche)", "To shrink key memory usage in Redis", "To enforce LRU ordering", "To bypass CDN Origin Shield"], c: 0, why: "Jitter spreads expiration across minutes so background rebuilds stay steady without spiking together." }
       ]
     },
     {
@@ -523,13 +523,13 @@ func main() {
         ['HTTP 429 & IETF Headers', '// --- 3. HTTP Middleware']
       ],
       terms: [
-        ['Token Bucket', 'Refills tokens at rate `r` up to burst capacity `b`. Allows brief bursts within `b` while enforcing long-run average rate `r` in `O(1)` memory.'],
-        ['Sliding Window Counter', 'Combines `prevCount * overlapWeight + currCount` across two adjacent buckets—nearly as accurate as a full log at `O(1)` memory per client.'],
-        ['IETF `RateLimit` headers', 'Standardizes `RateLimit-Policy` (quota rules) and `RateLimit` (remaining quota/reset) instead of `X-RateLimit-*`, paired with `429 Too Many Requests` + `Retry-After`.']
+        ['Token Bucket', 'Refills tokens at rate `r` up to burst capacity `b`. Allows brief bursts up to `b` while enforcing long-run rate `r` in `O(1)` memory.'],
+        ['Sliding Window Counter', 'Combines `prevCount * overlapWeight + currCount` across two adjacent buckets. Gives near-exact accuracy using `O(1)` memory per client.'],
+        ['IETF `RateLimit` headers', 'Standardizes `RateLimit-Policy` (quota rules) and `RateLimit` (remaining quota and reset) in place of `X-RateLimit-*`, paired with `429 Too Many Requests` and `Retry-After`.']
       ],
-      why: "Without rate limiting and load shedding, one buggy retry loop or scraper consumes your entire API pool and starves legitimate users. Different algorithms trade exact boundary fairness against RAM and burst smoothness.",
+      why: "Without rate limiting and load shedding, one buggy retry loop or scraper drains your API pool and starves real users. Each algorithm balances boundary fairness against RAM and burst smoothness.",
       predict: {
-        prompt: "An API uses a naive **Fixed Window** limit of `100 requests per minute` resetting cleanly at `:00` seconds. A client sends `100` requests at `12:00:58` and `100` more at `12:01:01`. How many succeed inside that 4-second span?",
+        prompt: "An API enforces a Fixed Window limit of `100` requests per minute resetting at `:00` seconds. A client sends `100` requests at `12:00:58` and `100` more at `12:01:01`. How many succeed inside that 4-second span?",
         options: [
           "100 requests total, because the rate limiter tracks the last 60 seconds",
           "200 requests succeed (2× the allowed rate across the minute boundary)",
@@ -537,14 +537,14 @@ func main() {
           "0 requests succeed because clocks drift"
         ],
         answer: 1,
-        explain: "Fixed Window resets its counter at `12:01:00`, letting a client burst `2× limit` across the window edge. Switching to **Sliding Window Counter**, **Token Bucket**, or **GCRA** closes that boundary gap."
+        explain: "Fixed Window resets its counter at `12:01:00`, letting a client burst `2×` the limit across the minute seam. Sliding Window Counter, Token Bucket, or GCRA closes that gap."
       },
       points: [
-        'Compare the core algorithms: **Fixed Window** (tiny RAM, 2× boundary burst), **Sliding Window Log** (exact, high RAM storing timestamps), **Sliding Window Counter** (weighted two-bucket estimate, tiny RAM), **Token Bucket** (smooth average + controlled bursts), and **Leaky Bucket / GCRA** (constant drain pace).',
-        'Across distributed API replicas, never do `GET` then `SET` in app code—racing servers over-admit. Execute check-and-decrement atomically via a **Redis Lua script** (`EVALSHA`) or `INCR` + `EXPIRE`.',
-        'Return **`429 Too Many Requests`** with `Retry-After` and IETF **`RateLimit-Policy` / `RateLimit`** headers; remember **RFC 9111**: intermediaries and clients must ignore `RateLimit` headers on cached hits (`Age > 0`).',
-        'Decide your failure mode per endpoint: **fail open** on browse/search endpoints if Redis blips, and **fail closed** (or local in-memory fallback) on login/OTP brute-force endpoints.',
-        'Pair per-client **rate limiting** (`429`) with server-wide **load shedding** (`503 Service Unavailable`): shed low-priority requests before CPU, GC, or queue saturation collapses p99 for everything.'
+        'Match algorithms to needs: Fixed Window (tiny RAM, 2× edge burst) and Sliding Window Log (exact, stores every timestamp). Sliding Window Counter, Token Bucket, and Leaky Bucket (or GCRA) keep `O(1)` state without edge bursts.',
+        'Across distributed API pods, never run `GET` then `SET` in app code because racing pods over-admit. Run check-and-decrement atomically inside a Redis Lua script (`EVALSHA`) or `INCR` plus `EXPIRE`.',
+        'Return `429 Too Many Requests` with `Retry-After` and IETF `RateLimit-Policy` / `RateLimit` headers. Under RFC 9111, clients must ignore `RateLimit` headers on cached hits (`Age > 0`).',
+        'Pick failure behavior per route: fail open on search if Redis drops, and fail closed on login or OTP checks.',
+        'Pair per-client rate limits (`429`) with server-wide load shedding (`503 Service Unavailable`). Drop low-priority requests before CPU or queue saturation collapses `p99` for everyone.'
       ],
       code: `
 package main
@@ -646,18 +646,18 @@ func main() {
 	}
 }
 `,
-      practice: "Open `VIZ.sysratelimit` and run the `:09` boundary burst test (`Jump to :09` → `Burst ×4` → `Advance +2s` → `Burst ×4`). Watch Fixed Window admit `2×` the limit while Sliding Window Counter, Token Bucket, and Leaky Bucket reject excess requests.",
-      teach: "Explain why distributed rate limiters execute their check-and-decrement inside a single Redis Lua script (or atomic command), and contrast Token Bucket with Leaky Bucket.",
-      analogy: "A Token Bucket is a subway fare card holding up to `b` rides refilled hourly—you can sprint a whole group through while tokens remain, whereas a Leaky Bucket is a turnstile clicking at one strict constant beat.",
+      practice: "Open `VIZ.sysratelimit` and run the `:09` boundary burst test (`Jump to :09` -> `Burst ×4` -> `Advance +2s` -> `Burst ×4`). Watch Fixed Window admit `2×` the limit while Sliding Window Counter, Token Bucket, and Leaky Bucket reject excess requests.",
+      teach: "Explain why distributed rate limiters execute check-and-decrement inside a single Redis Lua script or atomic command. Contrast Token Bucket with Leaky Bucket.",
+      analogy: "A Token Bucket is a subway fare card holding up to `b` rides refilled hourly so a small group can swipe through at once. A Leaky Bucket is a mechanical turnstile clicking at one fixed beat.",
       pitfalls: [
-        'Reading a Redis counter in Go, checking `< limit`, and sending `INCR` in a second round trip—concurrent requests pass the check together under load.',
-        'Returning `429` without `Cache-Control: no-store` or forgetting that cached `Age > 0` responses carry stale `RateLimit` counters.',
-        'Partitioning strictly by IP behind corporate NAT or mobile CGNAT proxies, throttling thousands of innocent users together.'
+        'Reading a Redis counter in Go, checking `< limit`, and sending `INCR` in a second round trip. Concurrent requests pass the check together under load.',
+        'Returning `429` without `Cache-Control: no-store`, or forgetting that cached `Age > 0` responses hold stale `RateLimit` headers.',
+        'Partitioning strictly by IP behind corporate NAT or mobile CGNAT proxies, throttling thousands of unrelated users together.'
       ],
       quiz: [
-        { q: "Which rate-limiting approach prevents a client from bursting twice the quota across `:59` and `:01` while still keeping `O(1)` memory per user?", a: ["Fixed Window Counter", "Sliding Window Counter", "No-eviction Redis log", "HTTP ETag caching"], c: 1, why: "Sliding Window Counter weights the prior window's count by overlap fraction, smoothing the window seam with only two integers per user." },
-        { q: "According to the IETF RateLimit headers draft + RFC 9111, how should clients treat `RateLimit` headers on a response served from an intermediary cache (`Age > 0`)?", a: ["Double the remaining quota", "Ignore `RateLimit` headers on cached responses", "Force a retry with `Retry-After: 0`", "Store them in localStorage forever"], c: 1, why: "Cached headers reflect origin state at storage time, not live quota; clients ignore them on cache hits (`Age > 0`)." },
-        { q: "What is the main distinction between rate limiting (`429`) and load shedding (`503`)?", a: ["429 protects per-client quotas; 503 drops excess total load to save server health", "429 is for TCP, 503 is for UDP", "503 only runs in CDNs", "429 retries automatically in browsers"], c: 0, why: "Rate limiting isolates noisy tenants; load shedding protects global server health (CPU/memory/queue depth) when total capacity saturates." }
+        { q: "Which rate-limiting approach prevents a client from bursting twice the quota across `:59` and `:01` while still keeping `O(1)` memory per user?", a: ["Fixed Window Counter", "Sliding Window Counter", "No-eviction Redis log", "HTTP ETag caching"], c: 1, why: "Sliding Window Counter weights the prior window's count by overlap fraction, smoothing the window seam with two integers per user." },
+        { q: "According to the IETF RateLimit headers draft and RFC 9111, how should clients treat `RateLimit` headers on a cached response (`Age > 0`)?", a: ["Double the remaining quota", "Ignore `RateLimit` headers on cached responses", "Force a retry with `Retry-After: 0`", "Store them in localStorage forever"], c: 1, why: "Cached headers reflect origin state when stored, not live quota, so clients ignore them on cache hits (`Age > 0`)." },
+        { q: "What distinguishes rate limiting (`429`) from load shedding (`503`)?", a: ["429 enforces per-client quotas, while 503 drops excess total traffic to save server health", "429 is for TCP, 503 is for UDP", "503 only runs in CDNs", "429 retries automatically in browsers"], c: 0, why: "Rate limiting isolates noisy tenants. Load shedding protects global server health (CPU, RAM, or queue depth) when total capacity fills up." }
       ]
     },
     {
@@ -667,17 +667,17 @@ func main() {
         ['Database Selection Matrix', '// --- 2. Database Matrix']
       ],
       terms: [
-        ['B-Tree storage engine', 'Mutable fixed-size pages (e.g., 8 KB in Postgres/SQL Server) updated in place. Fast point lookups and range scans; random updates trigger page splits and write amplification.'],
-        ['LSM-Tree (Log-Structured Merge)', 'Appends writes sequentially to a WAL and sorted in-memory MemTable, flushing immutable SSTables to disk. Blazing writes; reads check MemTable + Bloom filters + SSTables.'],
-        ['Write vs Read amplification', 'Write amplification counts bytes written to disk per logical write (e.g., LSM compaction); read amplification counts disk/file checks per lookup (checked across SSTable levels).']
+        ['B-Tree storage engine', 'Mutable fixed-size pages (for example, 8 KB in Postgres and SQL Server) updated in place. Fast for reads and ranges, with page splits on random writes.'],
+        ['LSM-Tree (Log-Structured Merge)', 'Appends writes sequentially to a WAL and sorted in-memory MemTable, then flushes immutable SSTables to disk. Fast for writes, reading MemTable plus Bloom filters and SSTables.'],
+        ['Write vs Read amplification', 'Write amplification counts bytes written to disk per logical write (such as LSM compaction). Read amplification counts file lookups needed per key read across SSTable levels.']
       ],
-      why: "Every database trade-off—why PostgreSQL excels at mixed transactional queries while Cassandra ingests massive write streams—traces back to whether the disk engine mutates B-Tree pages in place or appends immutable LSM-Tree SSTables.",
+      why: "Database strengths trace back to their disk engine. PostgreSQL excels at mixed transactional queries while Cassandra ingests massive write streams because B-Trees mutate pages in place while LSM-Trees append immutable SSTables.",
       points: [
-        '**B-Tree engines** (**PostgreSQL**, **SQL Server**, **MySQL InnoDB**) give low-variance point reads and sorted range scans via one tree path, paying random-write and page-split costs during heavy inserts.',
-        '**LSM-Tree engines** (**RocksDB**, **Cassandra**, **ScyllaDB**, **Pebble**) convert random writes into sequential WAL + MemTable appends, flushing immutable **SSTables** compacted later in the background.',
-        'LSM reads must merge across the MemTable and multiple SSTable levels—that is why engines attach **Bloom filters** per SSTable to skip files that definitely lack a key.',
-        'Match data models to access patterns: **OLTP Relational** (ACID joins, constraints), **Document (MongoDB)** (hierarchical schemas), **KV / Wide-Column (Redis, DynamoDB, Cassandra)** (known-key scale), **Columnar OLAP (ClickHouse, BigQuery)** (billion-row aggregations), **Object Storage (S3, MinIO)** (media blobs via presigned URLs).',
-        'Never store large binaries (images, PDFs) inside SQL tables; keep metadata and URI pointers in SQL while streaming blobs straight to **S3 / MinIO**.'
+        'B-Tree engines (PostgreSQL, SQL Server, MySQL InnoDB) give low-variance point reads and sorted range scans down one tree path. Heavy random inserts pay page-split and random-I/O costs.',
+        'LSM-Tree engines (RocksDB, Cassandra, ScyllaDB, Pebble) turn random writes into sequential WAL and MemTable appends. They flush immutable SSTables that compact later in the background.',
+        'Because LSM reads check the MemTable plus multiple SSTable levels, engines attach a Bloom filter per SSTable to skip files that definitely lack a key.',
+        'Pick data stores by access pattern: relational OLTP for ACID joins, MongoDB for documents, or Redis and DynamoDB for key speed. Use ClickHouse for analytics and S3 for media.',
+        'Keep large binaries like images and PDFs out of SQL tables. Store metadata and URIs in SQL, and stream files directly to object storage like S3 or MinIO.'
       ],
       code: `
 package main
@@ -765,18 +765,18 @@ func main() {
 	fmt.Println(recommendStore("high-ingest-telemetry"))
 }
 `,
-      practice: "Trace `Put(\"user:1\", \"<TOMBSTONE>\")` in the Go LSM demo: explain why deleting a key in an LSM-Tree temporarily *adds* data until compaction merges SSTables, and compare that with deleting a row inside a PostgreSQL 8 KB B-Tree page.",
-      teach: "Contrast B-Tree and LSM-Tree storage engines across sequential vs random writes, read lookup steps, and compaction/vacuum overhead.",
-      analogy: "A B-Tree is a neatly alphabetized filing cabinet where inserting a folder may force rearranging drawers (page splits); an LSM-Tree drops every new note straight onto an inbox pad and alphabetizes stacks later at night (compaction).",
+      practice: "Trace `Put(\"user:1\", \"<TOMBSTONE>\")` in the Go LSM demo. Deleting a key *adds* data until compaction merges SSTables, unlike deleting rows on an 8 KB B-Tree page.",
+      teach: "Compare B-Tree and LSM-Tree storage engines across write behavior, read lookup steps, and compaction or vacuum overhead.",
+      analogy: "A B-Tree is a sorted filing cabinet where new folders force drawer splits. An LSM-Tree drops notes onto a scratchpad in order and alphabetizes the stacks overnight during compaction.",
       pitfalls: [
-        'Assuming NoSQL means schema-less maintenance—denormalized collections shift schema consistency checks into application deploy code.',
-        'Allowing background LSM compaction to saturate NVMe IOPS during peak daytime traffic, spiking read tail latency.',
-        'Picking a specialized NoSQL engine on day one when relational joins, transactions, and 5,000 RPS fit cleanly on one PostgreSQL or SQL Server box.'
+        'Assuming NoSQL removes schema work. Denormalized documents push schema validation and migration checks into your application code.',
+        'Letting background LSM compaction saturate NVMe IOPS during daytime traffic, spiking read tail latency.',
+        'Picking distributed NoSQL on day one when ACID joins and 5,000 RPS fit on one PostgreSQL or SQL Server node.'
       ],
       quiz: [
-        { q: "Why can an LSM-Tree sustain much higher sustained random write throughput than a traditional B-Tree?", a: ["It skips durability and drops the WAL", "Writes append sequentially to WAL and in-memory MemTable, avoiding random 8 KB in-place page splits", "It stores all tables in CSS", "It avoids sorting keys forever"], c: 1, why: "Sequential disk WAL writes + RAM MemTable flushes avoid random read-modify-write IOPS on B-Tree pages." },
-        { q: "How does an LSM-Tree delete a record across immutable SSTables?", a: ["Overwrites bytes in place with zeros", "Appends a special tombstone marker; older versions vanish during later compaction", "Rebuilds the whole database synchronously", "Uses SQL triggers"], c: 1, why: "SSTables are immutable, so deletes write a tombstone record shadowing older versions until compaction drops them." },
-        { q: "Where should user-uploaded KYC documents (2 MB PDFs) live in an order/loan platform?", a: ["Stored inside PostgreSQL BYTEA / SQL Server VARBINARY(MAX) columns", "Base64-encoded inside Redis strings", "In S3 / MinIO object storage accessed via time-limited presigned URLs, with metadata in SQL", "Inside cookies"], c: 2, why: "Object storage handles large blobs cheaply with CDN/direct uploads, keeping DB backups, RAM buffer pools, and API threads lean." }
+        { q: "Why does an LSM-Tree handle heavier sustained write traffic than a traditional B-Tree?", a: ["It skips durability and drops the WAL", "Writes append sequentially to the WAL and MemTable, avoiding random 8 KB in-place page splits", "It stores all tables in CSS", "It avoids sorting keys forever"], c: 1, why: "Sequential WAL appends and RAM MemTable flushes avoid random read-modify-write I/O across B-Tree pages." },
+        { q: "How does an LSM-Tree delete a record across immutable SSTables?", a: ["Overwrites bytes in place with zeros", "Appends a tombstone marker so older versions drop during compaction", "Rebuilds the whole database synchronously", "Uses SQL triggers"], c: 1, why: "SSTables never mutate on disk. Deletes append a tombstone marker that shadows older entries until compaction runs." },
+        { q: "Where should 2 MB user-uploaded KYC PDFs live in a loan or order system?", a: ["Inside PostgreSQL BYTEA or SQL Server VARBINARY(MAX) columns", "Base64-encoded inside Redis strings", "In S3 or MinIO object storage with time-limited presigned URLs and SQL metadata", "Inside browser cookies"], c: 2, why: "Object storage handles large blobs cheaply with direct uploads, keeping SQL backups and RAM buffer pools small." }
       ]
     },
     {
@@ -786,17 +786,17 @@ func main() {
         ['Geohash Proximity Encoding', '// --- 2. Geohash']
       ],
       terms: [
-        ['Inverted index', 'Maps normalized tokens (`"coffee"`) to sorted posting lists of document IDs and positions—used by Elasticsearch and OpenSearch so text searches avoid table scans.'],
-        ['Okapi BM25', 'Relevance ranking formula weighting term frequency saturation (`k1`), term rarity across the corpus (`IDF`), and document length normalization (`b`).'],
-        ['Geohash & Uber H3', 'Space-filling spatial grids turning `(lat, lon)` into sortable prefix strings (Geohash, squares) or 64-bit hexagonal cell IDs (`H3`, equidistant neighbors).']
+        ['Inverted index', 'Maps normalized tokens (`"coffee"`) to sorted posting lists of document IDs. Elasticsearch and OpenSearch use it so full-text queries avoid table scans.'],
+        ['Okapi BM25', 'Relevance ranking formula combining term frequency saturation (`k1`), rarity across documents (`IDF`), and field length normalization (`b`).'],
+        ['Geohash & Uber H3', 'Spatial grids turning `(lat, lon)` into sortable prefix strings (Geohash squares) or 64-bit hexagon IDs (`H3` equidistant cells).']
       ],
-      why: "Relational B-Tree indexes break down on two common features: substring relevance search (`LIKE '%espresso%'`) and fast two-dimensional radius queries (`drivers within 2 km`). Both need specialized index structures.",
+      why: "Relational B-Tree indexes break down on two common features: ranked substring search (`LIKE '%espresso%'`) and fast radius queries (`drivers within 2 km`). Both need specialized index layouts.",
       points: [
-        "B-Trees index prefixes left-to-right, so `LIKE '%term%'` forces a full scan; **Elasticsearch / OpenSearch** (Apache Lucene) tokenize text into an **inverted index** (`term -> [docIDs]`).",
-        '**BM25** improves on naive TF-IDF with diminishing returns on repeated words (`k1`) and length normalization (`b`), preventing long keyword-stuffed descriptions from dominating results.',
-        'Treat search engines as **derived secondary read indexes**, never primary truth—sync changes from SQL via the **Outbox / CDC pipeline** and keep typo tolerance and synonyms there.',
-        'For proximity search (`find nearby couriers`), two single-column B-Tree indexes on `(lat)` and `(lon)` scan giant bounding boxes; instead encode 2D space onto 1D cells via **Geohash**, **Quadtrees**, **PostGIS R-Tree (GiST)**, or **Uber H3**.',
-        'Beware **Geohash edge discontinuities**: two houses 20 meters apart across a grid seam have completely different prefixes—always query the target cell **plus its 8 neighbors** (or use **Uber H3** hexagons where all 6 neighbors share uniform center-to-center distance).'
+        "B-Trees index left-to-right prefixes, so `LIKE '%term%'` forces a full scan. Elasticsearch and OpenSearch tokenize text into an inverted index (`term -> [docIDs]`).",
+        'BM25 improves on TF-IDF with diminishing gains from repeated terms (`k1`) and length normalization (`b`) so long keyword-heavy descriptions do not dominate short titles.',
+        'Treat search engines as secondary read indexes, not primary storage. Sync updates from SQL through an Outbox or CDC stream and apply typos and synonyms at query time.',
+        'Separate B-Tree indexes on `(lat)` and `(lon)` scan huge boxes for radius queries. Encode 2D space into 1D cells with Geohash, Quadtrees, PostGIS R-Trees (GiST), or Uber H3.',
+        'Watch for Geohash boundary seams because nearby points across a grid line can share zero prefix characters. Always query the target cell plus its 8 neighbors, or use Uber H3 hexagons where all 6 neighbors sit at equal distance.'
       ],
       code: `
 package main
@@ -926,18 +926,18 @@ func main() {
 	fmt.Printf("Geohash Bandung=%s nearby=%s sharePrefix=%v\\n", bandung, neighbor, bandung[:5] == neighbor[:5])
 }
 `,
-      practice: "Run `go run .` and note why document `3` (`\"keyboard keycaps\"`) outranks document `2` in BM25 even though both match `'keyboard'` once. Next, compare two coordinates `(-0.001, 0.001)` and `(0.001, -0.001)` near `(0, 0)` to observe the Geohash prefix seam directly.",
-      teach: "Explain why Elasticsearch should stay a secondary index synced from Postgres/SQL Server rather than the primary ledger, and why Uber H3 hexagons beat square grids for radius heatmaps.",
-      analogy: "An inverted index is the index at the back of a textbook listing every page number per topic instead of flipping every page from page 1. Hexagonal H3 tiles are like a honeycomb where every adjacent cell sits the exact same step away from its center.",
+      practice: "Run `go run .` and note why document `3` (`\"keyboard keycaps\"`) outranks document `2` in BM25 even though both match `'keyboard'` once. Compare `(-0.001, 0.001)` and `(0.001, -0.001)` near `(0, 0)` to observe the Geohash prefix seam.",
+      teach: "Explain why Elasticsearch works best as a secondary index synced from SQL, not as primary storage. Explain why Uber H3 hexagons beat square grids for radius heatmaps.",
+      analogy: "An inverted index works like a book index listing every topic page number so you skip scanning every page. Hexagonal H3 tiles are like a honeycomb where every neighbor sits at the exact same center distance.",
       pitfalls: [
-        'Treating Elasticsearch as the system of record without durable source storage—mapping changes or failed near-real-time refreshes risk lost updates.',
-        'Querying only `WHERE geohash LIKE prefix%` without also checking the 8 surrounding cells, silently dropping nearby matches across a grid boundary.',
-        'Choosing overly dense Geo precision when driver counts fluctuate rapidly—Uber H3 lets you roll up (`cellToParent`) dynamically when areas are sparse.'
+        'Using Elasticsearch as primary source storage without durable backups, risking lost updates during reindexing or refresh delays.',
+        'Querying only `WHERE geohash LIKE prefix%` without the 8 surrounding cells, dropping nearby points right across a grid line.',
+        'Locking into overly fine spatial resolution when traffic fluctuates. Uber H3 lets you roll cells up with `cellToParent` when areas thin out.'
       ],
       quiz: [
-        { q: "In BM25, why does a match inside a 2-word product title typically score higher than one match inside a 200-word description?", a: ["Field-length normalization (`b`) rewards matches in shorter fields", "Inverted indexes skip long documents", "BM25 sorts alphabetically", "IDF deletes frequent terms"], c: 0, why: "Length normalization prevents long, noisy text fields from unfairly outranking crisp, focused matches." },
-        { q: "Why do Geohash queries check the target cell plus all 8 neighbors?", a: ["To sort alphabetically", "Nearby coordinates across a grid boundary can share almost no Geohash prefix", "Geohash only encodes latitude", "SQL LIKE requires 9 patterns"], c: 1, why: "Two points separated by 10 meters across a major quadrant line (e.g., equator or prime meridian) have completely different prefixes." },
-        { q: "What geometric property made Uber design H3 around hexagons instead of squares or triangles?", a: ["Hexagons require half as many bits", "All six neighbors sit equidistant from the cell center, removing diagonal distortion", "Squares cannot tessellate spheres", "PostGIS only supports hexagons"], c: 1, why: "Square grids have closer edge neighbors (1×) and farther corner neighbors (√2×); hexagons give one uniform neighbor distance." }
+        { q: "In BM25, why does a match inside a 2-word title score higher than a match inside a 200-word description?", a: ["Field-length normalization (`b`) rewards matches in shorter fields", "Inverted indexes skip long documents", "BM25 sorts alphabetically", "IDF deletes frequent terms"], c: 0, why: "Length normalization stops long, noisy text fields from outranking brief titles." },
+        { q: "Why do Geohash queries check the target cell plus all 8 neighbors?", a: ["To sort alphabetically", "Nearby coordinates across a grid boundary can share zero Geohash prefix characters", "Geohash only encodes latitude", "SQL LIKE requires 9 patterns"], c: 1, why: "Two points 10 meters apart across the equator or prime meridian have totally different prefixes." },
+        { q: "What geometric advantage made Uber pick hexagons for H3 over squares or triangles?", a: ["Hexagons require half as many bits", "All six neighbors sit equidistant from the cell center, removing diagonal distortion", "Squares cannot tessellate spheres", "PostGIS only supports hexagons"], c: 1, why: "Square grids have close edge neighbors (`1×`) and distant diagonal corners (`√2×`). Hexagons give one uniform step distance." }
       ]
     },
     // ---------------- Advanced ----------------
@@ -949,21 +949,21 @@ func main() {
         ['Shard Key & Resharding', '-- --- 3. Composite Shard Schema']
       ],
       terms: [
-        ['PgBouncer Transaction Mode', 'Returns a server DB connection to the pool after every `COMMIT`/`ROLLBACK` instead of holding it per client socket, multiplexing thousands of idle app connections onto dozens of Postgres backends.'],
-        ['Replication lag (`LSN`)', 'Delay between a primary commit and an async read replica applying its WAL record. Passing a commit Log Sequence Number (LSN) lets critical reads wait or fall back to the primary for read-your-own-writes.'],
-        ['Partitioning vs Sharding', 'Partitioning splits one table into physical child tables inside one DB node (easier pruning and `DROP PARTITION` retention); sharding distributes key ranges or hash buckets across separate DB nodes.']
+        ['PgBouncer Transaction Mode', 'Returns a server DB connection to the pool after each `COMMIT` or `ROLLBACK`. Multiplexes thousands of idle app connections onto dozens of Postgres backends.'],
+        ['Replication lag (`LSN`)', 'Delay between a primary commit and a read replica applying its WAL record. Passing a commit LSN lets reads wait or hit primary for read-your-own-writes.'],
+        ['Partitioning vs Sharding', 'Partitioning splits one table into physical child tables inside one host for pruning and fast `DROP TABLE` drops. Sharding spreads data across separate DB servers.']
       ],
-      why: 'Opening 5,000 Postgres connections directly for 500 microservices stalls the kernel scheduler and burns gigabytes of memory. Scaling SQL systems goes in four deliberate stages: tune indexes and transaction pools first, offload stale-tolerant reads to replicas, partition huge tables inside one host, and shard across nodes only when primary writes saturate.',
+      why: 'Opening 5,000 Postgres connections for 500 pods stalls the OS scheduler and burns gigabytes of RAM. Scale SQL in four steps: index tuning and transaction pools, read replicas, single-host partitions, and sharding only when writes saturate.',
       points: [
-        'Each PostgreSQL backend process allocates local work memory and competes on ProcArray snapshots; capping direct DB connections around `~100–300` behind **PgBouncer** (`pool_mode = transaction`) or **RDS Proxy** often doubles throughput.',
-        'In Transaction Mode, avoid session-scoped state (`SET TIME ZONE`, `PREPARE`, `LISTEN`, session advisory locks) unless PgBouncer `max_prepared_statements` is explicitly configured.',
-        'Read replicas lag under heavy writes. Guarantee **read-your-own-writes** for mutations (checkout confirmation, profile edits) by pinning a short **commit LSN / version cookie** or routing post-write reads to the primary for 2–5 seconds.',
-        'PostgreSQL declarative **range partitioning** (`PARTITION BY RANGE (created_at)`) prunes cold scans to one monthly child table and turns multi-hour `DELETE` vacuum storms into an instant `DROP TABLE`.',
-        'Pick a **shard key** (`tenant_id` or `user_id`, not `created_at`) that matches your dominant access pattern with high cardinality; queries without the shard key trigger expensive **scatter-gather** fan-outs across all shards.',
-        'Cross-shard joins and `AUTO_INCREMENT` sequences break on distributed shards—use time-ordered 64-bit IDs (**Snowflake** / **UUIDv7**) and move cross-entity views to read models.'
+        'Each PostgreSQL backend allocates local memory and contends on snapshots. Capping direct connections around 100 to 300 behind PgBouncer (`pool_mode = transaction`) or RDS Proxy often doubles throughput.',
+        'In Transaction Mode, avoid session state (`SET TIME ZONE`, `PREPARE`, `LISTEN`, session advisory locks) unless you configure PgBouncer `max_prepared_statements`.',
+        'Async replicas lag under heavy writes. Protect read-your-own-writes on checkouts or profile updates by checking a commit LSN cookie or pinning post-write reads to the primary for a few seconds.',
+        'PostgreSQL declarative range partitioning (`PARTITION BY RANGE (created_at)`) prunes queries to one monthly table and swaps multi-hour `DELETE` vacuums for instant `DROP TABLE` calls.',
+        'Pick a high-cardinality shard key (`tenant_id` or `user_id`) that matches most queries. Queries missing the shard key trigger scatter-gather scans across every shard.',
+        'Cross-shard joins and `AUTO_INCREMENT` sequences fail on distributed shards. Generate time-ordered 64-bit IDs (Snowflake or UUIDv7) and build cross-shard views in read models.'
       ],
       predict: {
-        prompt: "You scale an app horizontally from `20` to `400` API pods (`25` DB connections per pod = `10,000` connections) hitting one PostgreSQL primary (`max_connections = 5000`, `16 vCPU`). CPU hovers at 60%, yet p99 query latency jumps 10× and new pods fail to connect. Adding a read replica only handles `SELECT` traffic. What fixes the root bottleneck first?",
+        prompt: "You scale horizontally from `20` to `400` API pods (`25` connections per pod = `10,000` connections) hitting one PostgreSQL primary (`max_connections = 5000`, `16 vCPU`). CPU sits at 60%, yet `p99` jumps 10× and new pods fail to connect. What fixes the root bottleneck?",
         options: [
           "Raise `max_connections = 20000` on PostgreSQL",
           "Put PgBouncer in `transaction` pooling mode in front of PostgreSQL and keep active DB backends around 50–150",
@@ -971,7 +971,7 @@ func main() {
           "Shard the `users` table across 16 PostgreSQL instances immediately"
         ],
         answer: 1,
-        explain: "PostgreSQL suffers severe context-switching and snapshot-lock contention when thousands of idle/short-lived connections sit open. Transaction pooling multiplexes 10,000 app sockets over ~100 active DB backends—buying orders of magnitude more headroom before touching sharding."
+        explain: "PostgreSQL wastes CPU on context switches and snapshot locks when thousands of idle connections stay open. Transaction pooling multiplexes 10,000 app sockets onto ~100 backends, adding massive headroom before sharding becomes necessary."
       },
       code: `
 -- --- 1. PgBouncer Pool (pgbouncer.ini reference + session verification) ---
@@ -1039,18 +1039,18 @@ FROM orders o
 JOIN order_items i ON i.tenant_id = o.tenant_id AND i.order_id = o.order_id
 WHERE o.tenant_id = 42 AND o.order_id = 900123;
 `,
-      practice: "Open `VIZ.sysdbscale`, set writes vs reads and check replication lag as write load climbs, then compare how Transaction Pooling shrinks open primary backends vs Direct Connections. Inspect the composite `(tenant_id, order_id)` key in section 3 and explain why `tenant_id` comes first.",
-      teach: "Walk a teammate through the exact escalation ladder before sharding a Postgres cluster—indexes, PgBouncer transaction mode, read replicas + LSN read-your-writes, declarative partitioning—and name two workloads where sharding is mandatory vs premature.",
-      analogy: "Direct connections reserve one private chef per diner even while reading the menu; transaction pooling lets 500 diners share 20 chefs who step in only while cooking each dish.",
+      practice: "Open `VIZ.sysdbscale`, raise writes vs reads to watch replica lag grow, and compare Transaction Pooling vs Direct Connections. In section 3, explain why `tenant_id` comes first in `(tenant_id, order_id)`.",
+      teach: "Walk through the four scaling steps before sharding Postgres: indexes, PgBouncer transaction mode, read replicas with LSN checks, and partitioning. Name when sharding becomes mandatory.",
+      analogy: "Direct connections assign one private chef per diner even while reading menus. Transaction pooling lets 500 diners share 20 chefs who cook one dish and step back.",
       pitfalls: [
-        'Running PgBouncer in `transaction` mode while issuing session-level `SET search_path`, temporary tables, or `pg_advisory_lock`—the next unrelated tenant reuses that backend connection.',
-        'Sharding by monotonically increasing `created_at` or `order_id`, concentrating 100% of new writes onto whichever shard owns the newest range (write hotspot).',
-        'Deleting millions of old log rows with `DELETE FROM events WHERE created_at < ...` instead of dropping a monthly range partition, creating dead-tuple bloat and XID wraparound risk.'
+        'Using session commands (`SET search_path`, temp tables, or `pg_advisory_lock`) under PgBouncer `transaction` mode so the next tenant inherits stale session state.',
+        'Sharding by `created_at` or `order_id`, sending 100% of new inserts to one hot rightmost shard.',
+        'Running `DELETE FROM events WHERE created_at < ...` on millions of rows, causing vacuum bloat and transaction ID wraparound risk when dropping a partition finishes in milliseconds.'
       ],
       quiz: [
-        { q: "Why does `PARTITION BY RANGE (created_at)` require `created_at` inside every `PRIMARY KEY` and `UNIQUE` constraint in PostgreSQL?", a: ["To sort strings faster", "PostgreSQL only guarantees uniqueness per local partition index unless the partition key is part of the unique key", "B-Trees only index timestamps", "PgBouncer requires it"], c: 1, why: "Without checking every child partition on every insert, uniqueness can only be enforced locally when the routing column is inside the index." },
-        { q: "How can an API read immediately after a mutation avoid seeing stale data from an async read replica?", a: ["Disable WAL on primary", "Route the user's immediate read to the primary or wait for replica `pg_last_wal_replay_lsn() >= commit_lsn`", "Set `LIMIT 1`", "Run `VACUUM FULL`"], c: 1, why: "Tracking the primary commit LSN (or short post-write primary pinning) guarantees monotonic read-your-own-writes without stalling all readers." },
-        { q: "Which mistake creates a write hotspot on a sharded database?", a: ["Using UUIDv7 inside `(tenant_id, id)` hash sharding", "Range-sharding an append-only table by `created_at`", "Pre-splitting virtual shards into 256 buckets", "Co-locating `orders` and `order_items` on `tenant_id`"], c: 1, why: "All current timestamps land inside one active rightmost range shard while older shards stay idle for writes." }
+        { q: "Why does `PARTITION BY RANGE (created_at)` require `created_at` inside every PostgreSQL `PRIMARY KEY` and `UNIQUE` constraint?", a: ["To sort strings faster", "PostgreSQL enforces uniqueness per partition index unless the partition key sits inside the unique key", "B-Trees only index timestamps", "PgBouncer requires it"], c: 1, why: "Without checking every child partition on insert, local uniqueness only holds globally when the partition column belongs to the key." },
+        { q: "How does a post-write read avoid stale data from an async read replica?", a: ["Disable WAL on primary", "Route that user's read to the primary or wait for `pg_last_wal_replay_lsn() >= commit_lsn`", "Set `LIMIT 1`", "Run `VACUUM FULL`"], c: 1, why: "Checking the primary commit LSN (or short post-write primary routing) gives monotonic read-your-own-writes without blocking everyone else." },
+        { q: "Which choice creates a write hotspot on a sharded database?", a: ["Using UUIDv7 inside `(tenant_id, id)` hash sharding", "Range-sharding an append-only table by `created_at`", "Pre-splitting virtual shards into 256 buckets", "Co-locating `orders` and `order_items` on `tenant_id`"], c: 1, why: "All current timestamps land inside one active rightmost range shard while older shards stay idle." }
       ]
     },
     {
@@ -1061,21 +1061,21 @@ WHERE o.tenant_id = 42 AND o.order_id = 900123;
         ['Bounded-Load Balancing', '// --- 3. Bounded-Load']
       ],
       terms: [
-        ['Consistent hashing ring', 'Maps both physical nodes and object keys onto the same `[0, 2^32)` (or `2^64`) circular space; a key lives on the first node clockwise so adding/removing 1 of `N` nodes moves only `~1/N` keys.'],
-        ['Virtual nodes (`vnodes`)', 'Multiple ring positions (`nodeA#0`, `nodeA#1`, ...) per physical machine. `100–200` vnodes shrink key-distribution skew from ±30% to under ±5% and spread failover load evenly across survivors.'],
-        ['Bounded-load hashing', 'Mirrokni et al. / Google Maglev / HAProxy extension that caps any node at `ceil(avgLoad * (1 + ε))` (e.g., `c = 1.25`) and probes the next clockwise node if full, blocking hot-key cascades.']
+        ['Consistent hashing ring', 'Places nodes and keys on one circular `[0, 2^32)` or `2^64` hash space. Each key lands on the next clockwise node, so adding or dropping 1 node moves ~`1/N` keys.'],
+        ['Virtual nodes (`vnodes`)', 'Multiple ring slots (`nodeA#0`, `nodeA#1`) per server. Using 100 to 200 vnodes shrinks partition skew below ±5% and spreads failover evenly across survivors.'],
+        ['Bounded-load hashing', 'Caps any node at `ceil(avgLoad * (1 + ε))` (for example, `c = 1.25`) and probes clockwise if full, stopping hot-key overload.']
       ],
-      why: 'Partitioned Redis shards, DynamoDB-style storage engines, and stateful Layer-7 caches cannot afford global cache flushes whenever an instance scales up or crashes. Consistent hashing with virtual nodes keeps cache hits warm during topology shifts while bounded loads keep celebrity keys from overloading one lucky node.',
+      why: 'Partitioned Redis shards and stateful Layer-7 caches drop hit rates if scaling flushes every key. Consistent hashing with virtual nodes keeps caches warm during topology changes, while bounded loads shield hosts from viral hot keys.',
       points: [
-        'Modulo hashing (`hash(k) % N`) works only for fixed-size static pools: resizing `N` from `4` to `5` changes the remainder for roughly **80% (`4/5`)** of every key at once.',
-        'On a consistent hash ring (`N` nodes), inserting or removing one node alters only `~1/N` keys (those between the affected node and its counter-clockwise predecessor).',
-        'Few physical nodes placed once on a ring yield highly uneven arc lengths—using **100–200 virtual nodes** per server turns uneven luck into smooth statistical balance and supports heterogeneous weights (give a `2×` RAM host `2×` vnodes).',
-        'Lookup stays `O(log(N * V))` with binary search (`slices.BinarySearchFunc`) on a sorted uint32/uint64 slice—microseconds in Go with zero allocations.',
-        'Pure consistent hashing still melts a single node under a skewed Zipfian hot key; **Consistent Hashing with Bounded Loads** (`cap = ceil(loadRatio * c)`, `c ≈ 1.25`, used in HAProxy and Vimeo/Google load balancers) overflows surplus hits cleanly to the next node clockwise.',
-        'Alternative algorithm worth knowing: **Rendezvous (Highest Random Weight) hashing** picks `argmax node hash(key, node)`—simpler (no ring structure) and equally minimal-movement (`1/N`), great when `N` is small (`< 100` backends).'
+        'Modulo hashing (`hash(k) % N`) breaks when clusters resize: changing `N` from `4` to `5` remaps ~80% (`4/5`) of keys at once.',
+        'On an `N`-node consistent hash ring, adding or removing one node moves only ~`1/N` keys (those between the node and its counter-clockwise neighbor).',
+        'A single point per host makes uneven arc sizes. Giving each host 100 to 200 virtual nodes balances distribution and lets a `2×` RAM server take `2×` vnodes.',
+        'Binary search (`slices.BinarySearchFunc`) on a sorted uint32/uint64 slice finishes lookups in `O(log(N * V))` microseconds with zero allocations.',
+        'Consistent hashing still overloads one node for a viral key. Bounded-load hashing (`cap = ceil(loadRatio * c)`, `c ≈ 1.25`, used in HAProxy and Maglev) spills excess traffic to the next clockwise node.',
+        'When `N` is under 100 backends, Rendezvous (Highest Random Weight) hashing picks `argmax node hash(key, node)` with the same `1/N` minimal movement and no ring state.'
       ],
       predict: {
-        prompt: "You run a 4-node in-memory cache cluster routed by `fnv32(key) % N`. During peak traffic, Node 4 is added (`N` changes `4 -> 5`) across `10,000` hot keys. Roughly how many keys immediately remap to a different node (cache misses)?",
+        prompt: "A 4-node cache cluster routes keys by `fnv32(key) % N`. At peak traffic, you add Node 4 (`N` changes `4 -> 5`) across `10,000` hot keys. Roughly how many keys immediately move to a new node (cache misses)?",
         options: [
           "~2,000 keys (20%, matching `1/5` of keys)",
           "~8,000 keys (~80%), causing a massive cache stampede against the DB",
@@ -1083,7 +1083,7 @@ WHERE o.tenant_id = 42 AND o.order_id = 900123;
           "0 keys until old TTLs expire"
         ],
         answer: 1,
-        explain: "Changing the modulus from `4` to `5` alters `h % 4 != h % 5` for almost every integer except multiples below 4 (`lcm(4,5)=20`, so `16/20 = 80%` move). A consistent hash ring limits key movement to `~1/5` (20%)."
+        explain: "Changing the modulus from `4` to `5` changes `h % 4` vs `h % 5` for 16 of every 20 numbers (`80%`). A consistent hash ring moves only ~`1/5` (`20%`)."
       },
       code: `
 package main
@@ -1190,18 +1190,18 @@ func main() {
 	fmt.Printf("Hot key primary=%s bounded(cap=100)=%s\\n", primary, r4.LookupBounded("hot:promo", load, 100))
 }
 `,
-      practice: "Open `VIZ.syshash`, drag `vnodes/server` from `1` up to `150`, and watch key distribution balance across servers. Next, click `+ Add Node` (`4 -> 5`) and inspect the `Moved Keys` counter compared to Modulo Hashing.",
-      teach: "Explain why adding virtual nodes improves both initial key balance AND post-crash recovery when one cache server disappears.",
-      analogy: "Placing 4 people on a round clock leaves uneven wedge slices; giving each person 150 randomly scattered seats around the clock guarantees every person captures nearly 25% of incoming darts.",
+      practice: "Open `VIZ.syshash`, drag `vnodes/server` from `1` up to `150`, and watch key distribution balance across servers. Click `+ Add Node` (`4 -> 5`) and compare the `Moved Keys` counter against Modulo Hashing.",
+      teach: "Explain why adding virtual nodes improves both normal key balance and crash recovery when one cache server drops.",
+      analogy: "Placing 4 people once around a clock face leaves uneven wedge slices. Giving each person 150 random seats guarantees everyone catches roughly 25% of incoming darts.",
       pitfalls: [
-        'Forgetting binary-search wrap-around (`idx == len(vnodes) -> 0`), causing keys hashed past the last vnode to panic or stay unrouted.',
-        'Picking `1` or `2` virtual nodes in a small cluster, leaving one node owning 60% of the ring while another starves.',
-        'Assuming consistent hashing alone protects against hot keys—a viral single key still hashes to the exact same replica unless paired with L1 cache or bounded loads.'
+        'Forgetting binary-search wrap-around (`idx == len(vnodes) -> 0`), causing keys hashed past the last vnode to panic or fail.',
+        'Picking `1` or `2` virtual nodes in a small cluster so one host owns 60% of the ring while another starves.',
+        'Expecting consistent hashing alone to protect against hot keys. A viral key still hashes to one replica unless paired with L1 cache or bounded loads.'
       ],
       quiz: [
-        { q: "Why do systems like DynamoDB, Cassandra, and Redis-routing proxies assign 100–200 virtual nodes per physical host instead of 1?", a: ["To multiply RAM capacity", "To minimize partition-size variance and distribute failovers evenly across all remaining hosts", "To avoid hashing keys", "To guarantee strong linearizability"], c: 1, why: "Many vnodes turn random arc spacing into uniform percentages and prevent one immediate clockwise neighbor from absorbing 100% of a dead node's load." },
-        { q: "What does adding `bounded loads` (capacity factor `c ≈ 1.25`) change during a hot-key spike?", a: ["Disables virtual nodes", "Spills excess requests beyond `cap` to the next distinct physical server clockwise", "Deletes cold keys permanently", "Forces TCP retries"], c: 1, why: "Bounded-load consistent hashing guarantees no node exceeds `1.25×` average load while retaining locality on normal traffic." },
-        { q: "In a 10-node consistent hash ring with well-balanced vnodes, roughly what share of keys move when 1 new node joins?", a: ["~90%", "~50%", "~9–10% (`1 / 11`)", "0%"], c: 2, why: "Only keys owned by segments newly captured by the 11th node migrate (`1 / (N + 1)`)." }
+        { q: "Why do DynamoDB, Cassandra, and Redis proxies assign 100 to 200 virtual nodes per physical host?", a: ["To multiply RAM capacity", "To reduce partition skew and spread crash failovers evenly across remaining hosts", "To avoid hashing keys", "To guarantee strong linearizability"], c: 1, why: "Many vnodes turn random ring spacing into even fractions and stop the next clockwise neighbor from absorbing 100% of a dead host's load." },
+        { q: "What does `bounded loads` (capacity factor `c ≈ 1.25`) change during a hot-key spike?", a: ["Disables virtual nodes", "Spills excess requests beyond `cap` to the next distinct physical server clockwise", "Deletes cold keys permanently", "Forces TCP retries"], c: 1, why: "Bounded-load consistent hashing caps every host at `1.25×` average load while keeping locality on normal traffic." },
+        { q: "In a 10-node consistent hash ring with balanced vnodes, about what fraction of keys move when 1 new node joins?", a: ["~90%", "~50%", "~9–10% (`1 / 11`)", "0%"], c: 2, why: "Only keys inside segments claimed by the 11th node move (`1 / (N + 1)`)." }
       ]
     },
     {
@@ -1212,18 +1212,18 @@ func main() {
         ['Idempotent Consumer & DLQ', '-- --- 3. Consumer Dedup & DLQ']
       ],
       terms: [
-        ['Dual-write problem', 'Writing to PostgreSQL and publishing to Kafka/RabbitMQ inside one request without atomic commitment: if the broker call fails after DB commit (or vice versa), ledger state and events diverge silently.'],
-        ['Transactional Outbox + CDC', 'Insert both domain rows and an `outbox_events` row in the SAME local SQL transaction; either a `SKIP LOCKED` relay worker or Debezium WAL CDC ships rows reliably to the broker.'],
-        ['Dead-Letter Queue (DLQ)', 'Side channel holding poison messages that repeatedly fail schema validation or transient retries so they stop blocking healthy partitions while engineers inspect and replay them.']
+        ['Dual-write problem', 'Writing to PostgreSQL and publishing to Kafka or RabbitMQ separately in one request. A crash or timeout between calls leaves ledger rows and events out of sync.'],
+        ['Transactional Outbox + CDC', 'Inserts domain rows and an `outbox_events` row in the same SQL transaction. A `SKIP LOCKED` relay worker or Debezium WAL CDC ships rows to the broker.'],
+        ['Dead-Letter Queue (DLQ)', 'Side channel holding poison messages that repeatedly fail parsing or retries so healthy partitions keep moving while engineers inspect them.']
       ],
-      why: 'Distributed services crash right between a SQL `COMMIT` and a message broker `Publish()`. The Transactional Outbox pattern plus idempotent consumers turn fragile dual writes into reliable at-least-once delivery—without fragile 2-phase commits across databases and brokers.',
+      why: 'Services crash right between a SQL `COMMIT` and a broker `Publish()`. Transactional Outbox plus idempotent consumers turn risky dual writes into reliable at-least-once delivery without distributed two-phase commits.',
       points: [
-        'Never perform **dual writes** (`db.Commit()` followed by `kafka.Produce()`) for financial or order state: a network blip or OOM kill between the two lines drops events permanently.',
-        'Writing domain data + `outbox_events` in one ACID transaction guarantees atomicity; push events either via a relay poller (`FOR UPDATE SKIP LOCKED`) or **Change Data Capture (Debezium)** reading the DB Write-Ahead Log with near-zero DB query overhead.',
-        'Brokers (**Kafka**, **RabbitMQ**, **SQS**) deliver **at-least-once** in normal production, meaning duplicates ALWAYS happen on rebalance or timeout—pair outbox publishing with a unique `event_id` deduplication table (`processed_events`) or idempotent upsert.',
-        'Choose broker semantics deliberately: **Kafka** keeps an ordered append-only log split across partitions (`consumer_group` reads parallel partitions while maintaining per-key order for replay/analytics), whereas **RabbitMQ / SQS** excels at competing work queues with per-message ACK/NACK and priority/delay.',
-        'Prevent backlogs from collapsing downstream workers with **backpressure**, prefetch caps, exponential retry topics, and **Dead-Letter Queues (DLQ)** capped by retry count (`max_attempts`).',
-        'Never block an ordered partition indefinitely on one corrupt JSON payload: park toxic payloads into a **DLQ** with error context so healthy user events keep flowing.'
+        'Skip dual writes (`db.Commit()` then `kafka.Produce()`) on financial or order state. A network blip or OOM kill between those two calls drops downstream events permanently.',
+        'Commit domain tables and `outbox_events` inside one ACID transaction. Ship rows using a polling worker (`FOR UPDATE SKIP LOCKED`) or Change Data Capture (Debezium) reading the Write-Ahead Log with near-zero SQL overhead.',
+        'Brokers like Kafka, RabbitMQ, and SQS deliver at-least-once, so duplicates arrive on retries and rebalances. Record `event_id` in a deduplication table (`processed_events`) or run idempotent upserts.',
+        'Match brokers to workload: Kafka keeps an ordered partition log for multi-team replay (`consumer_group`). RabbitMQ and SQS fit task queues with per-message ACK and delays.',
+        'Prevent backlog cascades with prefetch limits, exponential retry topics, and Dead-Letter Queues (DLQ) capped by `max_attempts`.',
+        'Never keep retrying a corrupt JSON payload at the front of an ordered partition. Route toxic payloads to a DLQ after max attempts so healthy events keep flowing.'
       ],
       code: `
 -- --- 1. Outbox Table & Atomic Business Transaction (PostgreSQL) ---
@@ -1302,18 +1302,18 @@ CREATE TABLE dead_letter_events (
     parked_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 `,
-      practice: "Open `VIZ.sysqueue`, enable `Dual-Write` mode and inject a broker outage—watch DB and Queue diverge—then switch to `Transactional Outbox` and recover cleanly. Finally inject a poison pill and step through retries until it parks in the `DLQ`.",
-      teach: "Explain why `FOR UPDATE SKIP LOCKED` lets multiple outbox workers poll concurrently without locking each other, and compare Polling Outbox vs Debezium WAL CDC at high write throughput.",
-      analogy: "The outbox is writing your outgoing letters inside your sealed accounting ledger before closing the page; the mail courier reads the ledger copy whenever the post office reopens—never losing an envelope even if the mail van broke down during checkout.",
+      practice: "Open `VIZ.sysqueue`, switch to `Dual-Write`, and inject a broker outage so DB and Queue diverge. Next, switch to `Transactional Outbox` and recover, then inject a poison pill and step through retries until it lands in `DLQ`.",
+      teach: "Explain why `FOR UPDATE SKIP LOCKED` lets multiple outbox workers poll concurrently without blocking each other. Compare Polling Outbox to Debezium WAL CDC at high write volume.",
+      analogy: "The outbox writes outgoing letters inside your sealed accounting ledger before closing the page. A courier reads that ledger whenever the post office reopens, so no envelope disappears when the mail van breaks down.",
       pitfalls: [
-        'Publishing a Kafka event right after `COMMIT` without an outbox—process crash or network timeout permanently loses downstream emails, inventory updates, and analytics.',
-        'Assuming "exactly-once delivery" means a SQL/API consumer can skip idempotency checks—network retries and consumer group rebalances still replay batches unless side effects + `processed_events` commit atomically.',
-        'Leaving failed events at the head of an ordered partition retrying infinitely instead of routing poison payloads to a DLQ.'
+        'Publishing a Kafka event right after `COMMIT` without an outbox. A process crash or timeout drops downstream emails, inventory updates, and analytics.',
+        'Assuming at-least-once consumer logic needs no deduplication. Retries and rebalances still replay batches unless side effects commit atomically with `processed_events`.',
+        'Retrying a corrupt message forever at the head of an ordered partition when routing it to a DLQ would unblock healthy events.'
       ],
       quiz: [
-        { q: "Why does `FOR UPDATE SKIP LOCKED` matter when polling `outbox_events` across multiple relay workers?", a: ["It drops duplicates silently", "Each relay worker claims distinct unlocked rows without blocking behind another worker's transaction", "It bypasses PostgreSQL WAL", "It turns Kafka into RabbitMQ"], c: 1, why: "`SKIP LOCKED` distributes disjoint batches across concurrent relay instances instead of serializing everyone on row locks." },
-        { q: "What advantage does **Debezium CDC** offer over SQL polling on `outbox_events` at 20,000 events/sec?", a: ["Eliminates need for any primary DB transaction", "Streams changes directly from the Postgres Write-Ahead Log without repeated `SELECT ... UPDATE` polling load", "Guarantees zero duplicate consumer reads without dedup", "Replaces all HTTP endpoints"], c: 1, why: "WAL-based CDC avoids polling queries hitting index pages under heavy write QPS while keeping sub-second publish latency." },
-        { q: "If a consumer receives an `event_id` already present in `processed_events`, what should it do?", a: ["Crash and trigger a pager alert", "Skip the business side effect and acknowledge (commit offset) cleanly", "Insert a second row into `dead_letter_events`", "Restart Kafka"], c: 1, why: "Because the event was already committed earlier, acknowledging and skipping guarantees at-least-once delivery yields effectively-once state." }
+        { q: "Why does `FOR UPDATE SKIP LOCKED` matter when polling `outbox_events` across multiple relay workers?", a: ["It drops duplicates automatically", "Each relay worker claims distinct unlocked rows without waiting behind another worker's transaction", "It bypasses PostgreSQL WAL", "It turns Kafka into RabbitMQ"], c: 1, why: "`SKIP LOCKED` hands disjoint batches to concurrent relay workers without serializing on row locks." },
+        { q: "What advantage does Debezium CDC offer over SQL polling on `outbox_events` at 20,000 events/sec?", a: ["Eliminates need for any primary DB transaction", "Streams changes directly from the Postgres Write-Ahead Log without repeated `SELECT ... UPDATE` polling load", "Guarantees zero duplicate consumer reads without dedup", "Replaces all HTTP endpoints"], c: 1, why: "WAL-based CDC skips polling queries across index pages under heavy write QPS while keeping sub-second publish latency." },
+        { q: "When a consumer receives an `event_id` already inside `processed_events`, what should it do?", a: ["Crash and trigger a pager alert", "Skip the business side effect and acknowledge (commit offset)", "Insert a second row into `dead_letter_events`", "Restart Kafka"], c: 1, why: "The event already committed earlier, so skipping work and committing the offset keeps at-least-once delivery idempotent." }
       ]
     },
     {
@@ -1324,21 +1324,21 @@ CREATE TABLE dead_letter_events (
         ['Semaphore Bulkhead + Timeout', '// --- 3. Bulkhead']
       ],
       terms: [
-        ['Full Jitter backoff', 'AWS Builders Library formula `sleep = rand[0, min(cap, base * 2^attempt)]`. Desynchronizes thousands of failing clients instead of letting aligned retries hammer a recovering dependency in lockstep waves.'],
-        ['Circuit Breaker', 'State machine (`Closed -> Open -> Half-Open`) that fails fast immediately after error rate/count passes a threshold, sparing downstream servers from overload and callers from hanging threads.'],
-        ['Bulkhead pattern', 'Bounded semaphore or separate worker pool per dependency so one slow third-party SMS gateway cannot consume every goroutine/thread needed for healthy checkout paths.']
+        ['Full Jitter backoff', 'AWS Builders Library formula `sleep = rand[0, min(cap, base * 2^attempt)]`. Spreads failing retries randomly so recovering services don\'t get slammed by synchronized waves.'],
+        ['Circuit Breaker', 'State machine (`Closed -> Open -> Half-Open`) that fails fast once error counts cross a threshold, sparing downstream hosts from overload and callers from blocked threads.'],
+        ['Bulkhead pattern', 'Bounded semaphore or separate worker pool per dependency so a slow third-party SMS gateway can\'t starve healthy checkout requests.']
       ],
-      why: 'Retry loops without timeouts, jitter, or circuit breakers amplify a minor slowdown into a full retry storm that keeps the dependency down for hours. Every production outbound client needs bounded timeouts, jittered backoff with a retry budget, a circuit breaker, and bulkhead isolation.',
+      why: 'Retry loops without timeouts, jitter, or circuit breakers turn a minor slowdown into a retry storm that keeps dependencies down for hours. Production outbound clients need bounded timeouts, jittered backoff with a retry budget, a circuit breaker, and bulkheads.',
       points: [
-        'Always propagate a strict end-to-end deadline via `context.WithTimeout` / per-hop budget; without a timeout, slow downstreams tie up caller pools indefinitely until upstream services cascade-crash.',
-        'Never use fixed intervals or pure unjittered `2^attempt` backoff across fleet callers: all pods fail at `t = 0`, sleep identically for `1s`, `2s`, `4s`, and stampede the recovering server simultaneously (**Full Jitter** spreads `[0, window]`).',
-        'Enforce a **retry budget** (e.g., max `20%` extra RPS over normal traffic): if 90% of requests already fail, retrying `3×` per call quadruples load right when capacity is lowest.',
-        'Pair retries with a **Circuit Breaker**: `Closed` (healthy) trips to `Open` (fail fast in `0 ms`, zero downstream calls) for a cooldown duration, then tests 1–N canary calls in `Half-Open` before closing again.',
-        'Isolate slow or flaky upstreams with **Bulkheads** (weighted semaphores or separate HTTP connection pools): when `/pdf-export` stalls, `/checkout` keeps its own reserved capacity.',
-        'Only **retry idempotent operations** (`GET`, `HEAD`, `PUT`, `DELETE`, or `POST` carrying an `Idempotency-Key`); retrying non-idempotent charges risks double billing.'
+        'Propagate strict end-to-end deadlines with `context.WithTimeout` and per-hop budgets. Without a timeout, slow downstreams tie up caller pools until upstream callers crash.',
+        'Avoid fixed waits or pure `2^attempt` backoff across fleet callers. Pods failing together at `t = 0` wake together at `1s`, `2s`, and `4s`, whereas Full Jitter spreads waits across `[0, window]`.',
+        'Enforce a retry budget (for example, max 20% extra RPS over baseline traffic). When 90% of calls already fail, retrying `3×` per request quadruples traffic right when capacity is lowest.',
+        'Add a Circuit Breaker: `Closed` trips to `Open` (fails fast in `0 ms`) for a cooldown period, then runs canary calls in `Half-Open` before closing.',
+        'Isolate slow upstreams with bulkheads using bounded semaphores or separate HTTP pools so a `/pdf-export` stall leaves `/checkout` unaffected.',
+        'Retry only idempotent operations (`GET`, `HEAD`, `PUT`, `DELETE`, or `POST` with an `Idempotency-Key`) so network timeouts don\'t trigger double charges.'
       ],
       predict: {
-        prompt: "Your payment gateway drops for `3 seconds` while `1,000` API requests are active. Every API caller retries up to `5` times with deterministic unjittered exponential backoff (`1s`, `2s`, `4s`, `8s`, `16s`). When the payment gateway restarts at `t = 3.1s`, what happens?",
+        prompt: "Your payment gateway drops for `3` seconds while `1,000` API requests are active. Each caller retries up to `5` times using deterministic backoff (`1s`, `2s`, `4s`, `8s`, `16s`). What happens when the gateway restarts at `t = 3.1s`?",
         options: [
           "Traffic resumes smoothly at baseline QPS",
           "Synchronized retry waves (`1,000+` calls firing on exact `1s/2s/4s` ticks) crush the recovering gateway again (retry storm)",
@@ -1346,7 +1346,7 @@ CREATE TABLE dead_letter_events (
           "Go drops retries automatically inside TCP"
         ],
         answer: 1,
-        explain: "Deterministic backoff aligns thousands of callers onto identical wake-up spikes, while unlimited retries multiply total load (`5×`). AWS Builders' Library showed **Full Jitter** + **retry budgets** + **circuit breakers** break synchronized waves."
+        explain: "Deterministic backoff aligns thousands of callers onto identical wake-up spikes, multiplying peak load (`5×`). Full Jitter, retry budgets, and circuit breakers break up synchronized waves."
       },
       code: `
 package main
@@ -1485,18 +1485,18 @@ func main() {
 	fmt.Printf("after cooldown probe -> err=%v state=%s\\n", call(), cb.state)
 }
 `,
-      practice: "Open `VIZ.sysresilience`, switch downstream health to `Outage (100% fail)`, click `Burst ×6` to trip `OPEN`, click `Advance Cooldown (+5s)` twice to reach `HALF_OPEN`, and compare `No Jitter` vs `Full Jitter` retry dispersion.",
-      teach: "Explain why retrying **every** RPC layer in a deep 4-hop microservice call tree (`Service A -> B -> C -> D` each retrying `3×`) amplifies a small glitch into `81×` traffic—and where retry policy should actually live.",
-      analogy: "A submarine separates hull compartments with watertight bulkheads so one breached room never sinks the ship; a circuit breaker flips open before overheating wires melt the whole building.",
+      practice: "Open `VIZ.sysresilience`, set downstream health to `Outage (100% fail)`, and click `Burst ×6` to trip `OPEN`. Click `Advance Cooldown (+5s)` twice to reach `HALF_OPEN` and compare `No Jitter` vs `Full Jitter` retry dispersion.",
+      teach: "Explain why retrying every RPC hop in a 4-layer call tree (`A -> B -> C -> D`, each retrying `3×`) turns one glitch into `81×` traffic. State where retry logic should live.",
+      analogy: "A submarine separates compartments with watertight bulkheads so one breached room doesn't sink the ship. A circuit breaker trips before overloaded wires overheat the building.",
       pitfalls: [
-        'Configuring retries at EVERY microservice hop (`3 × 3 × 3 × 3 = 81×` request amplification) instead of once near the edge with a deadline budget.',
-        'Retrying HTTP `400 Bad Request` or `401 Unauthorized` validation failures—only transient network/`429`/`503` failures warrant backoff retries.',
-        'Sharing one global `http.Client` timeout-less pool across critical checkout calls and slow webhook deliveries.'
+        'Setting retries at every microservice hop (`3 × 3 × 3 × 3 = 81×` request amplification) when retrying once near the edge with a deadline budget stays controlled.',
+        'Retrying HTTP `400 Bad Request` or `401 Unauthorized` validation failures. Backoff retries help only transient network, `429`, or `503` failures.',
+        'Sharing one global `http.Client` without timeouts across critical checkout calls and slow webhook deliveries.'
       ],
       quiz: [
-        { q: "Why does AWS Builders' Library recommend **Full Jitter** over deterministic exponential backoff?", a: ["It doubles max throughput", "It spreads retry timestamps uniformly across `[0, cap]`, eliminating synchronized herd spikes", "It removes the need for timeouts", "It converts 503 into 200"], c: 1, why: "Without randomness, clients failing together retry together in lockstep waves." },
-        { q: "In a 3-state Circuit Breaker (`Closed`, `Open`, `Half-Open`), what happens inside `Half-Open`?", a: ["All requests bypass timeouts", "Only limited probe requests execute to test if the dependency recovered before resetting to `Closed`", "Failures are permanently ignored", "Metrics flush to disk"], c: 1, why: "Half-Open sends small canary traffic; success closes the breaker while failure re-opens the cooldown timer immediately." },
-        { q: "Which pattern directly stops a slow non-critical third-party webhook endpoint from exhausting all API server threads needed by `/login`?", a: ["Write-Back Cache", "Bulkhead (separate worker pools / concurrency semaphores per dependency)", "Geohashing", "Consistent Hashing"], c: 1, why: "Isolating concurrency budgets per dependency prevents one failing upstream from starving healthy endpoints." }
+        { q: "Why does the AWS Builders Library recommend Full Jitter over deterministic exponential backoff?", a: ["It doubles max throughput", "It spreads retry timestamps uniformly across `[0, cap]`, breaking synchronized herd spikes", "It removes the need for timeouts", "It converts 503 into 200"], c: 1, why: "Without randomness, clients failing together retry together in lockstep waves." },
+        { q: "In a 3-state Circuit Breaker (`Closed`, `Open`, `Half-Open`), what happens inside `Half-Open`?", a: ["All requests bypass timeouts", "Limited probe requests run to test if the dependency recovered before switching to `Closed`", "Failures are permanently ignored", "Metrics flush to disk"], c: 1, why: "Half-Open sends small canary traffic. Success closes the breaker, while failure restarts the cooldown timer." },
+        { q: "Which pattern stops a slow third-party webhook endpoint from consuming all API threads needed by `/login`?", a: ["Write-Back Cache", "Bulkhead (separate worker pools or concurrency semaphores per dependency)", "Geohashing", "Consistent Hashing"], c: 1, why: "Isolating concurrency budgets per dependency stops one stalling upstream from starving healthy routes." }
       ]
     },
     // ---------------- Expert ----------------
@@ -1508,21 +1508,21 @@ func main() {
         ['Kleppmann Fencing Token', '// --- 3. Kleppmann Fencing Token Storage Guard']
       ],
       terms: [
-        ['Quorum (`W + R > N`)', 'Given `N` replicas, requiring writes to ack on `W` replicas and reads to query `R` replicas such that `W + R > N` guarantees at least one queried replica holds the latest committed version (`ver`).'],
-        ['Idempotency-Key header', 'IETF-draft HTTP request header carrying a client-generated unique key so retried mutations return the cached original result (`409` or `422` if reused with a mismatched payload) rather than charging twice.'],
-        ['Fencing Token', 'Monotonically increasing number handed out by a lock service/lease (`token=34`) on every grant; storage rejects any stale write carrying an older token (`33 <= 34`), preventing split-brain after a GC pause.']
+        ['Quorum (`W + R > N`)', 'With `N` replicas, requiring writes to ack on `W` replicas and reads on `R` replicas where `W + R > N` ensures one queried replica holds the latest `ver`.'],
+        ['Idempotency-Key header', 'IETF-draft request header carrying a client ID so retried writes return the cached outcome (`409` or `422` on payload mismatch) without billing twice.'],
+        ['Fencing Token', 'Monotonic sequence number issued by a lock lease (`token=34`). Storage rejects writes with older tokens (`33 <= 34`), preventing split-brain after a GC pause.']
       ],
-      why: 'In distributed storage, leases expire during GC pauses, networks split cleanly down the middle, and mobile clients double-submit timed-out requests. Quorum intersections, strict idempotency keys, compensating sagas, and monotonic fencing tokens close those exact correctness holes.',
+      why: 'In distributed storage, leases expire during GC pauses, networks partition, and mobile clients double-submit timed-out requests. Quorum intersections, strict idempotency keys, sagas, and monotonic fencing tokens close those correctness gaps.',
       points: [
-        'Use Dynamo-style quorum tuning cleanly: for `N = 3`, `(W=2, R=2)` gives strong read-after-write overlap (`2 + 2 > 3`) and tolerates `1` dead replica on both reads and writes.',
-        'Remember **version numbers / Lamport timestamps** break ties when read replicas disagree: `Get()` reads from `R` replicas, takes the highest `version`, and runs **read repair** if replicas lag behind.',
-        'Accept the **PACELC** tradeoff: during a **P**artition choose **A**vailability (Dynamo/Cassandra eventual) or **C**onsistency (Spanner/Raft/Postgres sync), **E**lse in normal operation trade **L**atency vs **C**onsistency.',
-        'For HTTP mutations, persist `(idempotency_key, payload_sha256, status, response_body)` inside the same local transaction as the domain mutation (Stripe / IETF `Idempotency-Key` pattern); reject payload mismatch with `422` and concurrent in-flight duplicates with `409`.',
-        'Replace brittle distributed `2PC` across microservices with **Sagas**: Choreography (event-driven, loose coupling for <= 4 steps) or Orchestration (Temporal / state machine controller for complex workflows with explicit compensating actions like `RefundPayment` and `ReleaseStock`).',
-        'Never trust a client-side lease timer alone (Martin Kleppmann warning): a worker paused in stop-the-world GC past lease expiry still thinks it holds the lock unless **storage validates a monotonic Fencing Token**.'
+        'Use Dynamo-style quorums: with `N = 3`, `(W=2, R=2)` guarantees read-after-write overlap (`2 + 2 > 3`) and tolerates `1` dead replica on reads and writes.',
+        'Version numbers or Lamport timestamps break ties across replicas. `Get()` queries `R` nodes, keeps the highest `version`, and triggers read repair for stale nodes.',
+        'Follow PACELC: during a partition (`P`), pick availability (`A`, Dynamo) or consistency (`C`, Spanner/Raft). Else (`E`) in normal traffic, balance latency (`L`) against consistency (`C`).',
+        'For HTTP writes, store `(idempotency_key, payload_sha256, status, response_body)` inside the domain DB transaction. Return `422` on payload changes and `409` on concurrent in-flight duplicates.',
+        'Replace distributed two-phase commit (`2PC`) across microservices with Sagas. Use event choreography for small 2–4 step flows, and orchestration (Temporal or state machines) when workflows need explicit rollback steps like `RefundPayment` and `ReleaseStock`.',
+        'Never rely on a client lease timer alone (Martin Kleppmann warning). A worker frozen in GC past lease expiry writes stale data unless storage checks a monotonic Fencing Token.'
       ],
       predict: {
-        prompt: "Worker A acquires a Redis Redlock lease (`TTL = 5s`, `fencing_token = 10`) and pauses for `8s` during a garbage-collection/OS freeze. At `t = 5.1s`, Redis expires A's lock and grants Worker B `fencing_token = 11`. Worker B writes file `v2` cleanly. At `t = 8s`, Worker A wakes up (still believing its lock is active) and writes stale `v1` unless storage checks tokens. What rejects Worker A cleanly?",
+        prompt: "Worker A holds a Redis lock (`TTL = 5s`, `fencing_token = 10`) and freezes for `8s` during GC. At `t = 5.1s`, Redis expires A's lock and grants Worker B `fencing_token = 11`, who writes `v2`. At `t = 8s`, Worker A wakes up and tries writing stale `v1`. What stops Worker A?",
         options: [
           "Requiring Worker A to call `TTL` in Redis before writing",
           "Requiring storage to reject any write whose `fencing_token <= lastSeenToken` (`10 <= 11` -> rejected)",
@@ -1530,7 +1530,7 @@ func main() {
           "Turning off GC pauses across the network"
         ],
         answer: 1,
-        explain: "As Martin Kleppmann demonstrated, time-based lock checks before I/O always have a race window after the check and before the storage write. Only storage-side enforcement of monotonic fencing tokens rejects zombie writers atomically."
+        explain: "Martin Kleppmann showed that checking a lock timer before I/O leaves a race window between the check and the disk write. Only storage rejecting non-monotonic tokens stops zombie writers atomically."
       },
       code: `
 package main
@@ -1660,18 +1660,18 @@ func main() {
 	fmt.Println("Zombie Worker A token=10 err:", fs.Write(10, "stale-A"), "| final=", fs.value)
 }
 `,
-      practice: "Run `go run .` and test changing the Quorum `Get` slice to `[]int{2}` (`R=1` where `W+R = 3 <= N`): confirm how stale `ver=1 ($100)` slips through. Next, design a 3-step checkout Saga (`ReserveStock -> ChargeCard -> ConfirmOrder`) and name the exact compensating action for each step.",
-      teach: "Contrast Orchestration vs Choreography Sagas, and explain Martin Kleppmann's fencing token proof showing why time-based Redis leases alone cannot protect critical writes.",
-      analogy: "A fencing token works like sequentially numbered court seals stamped onto paperwork: even if an outdated clerk wakes up and mails yesterday's stamped #10 form after #11 was already filed, the clerk desk checks the number on the paper itself and tears up #10.",
+      practice: "Run `go run .`, then switch Quorum `Get` to `[]int{2}` (`R=1` where `W+R = 3 <= N`) to watch stale `ver=1 ($100)` slip through. Design a 3-step checkout Saga (`ReserveStock -> ChargeCard -> ConfirmOrder`) and list its compensating actions.",
+      teach: "Compare Orchestration vs Choreography Sagas. Explain Martin Kleppmann's fencing-token proof showing why time-based Redis leases cannot protect storage writes by themselves.",
+      analogy: "A fencing token works like sequentially numbered court seals stamped onto paperwork. Even if a slow clerk files yesterday's stamp #10 after #11 already arrived, the receiving desk rejects any number older than #11.",
       pitfalls: [
-        'Setting `W=2, R=1` on `N=3` expecting strong reads (`2 + 1 <= 3`, leaving zero overlap with the remaining stale replica).',
-        'Ignoring payload mismatches on `Idempotency-Key` retries—silently returning an old `$50` confirmation when a client changed the body to `$500` causes silent billing bugs.',
-        'Implementing Sagas without idempotent compensating actions (`Refund` must tolerate duplicate triggers on retry!).'
+        'Configuring `W=2, R=1` on `N=3` while expecting strong reads. Since `2 + 1 <= 3`, reads can hit the single stale replica.',
+        'Ignoring payload changes on `Idempotency-Key` retries. Returning an old `$50` response when the caller changed the request body to `$500` causes silent billing bugs.',
+        'Building Sagas without idempotent rollback actions (`Refund` must handle duplicate retry deliveries without double refunds).'
       ],
       quiz: [
-        { q: "In an `N = 5` replica cluster, if writes require `W = 3` acknowledgments, what minimum `R` guarantees at least one up-to-date replica participates in every read?", a: ["R = 1", "R = 2", "R = 3 (`3 + 3 = 6 > 5`)", "R = 5"], c: 2, why: "Strict quorum intersection requires `W + R > N`; with `N=5, W=3`, minimum `R` is `3`." },
-        { q: "What HTTP status code should an idempotent `POST /payments` API return if a client reuses an existing `Idempotency-Key` with a DIFFERENT request payload?", a: ["200 OK", "422 Unprocessable Content (or 400/409 payload conflict)", "304 Not Modified", "503 Service Unavailable"], c: 1, why: "Reusing a key with altered parameters violates idempotency semantics (Stripe/IETF pattern returns `422` or `409`)." },
-        { q: "Why does storage itself need to verify a monotonic fencing token?", a: ["To compress JSON", "Because the lock holder can stall (GC/network pause) between checking lease expiry and writing to storage", "To bypass TLS", "Because Raft has no leader"], c: 1, why: "Client-side lease checks suffer a TOCTOU race; checking `token > lastToken` atomically inside storage defeats zombie writers." }
+        { q: "In an `N = 5` replica cluster where writes require `W = 3` acks, what minimum `R` guarantees at least one up-to-date replica participates in every read?", a: ["R = 1", "R = 2", "R = 3 (`3 + 3 = 6 > 5`)", "R = 5"], c: 2, why: "Quorum intersection requires `W + R > N`. With `N=5` and `W=3`, the minimum `R` is `3`." },
+        { q: "What HTTP status should an idempotent `POST /payments` API return when a client reuses an existing `Idempotency-Key` with a different request payload?", a: ["200 OK", "422 Unprocessable Content (or 400/409 payload conflict)", "304 Not Modified", "503 Service Unavailable"], c: 1, why: "Reusing one key with changed parameters breaks idempotency rules, so Stripe/IETF APIs reject it with `422` or `409`." },
+        { q: "Why must storage itself check a monotonic fencing token?", a: ["To compress JSON", "Because a lock holder can stall in GC or network pauses between checking lease expiry and writing to storage", "To bypass TLS", "Because Raft has no leader"], c: 1, why: "Client-side lease checks have a race window before the disk write, whereas checking `token > lastToken` inside storage blocks stale writers atomically." }
       ]
     },
     {
@@ -1681,18 +1681,18 @@ func main() {
         ['SRE Burn-Rate Alert Rule', '# --- 2. SLO Burn-Rate Alert']
       ],
       terms: [
-        ['Three Pillars + Trace Context', 'Structured Logs (`trace_id` JSON), Metrics (`RED`/`USE`), and Distributed Traces linked across HTTP/gRPC hops via W3C `traceparent` (`00-<trace-id>-<span-id>-<flags>`).'],
-        ['High-cardinality trap', 'Putting unbounded IDs (`user_id`, `order_id`, full URL paths) as Prometheus metric labels explodes time-series memory; put high-cardinality attributes in **logs and trace spans**, and route URL templates (`/orders/{id}`) in metrics.'],
-        ['Multi-Window Multi-Burn-Rate', 'Google SRE alerting rule combining a fast burn rate (e.g. `14.4×` budget consumption) over BOTH a long window (`1h`) and a short confirmation window (`5m`) to catch severe outages immediately while auto-resolving fast.']
+        ['Three Pillars + Trace Context', 'Structured JSON logs (`trace_id`), `RED` or `USE` metrics, and distributed traces linked across hops with W3C `traceparent` (`00-<trace-id>-<span-id>-<flags>`).'],
+        ['High-cardinality trap', 'Putting unbounded IDs (`user_id`, `order_id`, full URLs) in Prometheus metric labels explodes TSDB memory. Put raw IDs in logs and trace spans, and use URL templates (`/orders/{id}`) in metrics.'],
+        ['Multi-Window Multi-Burn-Rate', 'Google SRE alerting rule checking fast budget burn (`14.4×`) over both `1h` and `5m` windows. Outages page immediately and resolve fast.']
       ],
-      why: 'Saying "CPU is 40% so the site is fine" misses silent 500 loops on `/checkout`; paging at `99.95%` availability over `1 minute` wakes engineers at 3 AM for two brief blips. Correlated W3C traces plus SRE error-budget burn-rate alerts tie paging directly to user pain.',
+      why: 'Saying "CPU is 40%" misses 500 error loops on `/checkout`. Paging on `99.95%` over `1 minute` wakes engineers for brief blips, so W3C traces and burn-rate alerts tie paging to user pain.',
       points: [
-        'Use **USE** (**Utilization, Saturation, Errors**) for infrastructure (CPU, NIC queue, disk IOPS, connection pool wait) and **RED** (**Rate, Errors, Duration histogram**) for every request-facing microservice.',
-        'Aggregate latency using **histograms** (`le` buckets -> `histogram_quantile`) rather than client-averaged gauges—you cannot validly average two percentiles (`p99` across 10 pods is NOT the mean of per-pod `p99`s!).',
-        'Propagate W3C **Trace Context** (`traceparent` header) from ingress proxy -> API -> message broker -> SQL spans so clicking a failing trace shows logs, slow queries, and downstream timeouts in one timeline.',
-        'Sample smartly at scale: keep **100% of error and slow tail traces** (`status >= 500` or `latency > 500ms`) with OTel `tail_sampling` while downsampling boring `200 OK` health traffic to 1–5%.',
-        'Alert on **error budget burn rate** (e.g., `14.4×` burns `2%` of a 30-day `99.9%` SLO in **1 hour** -> immediate page; `1×` slow leak opens a daytime ticket) using **short + long windows** so alerts clear rapidly once mitigated.',
-        'Never attach `user_id`, `email`, or UUIDs to Prometheus labels; enforce low-cardinality route names (`/v1/orders/{id}`) and redact PII in OTel pipelines.'
+        'Track USE (Utilization, Saturation, Errors) on hardware and pools (CPU, NIC queues, disk IOPS, connection wait). Track RED (Rate, Errors, Duration histogram) on every service endpoint.',
+        'Aggregate latency using histograms (`le` buckets with `histogram_quantile`), never averaged client gauges. You can\'t average per-pod `p99` values into a cluster `p99`.',
+        'Pass the W3C `traceparent` header from ingress proxy through APIs, brokers, and SQL spans so one trace view connects logs, slow queries, and timeouts.',
+        'Sample smartly at scale: keep 100% of errors and slow tails (`status >= 500` or `latency > 500ms`) with OTel `tail_sampling`. Sample normal `200 OK` traffic at 1% to 5%.',
+        'Alert on burn rate across short and long windows. For instance, `14.4×` burns 2% of a 30-day `99.9%` SLO in 1 hour (`5m` check), while `1×` opens a daytime ticket.',
+        'Keep `user_id`, email addresses, and raw UUIDs out of Prometheus labels. Use parameterized route templates (`/v1/orders/{id}`) and redact PII in OpenTelemetry processors.'
       ],
       code: `
 # --- 1. OTel Collector (pipelines: logs + traces + tail sampling) ---
@@ -1766,18 +1766,18 @@ groups:
         annotations:
           summary: "Checkout burning 30d error budget at >= 14.4x rate (1h + 5m windows)"
 `,
-      practice: "Trace why the PromQL rule above checks BOTH `[1h]` AND `[5m]` (`and`). Compute what happens if you remove the `[5m]` clause after a real 5-minute outage is already fixed (how long would the page stay active?).",
-      teach: "Explain high-cardinality label explosion in Prometheus metrics vs trace spans, and contrast RED vs USE dashboards.",
-      analogy: "Checking your monthly SLA budget via burn rate is like checking a water tank leak rate: a hairline drip deserves an email tomorrow, whereas losing 2% of the month's water in 60 minutes sets off the siren now—and shuts off as soon as the 5-minute flow stops.",
+      practice: "Trace why the PromQL alert checks both `[1h]` and `[5m]`. Calculate how long the page stays active after a 5-minute outage ends if you delete the `[5m]` clause.",
+      teach: "Explain high-cardinality label explosion in Prometheus metrics compared to trace spans. Compare RED and USE dashboards.",
+      analogy: "Tracking a monthly error budget by burn rate works like watching a water tank leak. A slow drip gets scheduled for tomorrow, while losing 2% of the month's water in one hour rings the alarm immediately and silences once repaired.",
       pitfalls: [
-        'Storing `user_id` or raw URLs containing IDs in Prometheus labels, crashing TSDB memory with millions of active time series.',
-        'Averaging per-instance `p99` latencies in Grafana instead of aggregating raw histogram bucket counters first (`sum by (le)` -> `histogram_quantile`).',
-        'Logging unstructured plain text lines without W3C `trace_id`, forcing engineers to grep by timestamp across 12 services.'
+        'Attaching `user_id` or raw IDs inside URL paths to Prometheus labels, blowing up TSDB RAM with millions of time series.',
+        'Averaging per-instance `p99` values in Grafana, losing tail accuracy. Aggregate raw histogram bucket counters (`sum by (le)` then `histogram_quantile`).',
+        'Writing plain-text logs without a W3C `trace_id`, forcing engineers to grep timestamps across 12 services.'
       ],
       quiz: [
-        { q: "Why does Google SRE pair a `1h` window AND a `5m` short window in a fast-burn page alert?", a: ["To double CPU usage", "So a resolved outage clears the alert within ~5 minutes instead of keeping on-call paged for a full hour", "Because Prometheus cannot compute 1h rates", "To drop 500 metrics"], c: 1, why: "Without the short confirmation window, the 1h rate stays elevated long after the fix deploys, wasting on-call focus." },
-        { q: "Where should high-cardinality attributes such as `order_id` and `customer_id` be attached?", a: ["Prometheus metric labels", "Structured log fields and OpenTelemetry trace span attributes", "HTTP status codes", "DNS TXT records"], c: 1, why: "TSDBs index every unique metric label combination in RAM; trace spans and structured log indexes handle high cardinality cleanly." },
-        { q: "What standard HTTP header links distributed traces cleanly across proxies and polyglot Go/C#/Node services?", a: ["`X-Custom-Debug`", "`traceparent` (W3C Trace Context)", "`Keep-Alive`", "`ETag`"], c: 1, why: "W3C Trace Context (`traceparent`) is universally supported across Envoy, NGINX, OpenTelemetry SDKs, and cloud gateways." }
+        { q: "Why does Google SRE combine a `1h` window and a `5m` short window in a fast-burn page alert?", a: ["To double CPU usage", "So a fixed outage clears the alert within ~5 minutes, avoiding a full-hour page", "Because Prometheus cannot compute 1h rates", "To drop 500 metrics"], c: 1, why: "Without the short window, the `1h` rolling rate stays above threshold long after a fix ships." },
+        { q: "Where should high-cardinality attributes like `order_id` and `customer_id` live?", a: ["Prometheus metric labels", "Structured log fields and OpenTelemetry trace span attributes", "HTTP status codes", "DNS TXT records"], c: 1, why: "Prometheus indexes every unique label combination in RAM, while log indexes and trace spans store high-cardinality attributes well." },
+        { q: "Which standard HTTP header links distributed traces across proxies and Go, C#, or Node services?", a: ["`X-Custom-Debug`", "`traceparent` (W3C Trace Context)", "`Keep-Alive`", "`ETag`"], c: 1, why: "W3C Trace Context (`traceparent`) works across Envoy, NGINX, OpenTelemetry SDKs, and cloud gateways." }
       ]
     },
     {
@@ -1787,18 +1787,18 @@ groups:
         ['Autoscaling (HPA) & Disruption Budget', '# --- 2. HPA v2']
       ],
       terms: [
-        ['Probes (`startup`/`readiness`/`liveness`)', '`startupProbe` guards slow boots; `readinessProbe` gates Service traffic from reaching warm-up/draining pods; `livenessProbe` restarts deadlocked containers (never couple liveness to external DB health!).'],
-        ['`preStop` drain race', 'Kubernetes removes a terminating pod IP from kube-proxy `iptables`/EndpointSlices asynchronously while sending `SIGTERM`. Sleeping `5–10s` in `preStop` keeps listening briefly until proxy propagation finishes, yielding zero `502 Bad Gateway` rolls.'],
-        ['`PodDisruptionBudget` (`PDB`)', 'Cluster contract (`minAvailable` or `maxUnavailable`) blocking voluntary node drains/upgrades from evicting too many replicas at once during maintenance.']
+        ['Probes (`startup`/`readiness`/`liveness`)', '`startupProbe` covers slow boots, `readinessProbe` removes warming or draining pods from Service traffic, and `livenessProbe` restarts stuck processes. Never tie liveness to external DB checks.'],
+        ['`preStop` drain race', 'Kubernetes removes a terminating pod IP from kube-proxy EndpointSlices asynchronously while sending `SIGTERM`. Sleeping 5 to 10 seconds in `preStop` lets routing propagate first so rolling updates skip `502 Bad Gateway` errors.'],
+        ['`PodDisruptionBudget` (`PDB`)', 'Cluster policy (`minAvailable` or `maxUnavailable`) stopping voluntary node drains from evicting too many replicas at once during maintenance.']
       ],
-      why: 'Deploying stateless containers is easy until a rolling update drops 2% of live checkout requests with `502 Bad Gateway`, or an accidental DB hiccup triggers liveness-probe crash loops across every pod at once. Correct probes, drain hooks, HPA stabilization, and PDBs keep deployments zero-downtime.',
+      why: 'Deploying containers looks easy until a rolling update drops 2% of checkout calls with `502 Bad Gateway`. A DB blip can also trigger liveness crash loops, so probes, drain hooks, HPA stabilization, and PDBs keep rolls zero-downtime.',
       points: [
-        'Run Go/Node/C# binaries as **non-root minimal multi-stage images** (distroless or Alpine, `readOnlyRootFilesystem: true`) so cold pulls stay fast and CVE exposure stays tiny.',
-        'Distinguish **`readinessProbe`** from **`livenessProbe`**: fail `readiness` (or stop serving traffic) if dependencies stall, but NEVER fail `liveness` on an external Postgres outage—restarting every pod when the DB blips adds startup floods on top of DB recovery.',
-        'Always set CPU **`requests`** accurately for scheduler bin-packing; think twice before setting tight **CPU `limits`** on latency-sensitive services (Linux CFS quota throttling causes artificial 100ms tail pauses), while always bounding **memory `limits`** to catch leaks via OOMKill cleanly.',
-        'Eliminate rolling-deploy `502` drops with a **two-step drain**: `preStop: sleep 10` buys time for Ingress/kube-proxy updates while the app closes keep-alives / marks `/readyz` false, then `SIGTERM` drains active requests cleanly inside `terminationGracePeriodSeconds`.',
-        'Pair **`HorizontalPodAutoscaler` (`autoscaling/v2`)** with `scaleDown.stabilizationWindowSeconds: 300` so temporary traffic dips do not thrash pods up and down.',
-        'Protect stateful and HA web pools with a **`PodDisruptionBudget` (`minAvailable: 2` or `maxUnavailable: 1`)** before enabling cluster autoscaler or kernel upgrades.'
+        'Build minimal non-root multi-stage images (distroless or Alpine with `readOnlyRootFilesystem: true`) so image pulls stay fast and the CVE surface stays small.',
+        'Separate `readinessProbe` from `livenessProbe`: fail readiness when dependencies drop, never liveness. Restarting healthy pods during a DB hiccup floods the database with cold-start connections as it recovers.',
+        'Set accurate CPU `requests` for bin-packing, and avoid tight CPU `limits` on latency-sensitive APIs where CFS quotas cause 100 ms stalls. Always set memory `limits` so OOMKill catches leaks.',
+        'Stop rolling-deploy `502` errors with a two-step drain. First `preStop: sleep 10` gives kube-proxy and Ingress time to drop the pod while `/readyz` turns false, then `SIGTERM` finishes active requests within `terminationGracePeriodSeconds`.',
+        'Set `scaleDown.stabilizationWindowSeconds: 300` on `HorizontalPodAutoscaler` (`autoscaling/v2`) so brief traffic dips don\'t bounce replica counts up and down.',
+        'Add a `PodDisruptionBudget` (`minAvailable: 2` or `maxUnavailable: 1`) to core pools before running cluster autoscaler or node upgrades.'
       ],
       code: `
 # --- 1. Deployment + Zero-Downtime Rolling Drain ---
@@ -1882,18 +1882,18 @@ spec:
   selector:
     matchLabels: { app: orders-api }
 `,
-      practice: "Audit the Deployment YAML above: why is `terminationGracePeriodSeconds: 45` paired with `preStop: sleep 10`, and why is `maxUnavailable: 0` inside `rollingUpdate` critical for a service whose `PodDisruptionBudget` already sets `maxUnavailable: 1`?",
-      teach: "Explain the race condition during `kubectl rollout restart` between `SIGTERM` reaching the Go/Node process and Ingress removing that pod IP—and why hitting `/healthz` from `livenessProbe` with a `SELECT 1` DB check creates cascading outages.",
-      analogy: "Stopping incoming traffic via `preStop` before turning off the server is like turning the restaurant's 'Closed' sign around 10 minutes before locking the front door so seated guests finish their meal instead of getting locked inside.",
+      practice: "Review the Deployment YAML above. Explain why `terminationGracePeriodSeconds: 45` pairs with `preStop: sleep 10`, and why `maxUnavailable: 0` in `rollingUpdate` matters when `PodDisruptionBudget` sets `maxUnavailable: 1`.",
+      teach: "Explain the race during `kubectl rollout restart` between `SIGTERM` hitting your process and Ingress dropping that pod IP. Explain why checking `SELECT 1` inside `livenessProbe` causes cascading outages.",
+      analogy: "Adding a `preStop` pause before shutdown works like flipping a restaurant's 'Closed' sign 10 minutes early. Seated guests finish their meal smoothly.",
       pitfalls: [
-        'Wiring `livenessProbe` to check Redis or PostgreSQL connectivity—when Redis restarts for 15s, Kubernetes kills every healthy API container simultaneously.',
-        'Omitting a `preStop` delay (or immediate `server.Shutdown` before EndpointSlice removal propagates), emitting transient `502` / connection resets on every deploy.',
-        'Setting `replicas: 1` alongside a PDB `minAvailable: 1` (or `maxUnavailable: 0`), permanently blocking Kubernetes node upgrades.'
+        'Wiring `livenessProbe` to test Redis or PostgreSQL connectivity. When Redis restarts for 15 seconds, Kubernetes kills every healthy API pod at once.',
+        'Skipping a `preStop` delay or shutting down immediately on `SIGTERM` before EndpointSlice removal propagates, emitting `502` errors on every deploy.',
+        'Setting `replicas: 1` with a PDB `minAvailable: 1` (or `maxUnavailable: 0`), blocking Kubernetes node upgrades forever.'
       ],
       quiz: [
-        { q: "Why should `livenessProbe` almost NEVER query an external database or third-party service?", a: ["HTTP GET is unsupported on Kubernetes", "If the DB stalls briefly, Kubernetes restarts every API pod in a cascading crash loop even though the processes aren't deadlocked", "ReadinessProbe already restarts dead pods", "Liveness slows down Go GC"], c: 1, why: "Liveness answers 'is this process stuck beyond self-recovery?'; external dependency blips belong in Readiness or circuit breakers." },
-        { q: "Why add `preStop: sleep 10` before a container handles `SIGTERM` during a rolling update?", a: ["To warm CPU caches", "Because EndpointSlice/kube-proxy propagation across cluster nodes is asynchronous, so packets can arrive briefly after termination begins", "To flush Go garbage collector", "To skip Readiness checks"], c: 1, why: "A short drain pause absorbs already-routed packets while load balancers remove the terminating pod IP." },
-        { q: "What happens during a cluster node upgrade if a 1-replica Deployment has `PodDisruptionBudget` set to `minAvailable: 1`?", a: ["Kubernetes double-schedules it silently", "Node drain blocks indefinitely because evicting the sole pod violates the PDB", "HPA overrides the PDB", "The pod turns into a DaemonSet"], c: 1, why: "Keep >= 2 replicas before configuring `minAvailable: 1` / `maxUnavailable: 1`, otherwise voluntary drains stall." }
+        { q: "Why should `livenessProbe` avoid querying an external database or third-party API?", a: ["HTTP GET is unsupported on Kubernetes", "If the DB stalls briefly, Kubernetes restarts every healthy API pod in a crash loop even though the processes aren't deadlocked", "ReadinessProbe already restarts dead pods", "Liveness slows down Go GC"], c: 1, why: "Liveness checks only whether the process is deadlocked. Downstream hiccups belong in readiness probes or circuit breakers." },
+        { q: "Why add `preStop: sleep 10` before a container acts on `SIGTERM` during a rolling deploy?", a: ["To warm CPU caches", "Because EndpointSlice and kube-proxy propagation across cluster nodes is asynchronous, so packets can arrive after termination starts", "To flush Go garbage collector", "To skip Readiness checks"], c: 1, why: "A short drain window handles in-flight traffic while load balancers drop the terminating pod IP." },
+        { q: "What happens during a node upgrade if a 1-replica Deployment has `PodDisruptionBudget` set to `minAvailable: 1`?", a: ["Kubernetes doubles it automatically", "Node drain blocks because evicting the sole pod breaks the PDB", "HPA overrides the PDB", "The pod turns into a DaemonSet"], c: 1, why: "Run at least 2 replicas before adding `minAvailable: 1` or `maxUnavailable: 1`, or node drains will stall." }
       ]
     },
     {
@@ -1903,18 +1903,18 @@ spec:
         ['Minimal Stack Builder', '// --- 2. Stack Recommender']
       ],
       terms: [
-        ['Boring technology principle', 'Dan McKinley principle: pick proven primary storage/tools you already know how to operate (often Postgres + Redis before adding 5 distributed systems) unless an explicit scale boundary proves otherwise.'],
-        ['OLTP vs OLAP separation', 'Serve customer transactions in row-oriented OLTP (PostgreSQL/SQL Server); stream CDC/events into columnar OLAP (ClickHouse, BigQuery, DuckDB) when heavy analytical `GROUP BY` scans threaten checkout locks.'],
-        ['Workflow engine vs Queue', 'Plain queues (SQS/RabbitMQ/Kafka) excel at single stateless events; durable workflow engines (Temporal, Durable Functions) manage multi-day stateful orchestration, timers, human approvals, and step compensation cleanly.']
+        ['Boring technology principle', 'Dan McKinley principle: start with proven tools your team can run (like Postgres and Redis). Add extra distributed systems only when scale demands it.'],
+        ['OLTP vs OLAP separation', 'Serve customer transactions in row-oriented OLTP (PostgreSQL, SQL Server). Stream CDC events into columnar OLAP (ClickHouse, BigQuery, DuckDB) before heavy `GROUP BY` scans lock checkout tables.'],
+        ['Workflow engine vs Queue', 'Queues (SQS, RabbitMQ, Kafka) fit single stateless events. Durable workflow engines (Temporal, Durable Functions) handle multi-day orchestration, timers, human approvals, and step rollbacks.']
       ],
-      why: 'Great system designers never recite tool logos for their own sake—they start with constraints (QPS, ACID needs, query shape, retention, team size) and pick the smallest composable stack whose failure modes the team can operate at 3 AM.',
+      why: 'Start tool choices from your constraints (QPS, ACID rules, query shape, retention, and team size), not vendor hype. Pick the smallest composable stack whose failure modes your team can debug at 3 AM.',
       points: [
-        '**Primary OLTP (`< 20–50K` ops/sec on one region)**: **PostgreSQL** covers relational integrity, JSONB, partial indexes, SKIP LOCKED queues, and `pgvector` before you ever need Cassandra or Spanner.',
-        '**Wide-column / Massive Write Scale / Predictable Key-Value**: **DynamoDB** or **Cassandra** when strict partition-key SLAs at hundreds of thousands of QPS outgrow single-primary writes and no complex ad-hoc joins are needed.',
-        '**In-memory Cache / Ephemeral Counters**: **Redis / Valkey** for sub-ms `LRU/LFU` cache, rate-limiter Lua counters, sorted-set leaderboards, and pub/sub—not as your unbacked ledger.',
-        '**Messaging**: **RabbitMQ / SQS** for routed task queues and delayed retries; **Kafka / Redpanda** for ordered immutable event logs consumed independently by multiple teams (billing, search indexing, ML, ClickHouse analytics).',
-        '**Search & Geo**: **OpenSearch / Elasticsearch** or **Meilisearch** for BM25 full-text/facets synced via CDC; **PostGIS** or **Uber H3 + Redis** for radius matching.',
-        '**Orchestration & Load Balancing**: **NGINX / Envoy / Cloud ALB** for TLS, rate limiting, and L7 routing; **OpenTelemetry + Prometheus/Grafana** for observability; **Temporal** when multi-step sagas span hours or retries need replayable history.'
+        'For OLTP under `20K–50K` ops/sec in one region, PostgreSQL handles joins, JSONB, partial indexes, SKIP LOCKED queues, and `pgvector`. Defer Cassandra or Spanner until needed.',
+        'Pick DynamoDB or Cassandra when strict partition-key SLAs pass 100K QPS on writes and you don\'t need cross-entity joins.',
+        'Use Redis or Valkey for sub-ms `LRU`/`LFU` caching, Lua rate counters, sorted-set leaderboards, and pub/sub, never as your sole durable ledger.',
+        'Pick RabbitMQ or SQS for routed task queues and delayed retries. Pick Kafka or Redpanda for ordered immutable logs shared across independent consumers like billing, search indexing, ML, and ClickHouse.',
+        'Use OpenSearch, Elasticsearch, or Meilisearch synced from CDC for full-text BM25 ranking and facets. Use PostGIS or Uber H3 with Redis for radius queries.',
+        'Put NGINX, Envoy, or a cloud ALB at the edge for TLS, rate limits, and L7 routing. Add OpenTelemetry, Prometheus, and Grafana for observability, plus Temporal for long multi-step sagas.'
       ],
       code: `
 package main
@@ -1987,18 +1987,18 @@ func main() {
 	}
 }
 `,
-      practice: "Run `go run .` and inspect why the `5k QPS` fintech ledger intentionally skips Kafka, Sharding, OpenSearch, and Temporal until requirements demand them. Add a third workload for your own target system (e.g., notification dispatcher or ride-hailing matcher) and justify every added component.",
-      teach: "Defend keeping a lean system (`Postgres + PgBouncer + Redis + Outbox`) up to ~10–25K QPS instead of adopting Kafka + Cassandra + 12 microservices on day one—and state the exact bottleneck metrics that trigger each next upgrade.",
-      analogy: "A master carpenter does not haul a CNC router onto every job site when a chisel and saw fit cleanly—every extra distributed box you deploy adds another pager rotation, schema sync lag, and failure mode.",
+      practice: "Run `go run .` and note why the `5k QPS` fintech ledger skips Kafka, sharding, OpenSearch, and Temporal until bottlenecks require them. Add a third workload for your own target system (for example, a notification dispatcher or ride matcher) and justify each piece.",
+      teach: "Defend keeping a lean stack (`Postgres + PgBouncer + Redis + Outbox`) up to 25K QPS before adding Kafka, Cassandra, or 12 microservices. Name the exact metric that triggers each next upgrade.",
+      analogy: "A master carpenter skips hauling a CNC router onto every small job when a hand chisel works faster. Every extra distributed component adds another on-call alert, sync delay, and failure mode.",
       pitfalls: [
-        'Resume-driven architecture: deploying Kafka, Cassandra, Elasticsearch, and Istio service mesh for a 50-RPS internal app with a 3-person team.',
-        'Picking a NoSQL store solely to "avoid schemas" on highly relational financial/billing workflows that actually need ACID multi-row transactions.',
-        'Treating any tool list as permanent—re-benchmark bottleneck metrics every 2×–5× growth milestone.'
+        'Resume-driven architecture: deploying Kafka, Cassandra, Elasticsearch, and Istio service mesh for a 50-RPS internal app built by three engineers.',
+        'Picking a NoSQL store just to skip schemas on relational billing or ledger workflows that need multi-row ACID transactions.',
+        'Treating tool choices as permanent. Re-measure real bottlenecks after every 2× to 5× traffic jump.'
       ],
       quiz: [
-        { q: "Why keep heavy BI reporting (`GROUP BY` across 12 months of invoices) out of your customer-facing PostgreSQL primary?", a: ["PostgreSQL lacks SQL `GROUP BY`", "Long analytical scans evict hot OLTP buffer pool pages and compete on CPU/I/O with live checkout traffic", "JSON cannot store dates", "CDNs block analytical queries"], c: 1, why: "Isolating heavy OLAP scans onto replicas or columnar stores (ClickHouse/BigQuery) protects live checkout tail latency." },
-        { q: "When does **Temporal** (or a durable workflow engine) beat raw RabbitMQ/SQS queues?", a: ["For simple 1-step thumbnail resizing", "When multi-step business sagas span hours/days with timers, compensating actions, and deterministic state replay", "To cache images at the CDN edge", "To eliminate TCP handshakes"], c: 1, why: "Plain queues handle single async tasks cleanly, while multi-step sagas with timers and compensations become fragile ad-hoc state machines without a workflow engine." },
-        { q: "Which database architecture matches an ACID financial wallet + modest `3,000 QPS` peak traffic with a small team?", a: ["64-shard Cassandra cluster", "PostgreSQL primary + synchronous/async replica + PgBouncer + Redis rate limits", "Elasticsearch primary ledger", "In-memory map only"], c: 1, why: "PostgreSQL handles ACID transactions cleanly at 3k QPS with vastly lower operational overhead than distributed NoSQL sharding." }
+        { q: "Why keep heavy BI reporting (`GROUP BY` across 12 months of invoices) off your customer-facing PostgreSQL primary?", a: ["PostgreSQL lacks SQL `GROUP BY`", "Long analytical scans evict hot OLTP buffer pages and fight checkout queries for CPU and I/O", "JSON cannot store dates", "CDNs block analytical queries"], c: 1, why: "Moving heavy OLAP scans onto replicas or columnar stores (ClickHouse or BigQuery) protects checkout tail latency." },
+        { q: "When does Temporal (or a durable workflow engine) beat raw RabbitMQ or SQS queues?", a: ["For simple 1-step thumbnail resizing", "When multi-step sagas span hours or days with timers, compensating actions, and deterministic state replay", "To cache images at the CDN edge", "To eliminate TCP handshakes"], c: 1, why: "Queues fit single async tasks, while multi-step sagas with timers and rollbacks turn into fragile ad-hoc state machines without a workflow engine." },
+        { q: "Which database architecture matches an ACID financial wallet at `3,000 QPS` peak traffic with a small team?", a: ["64-shard Cassandra cluster", "PostgreSQL primary + sync/async replica + PgBouncer + Redis rate limits", "Elasticsearch primary ledger", "In-memory map only"], c: 1, why: "PostgreSQL handles ACID transactions at 3,000 QPS with much lower operational burden than distributed NoSQL sharding." }
       ]
     }
   ]

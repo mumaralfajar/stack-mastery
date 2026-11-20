@@ -135,7 +135,7 @@
             evictOne();
             const v = db.B + 1;
             slots.push({ key: 'B', ver: v, freq: 1, lastUsed: tick, dirty: true });
-            lastMsg = T('Write-Back B=v{v}: buffered dirty write in cache; DB write deferred.', { v });
+            lastMsg = T('Write-Back B=v{v}: buffered dirty write in cache. DB write waits for flush.', { v });
           }
         } else {
           // Cache-Aside / Read-Through standard invalidation on write
@@ -273,7 +273,7 @@
             badge: state.fw.ok > LIMIT && sec <= 12 ? T('Seam 2× risk') : T('Counter: {c}/4', { c: state.fw.count }),
             cls: state.fw.ok > LIMIT && sec <= 12 ? 'bad' : 'ok',
             ok: state.fw.ok, drop: state.fw.drop,
-            detail: T('Resets cleanly at :10 — lets 8 pass across :09..:11')
+            detail: T('Resets at :10, letting 8 pass across :09..:11')
           },
           {
             name: T('Sliding Window Counter'),
@@ -375,7 +375,7 @@
         const outcome = stale
           ? T('STALE READ: Replica still at {r}, missed write {w} (returned old profile).', { r: replicaLSN, w: commitLSN })
           : (checkLSN && writeLoad === 'high'
-            ? T('FRESH READ: Replica lag exceeded commit LSN {w} -> routed safely to primary!', { w: commitLSN })
+            ? T('FRESH READ: Replica lag exceeded commit LSN {w}, so the read went to primary.', { w: commitLSN })
             : T('FRESH READ: Replica replayed up to {w}. User sees latest profile.', { w: commitLSN }));
 
         rwBox.replaceChildren(
@@ -656,7 +656,7 @@
           outbox.push({ id, label: `${id} (pending)`, poison: false });
           lastMsg = brokerUp
             ? T('Outbox committed {id} + outbox row inside ONE atomic transaction. Click Relay / Consume to ship.', { id })
-            : T('Broker is DOWN, yet {id} + outbox row committed atomically! Event stays safely durable until broker recovers.', { id });
+            : T('Broker is DOWN, yet {id} and its outbox row committed atomically. The event stays on disk until the broker recovers.', { id });
         }
         render();
       };
@@ -675,7 +675,7 @@
 
       const relay = () => {
         if (!brokerUp) {
-          lastMsg = T('Broker still DOWN: outbox preserves all events safely without losing state.');
+          lastMsg = T('Broker is still DOWN. The outbox keeps every pending event on disk.');
           render();
           return;
         }
@@ -839,7 +839,7 @@
 
       const advanceCooldown = () => {
         if (cbState !== 'OPEN') {
-          lastMsg = T('Circuit is not OPEN — no cooldown timer pending.');
+          lastMsg = T('Circuit is not OPEN, so no cooldown timer is pending.');
           render();
           return;
         }

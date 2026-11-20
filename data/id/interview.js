@@ -385,45 +385,45 @@ I18N.iv.design = {
     },
     'notification-system': {
       title: 'Layanan notifikasi multi-kanal',
-      prompt: 'Desain platform notifikasi berskala besar yang mengirim OTP transaksi, peringatan pesanan, dan pembaruan promo lewat push (FCM/APNs), email, SMS, serta feed dalam aplikasi.',
+      prompt: 'Desain platform notifikasi berskala besar yang mengirim OTP transaksi, peringatan pesanan, dan info promo lewat push (FCM/APNs), email, SMS, serta feed dalam aplikasi.',
       req: [
-        'Mengirim notifikasi melintasi push, email, SMS, dan in-app beserta preferensi pengguna serta aturan opt-out.',
-        'Non-functional: p95 latency di bawah 5 detik untuk OTP krusial, nol pesan hilang diam-diam, batas frekuensi ketat untuk mencegah spam.',
+        'Mengirim notifikasi lintas push, email, SMS, dan in-app sesuai preferensi pengguna serta aturan opt-out.',
+        'Non-functional: latency p95 di bawah 5 detik untuk OTP penting, nol pesan hilang tanpa jejak, dan batas frekuensi ketat agar bebas spam.',
         'Di luar scope: rekonsiliasi tagihan provider telekomunikasi, editor template visual WYSIWYG.'
       ],
       est: [
-        '50 juta pengguna aktif harian × rata-rata 4 notifikasi/hari ≈ 200 juta kiriman/hari (~2.300/d rata-rata, ~15.000/d saat lonjakan flash sale).',
-        'Setiap payload beserta metadata berukuran ~1 KB ≈ 200 GB log mentah/hari; simpan 30 hari panas dan arsipkan log audit lebih lama ke S3.'
+        '50 juta pengguna aktif harian × rata-rata 4 notifikasi/hari ≈ 200 juta kiriman/hari (~2.300/d rata-rata, ~15.000/d saat flash sale).',
+        'Setiap payload plus metadata rata-rata ~1 KB ≈ 200 GB log mentah/hari. Simpan 30 hari panas, lalu arsipkan log audit lama ke S3.'
       ],
       tiers: [['Layanan Order / Auth / Promo'], ['Notification API (dedup + rate limit)', 'Relai outbox'], ['Antrean prioritas (OTP)', 'Antrean massal (Promo)', 'Worker kanal (Push / Email / SMS)'], ['Postgres (preferensi + outbox)', 'Redis (batas frekuensi)', 'Gateway vendor (FCM / SES / Twilio)', 'DLQ + log audit']],
       deep: [
-        ['Isolasi prioritas & bulkhead', 'Jangan pernah memakai satu antrean FIFO bersama antara kode OTP 2FA dan kampanye promo 10 juta pesan. Pisahkan antrean dan pool worker menurut kelas prioritas agar promo massal tidak menghambat OTP yang sensitif waktu.'],
-        ['Keandalan & idempotency', 'Commit permintaan pengiriman lewat transactional outbox dengan pengecekan deduplikasi Idempotency-Key / event_id. Error 5xx sementara vendor masuk retry exponential backoff + Full Jitter; bounce permanen dipindah ke Dead-Letter Queue.'],
-        ['Preferensi pengguna & batas frekuensi', 'Sebelum mengirim ke worker kanal, cek status opt-out, jam tenang (quiet hours), dan sliding-window limit di Redis (mis. maksimal 3 promo/hari) secara cepat sebelum menyentuh provider berbayar.'],
-        ['Failover provider & webhook', 'Letakkan lapisan abstraksi di depan vendor utama/cadangan (mis. Twilio -> Vonage) yang dipicu webhook status pengiriman langsung serta circuit breaker saat satu gateway SMS terganggu.']
+        ['Isolasi prioritas & bulkhead', 'Jangan pakai satu antrean FIFO bersama untuk kode OTP 2FA dan promo 10 juta pesan. Pisahkan antrean dan pool worker menurut prioritas agar promo tidak menunda OTP.'],
+        ['Keandalan & idempotency', 'Commit permintaan pengiriman lewat transactional outbox dengan cek deduplikasi Idempotency-Key dan event_id. Error 5xx sementara memakai retry exponential backoff + Full Jitter, lalu bounce permanen masuk Dead-Letter Queue.'],
+        ['Preferensi pengguna & batas frekuensi', 'Sebelum mengirim ke worker kanal, cek status opt-out, jam tenang, dan batas sliding-window di Redis (misalnya maksimal 3 promo/hari) sebelum memanggil vendor berbayar.'],
+        ['Failover provider & webhook', 'Pasang lapisan abstraksi di depan vendor utama dan cadangan (Twilio ke Vonage). Webhook status pengiriman dan circuit breaker memindahkan trafik saat satu gateway SMS terganggu.']
       ],
-      follow: ['Bagaimana menjamin push notification tidak terkirim ganda bila worker crash tepat setelah memanggil FCM?', 'Bagaimana mendukung jadwal pengiriman notifikasi sesuai zona waktu lokal pengguna?', 'Metrik apa yang menandakan satu operator seluler diam-diam memblokir SMS OTP?']
+      follow: ['Bagaimana mencegah push notification terkirim ganda bila worker crash tepat setelah memanggil FCM?', 'Bagaimana mendukung jadwal notifikasi sesuai zona waktu lokal pengguna?', 'Metrik apa yang menandakan satu operator seluler mulai memblokir SMS OTP?']
     },
     'search-autocomplete': {
       title: 'Typeahead & autocomplete pencarian',
       prompt: 'Desain fitur autocomplete pencarian untuk situs e-commerce atau peta yang mengembalikan 10 saran kueri terbaik setiap pengguna mengetik satu huruf.',
       req: [
         'Mengembalikan top-10 pelengkap awalan terurut untuk setiap ketikan hingga panjang ~30 karakter.',
-        'Non-functional: p99 latency di bawah 50 ms end-to-end, ketersediaan tinggi, peringkat diperbarui dari tren pencarian terkini tanpa menghambat bacaan.',
+        'Non-functional: latency p99 di bawah 50 ms end-to-end, ketersediaan tinggi, dan peringkat terbarui dari tren terkini tanpa mengganggu bacaan.',
         'Di luar scope: peringkat pencarian dokumen teks penuh (BM25), koreksi typo untuk dua kata sekaligus.'
       ],
       est: [
         '50 juta DAU × 5 pencarian × 4 karakter diketik ≈ 1 miliar kueri awalan/hari (~12.000 QPS rata-rata, ~35.000 QPS puncak).',
-        'Jika 20% istilah populer disiapkan dalam cache awalan top-10 untuk awalan ASCII hingga panjang 5, Trie aktif + peta top-K muat di beberapa GB RAM.'
+        'Simpan 20% istilah populer pada cache awalan top-10 untuk awalan ASCII hingga panjang 5. Trie aktif dan peta top-K cukup memakai beberapa GB RAM.'
       ],
       tiers: [['Browser / Mobile (debounce 100 ms + cache klien)'], ['Edge CDN', 'Load balancer'], ['Node Baca Typeahead (Trie / FST di memori)', 'Builder Trie Offline (Spark / Flink)'], ['Log pencarian Kafka', 'Agregator (hitung + decay eksponensial)', 'Object Storage (snapshot Trie)']],
       deep: [
-        ['Bacaan sub-50 ms lewat top-K pra-hitung', 'Jangan menelusuri jutaan turunan Trie pada tiap ketikan. Simpan langsung daftar top-10 terurut di setiap simpul Trie sehingga pencarian memakan O(prefixLen) = mikrodetik, dilengkapi Cache-Control CDN/browser untuk awalan singkat populer (`a`..`app`).'],
-        ['Pembaruan offline terpisah', 'Jangan pernah memodifikasi Trie yang melayani bacaan live secara sinkron. Alirkan kueri lewat Kafka, gabung bobot secara asinkron dengan peluruhan waktu eksponensial (mengunggulkan tren hari ini), bangun snapshot tiap jam, lalu tukar pointer atomik di server baca.'],
-        ['Sharding berdasarkan rentang awalan', 'Bila kosakata melebihi RAM satu mesin, shard cluster baca berdasarkan rentang awalan (`a–f`, `g–m`, ...) berbobot rata alih-alih huruf pertama naif (karena huruf `s` jauh lebih padat daripada `x`).'],
-        ['Kendali kebisingan & efisiensi klien', 'Terapkan debounce ketikan ~100–150 ms, batalkan request sebelumnya memakai AbortController / RxJS switchMap, saring kata terlarang sebelum snapshot dibangun, dan batasi panjang awalan.']
+        ['Bacaan sub-50 ms lewat top-K pra-hitung', 'Jangan telusuri jutaan simpul anak Trie di setiap ketikan. Simpan daftar top-10 terurut di tiap simpul Trie untuk bacaan O(prefixLen), ditambah cache CDN dan browser pada awalan singkat (`a`..`app`).'],
+        ['Pembaruan offline terpisah', 'Jangan ubah Trie bacaan live secara sinkron. Alirkan kueri lewat Kafka dengan peluruhan bobot eksponensial agar tren hari ini unggul, lalu bangun snapshot tiap jam dan tukar pointer atomik di server baca.'],
+        ['Sharding berdasarkan rentang awalan', 'Saat kosakata melebihi RAM satu mesin, shard cluster baca menurut rentang awalan (`a–f`, `g–m`). Seimbangkan bobot kueri tiap rentang karena awalan `s` jauh lebih padat daripada `x`.'],
+        ['Kendali kebisingan & efisiensi klien', 'Terapkan debounce ~100–150 ms, batalkan request lama dengan AbortController atau RxJS switchMap, saring kata terlarang sebelum build snapshot, dan batasi panjang awalan.']
       ],
-      follow: ['Bagaimana mempersonalisasi top-10 saran sesuai riwayat pesanan pengguna tanpa meledakkan kardinalitas cache?', 'Bagaimana menangani kata kunci berita viral agar muncul dalam 2 menit alih-alih menunggu batch per jam?', 'Mengapa FST (Finite State Transducer) jauh lebih hemat RAM daripada Trie berbasis pointer biasa?']
+      follow: ['Bagaimana mempersonalisasi top-10 saran sesuai riwayat pesanan pengguna tanpa meledakkan jumlah cache?', 'Bagaimana menayangkan berita viral dalam 2 menit ketika snapshot batch per jam terlalu lambat?', 'Mengapa FST (Finite State Transducer) jauh lebih hemat RAM daripada Trie berbasis pointer biasa?']
     }
   }
 };
@@ -554,11 +554,11 @@ I18N.iv.rapid = [
     ['Bagaimana membuat service net/http Go aman saat trafik tinggi dan shutdown?', 'Pasang ReadHeaderTimeout, ReadTimeout, WriteTimeout, dan IdleTimeout di http.Server bukan lewat http.ListenAndServe polos. Batasi worker dengan errgroup.SetLimit, tangkap SIGINT atau SIGTERM lewat signal.NotifyContext, lalu tunggu request selesai lewat server.Shutdown(ctx).']
   ] },
   { qs: [
-    ['Bandingkan Cache-Aside vs Write-Through, dan bagaimana menghentikan cache stampede?', 'Cache-Aside memuat miss saat diminta agar hanya data panas memenuhi RAM, sedangkan Write-Through memperbarui cache dan DB serentak demi kesegaran dengan latency tulis lebih tinggi. Gabungkan miss serentak untuk kunci kedaluwarsa dengan single-flight, tambah jitter acak TTL mencegah avalanche, dan cegah ID fiktif lewat Bloom filter plus negative cache singkat.'],
-    ['Mengapa Fixed Window meloloskan lonjakan 2x, dan bagaimana rate limiter terdistribusi tetap atomik?', 'Mereset penghitung tetap pada :00 membolehkan klien mengirim 100% kuota di :59 dan 100% lagi di :01. Sliding Window Counter atau Token Bucket menutup celah perbatasan dengan memori O(1), dijalankan atomik di dalam satu skrip Lua Redis (EVALSHA) agar pod API bersamaan tidak meloloskan kelebihan kuota di antara GET dan INCR.'],
-    ['Kapan PgBouncer Transaction Mode membantu Postgres, dan bagaimana melindungi read-your-own-writes dari lag replika?', 'PgBouncer Transaction Mode memultipleks ribuan socket aplikasi lewat puluhan backend Postgres dengan melepas koneksi setelah COMMIT, menekan konsumsi RAM dan rebutan snapshot. Untuk bacaan tepat pasca-tulis, lacak LSN commit (atau arahkan sementara pengguna tersebut ke primer) agar replika yang tertinggal tidak menyajikan data basi.'],
-    ['Mengapa cincin consistent hash memakai 100–200 virtual nodes per host, dan apa yang diselesaikan bounded load?', 'Modulus naif hash(k) % N memindahkan ~80% key saat resize, sedangkan consistent hashing menjaga perpindahan sekitar ~1/N. Menaruh 100–200 virtual nodes meratakan distribusi dan menyebar failover mesin mati secara adil ke node tersisa; bounded loads (c ≈ 1.25) melimpahkan hot key searah jarum jam agar satu kunci viral tidak menumbangkan satu node.'],
-    ['Bagaimana Transactional Outbox mengatasi dual-write, dan mengapa perlu DLQ?', 'Dual-write kehilangan event jika proses mati di antara COMMIT DB dan Publish() broker. Menyimpan baris domain serta outbox_events dalam SATU transaksi SQL menjamin atomisitas, dikirim lewat worker SKIP LOCKED atau Debezium WAL CDC. Pasangkan konsumen at-least-once dengan tabel deduplikasi processed_events dan parkir payload beracun ke DLQ setelah batas retry.'],
-    ['Jelaskan quorum W + R > N, retry Idempotency-Key, dan fencing token Kleppmann.', 'Dari N replika, memilih jumlah ack tulis W dan baca R sedemikian hingga W + R > N menjamin irisan minimal satu salinan tulis terbaru. Retry POST non-idempoten menyimpan (Idempotency-Key, request_hash, response) secara atomik dan membalas 422 jika payload berubah. Storage memvalidasi fencing token monoton (token > lastSeen) agar pemegang lease zombie pasca-jeda GC tidak menimpa data lebih baru.']
+    ['Bandingkan Cache-Aside vs Write-Through, dan bagaimana menghentikan cache stampede?', 'Cache-Aside memuat miss saat diminta agar cuma data panas masuk RAM. Write-Through menulis cache dan DB serentak demi bacaan segar dengan tulis lebih lambat. Gabungkan miss serentak lewat single-flight, beri jitter acak pada TTL, dan saring ID fiktif memakai Bloom filter serta negative cache singkat.'],
+    ['Mengapa Fixed Window meloloskan lonjakan 2x, dan bagaimana rate limiter terdistribusi tetap atomik?', 'Mereset penghitung pada detik :00 membolehkan klien mengirim 100% kuota di :59 dan 100% di :01. Sliding Window Counter atau Token Bucket menutup celah batas dengan memori O(1). Jalankan cek-dan-kurangi dalam satu skrip Lua Redis (EVALSHA) supaya pod paralel tidak meloloskan kuota berlebih di antara GET dan INCR.'],
+    ['Kapan PgBouncer Transaction Mode membantu Postgres, dan bagaimana melindungi read-your-own-writes dari lag replika?', 'PgBouncer Transaction Mode memultipleks ribuan socket aplikasi lewat puluhan backend Postgres dengan melepas koneksi seusai COMMIT. Ini menekan RAM dan antrean snapshot. Untuk bacaan segera setelah tulis, lacak commit LSN atau arahkan pengguna itu sebentar ke primer agar replika tak menyajikan data basi.'],
+    ['Mengapa cincin consistent hash memakai 100–200 virtual nodes per host, dan apa yang diselesaikan bounded load?', 'Modulo hash(k) % N memindahkan ~80% key saat resize, sementara consistent hashing menjaga perpindahan dekat 1/N. Memasang 100–200 virtual nodes meratakan sebaran dan membagi failover server mati ke host tersisa. Bounded loads (c ≈ 1.25) melimpahkan hot key searah jarum jam agar satu host tak kewalahan.'],
+    ['Bagaimana Transactional Outbox mengatasi dual-write, dan mengapa perlu DLQ?', 'Dual-write menghilangkan event kalau proses mati di antara COMMIT DB dan Publish() broker. Menyimpan data domain serta outbox_events dalam satu transaksi SQL membuatnya atomik. Kirim lewat worker SKIP LOCKED atau Debezium WAL CDC, dedup di konsumen lewat processed_events, dan parkir payload rusak ke DLQ.'],
+    ['Jelaskan quorum W + R > N, retry Idempotency-Key, dan fencing token Kleppmann.', 'Dari N replika, memilih ack tulis W dan baca R agar W + R > N menjamin irisan satu salinan tulis terbaru. Retry POST non-idempoten menyimpan (Idempotency-Key, request_hash, response) atomik dan membalas 422 bila payload berubah. Storage memvalidasi fencing token monoton (token > lastSeen) agar holder lease zombie tak menimpa data baru.']
   ] }
 ];
