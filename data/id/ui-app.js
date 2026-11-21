@@ -12,6 +12,7 @@ I18N.add({
   'Dashboard': 'Dashboard',
   'Start here: setup': 'Mulai di sini: setup',
   'Search': 'Cari',
+  'Break room: Flower meadow': 'Ruang istirahat: Padang bunga',
   'Tracks': 'Track',
   'Practice': 'Latihan',
   'Flashcard review': 'Review flashcard',
@@ -75,6 +76,10 @@ I18N.add({
   'Alongside, from Intermediate on: ': 'Sambil jalan, sejak level Menengah: ',
   'the eight-week interview plan. Steady weekly practice beats cramming.': 'rencana interview delapan minggu. Latihan rutin tiap minggu jauh lebih ampuh daripada mengebut.',
   'See how one click travels through the whole stack →': 'Lihat bagaimana satu klik berjalan melewati seluruh stack →',
+  'Take a breather': 'Istirahat sejenak',
+  'Frieren’s Grimoire Sanctuary': 'Suaka Grimoire Frieren',
+  'Break room: Field of Flowers Magic': 'Ruang Istirahat: Sihir Padang Bunga',
+  'Step into a living alpine meadow. Cast Flamme’s flower-blooming spell, weave mana sigils, summon glowing butterflies, and shift the sky from sunlit breeze to blue-moon aurora.': 'Masuki padang rumput pegunungan yang hidup. Rapalkan sihir bunga Flamme, tenun lingkaran mana, panggil kupu-kupu bercahaya, dan ubah langit dari angin siang ke aurora bulan biru.',
 
   // track + lesson
   'Track': 'Track',

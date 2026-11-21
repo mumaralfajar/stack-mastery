@@ -24,9 +24,10 @@ const view = document.getElementById('view');
 const nav = document.getElementById('nav');
 
 let routed = false, routeSeq = 0;
-let landingP, vizP, playP, ivP;
+let landingP, breakP, vizP, playP, ivP;
 let cleanupView = null;
 const ensureLanding = () => landingP || (landingP = import('./views/landing.js'));
+const ensureBreak = () => breakP || (breakP = import('./views/break.js'));
 const ensureViz = () => vizP || (vizP = Promise.all([
   import('./viz/viz.js'), import('./viz/vizcss.js'), import('./viz/vizmore.js'),
   import('./viz/vizangular.js'), import('./viz/vizflutter.js'), import('./viz/vizplus.js'),
@@ -63,8 +64,9 @@ async function route() {
   const seq = ++routeSeq;
   setMenu(false);
   const [a, b, c] = location.hash.replace(/^#\/?/, '').split('/');
-  let landingMod = null;
+  let landingMod = null, breakMod = null;
   if (!a) landingMod = await ensureLanding();
+  else if (a === 'break' || a === 'meadow') breakMod = await ensureBreak();
   else if (a === 'play') await ensurePlay();
   else if (a === 'lab' || a === 'lesson') await ensureViz();
   else if (a === 'interview') await ensureInterview();
@@ -72,6 +74,8 @@ async function route() {
   if (seq !== routeSeq) return;
   const r = {
     dashboard,
+    break: () => breakMod.breakView(fn => { cleanupView = fn; }),
+    meadow: () => breakMod.breakView(fn => { cleanupView = fn; }),
     track: () => trackView(b),
     lesson: () => lessonView(b, c),
     plan: () => planView(b, c),
@@ -88,7 +92,7 @@ async function route() {
   const updateDOM = () => {
     cleanupView?.();
     cleanupView = null;
-    document.body.classList.toggle('is-landing', !a);
+    document.body.classList.toggle('is-landing', !a || a === 'break' || a === 'meadow');
     view.replaceChildren(r());
     renderNav();
     const h1 = view.querySelector('h1');

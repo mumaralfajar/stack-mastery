@@ -48,5 +48,11 @@ export function dashboard() {
         h('li', {}, h('b', {}, 'Intermediate: '), 'same order plus System Design, then build Capstone 2 as your first full-stack app.'),
         h('li', {}, h('b', {}, 'Advanced and Expert: '), "follow whichever capstone requirement you can't explain yet."),
         h('li', {}, h('b', {}, 'Alongside, from Intermediate on: '), 'the eight-week interview plan. Steady weekly practice beats cramming.')),
-      h('p', {}, h('a', { href: '#/lab/journey' }, 'See how one click travels through the whole stack →'))));
+      h('p', {}, h('a', { href: '#/lab/journey' }, 'See how one click travels through the whole stack →'))),
+    section('Take a breather',
+      h('a', { class: 'card go', href: '#/break', style: { '--tc': 'var(--csharp)' } },
+        ico('break', 'card-ico'),
+        h('span', { class: 'card-k' }, T('Frieren’s Grimoire Sanctuary')),
+        h('strong', {}, T('Break room: Field of Flowers Magic')),
+        h('p', {}, T('Step into a living alpine meadow. Cast Flamme’s flower-blooming spell, weave mana sigils, summon glowing butterflies, and shift the sky from sunlit breeze to blue-moon aurora.')))));
 }
