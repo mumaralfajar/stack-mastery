@@ -216,11 +216,33 @@ export interface InterviewProgress {
   plan: Record<number, boolean[]>;
 }
 
+export type PomodoroPreset = '25/5' | '50/10' | 'custom';
+export type PomodoroPhase = 'idle' | 'focus' | 'break';
+
+export interface LastLessonRef {
+  trackId: string;
+  lessonId: string;
+  title: string;
+  url: string;
+}
+
+export interface StudyCycles {
+  date: string;
+  todayCount: number;
+  totalCount: number;
+}
+
 export interface PomodoroState {
+  preset: PomodoroPreset;
+  focusMin: number;
+  breakMin: number;
+  phase: PomodoroPhase;
   running: boolean;
-  phase: 'focus' | 'break';
   remainingSec: number;
-  completedSessions: number;
+  endsAtMs: number | null;
+  cycles: StudyCycles;
+  lastCompletedAtMs: number | null;
+  lastLesson: LastLessonRef | null;
 }
 
 export interface LessonTranslation {

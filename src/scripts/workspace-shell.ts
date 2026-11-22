@@ -1,13 +1,21 @@
-// Hydrates the static sidebar on every workspace page: progress numbers, due badge, mobile drawer,
-// language/theme toggles, keyboard shortcuts, backup controls and cross-tab refresh.
-// Imports only the manifest-backed lib/* modules — never the curriculum data.
-import { confirmDialog } from '../lib/dom.ts';
+// Hydrates the static sidebar on every workspace page: progress numbers, due badge, Pomodoro pill,
+// focus-complete toast, mobile drawer, language/theme toggles, keyboard shortcuts, backup controls and cross-tab refresh.
+// Imports only the manifest-backed lib/* modules — never the curriculum data or canvas engines.
+import {
+  createPomodoroController,
+  formatClock,
+  resetPomodoro,
+  setPomodoroPreset,
+  togglePomodoro,
+} from '../lib/break/pomodoro.ts';
+import { confirmDialog, h } from '../lib/dom.ts';
 import { getLang, registerUiDict, t } from '../lib/i18n.ts';
 import { LANG_KEY } from '../lib/keys.ts';
 import { dueCountIndex, trackPctIndex } from '../lib/progress.ts';
 import { alternateUrl, isLang, routePath } from '../lib/routes.ts';
 import { applyTheme, interviewReadiness, subscribeState, toggleTheme } from '../lib/state.ts';
 import { exportBackup, importBackup, resetAllProgress, setRaw } from '../lib/storage.ts';
+import type { PomodoroPreset, PomodoroState } from '../lib/types.ts';
 
 const nav = document.getElementById('nav');
 const lang = getLang();
@@ -129,3 +137,98 @@ addEventListener('keydown', (e) => {
 // Progress saved in this tab or another one: refresh the sidebar numbers in place.
 subscribeState(() => refreshShell());
 refreshShell();
+
+// Hydrate the compact Sidebar Pomodoro study timer pill & accessible focus-complete toast.
+const pomoRoot = nav?.querySelector<HTMLElement>('[data-pomo-root]');
+if (pomoRoot) {
+  const phaseEl = pomoRoot.querySelector<HTMLElement>('[data-pomo-phase]');
+  const cyclesEl = pomoRoot.querySelector<HTMLElement>('[data-pomo-cycles]');
+  const clockEl = pomoRoot.querySelector<HTMLElement>('[data-pomo-clock]');
+  const toggleBtn = pomoRoot.querySelector<HTMLButtonElement>('[data-pomo-toggle]');
+  const resetBtn = pomoRoot.querySelector<HTMLButtonElement>('[data-pomo-reset]');
+  const presetBtns = [...pomoRoot.querySelectorAll<HTMLButtonElement>('[data-pomo-preset]')];
+  const customBox = pomoRoot.querySelector<HTMLElement>('[data-pomo-custom]');
+  const focusInput = pomoRoot.querySelector<HTMLInputElement>('[data-pomo-focus-min]');
+  const breakInput = pomoRoot.querySelector<HTMLInputElement>('[data-pomo-break-min]');
+
+  let toastEl: HTMLElement | null = null;
+  const dismissToast = (): void => {
+    if (!toastEl) return;
+    toastEl.remove();
+    toastEl = null;
+  };
+
+  const showFocusCompleteToast = (state: PomodoroState): void => {
+    dismissToast();
+    toastEl = h(
+      'div',
+      { class: 'pomo-toast', role: 'status', 'aria-live': 'polite', 'data-pomo-toast': '' },
+      h(
+        'div',
+        { class: 'pomo-toast-copy' },
+        h('strong', {}, t('Focus block complete!')),
+        h('p', {}, t('Take a {min}-minute break in the Flower Meadow.', { min: state.breakMin })),
+      ),
+      h(
+        'div',
+        { class: 'pomo-toast-actions' },
+        h('a', { class: 'btn sm', href: routePath(lang, '/break/'), 'data-pomo-toast-break': '' }, t('Open Break Room →')),
+        h('button', { type: 'button', class: 'btn sm ghost', onclick: dismissToast }, t('Dismiss')),
+      ),
+    );
+    document.body.append(toastEl);
+  };
+
+  const renderPomo = (state: PomodoroState, remainingSec: number): void => {
+    pomoRoot.setAttribute('data-phase', state.phase);
+    const phaseLabel = state.phase === 'focus' ? t('Focus') : state.phase === 'break' ? t('Break') : t('Ready');
+    if (phaseEl) phaseEl.textContent = phaseLabel;
+    if (cyclesEl) cyclesEl.textContent = t('{n} cycles today', { n: state.cycles.todayCount });
+    if (clockEl) clockEl.textContent = formatClock(remainingSec);
+    if (toggleBtn) toggleBtn.textContent = state.running ? t('Pause') : t('Start');
+    for (const btn of presetBtns) {
+      btn.setAttribute('aria-pressed', String(btn.dataset.pomoPreset === state.preset));
+    }
+    if (customBox) customBox.hidden = state.preset !== 'custom';
+    if (focusInput && document.activeElement !== focusInput) focusInput.value = String(state.focusMin);
+    if (breakInput && document.activeElement !== breakInput) breakInput.value = String(state.breakMin);
+  };
+
+  toggleBtn?.addEventListener('click', () => {
+    dismissToast();
+    togglePomodoro();
+  });
+  resetBtn?.addEventListener('click', () => {
+    dismissToast();
+    resetPomodoro();
+  });
+
+  for (const btn of presetBtns) {
+    btn.addEventListener('click', () => {
+      const preset = btn.dataset.pomoPreset as PomodoroPreset | undefined;
+      if (!preset) return;
+      if (preset === 'custom') {
+        setPomodoroPreset('custom', Number(focusInput?.value || 25), Number(breakInput?.value || 5));
+      } else {
+        setPomodoroPreset(preset);
+      }
+    });
+  }
+
+  const applyCustom = (): void => {
+    setPomodoroPreset('custom', Number(focusInput?.value || 25), Number(breakInput?.value || 5));
+  };
+  focusInput?.addEventListener('change', applyCustom);
+  breakInput?.addEventListener('change', applyCustom);
+
+  const pomoCtrl = createPomodoroController({
+    onUpdate: (state, remainingSec) => renderPomo(state, remainingSec),
+    onComplete: (ev) => {
+      if (ev.completedPhase === 'focus') {
+        showFocusCompleteToast(ev.state);
+      }
+    },
+  });
+
+  addEventListener('pagehide', () => pomoCtrl.destroy(), { once: true });
+}

@@ -243,6 +243,196 @@
   flex: none;
 }
 
+/* Break Room Pomodoro Timer HUD Panel */
+.br-side-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .75rem;
+  max-width: min(24rem, 100%);
+  pointer-events: none;
+}
+
+.br-timer-panel {
+  pointer-events: auto;
+  width: 100%;
+  padding: 1rem 1.05rem;
+  border-radius: 14px;
+  background: var(--br-glass-strong);
+  border: 1px solid color-mix(in srgb, var(--border) 78%, var(--accent) 22%);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 14px 36px rgba(6, 10, 22, 0.2);
+  display: grid;
+  gap: .7rem;
+}
+
+.br-timer-panel[data-phase="break"] {
+  border-color: color-mix(in srgb, var(--good) 45%, var(--border));
+}
+
+.br-timer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  font-size: .76rem;
+}
+
+.br-timer-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: .14rem .58rem;
+  border-radius: 99px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  background: var(--sunken);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.br-timer-panel[data-phase="break"] .br-timer-badge {
+  background: var(--good-bg);
+  border-color: color-mix(in srgb, var(--good) 50%, var(--border));
+  color: var(--good);
+}
+
+.br-timer-panel[data-phase="focus"] .br-timer-badge {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  color: var(--accent);
+}
+
+.br-timer-cycles {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.br-timer-main {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+}
+
+.br-ring-wrap {
+  flex: none;
+  width: 96px;
+  height: 96px;
+}
+
+.br-ring-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.br-ring-bg {
+  fill: none;
+  stroke: var(--sunken);
+  stroke-width: 8;
+}
+
+.br-ring-fg {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset .35s ease;
+}
+
+.br-timer-panel[data-phase="break"] .br-ring-fg {
+  stroke: var(--good);
+}
+
+.br-ring-time {
+  font: 700 20px var(--mono);
+  fill: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.br-ring-phase {
+  font-size: 10px;
+  font-weight: 700;
+  fill: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .09em;
+}
+
+.br-timer-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  gap: .45rem;
+}
+
+.br-timer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+}
+
+.br-preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+}
+
+.br-custom-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .4rem;
+}
+
+.br-custom-row[hidden] {
+  display: none;
+}
+
+.br-num-label {
+  display: grid;
+  gap: .15rem;
+  font-size: .72rem;
+  color: var(--muted);
+  min-width: 0;
+}
+
+.br-num-input {
+  width: 100%;
+  min-width: 0;
+  padding: .24rem .4rem;
+  font-size: .82rem;
+  font-family: var(--mono);
+}
+
+.br-milestone-chip {
+  margin: 0;
+  padding: .38rem .6rem;
+  border-radius: 8px;
+  background: var(--sunken);
+  border: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: .74rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.br-timer-status {
+  margin: 0;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--good);
+}
+
+.br-timer-status:empty {
+  display: none;
+}
+
+.br-resume-cta {
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+}
+
 /* Bottom spell console dock */
 .br-dock {
   background: var(--br-glass-strong);
@@ -400,11 +590,32 @@
     flex-direction: column;
     align-items: stretch;
   }
+  .br-stage[data-hud-hidden="true"] .br-hud {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+  }
+  .br-side-col {
+    align-items: stretch;
+    max-width: 100%;
+  }
   .br-hint-pill {
     align-self: flex-start;
   }
   .br-alchemy-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .br-timer-main {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .br-ring-wrap {
+    margin: 0 auto;
+    width: 88px;
+    height: 88px;
   }
 }
 

@@ -78,7 +78,7 @@ const groups: { heading?: string; items: NavItem[] }[] = [
   },
 ];
 
-// Strings the shell's dialogs need, already translated (the full dictionary is never loaded for the sidebar).
+// Strings the shell's dialogs and Pomodoro timer need, already translated (the full dictionary is never loaded for the sidebar).
 const shellStrings = jsonForScript(
   uiSubset(lang, [
     'Main',
@@ -94,6 +94,19 @@ const shellStrings = jsonForScript(
     'not a Stack Mastery backup file',
     'Could not import: ',
     'Progress',
+    'Ready',
+    'Focus',
+    'Break',
+    'Start',
+    'Pause',
+    'Reset',
+    'Custom',
+    '{n} cycles today',
+    'Focus block complete!',
+    'Take a {min}-minute break in the Flower Meadow.',
+    'Open Break Room →',
+    'Dismiss',
+    'Break complete — ready for your next focus session.',
   ]),
 );
 const SEARCH_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
@@ -127,6 +140,28 @@ const CLOSE_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 
       <a href={href('/')} class="brand"><span class="logo" set:html={LOGO_SVG} />Stack Mastery</a>
       <button type="button" class="icon-btn" data-nav-close aria-label={T('Close menu')} title={T('Close menu')} set:html={CLOSE_SVG} />
     </div>
+    <section class="pomo-pill" data-pomo-root data-phase="idle" aria-label={T('Study timer')}>
+      <div class="pomo-head">
+        <span class="pomo-badge" data-pomo-phase>{T('Ready')}</span>
+        <span class="pomo-cycles" data-pomo-cycles>{T('{n} cycles today', { n: 0 })}</span>
+      </div>
+      <div class="pomo-main">
+        <span class="pomo-clock" data-pomo-clock>25:00</span>
+        <div class="pomo-actions">
+          <button type="button" class="pomo-btn primary" data-pomo-toggle>{T('Start')}</button>
+          <button type="button" class="pomo-btn" data-pomo-reset>{T('Reset')}</button>
+        </div>
+      </div>
+      <div class="pomo-presets" role="group" aria-label={T('Study timer presets')}>
+        <button type="button" class="pomo-chip" data-pomo-preset="25/5" aria-pressed="true">25/5</button>
+        <button type="button" class="pomo-chip" data-pomo-preset="50/10" aria-pressed="false">50/10</button>
+        <button type="button" class="pomo-chip" data-pomo-preset="custom" aria-pressed="false">{T('Custom')}</button>
+      </div>
+      <div class="pomo-custom" data-pomo-custom hidden>
+        <label class="pomo-field"><span>{T('Focus (min)')}</span><input type="number" min="1" max="120" value="25" data-pomo-focus-min /></label>
+        <label class="pomo-field"><span>{T('Break (min)')}</span><input type="number" min="1" max="60" value="5" data-pomo-break-min /></label>
+      </div>
+    </section>
     <nav aria-label={T('Main')}>
       {groups.map((g) => (
         <>

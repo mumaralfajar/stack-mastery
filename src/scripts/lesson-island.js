@@ -1,6 +1,7 @@
 // Lesson page islands. The lesson HTML is pre-rendered; this script only wires Predict-first, the quiz with
 // spaced-repetition marking, the Teach-back rubric, the Learn/Check/Teach tracker, and the lesson's single lab,
 // which is dynamic-imported on its own via loadViz(id) (never every lab module).
+import { recordLastLesson } from '../lib/break/pomodoro.ts';
 import { getLang, registerUiDict, t as T } from '../lib/i18n.ts';
 import { md } from '../lib/dom.ts';
 import { quizItem } from '../lib/icons.ts';
@@ -18,6 +19,13 @@ try {
 if (root && data) {
   registerUiDict(data.i18n || {});
   const k = data.key;
+  const [fallbackTrack = '', fallbackLesson = ''] = String(k || '').split('/');
+  const trackId = data.trackId || fallbackTrack;
+  const lessonId = data.lessonId || fallbackLesson;
+  const lessonTitle = data.title || root.querySelector('h1')?.textContent?.trim() || lessonId;
+  if (trackId && lessonId) {
+    recordLastLesson({ trackId, lessonId, title: lessonTitle, url: location.pathname });
+  }
   const tracker = root.querySelector('[data-tracker]');
 
   const drawTracker = () => {
@@ -114,7 +122,15 @@ if (root && data) {
     const pfb = predictCard.querySelector('.fb');
     const pBtns = [...predictCard.querySelectorAll('[data-opt]')];
     let picked = !!s0.pred;
-    const reveal = () => document.dispatchEvent(new CustomEvent('codetabs:hints', { detail: { hidden: false } }));
+    const reveal = () => {
+      // Unblur directly so reloads never depend on CodeTabs sibling module init order.
+      for (const wrap of root.querySelectorAll('[data-static-code]')) {
+        wrap.classList.remove('hide-hints');
+        const btn = wrap.querySelector('[data-hints-toggle]');
+        if (btn && btn.dataset.hide) btn.textContent = btn.dataset.hide;
+      }
+      document.dispatchEvent(new CustomEvent('codetabs:hints', { detail: { hidden: false } }));
+    };
     if (picked) {
       for (const [j, b] of pBtns.entries()) {
         b.disabled = true;

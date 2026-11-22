@@ -1,11 +1,11 @@
 // Pure study progress state store, interview readiness, theme management, and reactive subscriptions.
 import { INTERVIEW_TOTALS } from '../data/manifest.ts';
 import { getAllTracks, getTrack } from './i18n.ts';
-import { INTERVIEW_KEY, STORAGE_KEY, getRaw, onStorageSync, readJson, writeJson } from './storage.ts';
+import { INTERVIEW_KEY, STORAGE_KEY, STUDY_KEY, getRaw, onStorageSync, readJson, writeJson } from './storage.ts';
 import { applyThemePref, nextThemePref, systemPrefersDark } from './theme.ts';
 import type { InterviewProgress, Lesson, LessonProgress, LevelIndex, QuizItem, StudyProgress, Track } from './types.ts';
 
-export type StateChangeKind = 'study' | 'interview' | 'all';
+export type StateChangeKind = 'study' | 'interview' | 'pomodoro' | 'all';
 export type StateListener = (kind: StateChangeKind, external: boolean) => void;
 
 const fresh = (): StudyProgress => ({
@@ -163,7 +163,7 @@ export function reloadState(raw: string | null): boolean {
   return true;
 }
 
-onStorageSync([STORAGE_KEY, INTERVIEW_KEY], (changedKey, newValue) => {
+onStorageSync([STORAGE_KEY, INTERVIEW_KEY, STUDY_KEY], (changedKey, newValue) => {
   if (changedKey === null) {
     if (reloadState(null)) notifyStateChange('all', true);
     return;
@@ -174,5 +174,9 @@ onStorageSync([STORAGE_KEY, INTERVIEW_KEY], (changedKey, newValue) => {
   }
   if (changedKey === INTERVIEW_KEY) {
     notifyStateChange('interview', true);
+    return;
+  }
+  if (changedKey === STUDY_KEY) {
+    notifyStateChange('pomodoro', true);
   }
 });

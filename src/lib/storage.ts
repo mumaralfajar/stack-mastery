@@ -1,11 +1,11 @@
 // Safe localStorage helpers, cross-tab storage listener, and JSON backup export/import.
 import { alertDialog, confirmDialog, h } from './dom.ts';
 import { t } from './i18n.ts';
-import { INTERVIEW_KEY, LANG_KEY, SQL_KEY, STORAGE_KEY } from './keys.ts';
+import { INTERVIEW_KEY, LANG_KEY, SQL_KEY, STORAGE_KEY, STUDY_KEY } from './keys.ts';
 
-export { INTERVIEW_KEY, LANG_KEY, SQL_KEY, STORAGE_KEY };
+export { INTERVIEW_KEY, LANG_KEY, SQL_KEY, STORAGE_KEY, STUDY_KEY };
 
-export const BACKUP_KEYS: readonly string[] = [STORAGE_KEY, SQL_KEY, INTERVIEW_KEY, LANG_KEY];
+export const BACKUP_KEYS: readonly string[] = [STORAGE_KEY, SQL_KEY, INTERVIEW_KEY, STUDY_KEY, LANG_KEY];
 
 export function getRaw(key: string): string | null {
   try {
@@ -69,7 +69,7 @@ export function onStorageSync(
 }
 
 export function resetAllProgress(): void {
-  for (const k of [STORAGE_KEY, SQL_KEY, INTERVIEW_KEY]) {
+  for (const k of [STORAGE_KEY, SQL_KEY, INTERVIEW_KEY, STUDY_KEY]) {
     removeRaw(k);
   }
 }
