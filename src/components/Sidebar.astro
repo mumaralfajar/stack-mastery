@@ -1,7 +1,161 @@
 ---
-// Sidebar and main view shell for Stack Mastery
+// Static bilingual sidebar. Progress numbers, the due badge and the mobile drawer are hydrated by workspace-shell.ts.
+import { TRACK_META } from '../data/manifest.ts';
+import { ICONS, LOGO_SVG } from '../lib/icons.ts';
+import { alternateUrl, routeSegments } from '../lib/routes.ts';
+import { jsonForScript, pageStrings, uiSubset } from '../lib/ssr.ts';
+import type { Lang } from '../lib/types.ts';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const { T, href } = pageStrings(lang);
+const [a = '', b = ''] = routeSegments(Astro.url.pathname);
+const nextLang: Lang = lang === 'id' ? 'en' : 'id';
+const nextLangName = lang === 'id' ? 'English' : 'Bahasa Indonesia';
+const altHref = alternateUrl(nextLang, Astro.url.pathname);
+
+interface NavItem {
+  path: string;
+  label: string;
+  on: boolean;
+  icon?: string;
+  tc?: string;
+  extra?: 'track' | 'due' | 'iv' | 'kbd';
+  trackId?: string;
+}
+
+const item = (path: string, label: string, on: boolean, extra?: NavItem['extra']): NavItem => ({ path, label, on, extra });
+const groups: { heading?: string; items: NavItem[] }[] = [
+  {
+    items: [
+      item('/dashboard/', T('Dashboard'), a === 'dashboard'),
+      item('/start/', T('Start here: setup'), a === 'start'),
+      item('/search/', T('Search'), a === 'search', 'kbd'),
+      { path: '/break/', label: T('Break room: Flower meadow'), on: a === 'break', icon: 'break', tc: 'csharp' },
+    ],
+  },
+  {
+    heading: T('Tracks'),
+    items: TRACK_META.map((tr) => ({
+      path: `/track/${tr.id}/`,
+      label: lang === 'id' && tr.nameId ? tr.nameId : tr.name,
+      on: (a === 'track' || a === 'lesson' || a === 'plan') && b === tr.id,
+      icon: tr.id,
+      tc: tr.id,
+      extra: 'track' as const,
+      trackId: tr.id,
+    })),
+  },
+  {
+    heading: T('Practice'),
+    items: [
+      item('/review/', T('Flashcard review'), a === 'review', 'due'),
+      item('/exam/', T('Mock exam'), a === 'exam'),
+      item('/play/sql/', T('SQL playground'), a === 'play' && b === 'sql'),
+      item('/play/ts/', T('TypeScript playground'), a === 'play' && b === 'ts'),
+      item('/play/css/', T('CSS + Tailwind playground'), a === 'play' && b === 'css'),
+      item('/play/dart/', T('Dart + Flutter playground'), a === 'play' && b === 'dart'),
+      item('/lab/', T('Visual lab'), a === 'lab'),
+    ],
+  },
+  {
+    heading: T('Get hired'),
+    items: [
+      item('/interview/', T('Interview hub'), a === 'interview' && !b, 'iv'),
+      item('/interview/coding/', T('Coding problems'), a === 'interview' && ['coding', 'problem', 'patterns'].includes(b)),
+      item('/interview/design/', T('System design'), a === 'interview' && b === 'design'),
+      item('/interview/behavioral/', T('Behavioral'), a === 'interview' && b === 'behavioral'),
+      item('/interview/rapid/', T('Rapid-fire Q&A'), a === 'interview' && b === 'rapid'),
+      item('/interview/mock/', T('Mock interview'), a === 'interview' && b === 'mock'),
+    ],
+  },
+  {
+    heading: T('Become the teacher'),
+    items: [item('/teach/', T('Teaching toolkit'), a === 'teach'), item('/projects/', T('Capstone projects'), a === 'projects')],
+  },
+];
+
+// Strings the shell's dialogs need, already translated (the full dictionary is never loaded for the sidebar).
+const shellStrings = jsonForScript(
+  uiSubset(lang, [
+    'Main',
+    'Cancel',
+    'Continue',
+    'Confirm',
+    'Notice',
+    'OK',
+    'Reset progress',
+    'Import backup',
+    'Erase all progress, notes, flashcard history and interview prep data? This cannot be undone.',
+    'Replace the progress in this browser with the backup from {date}?',
+    'not a Stack Mastery backup file',
+    'Could not import: ',
+    'Progress',
+  ]),
+);
+const SEARCH_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
+const THEME_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+const MENU_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+const CLOSE_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
 ---
-<aside id="nav"></aside>
-<main id="view" tabindex="-1">
-  <slot />
-</main>
+<aside id="nav" data-lang={lang}>
+  <div class="nav-top">
+    <a href={href('/')} class="brand"><span class="logo" set:html={LOGO_SVG} />Stack Mastery</a>
+    <div class="nav-actions">
+      <a href={href('/search/')} class="icon-btn mob-only" aria-label={T('Search')} title={T('Search')} set:html={SEARCH_SVG} />
+      <a
+        href={altHref}
+        class="icon-btn"
+        lang={nextLang}
+        hreflang={nextLang}
+        data-set-lang={nextLang}
+        aria-label={`${nextLang.toUpperCase()}: ${nextLangName}`}
+        title={nextLangName}>{nextLang.toUpperCase()}</a>
+      <button type="button" class="icon-btn" data-theme-toggle aria-label={T('Toggle theme')} title={T('Toggle theme')} set:html={THEME_SVG} />
+      <button type="button" class="nav-toggle" aria-label={T('Menu')} aria-expanded="false" aria-controls="nav-drawer">
+        <span set:html={MENU_SVG} />
+        <small class="badge" data-due-badge hidden></small>
+      </button>
+    </div>
+  </div>
+  <div class="nav-backdrop"></div>
+  <div class="nav-drawer" id="nav-drawer">
+    <div class="drawer-head">
+      <a href={href('/')} class="brand"><span class="logo" set:html={LOGO_SVG} />Stack Mastery</a>
+      <button type="button" class="icon-btn" data-nav-close aria-label={T('Close menu')} title={T('Close menu')} set:html={CLOSE_SVG} />
+    </div>
+    <nav aria-label={T('Main')}>
+      {groups.map((g) => (
+        <>
+          {g.heading && <p class="nav-h">{g.heading}</p>}
+          {g.items.map((it) => (
+            <a href={href(it.path)} class={'nav-link' + (it.on ? ' on' : '')} aria-current={it.on ? 'page' : undefined}>
+              {it.icon ? (
+                <span class="nav-track" style={`--tc: var(--${it.tc})`}>
+                  <span class="nav-ico" set:html={ICONS[it.icon]} />
+                  {it.label}
+                </span>
+              ) : (
+                it.label
+              )}
+              {it.extra === 'track' && <small data-track-pct={it.trackId}>0%</small>}
+              {it.extra === 'due' && <small class="badge" data-due-badge hidden></small>}
+              {it.extra === 'iv' && <small data-iv-pct>0%</small>}
+              {it.extra === 'kbd' && <small class="kbd">/</small>}
+            </a>
+          ))}
+        </>
+      ))}
+    </nav>
+    <div class="nav-foot">
+      <p class="private-note">{T('Your progress is saved only in this browser. Nothing is uploaded or shared.')}</p>
+      <button type="button" class="ghost" data-export>{T('Export backup')}</button>
+      <button type="button" class="ghost" data-import>{T('Import backup')}</button>
+      <button type="button" class="ghost" data-reset>{T('Reset progress')}</button>
+    </div>
+  </div>
+  <script type="application/json" id="shell-i18n" set:html={shellStrings} />
+</aside>

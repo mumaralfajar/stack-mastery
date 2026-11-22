@@ -1,0 +1,10 @@
+---
+// English route; the page itself lives in src/templates/PlanPage.astro.
+import { LESSON_INDEX } from '../../../data/manifest.ts';
+import PlanPage from '../../../templates/PlanPage.astro';
+
+export function getStaticPaths() {
+  return LESSON_INDEX.map((e) => ({ params: { track: e.trackId, lesson: e.id } }));
+}
+---
+<PlanPage lang="en" trackId={Astro.params.track as string} lessonId={Astro.params.lesson as string} />

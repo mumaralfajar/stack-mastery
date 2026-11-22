@@ -268,7 +268,7 @@ export class CheckoutSummary {
   }
 }
 `,
-      practice: "Open the Signal dependency graph visualization above, set `qty = 0`, toggle `hasCoupon`, and watch `total()` stay cached because `qty() > 0 && hasCoupon()` short-circuits before reading `hasCoupon()`. Then open the TypeScript playground (`#/play/ts`), run the Angular signals and Angular linkedSignal examples, and change `price.set(150)` to watch recomputation.",
+      practice: "Open the Signal dependency graph visualization above, set `qty = 0`, toggle `hasCoupon`, and watch `total()` stay cached because `qty() > 0 && hasCoupon()` short-circuits before reading `hasCoupon()`. Then open the TypeScript playground (`/play/ts/`), run the Angular signals and Angular linkedSignal examples, and change `price.set(150)` to watch recomputation.",
       teach: "Explain what a `signal()` is, how `computed()` caches results and tracks conditional branches, and why `linkedSignal()` fits cases where people otherwise reach for `effect()`.",
       analogy: "`computed` is like a spreadsheet formula cell: you can't type into it directly, and it recalculates only when an input cell it read changes. `linkedSignal` is a checkout shipping picker that resets to Standard when you switch countries, while still letting you choose Express.",
       pitfalls: [
@@ -722,7 +722,7 @@ export class SearchBar {
   }
 }
 `,
-      practice: "Open the **TypeScript playground** (`#/play/ts`), pick **RxJS switchMap vs exhaustMap**, and run it to see `switchMap` cancel `'typing ke'` while `exhaustMap` drops `'accidental double-click'`. Then swap `'switch'` and `'exhaust'` in `compareFlattening` and predict the output.",
+      practice: "Open the **TypeScript playground** (`/play/ts/`), pick **RxJS switchMap vs exhaustMap**, and run it to see `switchMap` cancel `'typing ke'` while `exhaustMap` drops `'accidental double-click'`. Then swap `'switch'` and `'exhaust'` in `compareFlattening` and predict the output.",
       teach: "Explain how an `Observable` differs from a `Signal`, when to pick `switchMap` over `exhaustMap`, and why `toSignal()` removes manual `.unsubscribe()` calls.",
       analogy: "`switchMap` is a short-order cook who trashes a half-made sandwich the moment a diner yells 'make it turkey instead!'. `exhaustMap` is an elevator button: pressing it five times while the cab moves won't summon five elevators.",
       pitfalls: [
@@ -862,7 +862,7 @@ export class ProductsPage {
   }
 }
 `,
-      practice: "Open the **TypeScript playground** (`#/play/ts`) and run **ASP.NET ProblemDetails mapper** to inspect how validation JSON maps to `fieldErrors`. Hook `ProductsPage` up to your local ASP.NET Core API with `proxy.conf.json`, submit `-5` for price, and watch `fieldErrors()['Price']` render beside the input.",
+      practice: "Open the **TypeScript playground** (`/play/ts/`) and run **ASP.NET ProblemDetails mapper** to inspect how validation JSON maps to `fieldErrors`. Hook `ProductsPage` up to your local ASP.NET Core API with `proxy.conf.json`, submit `-5` for price, and watch `fieldErrors()['Price']` render beside the input.",
       teach: "Explain when to pick `httpResource` vs `HttpClient`, why calling `http.post(...)` without `firstValueFrom()` sends nothing, and how CORS and `proxy.conf.json` differ.",
       analogy: "`httpResource` is a deli counter that shreds your old order slip as soon as you change your mind. `HttpInterceptorFn` is the security checkpoint every outgoing request and incoming response passes through.",
       pitfalls: [

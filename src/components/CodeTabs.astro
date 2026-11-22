@@ -1,0 +1,182 @@
+---
+// Build-time highlighted code block, or accessible section tabs derived from `splits` plus a "Full file" tab.
+// A tiny delegated client script handles tab switching, Copy and the Show/Hide hints toggle.
+import { LANG_LABELS, highlight } from '../lib/highlight.ts';
+import { t } from '../lib/i18n.ts';
+import type { Lang, SplitCode } from '../lib/types.ts';
+import { nextId } from '../lib/ssr.ts';
+
+interface Props {
+  code: string;
+  lang: string;
+  uiLang: Lang;
+  splits?: SplitCode[];
+  /** Blur code comments until the learner reveals them (Predict-first lessons). */
+  blurHints?: boolean;
+}
+
+const { code, lang, uiLang, splits, blurHints = false } = Astro.props;
+const T = (k: string) => t(k, uiLang);
+const clean = code.replace(/^\n+|\s+$/g, '');
+const label = LANG_LABELS[lang] || lang;
+const hl = (src: string) => highlight(src, lang === 'tsx' ? 'ts' : lang);
+
+let tabs: [string, string][] | null = null;
+if (splits?.length) {
+  const lines = clean.split('\n');
+  const idxs = splits.map(([, anchor]) => lines.findIndex((ln) => ln.includes(anchor)));
+  if (idxs.every((i) => i >= 0)) {
+    tabs = splits.map(([name], i) => {
+      const end = i + 1 < idxs.length ? idxs[i + 1] : lines.length;
+      return [name, lines.slice(idxs[i], end).join('\n').trimEnd()] as [string, string];
+    });
+    tabs.push([T('Full file'), lines.join('\n')]);
+  }
+}
+const blocks: [string, string][] = tabs ?? [['', clean]];
+// Stable, page-unique ids for tab/panel ARIA wiring (counter shared across one build).
+const uid = `ct${nextId()}`;
+const strings = {
+  copied: T('Copied'),
+  failed: T('Copy failed'),
+  show: T('Show hints'),
+  hide: T('Hide hints'),
+};
+---
+{tabs ? (
+  <div class="code-tabwrap" data-code-tabs>
+    <div class="code-tabs" role="tablist" aria-label={T('Code sections')}>
+      {tabs.map(([name], i) => (
+        <button
+          type="button"
+          role="tab"
+          id={`${uid}-t${i}`}
+          aria-controls={`${uid}-p${i}`}
+          aria-selected={i === 0 ? 'true' : 'false'}
+          tabindex={i === 0 ? '0' : '-1'}
+          class={i === 0 ? 'on' : undefined}>{name}</button>
+      ))}
+    </div>
+    {blocks.map(([, src], i) => (
+      <div role="tabpanel" id={`${uid}-p${i}`} aria-labelledby={`${uid}-t${i}`} hidden={i !== 0}>
+        <div class={'code' + (blurHints ? ' hide-hints' : '')} data-static-code>
+          <div class="code-bar">
+            <span>{label}</span>
+            <span class="copy-wrap">
+              {blurHints && <button type="button" class="copy" data-hints-toggle data-show={strings.show} data-hide={strings.hide}>{strings.show}</button>}
+              <span class="copy-tip" role="status"></span>
+              <button class="copy" type="button" data-copy data-ok={strings.copied} data-fail={strings.failed}>{T('Copy')}</button>
+            </span>
+          </div>
+          <pre tabindex="0"><code set:html={hl(src)} /></pre>
+        </div>
+      </div>
+    ))}
+  </div>
+) : (
+  <div class={'code' + (blurHints ? ' hide-hints' : '')} data-static-code>
+    <div class="code-bar">
+      <span>{label}</span>
+      <span class="copy-wrap">
+        {blurHints && <button type="button" class="copy" data-hints-toggle data-show={strings.show} data-hide={strings.hide}>{strings.show}</button>}
+        <span class="copy-tip" role="status"></span>
+        <button class="copy" type="button" data-copy data-ok={strings.copied} data-fail={strings.failed}>{T('Copy')}</button>
+      </span>
+    </div>
+    <pre tabindex="0"><code set:html={hl(clean)} /></pre>
+  </div>
+)}
+
+<script>
+  // Delegated handlers for every pre-rendered code block on the page.
+  const timers = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>();
+  let lastMsg = '';
+
+  async function copy(btn: HTMLButtonElement): Promise<void> {
+    const wrap = btn.closest<HTMLElement>('[data-static-code]');
+    const tip = wrap?.querySelector<HTMLElement>('.copy-tip');
+    const text = wrap?.querySelector('pre')?.textContent || '';
+    let ok = false;
+    try {
+      await navigator.clipboard.writeText(text);
+      ok = true;
+    } catch {
+      ok = false;
+    }
+    const prev = timers.get(btn);
+    if (prev) clearTimeout(prev);
+    btn.removeAttribute('data-copied');
+    btn.removeAttribute('data-failed');
+    let msg = (ok ? btn.dataset.ok : btn.dataset.fail) || '';
+    if (msg === lastMsg) msg += ' ';
+    lastMsg = msg;
+    if (tip) tip.textContent = '';
+    void btn.offsetWidth;
+    btn.setAttribute(ok ? 'data-copied' : 'data-failed', '');
+    requestAnimationFrame(() => {
+      if (tip) tip.textContent = msg;
+    });
+    timers.set(
+      btn,
+      setTimeout(() => {
+        btn.removeAttribute('data-copied');
+        btn.removeAttribute('data-failed');
+        if (tip) tip.textContent = '';
+      }, 1800),
+    );
+  }
+
+  function setHints(hidden: boolean, scope: ParentNode = document): void {
+    for (const wrap of scope.querySelectorAll<HTMLElement>('[data-static-code]')) {
+      const btn = wrap.querySelector<HTMLButtonElement>('[data-hints-toggle]');
+      if (!btn) continue;
+      wrap.classList.toggle('hide-hints', hidden);
+      btn.textContent = (hidden ? btn.dataset.show : btn.dataset.hide) || '';
+    }
+  }
+
+  function selectTab(tab: HTMLElement, focus: boolean): void {
+    const wrap = tab.closest<HTMLElement>('[data-code-tabs]');
+    if (!wrap) return;
+    for (const b of wrap.querySelectorAll<HTMLButtonElement>('[role="tab"]')) {
+      const on = b === tab;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-selected', String(on));
+      b.tabIndex = on ? 0 : -1;
+      const panel = document.getElementById(b.getAttribute('aria-controls') || '');
+      if (panel) panel.hidden = !on;
+    }
+    if (focus) tab.focus();
+  }
+
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement | null;
+    const copyBtn = target?.closest<HTMLButtonElement>('[data-static-code] button[data-copy]');
+    if (copyBtn) {
+      void copy(copyBtn);
+      return;
+    }
+    const hintBtn = target?.closest<HTMLButtonElement>('[data-static-code] button[data-hints-toggle]');
+    if (hintBtn) {
+      const hidden = !hintBtn.closest('[data-static-code]')?.classList.contains('hide-hints');
+      setHints(hidden, hintBtn.closest('[data-code-tabs]') || hintBtn.closest('[data-static-code]') || document);
+      return;
+    }
+    const tab = target?.closest<HTMLElement>('[data-code-tabs] [role="tab"]');
+    if (tab) selectTab(tab, false);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const tab = (e.target as HTMLElement | null)?.closest<HTMLElement>('[data-code-tabs] [role="tab"]');
+    if (!tab || (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft')) return;
+    const tabs = [...(tab.parentElement?.querySelectorAll<HTMLElement>('[role="tab"]') || [])];
+    const i = tabs.indexOf(tab);
+    const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+    if (next) selectTab(next, true);
+  });
+
+  // Lesson pages reveal the blurred comments once the learner commits to a prediction.
+  document.addEventListener('codetabs:hints', (e) => {
+    setHints(!!(e as CustomEvent<{ hidden: boolean }>).detail?.hidden);
+  });
+</script>

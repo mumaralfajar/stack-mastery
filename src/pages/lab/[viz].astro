@@ -1,0 +1,10 @@
+---
+// English route; the page itself lives in src/templates/LabPage.astro.
+import { VIZ_IDS } from '../../scripts/viz/registry.ts';
+import LabPage from '../../templates/LabPage.astro';
+
+export function getStaticPaths() {
+  return VIZ_IDS.map((viz) => ({ params: { viz } }));
+}
+---
+<LabPage lang="en" vizId={Astro.params.viz as string} />

@@ -6,9 +6,9 @@ A free, self-paced program covering **C#, ASP.NET Core, Go, SQL, CSS + Tailwind,
 
 Open [Stack Mastery](https://mumaralfajar.github.io/stack-mastery/) in your browser.
 
-No account, installation, or fee required. It's a static Astro site running in your browser.
+No account, installation, or fee required. It's a static Astro site: every lesson, lab, and interview page is a real, pre-rendered URL that works offline once visited and can be installed as an app.
 
-Available in **English** and **Bahasa Indonesia**. Switch languages with the **ID / EN** button at the top of the sidebar.
+Available in **English** (`/stack-mastery/…`) and **Bahasa Indonesia** (`/stack-mastery/id/…`). Switch languages with the **ID / EN** button at the top of the sidebar.
 
 ## Contents
 
@@ -20,6 +20,8 @@ Available in **English** and **Bahasa Indonesia**. Switch languages with the **I
 - [Run it on your own computer](#run-it-on-your-own-computer)
 - [Host your own copy](#host-your-own-copy)
 - [What needs an internet connection](#what-needs-an-internet-connection)
+- [Pages and URLs](#pages-and-urls)
+- [Offline and installable app](#offline-and-installable-app)
 - [Project layout](#project-layout)
 - [Adding or editing content](#adding-or-editing-content)
 - [Verifying the content and UI](#verifying-the-content-and-ui)
@@ -81,7 +83,7 @@ Every lesson follows three steps and counts as mastered only when all three are 
 | **Mock exam** | Ten random questions filtered by track and level. |
 | **Capstone projects** | Four full-stack projects, one per mastery level. |
 | **Search** | Press `/` anywhere to search lessons, problems, questions, and diagrams. |
-| **Break room** | A hand-drawn flower meadow at `#/break` for short rests between sessions. Plant blooms, cast spells, and toggle Zen Auto-Bloom. It is silent by default: music and sound effects play only after you turn them on. |
+| **Break room** | A hand-drawn flower meadow at `/break/` for short rests between sessions. Plant blooms, cast spells, and toggle Zen Auto-Bloom. It is silent by default: music and sound effects play only after you turn them on. |
 
 ### Interview preparation
 
@@ -116,8 +118,9 @@ Sidebar percentages track your progress per stack, while the dashboard summarize
 
 The interface, 135 lessons, quizzes, visualizations, playgrounds, capstones, and interview prep work in both English and Bahasa Indonesia.
 
-- Click the **ID / EN** toggle in the header bar anytime.
-- First-time visitors with an Indonesian browser locale start in Bahasa Indonesia, while other browsers start in English.
+- Click the **ID / EN** toggle in the header bar anytime. It opens the same page in the other language (keeping options such as `?sample=`) and remembers your choice.
+- English pages live at `/stack-mastery/…` and Indonesian pages at `/stack-mastery/id/…`, so each language has its own shareable, search-indexed URL. Opening `/stack-mastery/` always shows English; `/stack-mastery/id/` always shows Bahasa Indonesia.
+- Old `#/…` bookmarks from the previous single-page version still work: they redirect to the matching page in your remembered language.
 - Both languages share the same progress storage, so switching keeps everything intact.
 - Technical terms Indonesian developers normally use in English (like *middleware*, *index*, *state*, *deadlock*, *hook*, *query*) stay in English for natural reading.
 
@@ -181,6 +184,36 @@ All lessons, quizzes, flashcards, diagrams, and interview study content work off
 
 If offline or behind a blocked CDN, editors fall back to plain text areas.
 
+## Pages and URLs
+
+The site is a static multi-page build (`astro build` with `trailingSlash: 'always'`). Every route below exists in English and, prefixed with `/id`, in Bahasa Indonesia, so `/stack-mastery/lesson/go/types/` and `/stack-mastery/id/lesson/go/types/` are the same lesson.
+
+| URL (under `/stack-mastery/`) | Page |
+| --- | --- |
+| `/` | Landing page with the Packet Reactor |
+| `/dashboard/`, `/start/`, `/search/` | Dashboard, machine setup guide, and search |
+| `/track/<track>/` | One track's lessons by level (10 tracks) |
+| `/lesson/<track>/<lesson>/` | A lesson (135 lessons) |
+| `/plan/<track>/<lesson>/` | The printable 45-minute lesson plan for a lesson |
+| `/lab/`, `/lab/<viz>/` | The visual lab index and each of the 40 labs |
+| `/play/sql/`, `/play/ts/`, `/play/css/`, `/play/dart/` | Browser playgrounds; `?sample=<id>` preselects a challenge or example (for example `/play/sql/?sample=joins`) |
+| `/review/`, `/exam/` | Flashcard review and mock exam |
+| `/interview/` and `/interview/coding/`, `/interview/problem/<id>/`, `/interview/patterns/`, `/interview/design/`, `/interview/design/<id>/`, `/interview/behavioral/`, `/interview/rapid/`, `/interview/mock/` | Interview hub and its rounds |
+| `/teach/`, `/projects/`, `/break/` | Teaching toolkit, capstone projects, and the flower-meadow break room |
+
+Each page ships its own title, description, canonical URL, `hreflang` alternates (`en`, `id`, `x-default`), Open Graph and Twitter Card tags, and JSON-LD (`Course` on the landing and track pages, `LearningResource` on lessons). `sitemap-index.xml` (with EN/ID alternates) and `robots.txt` are generated at build time.
+
+Pages are pre-rendered HTML; only the interactive parts load JavaScript. The landing page loads under 45 KB of JavaScript in total, and a lesson or lab page imports only the one lab module it shows (never the whole curriculum).
+
+## Offline and installable app
+
+Stack Mastery is a Progressive Web App (`public/manifest.webmanifest`, `public/sw.js`):
+
+- The service worker (scope `/stack-mastery/`) precaches the landing pages, dashboards, icons, and the offline page on first visit, then caches every page and build asset you open. Pages use network-first with a cache fallback, so you always get the latest version when online and the last copy when offline.
+- Only same-origin requests under `/stack-mastery/` are handled. CDN runtimes for the editors and playgrounds (`cdnjs`, `esm.sh`, `jsDelivr`, DartPad) are never cached or intercepted.
+- Browsers that support installation show an **Install** option; the installed app opens at `/stack-mastery/`.
+- A new deployment bumps the cache version in `sw.js`, and old caches are deleted when the new worker activates.
+
 ## Project layout
 
 | Path | Contents |
@@ -189,26 +222,30 @@ If offline or behind a blocked CDN, editors fall back to plain text areas.
 | `biome.json` | Biome lint rules for `src/` and `tools/` (`bun run lint`) |
 | `.github/workflows/ci.yml` | Pull request quality gates: lint, type check, i18n, build, Playwright UI + axe-core, and Conventional Commits |
 | `.github/workflows/deploy.yml` | GitHub Pages deployment on every push to `main` |
-| `src/pages/index.astro` | Application entry route |
-| `src/layouts/Layout.astro`, `src/components/Sidebar.astro` | HTML shell, metadata, and sidebar container |
+| `src/pages/` | English routes; `src/pages/id/` holds the same routes in Bahasa Indonesia. Each file is a thin wrapper around a template, plus `404.astro` and the `search-index.json` endpoints |
+| `src/templates/` | Shared page templates (`LandingPage`, `LessonPage`, `PlanPage`, `TrackPage`, `LabPage`, `ViewPage` for client-rendered views, and others) |
+| `src/layouts/BaseLayout.astro`, `WorkspaceLayout.astro` | Document shell (language, theme, SEO head, manifest, service worker) and the study workspace with sidebar |
+| `src/components/SeoHead.astro`, `Sidebar.astro`, `CodeTabs.astro` | SEO tags and JSON-LD, the static bilingual sidebar, and build-time highlighted code tabs |
 | `src/styles/style.css`, `landing.css`, `break.css` | Styling, light/dark themes, print rules, landing reactor, and break room |
-| `src/scripts/main.js` | Hash router and lazy chunk loader |
-| `src/lib/` | Strict TypeScript core runtime (`types.ts`, `storage.ts`, `state.ts`, `dom.ts`, `highlight.ts`, `icons.ts`, `i18n.ts`) |
-| `src/scripts/nav.js` | Responsive sidebar & mobile drawer navigation |
-| `src/scripts/views/` | Route views (`landing.js` reactor at `#/`, `break.js` flower meadow at `#/break`, `dashboard.js`, `track.js`, `practice.js`, `teach.js`) |
+| `src/lib/` | Strict, erasable TypeScript core (`routes.ts` URL builders and legacy hash bridge, `progress.ts` manifest-only progress, `types.ts`, `storage.ts`, `state.ts`, `theme.ts`, `dom.ts`, `highlight.ts`, `icons.ts`, `i18n.ts`, `seo.ts`, `ssr.ts`) |
+| `src/scripts/workspace-shell.ts` | Sidebar hydration: progress, due badge, drawer, language/theme toggles, backups (imports only the manifest and `src/lib/`) |
+| `src/scripts/landing.js`, `legacy-bridge.ts` | Landing-page interactivity and the `#/…` bookmark redirect |
+| `src/scripts/lesson-island.js`, `view-island.js` | Lesson islands (predict, quiz, teach-back, progress, one lab) and the loader for client-rendered views |
+| `src/scripts/views/` | Client views (`dashboard.js`, `practice.js` review/exam, `search.js`, `break.js` flower meadow) |
 | `src/scripts/interview.js` | Interview hub, code judge, estimator, story bank, and mocks |
 | `src/scripts/playground.js` | SQL, TypeScript, CSS, and DartPad playgrounds |
-| `src/scripts/viz/` | 40 interactive labs (`registry.ts`, `viz.js`, `vizcss.js`, `vizmore.js`, `vizangular.js`, `vizflutter.js`, `vizplus.js`, `vizgo.js`, `vizsys.js`) |
-| `src/data/` | Typed manifest (`manifest.ts`), chunked ES module loaders (`index.ts`, `tracks-core.ts`, `tracks-ui.ts`), English curriculum tracks (`tracks/*.js`), `projects.js`, `interview.js`, `interview-cs.js` |
-| `src/data/id/` | Bahasa Indonesia ES module loaders (`index.ts`, `core.ts`, `web.ts`), tracks (`tracks/*.js`), UI dictionaries (`ui-*.js`), `projects.js`, and `interview.js` |
-| `tools/check-i18n.mjs`, `extract-text.mjs` | Translation parity check (lessons, UI strings, `h()` labels, table headers, playground chips) and text extractor |
+| `src/scripts/viz/` | 40 interactive labs; `registry.ts` maps each lab to its module so `loadViz(id)` imports only that one (`viz.js`, `vizcss.js`, `vizmore.js`, `vizangular.js`, `vizflutter.js`, `vizplus.js`, `vizgo.js`, `vizsys.js`) |
+| `src/data/` | Typed manifest (`manifest.ts`, including each lesson's `quizCount`), chunked loaders (`index.ts`, `tracks-core.ts`, `tracks-ui.ts`, `interview-data.ts`, `track-loaders.ts`), the build-time aggregator and search index (`site.ts`, `search-index.ts`), English tracks (`tracks/*.js`), `projects.js`, `interview.js`, `interview-cs.js` |
+| `src/data/id/` | Bahasa Indonesia loaders (`index.ts`, `core.ts`, `web.ts`, `ui.ts`), tracks (`tracks/*.js`), UI dictionaries (`ui-*.js`), `projects.js`, and `interview.js` |
+| `public/` | `manifest.webmanifest`, `sw.js`, `robots.txt`, favicons, and PNG/SVG app icons |
+| `tools/check-i18n.mjs`, `extract-text.mjs` | Translation parity check (lessons, UI strings in `.js`/`.ts`/`.astro`, `h()` labels, table headers, playground chips, manifest `quizCount`, lab registry) and text extractor |
 | `tools/verify*.mjs`, `tools/verify-ui.py` | Language sample compilers/runners and the Playwright UI + axe-core WCAG 2.2 AA suite |
 
 ## Adding or editing content
 
 All curriculum content is plain ES module data inside `src/data/` so no application logic needs edits.
 
-Add a lesson to `lessons` in a track file inside `src/data/tracks/` (and keep `src/data/manifest.ts` in sync):
+Add a lesson to `lessons` in a track file inside `src/data/tracks/` (and keep `src/data/manifest.ts` in sync, including `quizCount`, which must equal the number of quiz questions). The build creates its `/lesson/…/` and `/plan/…/` pages in both languages automatically:
 
 ```js
 {
@@ -247,8 +284,8 @@ Every stack track includes real compiler and runtime verification scripts inside
 | --- | --- | --- |
 | **Lint** | `bun run lint` | Biome correctness and suspicious-code rules across `src/` and `tools/` |
 | **Type check** | `bun run typecheck` | `astro check` diagnostics for Astro components and scripts |
-| **i18n parity** | `bun run check:i18n` | Structural, key, and code-span parity across EN and ID, plus untranslated `h()` labels, table headers, and playground chips |
-| **UI & WCAG** | `bun run verify:ui` | Playwright EN/ID desktop/mobile layout, dialogs, all 40 labs, SQL/TS playgrounds, and axe-core WCAG 2.2 AA (0 critical or serious) on `dist/` |
+| **i18n parity** | `bun run check:i18n` | Structural, key, and code-span parity across EN and ID, untranslated `h()` labels and `.astro` template strings, table headers, playground chips, manifest `quizCount`, and the lab registry |
+| **UI & WCAG** | `bun run verify:ui` | On `dist/`: every static route and SEO tag, the landing JS budget (< 45 KB), single-lab chunk loading, legacy `#/…` redirects, PWA manifest and offline reload, EN/ID desktop/mobile layout, dialogs, all 40 labs, playgrounds, interview prep, cross-tab sync, and axe-core WCAG 2.2 AA (0 critical or serious) |
 | **C# & CS** | `bun run verify:cs` | Runs all 96 C# problem tests, 12 pattern templates, and lesson samples (.NET 10) |
 | **ASP.NET Core** | `bun run verify:aspnet` | Builds, boots, and tests all ASP.NET Core 10 samples + xUnit suite |
 | **Go** | `bun run verify:go` | Runs `go vet`, `go build`, execution checks, and `go test -bench` on Go 1.27+ |
@@ -279,7 +316,8 @@ Every pull request to `main` runs `.github/workflows/ci.yml`. These three checks
 | Editor is a plain text box | Offline or CDN blocked (`cdnjs`). Code editing and runs still work. |
 | SQL playground fails to load | Needs internet access on first open to download `sql.js` WebAssembly. |
 | "Time limit exceeded" on coding judge | Execution exceeded 4 seconds, usually from an infinite loop or exponential complexity. |
-| Old content stays cached after updates | Hard-reload the browser (`Ctrl+F5` or `Cmd+Shift+R`). |
+| Old content stays cached after updates | Pages are network-first, so a normal reload fetches the new version when online. If a build asset still looks stale, hard-reload (`Ctrl+F5` or `Cmd+Shift+R`), or unregister the service worker in the browser's developer tools. |
+| An old `#/lesson/...` link opens the wrong language | Legacy links follow your saved language. Use the **ID / EN** toggle once and the preference is remembered. |
 | C# lesson code has no Run button | C# runs locally with the .NET SDK (`dotnet new console` then `dotnet run`). |
 
 ## Contributing

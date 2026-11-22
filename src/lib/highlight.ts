@@ -11,6 +11,29 @@ export function esc(s: unknown): string {
   return String(s).replace(/[&<>"]/g, (c) => ESC_MAP[c] ?? c);
 }
 
+// Escape, then render the two inline markdown forms used in lesson prose: `code` and **bold**.
+export function mdInline(s: string): string {
+  return esc(s)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+}
+
+// Display names for the language badge on code blocks.
+export const LANG_LABELS: Record<string, string> = {
+  cs: 'C#',
+  sql: 'SQL',
+  ts: 'TypeScript',
+  tsx: 'TSX',
+  dart: 'Dart',
+  go: 'Go',
+  lua: 'Lua',
+  http: 'HTTP',
+  yaml: 'YAML',
+  sh: 'Shell',
+  css: 'CSS',
+  html: 'HTML',
+};
+
 const KW: Record<string, string> = {
   cs: 'abstract as async await base bool break byte case catch char class const continue decimal default delegate do double else enum event false finally float for foreach get if in init int interface internal is lock long namespace new null object out override params private protected public readonly record ref required return sealed set static string struct switch this throw true try using var virtual void when where while with yield',
   sql: 'select from where group by having order limit offset insert into values update set delete create table index primary key foreign references join inner left right full outer cross on as and or not null is in exists between like distinct union all case when then else end with over partition rows begin commit rollback transaction unique check default asc desc top view constraint alter add drop include integer int text real varchar nvarchar decimal date datetime2 bit',

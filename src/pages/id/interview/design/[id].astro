@@ -1,0 +1,11 @@
+---
+// Indonesian route; the page itself lives in src/templates/InterviewPage.astro.
+import { getInterview, loadSiteData } from '../../../../data/site.ts';
+import InterviewPage from '../../../../templates/InterviewPage.astro';
+
+export async function getStaticPaths() {
+  await loadSiteData();
+  return (getInterview('en')?.design.cases ?? []).map((c) => ({ params: { id: c.id } }));
+}
+---
+<InterviewPage lang="id" sub="design" id={Astro.params.id as string} />

@@ -275,7 +275,13 @@ const dict = {
   'Interview': 'Interview',
   'Visualizations': 'Visualisasi',
   'Missed ({d}d)': 'Lupa ({d} h)',
-  'Got it ({d}d)': 'Ingat ({d} h)'
+  'Got it ({d}d)': 'Ingat ({d} h)',
+
+  // static site shell, SEO and page fallbacks
+  'Skip to content': 'Langsung ke konten',
+  'Stack Mastery — C#, ASP.NET Core, Go, SQL, CSS, TypeScript + React, Angular, Dart + Flutter, System Design': 'Stack Mastery — Belajar C#, ASP.NET Core, Go, SQL, CSS, TypeScript + React, Angular, Dart + Flutter, System Design',
+  'Free, self-paced full-stack mastery in C#, ASP.NET Core, Go, SQL, CSS, React, Angular, Flutter, System Design, and CS fundamentals with interview prep.': 'Belajar full-stack gratis sesuai ritme kamu sendiri: C#, ASP.NET Core, Go, SQL, CSS, React, Angular, Flutter, System Design, dan CS fundamentals, lengkap dengan persiapan interview.',
+  'This page needs JavaScript to run in your browser.': 'Halaman ini butuh JavaScript yang berjalan di browser kamu.'
 };
 
 export default dict;

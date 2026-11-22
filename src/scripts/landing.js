@@ -1,8 +1,9 @@
-// Live Distributed Packet Reactor landing view (#/).
-import { h } from '../../lib/dom.ts';
-import { getAllTracks, getLang, setLang, t as T } from '../../lib/i18n.ts';
-import { LOGO_SVG, dockControlBar, ico } from '../../lib/icons.ts';
-import { toggleTheme } from '../../lib/state.ts';
+// Landing page hydration: the markup is pre-rendered by Astro (src/templates/LandingPage.astro); this script
+// only drives the Distributed Packet Reactor canvas, telemetry toys, opt-in audio and the theme/language switchers.
+// It must stay tiny: no curriculum data, no state store, no i18n dictionaries (strings arrive in #landing-data).
+import { LANG_KEY } from '../lib/keys.ts';
+import { alternateUrl, isLang, routePath } from '../lib/routes.ts';
+import { toggleStoredTheme } from '../lib/theme.ts';
 
 const NODE_LAYOUT = [
   { id: 'react', short: 'TS', rx: -0.78, ry: -0.62, noteIdx: 0 },
@@ -34,18 +35,26 @@ const EDGES = [
 
 const PENTATONIC = [293.66, 349.23, 392.00, 440.00, 523.25, 587.33, 698.46, 783.99, 880.00, 1046.50];
 
-const LAYER_GROUPS = [
-  { key: 'Interface Layer', desc: 'Rendering, typography, reactive signals, and multi-platform UI.', ids: ['css', 'react', 'angular', 'flutter'] },
-  { key: 'Services & Runtime', desc: 'Typed backends, memory management, concurrency, and API contracts.', ids: ['csharp', 'aspnet', 'go'] },
-  { key: 'Data & Distributed Scale', desc: 'Relational internals, caching, rate limits, consistency, and queues.', ids: ['sql', 'sysdesign'] },
-  { key: 'Foundations', desc: 'Algorithms, Big-O complexity, graphs, dynamic programming, and concurrency.', ids: ['cs'] }
-];
+function readLandingData() {
+  try {
+    return JSON.parse(document.getElementById('landing-data')?.textContent || '{}');
+  } catch {
+    return {};
+  }
+}
 
-export function landingView(onCleanup) {
-  const TRACKS = getAllTracks();
-  const LANG = getLang();
-  const trackMap = Object.fromEntries(TRACKS.map(tr => [tr.id, tr]));
-  const totalLessons = TRACKS.reduce((sum, tr) => sum + tr.lessons.length, 0);
+function hydrateLanding(root) {
+  const DATA = readLandingData();
+  const LANG = isLang(DATA.lang) ? DATA.lang : 'en';
+  const DICT = DATA.i18n || {};
+  const trackMap = Object.fromEntries(
+    Object.entries(DATA.tracks || {}).map(([id, v]) => [id, { name: v.name, lessons: { length: v.count } }]),
+  );
+  const T = (key, vars) => {
+    const s = DICT[key] ?? key;
+    return vars ? s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : s;
+  };
+  const $ = (sel) => root.querySelector(sel);
 
   let soundOn = false;
   let audioCtx = null;
@@ -88,57 +97,44 @@ export function landingView(onCleanup) {
     }
   };
 
-  const scrollToEl = id => {
-    const target = document.getElementById(id);
-    if (target) {
+  // Top bar: in-page scroll buttons, theme toggle, and the language link (remembers the preference).
+  let refreshTheme = () => { };
+  for (const btn of root.querySelectorAll('[data-scroll-to]')) {
+    btn.addEventListener('click', () => {
+      const target = document.getElementById(btn.dataset.scrollTo);
+      if (!target) return;
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
       target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
-    }
-  };
+    });
+  }
+  $('[data-theme-toggle]')?.addEventListener('click', () => {
+    toggleStoredTheme();
+    requestAnimationFrame(() => refreshTheme());
+  });
+  const langLink = $('a[data-set-lang]');
+  if (langLink && isLang(langLink.dataset.setLang)) {
+    const target = langLink.dataset.setLang;
+    langLink.href = alternateUrl(target, location.pathname, location.search);
+    langLink.addEventListener('click', () => {
+      try {
+        localStorage.setItem(LANG_KEY, target);
+      } catch {
+        /* private mode */
+      }
+    });
+  }
 
-  // Top bar
-  const nextLang = LANG === 'id' ? 'en' : 'id';
-  const nextLangName = LANG === 'id' ? 'English' : 'Bahasa Indonesia';
-  let refreshTheme = () => { };
-
-  const topBar = h('header', { class: 'lp-bar' },
-    h('a', { href: '#/', class: 'brand' }, h('span', { class: 'logo', html: LOGO_SVG }), 'Stack Mastery'),
-    h('nav', { class: 'lp-nav', 'aria-label': T('Landing navigation') },
-      h('button', { type: 'button', class: 'lp-nav-link', onclick: () => scrollToEl('lp-arch') }, T('Tracks')),
-      h('button', { type: 'button', class: 'lp-nav-link', onclick: () => scrollToEl('lp-proof') }, T('Live Labs')),
-      h('a', { class: 'lp-nav-link', href: '#/interview' }, T('Interview preparation')),
-      h('a', { class: 'lp-nav-link', href: '#/break' }, T('Flower Meadow'))),
-    h('div', { class: 'lp-controls' },
-      h('a', { href: '#/search', class: 'icon-btn lp-search-opt', 'aria-label': T('Search'), title: T('Search'), html: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' }),
-      h('button', { type: 'button', class: 'icon-btn', lang: nextLang, 'aria-label': `${nextLang.toUpperCase()}: ${nextLangName}`, title: nextLangName, onclick: () => setLang(nextLang) }, nextLang.toUpperCase()),
-      h('button', {
-        type: 'button', class: 'icon-btn', 'aria-label': T('Toggle theme'), title: T('Toggle theme'),
-        onclick: () => { toggleTheme(); requestAnimationFrame(refreshTheme); },
-        html: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>'
-      }),
-      h('a', { href: '#/dashboard', class: 'btn lp-cta' }, T('Open Dashboard →'))));
-
-  // Reactor stage elements
-  const canvas = h('canvas', { class: 'lp-canvas', 'aria-hidden': 'true' });
-  const inspDot = h('span', { class: 'lp-insp-dot', 'aria-hidden': 'true' });
-  const inspText = h('span', {}, T('Drag any node, click or hold canvas to charge a ripple, double-click a node to explore.'));
-  const inspector = h('div', { class: 'lp-inspector', 'aria-live': 'polite' }, inspDot, inspText);
-
-  const pulseDot = h('span', { class: 'lp-pulse-dot', 'data-broken': 'false' });
-  const rpsValue = h('b', {}, '48 RPS');
-  const statusTag = h('span', {}, T('Cache Nominal'));
-
-  const mottoLines = T('Learn it. Prove it. Teach it.').split(/(?<=\.)\s+/).filter(Boolean);
-  const heroCopy = h('div', { class: 'lp-copy' },
-    h('h1', {}, ...mottoLines.flatMap((line, i) => [i > 0 ? ' ' : null, h('span', { class: 'lp-line' }, line)])),
-    h('p', { class: 'lp-lede' }, T('Ten full-stack tracks, {lessons} verified lessons, 40 interactive labs, and 4 browser playgrounds.', { lessons: totalLessons })),
-    h('div', { class: 'lp-actions' },
-      h('a', { class: 'btn', href: '#/dashboard' }, T('Open Dashboard →')),
-      h('a', { class: 'btn ghost', href: '#/lab' }, T('Explore 40 Live Labs'))),
-    h('div', { class: 'lp-telemetry' },
-      h('span', {}, h('b', {}, '10'), ' ', T('tracks')),
-      h('span', {}, h('b', {}, String(totalLessons)), ' ', T('lessons')),
-      h('span', { class: 'lp-rps-pill' }, pulseDot, rpsValue, ' · ', statusTag)));
+  // Reactor stage elements (pre-rendered)
+  const stage = $('.lp-stage');
+  const canvas = $('canvas.lp-canvas');
+  const reactorSpace = $('.lp-reactor-space');
+  const inspDot = $('.lp-insp-dot');
+  const inspText = $('[data-inspector-text]');
+  const pulseDot = $('.lp-pulse-dot');
+  const rpsValue = $('.lp-rps-pill b');
+  const statusTag = $('[data-cache-status]');
+  const colorProbe = $('[data-color-probe]');
+  if (!stage || !canvas || !reactorSpace || !inspDot || !inspText || !pulseDot || !rpsValue || !statusTag || !colorProbe) return;
 
   // Interactive console dock controls
   const reducedMotion = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -151,118 +147,61 @@ export function landingView(onCleanup) {
   let fireSpike = () => { };
   let toggleCacheKill = () => { };
   let syncPause = () => { };
+  let releaseGravity = () => { };
 
-  const spikeBtn = h('button', { type: 'button', class: 'lp-toy', onclick: () => fireSpike() }, T('50× Spike'));
-  const cacheBtn = h('button', { type: 'button', class: 'lp-toy danger', onclick: () => toggleCacheKill() }, T('Kill Cache'));
-  const gravBtn = h('button', {
-    type: 'button', class: 'lp-toy', 'aria-pressed': 'false',
-    onclick: () => {
-      gravityOn = !gravityOn;
-      gravBtn.setAttribute('aria-pressed', String(gravityOn));
-      if (!gravityOn) releaseGravity();
+  const toy = (name) => $(`.lp-dock [data-toy="${name}"]`);
+  const cacheBtn = toy('cache');
+  const gravBtn = toy('gravity');
+  const slowBtn = toy('slow');
+  const soundBtn = toy('sound');
+  const pauseBtn = toy('pause');
+  toy('spike')?.addEventListener('click', () => fireSpike());
+  cacheBtn?.addEventListener('click', () => toggleCacheKill());
+  gravBtn?.addEventListener('click', () => {
+    gravityOn = !gravityOn;
+    gravBtn.setAttribute('aria-pressed', String(gravityOn));
+    if (!gravityOn) releaseGravity();
+  });
+  slowBtn?.addEventListener('click', () => {
+    slowMo = !slowMo;
+    slowBtn.setAttribute('aria-pressed', String(slowMo));
+  });
+  soundBtn?.addEventListener('click', () => {
+    soundOn = !soundOn;
+    soundBtn.classList.toggle('active', soundOn);
+    soundBtn.textContent = soundOn ? T('Sound: ON') : T('Sound: OFF');
+    if (soundOn) {
+      ensureAudio();
+      playChime(4, 0.05);
     }
-  }, T('Gravity Well'));
-  const slowBtn = h('button', {
-    type: 'button', class: 'lp-toy', 'aria-pressed': 'false',
-    onclick: () => {
-      slowMo = !slowMo;
-      slowBtn.setAttribute('aria-pressed', String(slowMo));
-    }
-  }, T('Slow-Mo 0.25×'));
-  const soundBtn = h('button', {
-    type: 'button', class: 'lp-toy',
-    onclick: () => {
-      soundOn = !soundOn;
-      soundBtn.classList.toggle('active', soundOn);
-      soundBtn.textContent = soundOn ? T('Sound: ON') : T('Sound: OFF');
-      if (soundOn) {
-        ensureAudio();
-        playChime(4, 0.05);
-      }
-    }
-  }, T('Sound: OFF'));
-  const pauseBtn = h('button', {
-    type: 'button', class: 'lp-toy',
-    onclick: () => {
+  });
+  if (pauseBtn) {
+    pauseBtn.textContent = paused ? T('Play') : T('Pause');
+    pauseBtn.addEventListener('click', () => {
       paused = !paused;
       pauseBtn.textContent = paused ? T('Play') : T('Pause');
       syncPause();
-    }
-  }, paused ? T('Play') : T('Pause'));
+    });
+  }
 
-  let releaseGravity = () => { };
-
-  const dock = dockControlBar(T('Reactor interactive controls'), '',
-    spikeBtn, cacheBtn, gravBtn, slowBtn, h('span', { class: 'lp-dock-sep', 'aria-hidden': 'true' }), soundBtn, pauseBtn);
-
-  const reactorSpace = h('div', { class: 'lp-reactor-space' }, inspector);
-
-  const stage = h('section', { class: 'lp-stage', 'data-dragging': 'false', 'data-hover-node': 'false' },
-    canvas,
-    h('div', { class: 'lp-stage-grid' },
-      heroCopy,
-      reactorSpace),
-    dock);
-
-  // Act 2: 4-Layer Architecture Explorer
-  const archSection = h('section', { id: 'lp-arch', class: 'lp-band' },
-    h('div', { class: 'lp-band-head' },
-      h('div', {},
-        h('h2', {}, T('Ten interconnected engineering tracks')),
-        h('p', { class: 'lp-band-sub' }, T('Work across layers—UI components, API services, relational internals, and distributed architecture reinforce each other.'))),
-      h('a', { class: 'btn ghost', href: '#/dashboard' }, T('View full progress workspace →'))),
-    h('div', { class: 'lp-arch-list' }, LAYER_GROUPS.map(grp =>
-      h('div', { class: 'lp-layer lp-reveal' },
-        h('div', { class: 'lp-layer-head' },
-          h('h3', {}, T(grp.key)),
-          h('span', {}, T(grp.desc))),
-        h('div', { class: 'lp-track-rows' }, grp.ids.map(id => {
-          const tr = trackMap[id];
-          if (!tr) return null;
-          return h('a', { class: 'lp-trow', href: `#/track/${tr.id}`, style: { '--tc': `var(--${tr.id})` } },
-            ico(tr.id, 'lp-trow-ico'),
-            h('div', { class: 'lp-trow-meta' },
-              h('div', { class: 'lp-trow-top' },
-                h('strong', {}, tr.name),
-                h('small', {}, T('{n} lessons', { n: tr.lessons.length }))),
-              h('p', {}, tr.tagline)));
-        }))))));
-
-  // Act 3: Asymmetric Proof Strip
-  const proofSection = h('section', { id: 'lp-proof', class: 'lp-proof-band' },
-    h('div', { class: 'lp-band' },
-      h('div', { class: 'lp-band-head lp-reveal' },
-        h('div', {},
-          h('h2', {}, T('Learn interactively, verify in real runtimes')),
-          h('p', { class: 'lp-band-sub' }, T('Every lesson moves from prediction and live visualization straight into runnable sandboxes and interview scenarios.')))),
-      h('div', { class: 'lp-proof-grid' },
-        h('div', { class: 'lp-panel lp-reveal' },
-          h('h3', {}, T('40 interactive labs & 4 browser sandboxes')),
-          h('p', {}, T('Experiment with SQL locking, Go slice aliasing, Rate Limiter seam bursts, Consistent Hash rings, CSS layout grids, and React rendering right inside the browser.')),
-          h('div', { class: 'lp-chip-links' },
-            h('a', { class: 'lp-chip-link', href: '#/lab/sysratelimit', style: { '--tc': 'var(--sysdesign)' } }, T('Rate Limiter Lab →')),
-            h('a', { class: 'lp-chip-link', href: '#/lab/syshash', style: { '--tc': 'var(--sysdesign)' } }, T('Consistent Hash Ring →')),
-            h('a', { class: 'lp-chip-link', href: '#/lab/goslices', style: { '--tc': 'var(--go)' } }, T('Go Slice Aliasing →')),
-            h('a', { class: 'lp-chip-link', href: '#/play/sql', style: { '--tc': 'var(--sql)' } }, T('SQLite Sandbox →')),
-            h('a', { class: 'lp-chip-link', href: '#/play/ts', style: { '--tc': 'var(--react)' } }, T('TypeScript Sandbox →')))),
-        h('div', { class: 'lp-panel lp-reveal' },
-          h('h3', {}, T('Interview arena & timed mock rounds')),
-          h('p', {}, T('Practice 21 coding problems, 8 worked system design architectures, 67 rapid-fire Q&As, and an 8-week schedule without leaving the app.')),
-          h('div', { class: 'lp-chip-links' },
-            h('a', { class: 'lp-chip-link', href: '#/interview/design', style: { '--tc': 'var(--accent)' } }, T('8 Design Cases →')),
-            h('a', { class: 'lp-chip-link', href: '#/interview/coding', style: { '--tc': 'var(--csharp)' } }, T('21 Coding Problems →')),
-            h('a', { class: 'lp-chip-link', href: '#/interview/mock', style: { '--tc': 'var(--good)' } }, T('Timed Mock Loop →')))))));
-
-  // Act 4: Quiet Anchored Close
-  const closeSection = h('section', { class: 'lp-band lp-close lp-reveal' },
-    h('h2', {}, T('Private by architecture')),
-    h('p', {}, T('Zero sign-ups, zero tracking scripts, zero server lock-in. All progress, quizzes, and JSON backups stay on your machine.')),
-    h('div', { class: 'lp-actions' },
-      h('a', { class: 'btn', href: '#/dashboard' }, T('Open Workspace →')),
-      h('a', { class: 'btn ghost', href: '#/start' }, T('New here? Set up your machine first →'))));
-
-  const colorProbe = h('span', { style: { position: 'absolute', visibility: 'hidden', pointerEvents: 'none' } });
-  const root = h('div', { class: 'lp-root' }, colorProbe, topBar, stage, archSection, proofSection, closeSection);
+  // Collapsible dock: starts collapsed, with its items inert until expanded.
+  const dock = $('.lp-dock');
+  const dockItems = dock?.querySelector('.lp-dock-items');
+  const dockToggle = dock?.querySelector('.lp-dock-toggle');
+  if (dock && dockItems && dockToggle) {
+    let collapsed = true;
+    const toggleLabel = dockToggle.querySelectorAll(':scope > span')[1];
+    dockToggle.addEventListener('click', () => {
+      collapsed = !collapsed;
+      dock.setAttribute('data-collapsed', String(collapsed));
+      dockItems.inert = collapsed;
+      dockToggle.setAttribute('aria-expanded', String(!collapsed));
+      const lbl = collapsed ? T('Show controls') : T('Hide controls');
+      dockToggle.setAttribute('aria-label', lbl);
+      dockToggle.setAttribute('title', lbl);
+      if (toggleLabel) toggleLabel.textContent = collapsed ? T('Show') : T('Hide');
+    });
+  }
 
   // Physics + Canvas 2D Reactor initialization
   let destroyed = false;
@@ -1142,7 +1081,7 @@ export function landingView(onCleanup) {
       if (e.target !== canvas) return;
       const [px, py] = stageCoords(e);
       const hit = hitNode(px, py);
-      if (hit >= 0) location.hash = '#/track/' + nodes[hit].id;
+      if (hit >= 0) location.assign(routePath(LANG, `/track/${nodes[hit].id}/`));
     };
 
     canvas.addEventListener('pointerdown', onDown);
@@ -1203,28 +1142,10 @@ export function landingView(onCleanup) {
     }
     drawFrame();
     if (!paused) rafId = requestAnimationFrame(tick);
-
-    onCleanup?.(() => {
-      destroyed = true;
-      if (rafId) cancelAnimationFrame(rafId);
-      canvas.removeEventListener('pointerdown', onDown);
-      stage.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-      canvas.removeEventListener('pointercancel', onCancel);
-      window.removeEventListener('blur', onCancel);
-      canvas.removeEventListener('dblclick', onDblClick);
-      document.removeEventListener('visibilitychange', onVis);
-      ioStage?.disconnect();
-      roStage?.disconnect();
-      if (audioCtx) {
-        audioCtx.close().catch(() => { });
-        audioCtx = null;
-      }
-    });
   };
 
-  // Register baseline cleanup immediately even if unmounted before first RAF
-  onCleanup?.(() => {
+  addEventListener('pagehide', (e) => {
+    if (e.persisted) return;
     destroyed = true;
     if (rafId) cancelAnimationFrame(rafId);
     if (audioCtx) {
@@ -1233,5 +1154,7 @@ export function landingView(onCleanup) {
     }
   });
   requestAnimationFrame(initReactor);
-  return root;
 }
+
+const landingRoot = document.querySelector('.lp-root');
+if (landingRoot && !document.documentElement.hasAttribute('data-legacy-redirect')) hydrateLanding(landingRoot);

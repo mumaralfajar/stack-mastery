@@ -1,11 +1,11 @@
-// Curriculum data loaders: register English tracks, projects, and interview data into the i18n store.
-import { registerInterview, registerProjects, registerTrack } from '../lib/i18n.ts';
-import type { InterviewData } from '../lib/types.ts';
+// Curriculum data loaders: register English tracks and projects into the i18n store.
+import { registerProjects, registerTrack } from '../lib/i18n.ts';
 import { CORE_TRACKS } from './tracks-core.ts';
+
+export { loadInterviewData } from './interview-data.ts';
 
 let curriculumLoaded = false;
 let curriculumPromise: Promise<void> | null = null;
-let interviewPromise: Promise<InterviewData> | null = null;
 
 // Register the core 5 tracks immediately (synchronous).
 for (const tr of CORE_TRACKS) {
@@ -22,21 +22,4 @@ export function loadCurriculum(): Promise<void> {
     });
   }
   return curriculumPromise;
-}
-
-export function loadInterviewData(): Promise<InterviewData> {
-  if (!interviewPromise) {
-    interviewPromise = Promise.all([import('./interview.js'), import('./interview-cs.js')]).then(
-      ([{ interview }, { interviewUi, interviewCs }]) => {
-        const merged = {
-          ...interview,
-          ui: interviewUi,
-          cs: interviewCs,
-        } as unknown as InterviewData;
-        registerInterview(merged);
-        return merged;
-      },
-    );
-  }
-  return interviewPromise;
 }

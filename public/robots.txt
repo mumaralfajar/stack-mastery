@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mumaralfajar.github.io/stack-mastery/sitemap-index.xml

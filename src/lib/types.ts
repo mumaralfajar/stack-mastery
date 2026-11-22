@@ -62,6 +62,8 @@ export interface LessonIndexEntry {
   level: LevelIndex;
   mins: number;
   viz?: string;
+  /** Number of quiz questions, so flashcard due counts never need the lesson prose. */
+  quizCount: number;
 }
 
 export interface VizLab {

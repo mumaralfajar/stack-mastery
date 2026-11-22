@@ -1,0 +1,78 @@
+---
+// Printable 45-minute teacher lesson plan for one lesson (fully static).
+import CodeTabs from '../components/CodeTabs.astro';
+import { getTrack, loadSiteData } from '../data/site.ts';
+import WorkspaceLayout from '../layouts/WorkspaceLayout.astro';
+import { plainDescription } from '../lib/seo.ts';
+import { pageStrings } from '../lib/ssr.ts';
+import type { Lang, Lesson, Track } from '../lib/types.ts';
+
+interface Props {
+  lang: Lang;
+  trackId: string;
+  lessonId: string;
+}
+
+await loadSiteData();
+const { lang, trackId, lessonId } = Astro.props;
+const { T, md, href, levels } = pageStrings(lang);
+const t = getTrack(trackId, lang) as Track;
+const l = t.lessons.find((x) => x.id === lessonId) as Lesson;
+const title = `${T('Lesson plan · ')}${l.title} — ${t.name} · Stack Mastery`;
+const description = plainDescription(l.why);
+---
+<WorkspaceLayout lang={lang} path={`/plan/${t.id}/${l.id}/`} title={title} description={description} ogType="article">
+  <div class="page plan" style={`--tc: var(--${t.id})`}>
+    <header class="head">
+      <p class="eyebrow">{T('Lesson plan · ')}{t.name} · {levels[l.level]}</p>
+      <h1>{l.title}</h1>
+      <div class="actions no-print">
+        <button type="button" class="btn" onclick="print()">{T('Print')}</button>
+        <a class="btn ghost" href={href(`/lesson/${t.id}/${l.id}/`)}>{T('Back to lesson')}</a>
+      </div>
+    </header>
+    <section class="plan-b"><h2>{T('Objective')} <small></small></h2><p set:html={md(l.why)} /></section>
+    {l.terms?.length ? (
+      <section class="plan-b">
+        <h2>{T('Key words')} <small></small></h2>
+        <dl class="terms">
+          {l.terms.map(([term, def]) => <div class="term-item"><dt set:html={md(term)} /><dd set:html={md(def)} /></div>)}
+        </dl>
+      </section>
+    ) : null}
+    <section class="plan-b"><h2>{T('Hook')} <small>{T('5 min')}</small></h2><p set:html={md(l.analogy)} /></section>
+    <section class="plan-b">
+      <h2>{T('Explain one idea at a time')} <small>{T('10 min')}</small></h2>
+      <ul class="points">{l.points.map((p) => <li set:html={md(p)} />)}</ul>
+    </section>
+    {l.code && (
+      <section class="plan-b">
+        <h2>{T('Live demo: type it and let students predict each line')} <small>{T('10 min')}</small></h2>
+        <CodeTabs code={l.code} lang={l.lang || t.lang} uiLang={lang} />
+      </section>
+    )}
+    <section class="plan-b">
+      <h2>{T('Guided practice: students type while you watch')} <small>{T('15 min')}</small></h2>
+      <p set:html={md(l.practice)} />
+    </section>
+    <section class="plan-b">
+      <h2>{T('Check for understanding')} <small>{T('5 min')}</small></h2>
+      <ol>
+        {l.quiz.map((q) => (
+          <li>
+            <span set:html={md(q.q)} /><br />
+            <small set:html={T('Answer: ') + md(q.a[q.c]) + '. ' + md(q.why)} />
+          </li>
+        ))}
+      </ol>
+    </section>
+    <section class="plan-b">
+      <h2>{T('Watch for these misconceptions')} <small></small></h2>
+      <ul class="points">{l.pitfalls.map((p) => <li set:html={md(p)} />)}</ul>
+    </section>
+    <section class="plan-b">
+      <h2>{T('Exit ticket: each student explains it back')} <small>{T('2 min')}</small></h2>
+      <p set:html={md(l.teach)} />
+    </section>
+  </div>
+</WorkspaceLayout>

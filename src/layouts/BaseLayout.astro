@@ -1,0 +1,80 @@
+---
+// Document shell shared by every page: language, early theme, SEO head, PWA manifest/icons, skip link and service worker.
+import '@fontsource-variable/bricolage-grotesque';
+import '../styles/style.css';
+import '../styles/landing.css';
+import '../styles/break.css';
+import SeoHead from '../components/SeoHead.astro';
+import { BASE } from '../lib/routes.ts';
+import { t } from '../lib/i18n.ts';
+import type { Lang } from '../lib/types.ts';
+
+interface Props {
+  lang: Lang;
+  path: string;
+  title: string;
+  description: string;
+  bodyClass?: string;
+  ogType?: 'website' | 'article';
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  noindex?: boolean;
+  /** Redirect legacy `#/...` bookmarks (landing and 404 pages). */
+  legacyBridge?: boolean;
+}
+
+const { lang, path, title, description, bodyClass, ogType, jsonLd, noindex, legacyBridge = false } = Astro.props;
+const swUrl = `${BASE}/sw.js`;
+const swScope = `${BASE}/`;
+const registerSw = import.meta.env.PROD;
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="text-scale" content="scale" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#06090f" />
+    <script is:inline>
+      try {
+        const t = JSON.parse(localStorage.getItem("stackmastery.v1") || "{}").theme;
+        if (t === "light" || t === "dark") {
+          document.documentElement.dataset.theme = t;
+          document.querySelector('meta[name="color-scheme"]').content = t;
+        }
+      } catch {}
+    </script>
+    {legacyBridge && (
+      <script is:inline>
+        if (/^#\/[^/]/.test(location.hash)) document.documentElement.setAttribute("data-legacy-redirect", "");
+      </script>
+    )}
+    <link rel="icon" type="image/svg+xml" href={`${BASE}/favicon.svg`} />
+    <link rel="icon" href={`${BASE}/favicon.ico`} sizes="32x32" />
+    <link rel="apple-touch-icon" href={`${BASE}/icons/icon-192.png`} />
+    <link rel="manifest" href={`${BASE}/manifest.webmanifest`} />
+    <meta name="generator" content={Astro.generator} />
+    <SeoHead lang={lang} path={path} title={title} description={description} ogType={ogType} jsonLd={jsonLd} noindex={noindex} />
+  </head>
+  <body class={bodyClass}>
+    <a class="skip" href="#view" onclick="document.getElementById('view').focus(); return false;">{t('Skip to content', lang)}</a>
+    <slot />
+    {registerSw && (
+      <script is:inline define:vars={{ swUrl, swScope }}>
+        if ("serviceWorker" in navigator) {
+          addEventListener("load", () => {
+            navigator.serviceWorker
+              .register(swUrl, { scope: swScope })
+              .then(() => navigator.serviceWorker.ready)
+              .then((reg) => {
+                const own = location.origin + swScope;
+                const urls = [location.href.split("#")[0], ...performance.getEntriesByType("resource").map((e) => e.name)];
+                reg.active?.postMessage({ type: "CACHE_URLS", urls: urls.filter((u) => u.startsWith(own)) });
+              })
+              .catch(() => {});
+          });
+        }
+      </script>
+    )}
+  </body>
+</html>

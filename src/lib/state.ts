@@ -2,6 +2,7 @@
 import { INTERVIEW_TOTALS } from '../data/manifest.ts';
 import { getAllTracks, getTrack } from './i18n.ts';
 import { INTERVIEW_KEY, STORAGE_KEY, getRaw, onStorageSync, readJson, writeJson } from './storage.ts';
+import { applyThemePref, nextThemePref, systemPrefersDark } from './theme.ts';
 import type { InterviewProgress, Lesson, LessonProgress, LevelIndex, QuizItem, StudyProgress, Track } from './types.ts';
 
 export type StateChangeKind = 'study' | 'interview' | 'all';
@@ -136,22 +137,11 @@ export function interviewReadiness(data?: Partial<InterviewProgress>): number {
 }
 
 export function applyTheme(): void {
-  if (typeof document === 'undefined') return;
-  const meta = document.querySelector<HTMLMetaElement>('meta[name="color-scheme"]');
-  if (S.theme === 'light' || S.theme === 'dark') {
-    document.documentElement.dataset.theme = S.theme;
-    if (meta) meta.content = S.theme;
-  } else {
-    delete document.documentElement.dataset.theme;
-    if (meta) meta.content = 'light dark';
-  }
+  applyThemePref(S.theme);
 }
 
 export function toggleTheme(): void {
-  const sysDark = matchMedia('(prefers-color-scheme: dark)').matches;
-  const curDark = S.theme ? S.theme === 'dark' : sysDark;
-  const nextDark = !curDark;
-  S.theme = nextDark === sysDark ? '' : nextDark ? 'dark' : 'light';
+  S.theme = nextThemePref(S.theme, systemPrefersDark());
   save();
   applyTheme();
 }

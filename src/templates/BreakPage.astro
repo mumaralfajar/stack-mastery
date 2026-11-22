@@ -1,0 +1,18 @@
+---
+// Flower Meadow break room: full-bleed client view. Audio is opt-in (starts at "Music: OFF").
+import { pageStrings } from '../lib/ssr.ts';
+import type { Lang } from '../lib/types.ts';
+import ViewPage from './ViewPage.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const { T } = pageStrings(lang);
+const heading = T('Break room: Field of Flowers Magic');
+const lede = T(
+  'Step into a living alpine meadow. Cast Flamme’s flower-blooming spell, weave mana sigils, summon glowing butterflies, and shift the sky from sunlit breeze to blue-moon aurora.',
+);
+---
+<ViewPage lang={lang} path="/break/" title={`${heading} — Stack Mastery`} description={lede} view="break" heading={heading} lede={lede} fullBleed />

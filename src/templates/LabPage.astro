@@ -1,0 +1,49 @@
+---
+// One visual lab. The header and "Used in" links are static; only this lab's module is dynamic-imported.
+import { getAllTracks, loadSiteData, vizEntries } from '../data/site.ts';
+import WorkspaceLayout from '../layouts/WorkspaceLayout.astro';
+import { pageStrings } from '../lib/ssr.ts';
+import type { Lang } from '../lib/types.ts';
+import type { VizEntry } from '../data/site.ts';
+
+interface Props {
+  lang: Lang;
+  vizId: string;
+}
+
+await loadSiteData();
+const { lang, vizId } = Astro.props;
+const { T, href } = pageStrings(lang);
+const v = vizEntries(lang).find((x) => x.id === vizId) as VizEntry;
+const used = getAllTracks(lang).flatMap((t) => t.lessons.filter((l) => l.viz === vizId).map((l) => ({ t, l })));
+---
+<WorkspaceLayout lang={lang} path={`/lab/${v.id}/`} title={`${v.title} — ${T('Visual lab')} · Stack Mastery`} description={v.desc}>
+  <div class="page" style={`--tc: var(--${v.lab.track})`}>
+    <header class="head">
+      <p class="eyebrow"><a href={href('/lab/')}>{T('Visual lab')}</a> · {v.lab.trackName}</p>
+      <h1>{v.title}</h1>
+      <p class="lede">{v.desc}</p>
+    </header>
+    <div class="viz" data-viz={v.id}></div>
+    {used.length > 0 && (
+      <p class="muted">
+        {T('Used in: ')}
+        {used.map(({ t, l }, i) => <>{i ? ', ' : ''}<a href={href(`/lesson/${t.id}/${l.id}/`)}>{l.title}</a></>)}
+      </p>
+    )}
+  </div>
+</WorkspaceLayout>
+<script>
+  import { getLang } from '../lib/i18n.ts';
+  import { loadViz } from '../scripts/viz/registry.ts';
+
+  const el = document.querySelector<HTMLElement>('.viz[data-viz]');
+  if (el) {
+    const dict = getLang() === 'id' ? import('../data/id/index.ts').then((m) => m.loadIdUi()) : Promise.resolve();
+    Promise.all([loadViz(el.dataset.viz || ''), dict])
+      .then(([lab]) => lab?.mount(el))
+      .catch((e: unknown) => {
+        el.textContent = String(e);
+      });
+  }
+</script>

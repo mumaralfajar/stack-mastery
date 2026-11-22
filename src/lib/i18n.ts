@@ -1,6 +1,8 @@
 // Pure i18n language store and immutable localized selectors.
 // Never mutates English curriculum objects in place.
 import { LEVELS_EN, LEVELS_ID } from '../data/manifest.ts';
+import { LANG_KEY } from './keys.ts';
+import { alternateUrl } from './routes.ts';
 import type {
   InterviewData,
   InterviewTranslation,
@@ -13,9 +15,12 @@ import type {
   TrackTranslation,
 } from './types.ts';
 
-const LANG_KEY = 'stackmastery.lang';
-
+// Each static page declares its language in <html lang>; the stored preference only matters elsewhere.
 function detectInitialLang(): Lang {
+  if (typeof document !== 'undefined') {
+    const pageLang = document.documentElement.lang;
+    if (pageLang === 'en' || pageLang === 'id') return pageLang;
+  }
   try {
     if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
       const saved = localStorage.getItem(LANG_KEY);
@@ -31,16 +36,13 @@ function detectInitialLang(): Lang {
 }
 
 let currentLang: Lang = detectInitialLang();
-if (typeof document !== 'undefined') {
-  document.documentElement.lang = currentLang;
-}
 
 export function getLang(): Lang {
   return currentLang;
 }
 
-export function setLang(lang: Lang, reload = true): void {
-  currentLang = lang;
+// Remember the language preference and, by default, open the same page in that language.
+export function setLang(lang: Lang, navigate = true): void {
   try {
     if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
       localStorage.setItem(LANG_KEY, lang);
@@ -48,12 +50,11 @@ export function setLang(lang: Lang, reload = true): void {
   } catch {
     /* ignore */
   }
-  if (typeof document !== 'undefined') {
-    document.documentElement.lang = lang;
+  if (navigate && typeof location !== 'undefined') {
+    location.assign(alternateUrl(lang, location.pathname, location.search));
+    return;
   }
-  if (reload && typeof location !== 'undefined') {
-    location.reload();
-  }
+  currentLang = lang;
 }
 
 // Registries for English source data and Indonesian overlays (never mutated once registered).

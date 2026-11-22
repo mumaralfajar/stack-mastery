@@ -1,3 +1,6 @@
+/* Legacy #/... bookmark being redirected to its static page: avoid flashing the landing page. */
+[data-legacy-redirect] body { visibility: hidden; }
+
 /* Full-bleed Landing Shell, Distributed Packet Reactor & Kinetic Scroll Sections */
 
 body.is-landing {
