@@ -175,14 +175,22 @@ All lessons, quizzes, flashcards, diagrams, and interview study content work off
 
 | Feature | Library | Licence |
 | --- | --- | --- |
-| Type checking code editor | [Monaco Editor](https://github.com/microsoft/monaco-editor) | MIT |
-| TypeScript playground and judge | [TypeScript](https://github.com/microsoft/TypeScript) | Apache-2.0 |
+| Type checking code editor | [Monaco Editor](https://github.com/microsoft/monaco-editor) `0.52.2` (`cdnjs`) | MIT |
+| TypeScript playground and judge | [TypeScript](https://github.com/microsoft/TypeScript) `5.8.3` (`cdnjs`) | Apache-2.0 |
 | React live preview | [React](https://github.com/facebook/react) 19.1 (`esm.sh`) | MIT |
-| SQL playground | [sql.js](https://github.com/sql-js/sql.js) (SQLite WASM) | MIT |
-| Tailwind browser toggle | [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss) `4.3.4` | MIT |
+| SQL playground | [sql.js](https://github.com/sql-js/sql.js) `1.8.0` (SQLite WASM, `cdnjs`) | MIT |
+| Tailwind browser toggle | [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss) `4.3.4` (`jsDelivr`) | MIT |
 | Dart + Flutter playground | [DartPad](https://github.com/dart-lang/dart-pad) (`dartpad.dev`) | BSD-3-Clause |
 
-If offline or behind a blocked CDN, editors fall back to plain text areas.
+If offline or behind a blocked CDN, editors fall back to plain text areas. When SQLite, the TypeScript compiler, or DartPad cannot load, the playground shows a banner with a **Retry** button and keeps the editor or lesson sample usable. TypeScript, CSS, and Dart pages also link optional online sandboxes (StackBlitz, DartPad), and Go, C#, ASP.NET Core, React, and Angular lessons link the Go Playground, SharpLab, or StackBlitz. These links open in a new tab with `rel="noopener noreferrer"`.
+
+### Playground hardening
+
+- **Pinned CDN scripts use Subresource Integrity.** The Monaco loader, sql.js, the TypeScript compiler, and Tailwind's browser build are loaded with `integrity="sha384-…"` and `crossorigin="anonymous"`, so a changed or tampered file is refused. The hashes live in `src/scripts/playground.js` and were computed from the exact bytes each CDN serves. To bump a version, download the new file, compute `sha384-` + `openssl dgst -sha384 -binary <file> | openssl base64 -A`, and update the URL and hash together. `tools/verify-ui.py` re-downloads each script and fails when a hash no longer matches. Monaco's own follow-up files (`editor.main.js`, workers) are fetched by its AMD loader and are not covered by SRI.
+- **Themes stay in sync.** Monaco uses `vs` or `vs-dark`, and the DartPad embed gets `?theme=light` or `?theme=dark`. Both follow the site theme toggle and the OS colour scheme live. Monaco keeps the editor text; DartPad reloads and receives the selected sample again.
+- **The CSS preview is sandboxed.** Text such as `</style>` in the CSS box is escaped so it cannot close the `<style>` element and inject markup into the preview.
+- **No global `define.amd` removal.** Monaco's AMD loader and UMD libraries such as sql.js coexist because scripts load one at a time and the `amd` flag is hidden only while a non-Monaco script runs, then restored.
+- **Cleanup.** The Monaco worker Blob URL is created once and revoked on `pagehide`. ResizeObservers in the CSS playground and lesson tree diagrams disconnect when their view is removed or the page is hidden.
 
 ## Pages and URLs
 
@@ -285,7 +293,7 @@ Every stack track includes real compiler and runtime verification scripts inside
 | **Lint** | `bun run lint` | Biome correctness and suspicious-code rules across `src/` and `tools/` |
 | **Type check** | `bun run typecheck` | `astro check` diagnostics for Astro components and scripts |
 | **i18n parity** | `bun run check:i18n` | Structural, key, and code-span parity across EN and ID, untranslated `h()` labels and `.astro` template strings, table headers, playground chips, manifest `quizCount`, and the lab registry |
-| **UI & WCAG** | `bun run verify:ui` | On `dist/`: every static route and SEO tag, the landing JS budget (< 45 KB), single-lab chunk loading, legacy `#/…` redirects, PWA manifest and offline reload, EN/ID desktop/mobile layout, dialogs, all 40 labs, playgrounds, interview prep, cross-tab sync, and axe-core WCAG 2.2 AA (0 critical or serious) |
+| **UI & WCAG** | `bun run verify:ui` | On `dist/`: every static route and SEO tag, the landing JS budget (< 45 KB), single-lab chunk loading, legacy `#/…` redirects, PWA manifest and offline reload, EN/ID desktop/mobile layout, dialogs, all 40 labs, playgrounds (SRI hashes checked against the served bytes, live Monaco and DartPad theme sync, `</style>` injection, Retry fallbacks, external sandbox links, observer and Blob cleanup), interview prep, cross-tab sync, and axe-core WCAG 2.2 AA (0 critical or serious) |
 | **C# & CS** | `bun run verify:cs` | Runs all 96 C# problem tests, 12 pattern templates, and lesson samples (.NET 10) |
 | **ASP.NET Core** | `bun run verify:aspnet` | Builds, boots, and tests all ASP.NET Core 10 samples + xUnit suite |
 | **Go** | `bun run verify:go` | Runs `go vet`, `go build`, execution checks, and `go test -bench` on Go 1.27+ |
@@ -296,7 +304,7 @@ Every stack track includes real compiler and runtime verification scripts inside
 | **Angular** | `bun run verify:angular` | Compiles Angular 22 with `ngc` (`strictTemplates`), runs zoneless Vitest + RxJS checks |
 | **Dart + Flutter** | `bun run verify:dart` | Runs `flutter analyze`, `flutter test`, Dart scripts, and Cubit/router behavior checks |
 
-When upgrading Tailwind in the playground, keep the pinned version matching across `tools/verify-css.mjs` and `src/scripts/playground.js`.
+When upgrading Tailwind in the playground, keep the pinned version matching across `tools/verify-css.mjs` and `src/scripts/playground.js`, and refresh its SRI hash there.
 
 `bun run verify:ui` needs `bun run build` first, Python 3.12+ with `pip install playwright`, and `playwright install chromium` (it falls back to an installed Chrome).
 
@@ -314,6 +322,7 @@ Every pull request to `main` runs `.github/workflows/ci.yml`. These three checks
 | --- | --- |
 | Progress disappeared | Different browser, address (`localhost` vs GitHub Pages), private window, or cleared site data. Import your backup JSON. |
 | Editor is a plain text box | Offline or CDN blocked (`cdnjs`). Code editing and runs still work. |
+| "Could not load …" banner with Retry | A CDN script was blocked, offline, or failed its integrity check. Check the connection and press **Retry**. |
 | SQL playground fails to load | Needs internet access on first open to download `sql.js` WebAssembly. |
 | "Time limit exceeded" on coding judge | Execution exceeded 4 seconds, usually from an infinite loop or exponential complexity. |
 | Old content stays cached after updates | Pages are network-first, so a normal reload fetches the new version when online. If a build asset still looks stale, hard-reload (`Ctrl+F5` or `Cmd+Shift+R`), or unregister the service worker in the browser's developer tools. |
