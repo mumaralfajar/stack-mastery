@@ -90,6 +90,17 @@ const dict = {
   'Theme tokens + :has()': 'Token tema + :has()',
   'Tailwind card': 'Kartu Tailwind',
   'Tailwind responsive': 'Tailwind responsif',
+  // Load failures, retry, external sandboxes
+  'You can keep editing. Check your connection, then try again.': 'Kamu tetap bisa mengedit. Periksa koneksimu, lalu coba lagi.',
+  'Retry': 'Coba lagi',
+  'DartPad could not be loaded. It needs an internet connection and may be blocked on this network.': 'DartPad gagal dimuat. DartPad butuh koneksi internet dan mungkin diblokir di jaringan ini.',
+  'Need a full project, such as the Angular CLI or a bundled React app? Open ': 'Butuh project lengkap, misalnya Angular CLI atau aplikasi React dengan bundler? Buka ',
+  'Need a full project with a bundler? Open ': 'Butuh project lengkap dengan bundler? Buka ',
+  ' in a new tab.': ' di tab baru.',
+  'Prefer a bigger window? Open ': 'Mau jendela yang lebih besar? Buka ',
+  'Go Playground (new tab)': 'Go Playground (tab baru)',
+  'SharpLab (new tab)': 'SharpLab (tab baru)',
+  'StackBlitz (new tab)': 'StackBlitz (tab baru)',
   'Note: Signal, linkedSignal, and RxJS models run directly here in TypeScript. Full Angular HTML @Component templates require Angular CLI or StackBlitz.': 'Catatan: Model Signal, linkedSignal, dan RxJS berjalan langsung di sini sebagai TypeScript. Template HTML @Component Angular lengkap memerlukan Angular CLI atau StackBlitz.'
 };
 

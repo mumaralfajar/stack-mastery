@@ -2,6 +2,7 @@
 import { STORAGE_KEY } from './keys.ts';
 
 export type ThemePref = '' | 'light' | 'dark';
+export type ResolvedTheme = 'light' | 'dark';
 
 export function systemPrefersDark(): boolean {
   return typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: dark)').matches;
@@ -43,4 +44,33 @@ export function toggleStoredTheme(): ThemePref {
   }
   applyThemePref(next);
   return next;
+}
+
+// The theme the page is actually showing: an explicit data-theme wins, otherwise the OS preference.
+export function resolvedTheme(): ResolvedTheme {
+  if (typeof document === 'undefined') return 'light';
+  const explicit = document.documentElement.dataset.theme;
+  if (explicit === 'light' || explicit === 'dark') return explicit;
+  return systemPrefersDark() ? 'dark' : 'light';
+}
+
+// Calls `listener` whenever the resolved theme changes: a toggle (data-theme, also set by another tab's sync)
+// or an OS prefers-color-scheme change. Returns a function that stops listening.
+export function watchTheme(listener: (theme: ResolvedTheme) => void): () => void {
+  if (typeof document === 'undefined') return () => {};
+  let last = resolvedTheme();
+  const check = () => {
+    const now = resolvedTheme();
+    if (now === last) return;
+    last = now;
+    listener(now);
+  };
+  const observer = new MutationObserver(check);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  const mq = typeof matchMedia !== 'undefined' ? matchMedia('(prefers-color-scheme: dark)') : null;
+  mq?.addEventListener('change', check);
+  return () => {
+    observer.disconnect();
+    mq?.removeEventListener('change', check);
+  };
 }

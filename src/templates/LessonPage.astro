@@ -48,6 +48,16 @@ const playLink =
           ? { href: href(`/play/dart/?sample=${l.id}`), label: T('Open Dart + Flutter playground') }
           : null;
 
+// Optional online sandboxes for what the in-browser playgrounds cannot run (Go, C#, full Angular/React projects).
+const sandboxLink =
+  t.id === 'go'
+    ? { href: 'https://go.dev/play/', label: T('Go Playground (new tab)'), key: 'go' }
+    : t.id === 'csharp' || t.id === 'aspnet'
+      ? { href: 'https://sharplab.io/', label: T('SharpLab (new tab)'), key: 'csharp' }
+      : t.id === 'react' || t.id === 'angular'
+        ? { href: 'https://stackblitz.com/', label: T('StackBlitz (new tab)'), key: 'stackblitz' }
+        : null;
+
 const title = `${l.title} — ${t.name} · Stack Mastery`;
 const description = plainDescription(l.why);
 const jsonLd = learningResourceLd({
@@ -147,6 +157,11 @@ const lessonData = jsonForScript({
       <div class="actions">
         <button type="button" class="btn" data-read-toggle>{T('Mark as learned')}</button>
         {playLink && <a class="btn ghost" href={playLink.href}>{playLink.label}</a>}
+        {sandboxLink && (
+          <a class="btn ghost" href={sandboxLink.href} target="_blank" rel="noopener noreferrer" data-sandbox={sandboxLink.key}>
+            {sandboxLink.label}
+          </a>
+        )}
       </div>
     </section>
 
