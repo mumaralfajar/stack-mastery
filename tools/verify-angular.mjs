@@ -4,17 +4,14 @@
 //   3. the RxJS sample verifies switchMap vs exhaustMap flattening behavior at runtime.
 // Usage: node tools/verify-angular.mjs [--show]      (needs internet access the first time, for npm packages)
 import { execFileSync, execSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import angularTrack from '../src/data/tracks/angular.js';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const show = process.argv.includes('--show');
-globalThis.window = globalThis;
-globalThis.TRACKS = [];
-(0, eval)(readFileSync(join(root, 'data/angular.js'), 'utf8'));
-const lessons = TRACKS.find(t => t.id === 'angular').lessons;
+const lessons = angularTrack.lessons;
 const lesson = id => lessons.find(l => l.id === id);
 
 const work = join(tmpdir(), 'stackmastery-angular');

@@ -1,6 +1,8 @@
 // Live playgrounds. SQL runs on SQLite compiled to WebAssembly (sql.js); TypeScript is transpiled in the browser.
-(() => {
-  const T = window.t;   // `t` is used as a local name in this file
+import { codeBlock, confirmDialog, h, tableWrap } from '../lib/dom.ts';
+import { getLevels, getTrack, t as T } from '../lib/i18n.ts';
+import { SQL_KEY, readJson, writeJson } from '../lib/storage.ts';
+
   const CDN = 'https://cdnjs.cloudflare.com/ajax/libs/';
   const loaded = {};
   const loadScript = src => loaded[src] || (loaded[src] = new Promise((ok, fail) => {
@@ -8,7 +10,7 @@
     s.onerror = () => { delete loaded[src]; fail(new Error(T('Could not load {src}. The playground needs an internet connection the first time.', { src }))); };
     document.head.append(s);
   }));
-  const store = { get: k => { try { return JSON.parse(localStorage.getItem(k)) || []; } catch { return []; } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* ignore */ } } };
+  const store = { get: k => readJson(k, () => []), set: (k, v) => writeJson(k, v) };
   // Monaco (the open-source editor inside VS Code, MIT licence) gives syntax highlighting, autocomplete and
   // real TypeScript type checking. It loads lazily; if it cannot load, the plain textarea keeps working.
   const MONACO = CDN + 'monaco-editor/0.52.2/min';
@@ -186,8 +188,9 @@ PRAGMA foreign_keys = ON;`;
   ];
 
   function sql(el, sample) {
+    const LEVELS = getLevels();
     let db = null, cur = -1;
-    const solved = new Set(store.get('stackmastery.sql'));
+    const solved = new Set(store.get(SQL_KEY));
     const out = h('div', { class: 'out', 'aria-live': 'polite' }, h('p', { class: 'muted' }, 'Loading SQLite…'));
     const task = h('p', { class: 'prompt' }, 'Free play, or pick a challenge above.');
     const dialectTip = h('p', { class: 'fb', hidden: true });
@@ -196,10 +199,10 @@ PRAGMA foreign_keys = ON;`;
       const rows = (res.length ? res[res.length - 1].values : []).map(r => r.map(v => typeof v === 'number' ? Math.round(v * 100) / 100 : v));
       return JSON.stringify(ordered ? rows : rows.map(r => JSON.stringify(r)).sort());
     };
-    const show = res => {
-      if (!res.length) return out.replaceChildren(h('p', { class: 'ok' }, T('OK: {n} row(s) changed.', { n: db.getRowsModified() })));
+    const show = (res, modified = db ? db.getRowsModified() : 0) => {
+      if (!res.length) return out.replaceChildren(h('p', { class: 'ok' }, T('OK: {n} row(s) changed.', { n: modified })));
       out.replaceChildren(...res.map(r => h('div', {}, h('p', { class: 'muted' }, r.values.length + ' ' + T('row(s)')),
-        window.tableWrap('Query results', h('table', { class: 't' }, h('thead', {}, h('tr', {}, r.columns.map(c => h('th', { scope: 'col' }, c)))),
+        tableWrap('Query results', h('table', { class: 't' }, h('thead', {}, h('tr', {}, r.columns.map(c => h('th', { scope: 'col' }, c)))),
           h('tbody', {}, r.values.map(row => h('tr', {}, row.map(v => v === null ? h('td', { class: 'null' }, 'NULL') : h('td', {}, v))))))))));
     };
     const updateDialectTip = () => {
@@ -218,21 +221,40 @@ PRAGMA foreign_keys = ON;`;
     ta.oninput = () => { prevInput && prevInput(); updateDialectTip(); };
     const checkAns = () => {
       if (cur < 0) return out.replaceChildren(h('p', { class: 'muted' }, 'Pick a challenge first.'));
-      // Show the user's run in the live database, but grade both queries against a fresh copy of the seed,
-      // so an earlier DELETE or UPDATE in free play cannot change the expected rows.
-      if (!run()) return;
+      if (!SQL) return;
+      // Show the user's run in the live database, but always grade against a fresh copy of the seed,
+      // so an earlier DELETE, UPDATE, or DROP TABLE in free play cannot break grading.
+      const liveRes = run();
       const c = CHALLENGES[cur];
       let good = false;
+      let snapRes = null;
+      let snapErr = null;
       const snap = new SQL.Database();
       try {
         snap.run(SEED);
         const expected = norm(snap.exec(c.sol), c.ordered);
-        good = norm(snap.exec(ta.value), c.ordered) === expected;
-      } catch { good = false; } finally { snap.close(); }
-      if (good) { solved.add(cur); store.set('stackmastery.sql', [...solved]); drawChips(); }
+        snapRes = snap.exec(ta.value);
+        good = norm(snapRes, c.ordered) === expected;
+      } catch (e) {
+        good = false;
+        snapErr = e;
+      } finally {
+        snap.close();
+      }
+      if (!liveRes) {
+        if (snapErr) return;
+        if (snapRes) show(snapRes, 0);
+      }
+      if (good) { solved.add(cur); store.set(SQL_KEY, [...solved]); drawChips(); }
       out.prepend(h('p', { class: good ? 'ok' : 'err' }, T(good ? '✓ Correct. Now explain out loud why it works.' : c.ordered ? '✗ Not the expected rows yet. Compare your output with the task (row order matters here).' : '✗ Not the expected rows yet. Compare your output with the task.')));
     };
-    const reset = () => { if (!SQL) return; db = new SQL.Database(); db.run(SEED); out.replaceChildren(h('p', { class: 'ok' }, 'Database reset to its original contents.')); };
+    const reset = () => {
+      if (!SQL) return;
+      if (db) { try { db.close(); } catch { /* ignore */ } }
+      db = new SQL.Database();
+      db.run(SEED);
+      out.replaceChildren(h('p', { class: 'ok' }, 'Database reset to its original contents.'));
+    };
     const selectChallenge = (i, focusEd = true) => {
       const c = CHALLENGES[i];
       if (!c) return;
@@ -249,7 +271,7 @@ PRAGMA foreign_keys = ON;`;
     if (sample && Object.hasOwn(SQL_PRESETS, sample)) selectChallenge(SQL_PRESETS[sample], false);
     const schemaDrawer = h('details', { class: 'schema-drawer' },
       h('summary', {}, 'Schema and foreign keys (5 tables)'),
-      window.tableWrap('Database schema', h('table', { class: 't' },
+      tableWrap('Database schema', h('table', { class: 't' },
         h('thead', {}, h('tr', {}, ['Table', 'Columns & keys', 'Rows'].map(c => h('th', { scope: 'col' }, c)))),
         h('tbody', {}, [
           ['customers', 'id (PK INTEGER), name (TEXT), city (TEXT nullable)', '6'],
@@ -272,7 +294,7 @@ PRAGMA foreign_keys = ON;`;
             if (cur < 0) return;
             const c = CHALLENGES[cur];
             const edited = ta.value.replace(/^--.*$/gm, '').trim().length > 0;
-            if (!edited || await window.confirmDialog(T('Replace your current SQL query with the challenge solution?'), { title: 'Show solution', confirmText: 'Show solution', danger: false })) {
+            if (!edited || await confirmDialog(T('Replace your current SQL query with the challenge solution?'), { title: 'Show solution', confirmText: 'Show solution', danger: false })) {
               ta.value = c.sol.replace(/ (FROM|WHERE|GROUP BY|HAVING|ORDER BY|JOIN|LEFT JOIN|SELECT) /g, '\n$1 ');
               updateDialectTip();
             }
@@ -784,7 +806,7 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
   // When the embedded editor reports that it is ready, the selected lesson sample is posted into it.
   const DARTPAD = 'https://dartpad.dev';
   function dart(el, sample) {
-    const track = TRACKS.find(t => t.id === 'flutter');
+    const track = getTrack('flutter');
     // Samples DartPad can run as they are: a main() and no third-party packages.
     const samples = track.lessons.filter(l => /\bmain\(\)/.test(l.code) && !/package:(?!flutter\/)/.test(l.code));
     let cur = samples.find(l => l.id === sample) || samples[0], ready = false;
@@ -815,5 +837,6 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
           h('p', { class: 'muted' }, 'DartPad needs an internet connection. Samples that use packages such as flutter_bloc or go_router are meant for a local project: ', h('code', {}, 'flutter create'), '.'))));
   }
 
-  window.PLAY = { sql, ts, css, dart, editor, typeNote, loadTS: () => loadScript(CDN + 'typescript/5.4.5/typescript.min.js') };
-})();
+export const loadTS = () => loadScript(CDN + 'typescript/5.4.5/typescript.min.js');
+export { sql, ts, css, dart, editor, typeNote };
+export const PLAY = { sql, ts, css, dart, editor, typeNote, loadTS };

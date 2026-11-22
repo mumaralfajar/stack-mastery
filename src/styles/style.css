@@ -337,6 +337,7 @@ table.t { border-collapse: collapse; font-size: .84rem; width: 100%; font-varian
 table.t th, table.t td { text-align: left; padding: .3rem .6rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
 table.t th { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
 table.t td.null { color: var(--bad); font-style: italic; }
+table.t td.mock-notes { white-space: normal; min-width: 12rem; }
 table.t tr.dim td { opacity: .35; }
 table.t tr.hl td { background: color-mix(in srgb, var(--tc) 14%, transparent); }
 .id { font-family: var(--mono); font-weight: 700; padding: .05rem .4rem; border-radius: 5px; background: var(--sunken); }

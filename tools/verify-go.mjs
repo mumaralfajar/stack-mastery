@@ -5,19 +5,13 @@
 //   4. `testing` (unit + httptest.NewTestServer + testing/synctest + b.Loop) and `profiling` benchmarks run cleanly.
 // Usage: node tools/verify-go.mjs [--show]
 import { execFileSync, execSync } from 'node:child_process';
-import { mkdirSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import track from '../src/data/tracks/go.js';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const show = process.argv.includes('--show');
-
-globalThis.window = globalThis;
-globalThis.TRACKS = [];
-(0, eval)(readFileSync(join(root, 'data/go.js'), 'utf8'));
-const track = TRACKS.find(t => t.id === 'go');
-if (!track) throw new Error('Track "go" not found in data/go.js');
+if (!track) throw new Error('Track "go" not found in src/data/tracks/go.js');
 
 const work = join(tmpdir(), 'stackmastery-go');
 rmSync(work, { recursive: true, force: true });

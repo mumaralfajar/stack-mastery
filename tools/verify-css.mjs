@@ -5,19 +5,16 @@
 //   4. the React + Tailwind sample type-checks with TypeScript, and an invalid variant fails to compile.
 // Usage: node tools/verify-css.mjs [--show]
 //   Requires Google Chrome (or Edge) and internet access the first time, for npm packages.
-import { execSync, execFileSync } from 'node:child_process';
-import { mkdirSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
+import { execFileSync, execSync } from 'node:child_process';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, dirname } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import cssTrack from '../src/data/tracks/css.js';
 
 const TAILWIND = '4.3.4';          // keep in step with the playground (src/scripts/playground.js)
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const show = process.argv.includes('--show');
-globalThis.window = globalThis;
-globalThis.TRACKS = [];
-(0, eval)(readFileSync(join(root, 'data/css.js'), 'utf8'));
-const lessons = TRACKS.find(t => t.id === 'css').lessons;
+const lessons = cssTrack.lessons;
 const langOf = l => l.lang || 'css';
 
 const work = join(tmpdir(), 'stackmastery-css');

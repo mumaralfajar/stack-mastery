@@ -1,6 +1,7 @@
 // Interactive Go visualizations: slices/aliasing, interface nil trap, goroutines/channels, context tree.
-(() => {
-  const VIZ = window.VIZ = window.VIZ || {}, T = window.t;
+import { codeBlock, h, tableWrap } from '../../lib/dom.ts';
+import { t as T } from '../../lib/i18n.ts';
+import { VIZ } from './registry.ts';
   const meta = { track: 'go', trackName: 'Go' };
   const btn = (label, onclick, cls) => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
   const pills = (opts, cur, onPick) => {
@@ -58,7 +59,7 @@
       const s = stepper(() => steps[mode].length, i => {
         const st = steps[mode][i];
         box.replaceChildren(
-          window.codeBlock(st.line, 'go'),
+          codeBlock(st.line, 'go'),
           h('div', { class: 'viz-cols', style: { marginTop: '.7rem' } },
             h('div', { class: 'viz-box' },
               h('h4', {}, 'Slice headers (stack)'),
@@ -101,7 +102,7 @@
       const s = stepper(() => steps[mode].length, i => {
         const st = steps[mode][i];
         box.replaceChildren(
-          window.codeBlock(st.code, 'go'),
+          codeBlock(st.code, 'go'),
           h('div', { class: 'viz-cols', style: { marginTop: '.7rem' } },
             h('div', { class: 'viz-box' },
               h('h4', {}, 'Interface value (2 words)'),
@@ -178,7 +179,7 @@
       };
       const s = stepper(() => steps[mode].length, i => {
         const st = steps[mode][i];
-        box.replaceChildren(window.tableWrap('Context propagation chain', h('table', { class: 't' },
+        box.replaceChildren(tableWrap('Context propagation chain', h('table', { class: 't' },
           h('thead', {}, h('tr', {}, ['Layer', 'State'].map(c => h('th', { scope: 'col' }, c)))),
           h('tbody', {}, [
             ['HTTP handler (r.Context)', st.req, st.rC],
@@ -193,4 +194,3 @@
       s.start();
     }
   };
-})();

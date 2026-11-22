@@ -8,17 +8,10 @@
 //      and the networking lesson turns ProblemDetails into a safe message and field errors.
 // Usage: node tools/verify-dart.mjs        (requires the Flutter SDK on PATH)
 import { execSync } from 'node:child_process';
-import { existsSync, mkdirSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-globalThis.window = globalThis;
-globalThis.TRACKS = [];
-// The data files are plain scripts that fill in globals, so evaluate them as scripts.
-(0, eval)(readFileSync(join(root, 'data/flutter.js'), 'utf8'));
-const track = TRACKS.find(t => t.id === 'flutter');
+import { join } from 'node:path';
+import track from '../src/data/tracks/flutter.js';
 
 const proj = join(tmpdir(), 'stackmastery_dart');
 const sh = (cmd, cwd = proj) => execSync(cmd, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });

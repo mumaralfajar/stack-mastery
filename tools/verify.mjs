@@ -4,17 +4,16 @@
 //   3. every C# track lesson snippet compiles as a Program.cs and runs without an unhandled exception.
 // Usage: node tools/verify.mjs [--show]   (requires the .NET SDK on PATH; --show prints each lesson's output)
 import { execSync } from 'node:child_process';
-import { mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import { interview } from '../src/data/interview.js';
+import { interviewCs, interviewUi } from '../src/data/interview-cs.js';
+import csharp from '../src/data/tracks/csharp.js';
+import fundamentals from '../src/data/tracks/fundamentals.js';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-globalThis.window = globalThis;
-globalThis.TRACKS = [];
-// The data files are plain scripts that fill in globals, so evaluate them as scripts.
-for (const f of ['data/csharp.js', 'data/fundamentals.js', 'data/interview.js', 'data/interview-cs.js'])
-  (0, eval)(readFileSync(join(root, f), 'utf8'));
+const TRACKS = [csharp, fundamentals];
+const IV = { ...interview, ui: interviewUi, cs: interviewCs };
 
 const out = join(tmpdir(), 'stackmastery-verify');
 rmSync(out, { recursive: true, force: true });

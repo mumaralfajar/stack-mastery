@@ -1,6 +1,7 @@
 // Interactive visualizers for the System Design track.
-(() => {
-  const VIZ = window.VIZ = window.VIZ || {}, T = window.t;
+import { h, tableWrap } from '../../lib/dom.ts';
+import { t as T } from '../../lib/i18n.ts';
+import { VIZ } from './registry.ts';
   const meta = { track: 'sysdesign', trackName: 'System Design' };
 
   function pills(items, active, onPick, ariaLabel) {
@@ -547,7 +548,7 @@
 
         const maxLoad = Math.max(...Object.values(resCur.load));
         const minLoad = Math.min(...Object.values(resCur.load));
-        tblHost.replaceChildren(window.tableWrap(T('Per-server key distribution'), h('table', { class: 't' },
+        tblHost.replaceChildren(tableWrap(T('Per-server key distribution'), h('table', { class: 't' },
           h('thead', {}, h('tr', {}, [T('Server'), T('Assigned Keys'), T('Share %'), T('Cap Status')].map(c => h('th', { scope: 'col' }, c)))),
           h('tbody', {}, curNodes.map(n => {
             const cnt = resCur.load[n];
@@ -875,4 +876,5 @@
       reset();
     }
   };
-})();
+
+export { VIZ };

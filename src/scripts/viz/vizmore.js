@@ -1,6 +1,7 @@
 // Visualizations for fundamentals: Big-O growth, sorting, the JavaScript event loop, graph search.
-(() => {
-  const VIZ = window.VIZ = window.VIZ || {}, T = window.t;
+import { h, tableWrap } from '../../lib/dom.ts';
+import { t as T } from '../../lib/i18n.ts';
+import { VIZ } from './registry.ts';
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
   const btn = (label, onclick, cls) => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
@@ -20,7 +21,7 @@
       const chips = h('div', { class: 'chips' }), body = h('div', {});
       const draw = n => {
         [...chips.children].forEach(c => c.classList.toggle('on', +c.dataset.n === n));
-        body.replaceChildren(window.tableWrap('Big-O comparison', h('table', { class: 't' }, h('thead', {}, h('tr', {}, ['Class', 'Typical cause', 'Steps', '', 'At 100 M steps/s'].map(c => h('th', { scope: 'col' }, c)))),
+        body.replaceChildren(tableWrap('Big-O comparison', h('table', { class: 't' }, h('thead', {}, h('tr', {}, ['Class', 'Typical cause', 'Steps', '', 'At 100 M steps/s'].map(c => h('th', { scope: 'col' }, c)))),
           h('tbody', {}, classes.map(([name, cause, f]) => {
             const ops = f(n), w = Math.min(Math.log10(Math.max(ops, 1)) / 14 * 100, 100);
             return h('tr', {}, h('td', {}, h('code', {}, name)), h('td', {}, cause), h('td', {}, num(ops)), h('td', { style: { width: '32%' } }, h('div', { class: 'bar', role: 'img', 'aria-label': name }, h('i', { style: { width: Math.max(w, 1.5) + '%' } }))), h('td', {}, time(ops)));
@@ -206,4 +207,3 @@
       draw();
     }
   };
-})();

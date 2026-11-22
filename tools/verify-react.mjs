@@ -5,17 +5,13 @@
 //   3. the event-loop example prints its lines in the order its comments promise.
 // Usage: node tools/verify-react.mjs [--show]      (needs internet access the first time, for npm packages)
 import { execFileSync, execSync } from 'node:child_process';
-import { mkdirSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import reactTrack from '../src/data/tracks/react.js';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const show = process.argv.includes('--show');
-globalThis.window = globalThis;
-globalThis.TRACKS = [];
-(0, eval)(readFileSync(join(root, 'data/react.js'), 'utf8'));
-const lessons = TRACKS.find(t => t.id === 'react').lessons;
+const lessons = reactTrack.lessons;
 const lesson = id => lessons.find(l => l.id === id);
 
 const work = join(tmpdir(), 'stackmastery-react');
