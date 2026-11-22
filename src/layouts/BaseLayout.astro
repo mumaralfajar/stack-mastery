@@ -46,7 +46,7 @@ const registerSw = import.meta.env.PROD;
     </script>
     {legacyBridge && (
       <script is:inline>
-        if (/^#\/[^/]/.test(location.hash)) document.documentElement.setAttribute("data-legacy-redirect", "");
+        if (location.hash === "#/" || /^#\/[^/]/.test(location.hash)) document.documentElement.setAttribute("data-legacy-redirect", "");
       </script>
     )}
     <link rel="icon" type="image/svg+xml" href={`${BASE}/favicon.svg`} />

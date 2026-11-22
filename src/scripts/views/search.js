@@ -6,10 +6,20 @@ import { t as T } from '../../lib/i18n.ts';
 export function searchView(index) {
   const plain = (s) => s.replace(/[`*]/g, '');
   const markText = (str, terms) => {
-    const clean = esc(str);
-    if (!terms.length) return clean;
-    const pat = new RegExp('(' + terms.map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'gi');
-    return clean.replace(pat, '<mark>$1</mark>');
+    if (!terms.length) return esc(str);
+    const uniq = [...new Set(terms.filter(Boolean))].sort((a, b) => b.length - a.length);
+    if (!uniq.length) return esc(str);
+    const pat = new RegExp(uniq.map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'gi');
+    let out = '';
+    let last = 0;
+    for (const m of str.matchAll(pat)) {
+      const idx = m.index ?? 0;
+      if (idx > last) out += esc(str.slice(last, idx));
+      out += '<mark>' + esc(m[0]) + '</mark>';
+      last = idx + m[0].length;
+    }
+    if (last < str.length) out += esc(str.slice(last));
+    return out;
   };
   let cat = 'all';
   const results = h('div', { class: 'rows', 'aria-live': 'polite' });
