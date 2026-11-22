@@ -247,6 +247,7 @@ export function getInterview(lang: Lang = currentLang): InterviewData | null {
       return tr ? { ...b, ...tr } : b;
     }),
     design: {
+      ...enInterview.design,
       framework: iv.design?.framework ?? enInterview.design.framework,
       blocks: iv.design?.blocks ?? enInterview.design.blocks,
       cases: enInterview.design.cases.map((c) => {

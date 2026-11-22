@@ -56,7 +56,7 @@ addEventListener('keydown', (e) => {
   }
 });
 
-async function route() {
+async function route(opts = {}) {
   const seq = ++routeSeq;
   setMenu(false);
   const [a, b, c] = location.hash.replace(/^#\/?/, '').split('/');
@@ -109,9 +109,9 @@ async function route() {
     document.title = (h1 && a ? h1.textContent + ' — ' : '') + 'Stack Mastery';
     scrollTo(0, 0);
   };
-  if (!routed || !document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (!routed || opts.instant || !document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) {
     updateDOM();
-    if (routed && a !== 'search') view.focus({ preventScroll: true });
+    if (routed && !opts.instant && a !== 'search') view.focus({ preventScroll: true });
     routed = true;
     return;
   }
@@ -125,19 +125,28 @@ async function route() {
   }
 }
 
-addEventListener('hashchange', route);
+addEventListener('hashchange', () => route());
 // Progress changed in another tab or in-tab interview state updated: refresh the sidebar,
 // and redraw views that display summary progress when no editor or form is active.
 subscribeState((kind, external) => {
-  renderNav();
-  if (!external) return;
+  if (!external) {
+    renderNav();
+    return;
+  }
   const a = location.hash.replace(/^#\/?/, '').split('/')[0];
-  if (a === 'dashboard' || a === 'track') {
-    route();
-  } else if (a === 'interview' && (kind === 'interview' || kind === 'all')) {
-    if (!view || view.querySelector('.play, .mock-stage :is(textarea, select)')) return;
-    if (view.contains(document.activeElement) && document.activeElement.matches('input, textarea, select')) return;
-    route();
+  const shouldReroute =
+    a === 'dashboard' ||
+    a === 'track' ||
+    (a === 'interview' &&
+      (kind === 'interview' || kind === 'all') &&
+      view &&
+      !view.querySelector('.play, .mock-stage :is(textarea, select)') &&
+      !(view.contains(document.activeElement) && document.activeElement.matches('input, textarea, select')));
+  if (shouldReroute) {
+    // route({ instant: true }) skips background View Transitions so #view and #nav update together.
+    route({ instant: true });
+  } else {
+    renderNav();
   }
 });
 route();

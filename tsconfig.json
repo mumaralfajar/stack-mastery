@@ -8,6 +8,7 @@
     "dist"
   ],
   "compilerOptions": {
+    "erasableSyntaxOnly": true,
     "plugins": [
       {
         "name": "@astrojs/ts-plugin"

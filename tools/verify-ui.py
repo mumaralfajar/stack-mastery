@@ -427,6 +427,7 @@ def run_suite():
               localStorage.setItem('stackmastery.interview', JSON.stringify(d));
             }""")
             page.wait_for_function("(prev) => document.querySelector(\"#nav a.nav-link[href='#/interview'] small\")?.textContent !== prev", arg=iv_nav_before, timeout=5000)
+            page.wait_for_function("() => { const n = document.querySelector('#view .ring-n'); return n && n.textContent !== '0%'; }", timeout=5000)
             check(page.text_content("#view .ring-n") != "0%", "Cross-tab stackmastery.interview update must refresh Interview Hub readiness ring")
             other.evaluate("() => { localStorage.removeItem('stackmastery.interview'); }")
             page.wait_for_timeout(150)

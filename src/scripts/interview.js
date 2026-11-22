@@ -1,4 +1,5 @@
 // Interview preparation section: hub, coding arena with an in-browser judge, system design, behavioral, rapid-fire, mocks.
+import { INTERVIEW_TOTALS } from '../data/manifest.ts';
 import { codeBlock, confirmDialog, h, md, tableWrap } from '../lib/dom.ts';
 import { getInterview, t as T } from '../lib/i18n.ts';
 import { bar, ring, shuffle } from '../lib/icons.ts';
@@ -58,15 +59,8 @@ function parts(iv) {
     ['System design cases mastered', Object.values(D.design).filter(Boolean).length, iv.design.cases.length, '#/interview/design'],
     ['Behavioral themes with a story', covered(iv), iv.behavioral.length, '#/interview/behavioral'],
     ['Rapid-fire answers rated solid', Object.values(D.rapid).filter((v) => v === 2).length, getRapidTotal(iv), '#/interview/rapid'],
-    ['Mock interviews completed', Math.min(D.mocks.length, 8), 8, '#/interview/mock'],
+    ['Mock interviews completed', Math.min(D.mocks.length, INTERVIEW_TOTALS.maxMocks), INTERVIEW_TOTALS.maxMocks, '#/interview/mock'],
   ];
-}
-
-export function readiness() {
-  const iv = getInterview();
-  if (!iv) return 0;
-  const p = parts(iv);
-  return Math.round((p.reduce((a, [, n, total]) => a + n / total, 0) / p.length) * 100);
 }
 
 // ---------- timer ----------
