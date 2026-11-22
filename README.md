@@ -81,6 +81,7 @@ Every lesson follows three steps and counts as mastered only when all three are 
 | **Mock exam** | Ten random questions filtered by track and level. |
 | **Capstone projects** | Four full-stack projects, one per mastery level. |
 | **Search** | Press `/` anywhere to search lessons, problems, questions, and diagrams. |
+| **Break room** | A hand-drawn flower meadow at `#/break` for short rests between sessions. Plant blooms, cast spells, and toggle Zen Auto-Bloom. It is silent by default: music and sound effects play only after you turn them on. |
 
 ### Interview preparation
 
@@ -113,7 +114,7 @@ Sidebar percentages track your progress per stack, while the dashboard summarize
 
 ## Languages
 
-The interface, 119 lessons, quizzes, visualizations, playgrounds, capstones, and interview prep work in both English and Bahasa Indonesia.
+The interface, 135 lessons, quizzes, visualizations, playgrounds, capstones, and interview prep work in both English and Bahasa Indonesia.
 
 - Click the **ID / EN** toggle in the header bar anytime.
 - First-time visitors with an Indonesian browser locale start in Bahasa Indonesia, while other browsers start in English.
@@ -184,22 +185,25 @@ If offline or behind a blocked CDN, editors fall back to plain text areas.
 
 | Path | Contents |
 | --- | --- |
-| `astro.config.mjs`, `package.json` | Astro 7.4 configuration and npm/bun scripts |
+| `astro.config.mjs`, `package.json`, `bun.lock` | Astro 7.4 configuration, npm/bun scripts, and the locked dependency tree |
+| `biome.json` | Biome lint rules for `src/` and `tools/` (`bun run lint`) |
+| `.github/workflows/ci.yml` | Pull request quality gates: lint, type check, i18n, build, Playwright UI + axe-core, and Conventional Commits |
+| `.github/workflows/deploy.yml` | GitHub Pages deployment on every push to `main` |
 | `src/pages/index.astro` | Application entry route |
 | `src/layouts/Layout.astro`, `src/components/Sidebar.astro` | HTML shell, metadata, and sidebar container |
-| `src/styles/style.css` | Styling, light/dark themes, and print rules |
+| `src/styles/style.css`, `landing.css`, `break.css` | Styling, light/dark themes, print rules, landing reactor, and break room |
 | `src/scripts/main.js` | Hash router and lazy chunk loader |
 | `src/scripts/tracks-ui.js` | Lazy-loaded frontend and capstone track bundle |
 | `src/scripts/state.js`, `nav.js`, `icons.js`, `util.js` | State storage, drawer navigation, icons, and shared DOM/modal helpers |
-| `src/scripts/views/` | Route views (`dashboard.js`, `track.js`, `practice.js`, `teach.js`) |
+| `src/scripts/views/` | Route views (`landing.js` reactor at `#/`, `break.js` flower meadow at `#/break`, `dashboard.js`, `track.js`, `practice.js`, `teach.js`) |
 | `src/scripts/interview.js` | Interview hub, code judge, estimator, story bank, and mocks |
 | `src/scripts/playground.js` | SQL, TypeScript, CSS, and DartPad playgrounds |
-| `src/scripts/viz/` | Interactive labs (`viz.js`, `vizcss.js`, `vizmore.js`, `vizangular.js`, `vizflutter.js`, `vizplus.js`, `vizgo.js`) |
+| `src/scripts/viz/` | 40 interactive labs (`viz.js`, `vizcss.js`, `vizmore.js`, `vizangular.js`, `vizflutter.js`, `vizplus.js`, `vizgo.js`, `vizsys.js`) |
 | `src/scripts/i18n.js`, `load-id.js`, `load-id-web.js` | Lazy-loads and overlays Bahasa Indonesia translations |
-| `data/*.js` | English curriculum tracks (`csharp`, `aspnet`, `go`, `sql`, `css`, `react`, `angular`, `flutter`, `fundamentals`), `projects.js`, `interview.js`, `interview-cs.js` |
-| `data/id/*.js` | Bahasa Indonesia tracks, UI dictionaries (`ui-*.js`), `projects.js`, and `interview.js` |
-| `tools/check-i18n.mjs`, `extract-text.mjs` | Translation parity check and text extractor |
-| `tools/verify*.mjs`, `tools/verify-ui.py` | Language sample compilers/runners and Playwright UI + WCAG suite |
+| `data/*.js` | English curriculum tracks (`csharp`, `aspnet`, `go`, `sql`, `css`, `react`, `angular`, `flutter`, `sysdesign`, `fundamentals`), `projects.js`, `interview.js`, `interview-cs.js` |
+| `data/id/*.js` | Bahasa Indonesia tracks, UI dictionaries (`ui-*.js`, including `ui-landing.js` for the landing page and break room and `ui-vizsys.js` for the System Design labs), `projects.js`, and `interview.js` |
+| `tools/check-i18n.mjs`, `extract-text.mjs` | Translation parity check (lessons, UI strings, `h()` labels, table headers, playground chips) and text extractor |
+| `tools/verify*.mjs`, `tools/verify-ui.py` | Language sample compilers/runners and the Playwright UI + axe-core WCAG 2.2 AA suite |
 
 ## Adding or editing content
 
@@ -242,8 +246,10 @@ Every stack track includes real compiler and runtime verification scripts inside
 
 | Script | Command | What it checks |
 | --- | --- | --- |
-| **i18n parity** | `bun run check:i18n` | Structural, key, and code-span parity across EN and ID |
-| **UI & WCAG** | `bun run verify:ui` | Playwright EN/ID desktop/mobile layout, dialogs, viz, playground, and WCAG checks on `dist/` |
+| **Lint** | `bun run lint` | Biome correctness and suspicious-code rules across `src/` and `tools/` |
+| **Type check** | `bun run typecheck` | `astro check` diagnostics for Astro components and scripts |
+| **i18n parity** | `bun run check:i18n` | Structural, key, and code-span parity across EN and ID, plus untranslated `h()` labels, table headers, and playground chips |
+| **UI & WCAG** | `bun run verify:ui` | Playwright EN/ID desktop/mobile layout, dialogs, all 40 labs, SQL/TS playgrounds, and axe-core WCAG 2.2 AA (0 critical or serious) on `dist/` |
 | **C# & CS** | `bun run verify:cs` | Runs all 96 C# problem tests, 12 pattern templates, and lesson samples (.NET 10) |
 | **ASP.NET Core** | `bun run verify:aspnet` | Builds, boots, and tests all ASP.NET Core 10 samples + xUnit suite |
 | **Go** | `bun run verify:go` | Runs `go vet`, `go build`, execution checks, and `go test -bench` on Go 1.27+ |
@@ -255,6 +261,16 @@ Every stack track includes real compiler and runtime verification scripts inside
 | **Dart + Flutter** | `bun run verify:dart` | Runs `flutter analyze`, `flutter test`, Dart scripts, and Cubit/router behavior checks |
 
 When upgrading Tailwind in the playground, keep the pinned version matching across `tools/verify-css.mjs` and `src/scripts/playground.js`.
+
+`bun run verify:ui` needs `bun run build` first, Python 3.12+ with `pip install playwright`, and `playwright install chromium` (it falls back to an installed Chrome).
+
+Every pull request to `main` runs `.github/workflows/ci.yml`. These three checks must pass before merging:
+
+| Check | What it runs |
+| --- | --- |
+| **Quality & Build** | `bun install --frozen-lockfile`, `bun run lint`, `bun run typecheck`, `bun run check:i18n`, `bun run build:timings` |
+| **Playwright UI & a11y** | `bun run build`, then `python -u tools/verify-ui.py` on bundled Chromium |
+| **Conventional PR** | The PR title and every commit message follow Conventional Commits v1.0.0 |
 
 ## Troubleshooting
 
@@ -271,9 +287,10 @@ When upgrading Tailwind in the playground, keep the pinned version matching acro
 
 Corrections and updates are welcome when frameworks or APIs evolve:
 
-1. Fork the repo and create a topic branch.
-2. Update content and Indonesian translations, then verify affected stack scripts plus `bun run check:i18n`, `bun run build`, and `bun run verify:ui`.
-3. Open a pull request explaining what changed and what you verified.
+1. Fork the repo and create a topic branch. Never commit directly to `main`.
+2. Update content and Indonesian translations, then verify affected stack scripts plus `bun run lint`, `bun run typecheck`, `bun run check:i18n`, `bun run build`, and `bun run verify:ui`.
+3. Write the pull request title and every commit message in [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) form: `type(optional-scope): description`, where `type` is one of `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, or `revert`, and `!` marks a breaking change (for example `fix(sql): grade challenges on a clean snapshot`).
+4. Open a pull request explaining what changed and what you verified. CI must be green before it can merge.
 
 ## Licence
 
