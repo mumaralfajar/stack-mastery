@@ -11,7 +11,8 @@ export const ICONS = {
   go: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 9h3.2M1.5 12h4.2M2.5 15h3.2"/><path d="M13.1 9.5a3.5 3.5 0 1 0 0 5V12h-2.4"/><circle cx="18.5" cy="12" r="3.5"/></svg>',
   cs: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.5" r="2.5"/><circle cx="6" cy="13" r="2.5"/><circle cx="18" cy="13" r="2.5"/><circle cx="3.5" cy="20" r="2"/><circle cx="9.5" cy="20" r="2"/><path d="M10.3 6.4 7.5 11M13.7 6.4 16.5 11M5 15.2 4 18M7.2 15.2 8.8 18"/></svg>',
   sysdesign: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2.5" width="6" height="4" rx="1"/><rect x="2.5" y="10" width="6" height="4" rx="1"/><rect x="15.5" y="10" width="6" height="4" rx="1"/><ellipse cx="12" cy="19.5" rx="6.5" ry="2.2"/><path d="M12 6.5v1.8M12 8.3H5.5V10M12 8.3h6.5V10M5.5 14v3.5L9 18.2M18.5 14v3.5L15 18.2"/></svg>',
-  interview: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></svg>'
+  interview: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></svg>',
+  break: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.4"/><path d="M12 3a3 3 0 0 1 2.6 4.5 3 3 0 0 1 4.4 2.6 3 3 0 0 1-2.6 4.4 3 3 0 0 1-1.8 4.2 3 3 0 0 1-5.2 0 3 3 0 0 1-1.8-4.2 3 3 0 0 1-2.6-4.4 3 3 0 0 1 4.4-2.6A3 3 0 0 1 12 3Z"/></svg>'
 };
 
 export const ico = (id, cls = 'nav-ico') => ICONS[id] ? window.h('span', { class: cls, html: ICONS[id] }) : null;
@@ -50,4 +51,41 @@ export function quizItem(q, { once, solved, onResult, onMiss }) {
   } }));
   if (solved) { fb.className = 'fb good'; fb.innerHTML = '<strong>' + T('Correct.') + '</strong> ' + md(q.why); }
   return h('div', { class: 'q' }, h('p', { class: 'q-text', html: md(q.q) }), h('div', { class: 'opts' }, btns), fb);
+}
+
+const DOCK_ICON_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M2 14h4M10 8h4M18 16h4"/></svg>';
+const DOCK_CHEV_SVG = '<svg class="lp-dock-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+
+// Shared collapsible floating control dock used by the Landing reactor and Break Room meadow.
+export function dockControlBar(ariaLabel, extraClass, ...items) {
+  const { h, t: T } = window;
+  let collapsed = true;
+  const dockItems = h('div', { class: 'lp-dock-items' }, ...items);
+  dockItems.inert = true;
+  const toggleLabel = h('span', {}, T('Show'));
+  const toggleBtn = h('button', {
+    type: 'button',
+    class: 'lp-dock-toggle',
+    'aria-expanded': 'false',
+    'aria-label': T('Show controls'),
+    title: T('Show controls'),
+    onclick: () => {
+      collapsed = !collapsed;
+      dock.setAttribute('data-collapsed', String(collapsed));
+      dockItems.inert = collapsed;
+      toggleBtn.setAttribute('aria-expanded', String(!collapsed));
+      const lbl = collapsed ? T('Show controls') : T('Hide controls');
+      toggleBtn.setAttribute('aria-label', lbl);
+      toggleBtn.setAttribute('title', lbl);
+      toggleLabel.textContent = collapsed ? T('Show') : T('Hide');
+    }
+  }, h('span', { html: DOCK_ICON_SVG }), toggleLabel, h('span', { html: DOCK_CHEV_SVG }));
+
+  const dock = h('div', {
+    class: 'lp-dock' + (extraClass ? ' ' + extraClass : ''),
+    'data-collapsed': 'true',
+    role: 'group',
+    'aria-label': ariaLabel
+  }, dockItems, toggleBtn);
+  return dock;
 }

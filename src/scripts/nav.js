@@ -77,6 +77,7 @@ export function renderNav() {
         link('#/dashboard', 'Dashboard', a === 'dashboard'),
         link('#/start', 'Start here: setup', a === 'start'),
         link('#/search', 'Search', a === 'search', h('small', { class: 'kbd' }, '/')),
+        link('#/break', h('span', { class: 'nav-track', style: { '--tc': 'var(--csharp)' } }, ico('break', 'nav-ico'), T('Break room: Flower meadow')), a === 'break' || a === 'meadow'),
         h('p', { class: 'nav-h' }, 'Tracks'),
         TRACKS.map(t => link(`#/track/${t.id}`, h('span', { class: 'nav-track', style: { '--tc': `var(--${t.id})` } }, ico(t.id, 'nav-ico'), t.name),
           (a === 'track' || a === 'lesson' || a === 'plan') && b === t.id, h('small', {}, pct(t) + '%'))),

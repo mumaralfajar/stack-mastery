@@ -1,0 +1,454 @@
+/* Frieren Flower Magic Break Room (#/break) — Full-Bleed Sanctuary & Grimoire */
+
+.br-root {
+  --br-glass: color-mix(in srgb, var(--surface) 88%, transparent);
+  --br-glass-strong: color-mix(in srgb, var(--surface) 94%, transparent);
+  --br-petal-glow: color-mix(in srgb, var(--csharp) 24%, transparent);
+  position: relative;
+  min-height: 100svh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Top bar */
+.br-bar {
+  gap: .75rem;
+}
+
+.br-realms {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .3rem;
+}
+
+.br-realm-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 99px;
+  padding: .34rem .74rem;
+  color: var(--muted);
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color .15s, background-color .15s, border-color .15s;
+}
+
+.br-realm-btn:hover {
+  color: var(--text);
+  background: var(--sunken);
+}
+
+.br-realm-btn[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  color: var(--text);
+}
+
+/* Full-bleed meadow canvas stage */
+.br-stage {
+  position: relative;
+  min-height: calc(100svh - 3.6rem);
+  display: grid;
+  grid-template-rows: 1fr auto;
+  grid-template-columns: minmax(0, 1fr);
+  padding: clamp(1rem, 2.8vw, 2.2rem) clamp(1rem, 3vw, 2.4rem) clamp(.9rem, 2vw, 1.4rem);
+  background: var(--lp-void, var(--bg));
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.br-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: crosshair;
+  z-index: 1;
+}
+
+.br-stage[data-casting="true"] .br-canvas {
+  cursor: cell;
+}
+
+/* Translucent HUD grid over canvas */
+.br-stage-grid {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.25rem;
+  pointer-events: none;
+}
+
+.br-hud {
+  pointer-events: auto;
+  max-width: 28rem;
+  padding: clamp(1rem, 2vw, 1.35rem);
+  border-radius: 14px;
+  background: var(--br-glass);
+  border: 1px solid color-mix(in srgb, var(--border) 82%, var(--accent) 18%);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 14px 36px rgba(6, 10, 22, 0.16);
+  transition: opacity .28s cubic-bezier(0.22, 1, 0.36, 1), transform .28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.br-hud-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .75rem;
+}
+
+.br-hud-hide {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  background: var(--sunken);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color .15s, border-color .15s, background-color .15s;
+}
+
+.br-hud-hide:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.br-hud-hide svg {
+  width: .95rem;
+  height: .95rem;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.br-stage[data-hud-hidden="true"] .br-hud,
+.br-stage[data-hud-hidden="true"] .br-hint-pill {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.98);
+  pointer-events: none;
+}
+
+.br-hud h1 {
+  font-family: var(--lp-display);
+  font-weight: 800;
+  font-size: clamp(1.7rem, 1.15rem + 1.9vw, 2.5rem);
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  margin: 0 0 .55rem;
+}
+
+.br-lede {
+  color: var(--muted);
+  font-size: .92rem;
+  line-height: 1.5;
+  margin: 0 0 .9rem;
+  max-width: 44ch;
+}
+
+.br-species-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  margin-bottom: .9rem;
+}
+
+.br-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  background: var(--sunken);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: .28rem .66rem;
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .15s, background-color .15s, color .15s, transform .15s;
+}
+
+.br-pill:hover {
+  border-color: var(--tc, var(--accent));
+  transform: translateY(-1px);
+}
+
+.br-pill[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--tc, var(--accent)) 16%, var(--surface));
+  border-color: var(--tc, var(--accent));
+  color: var(--text);
+}
+
+.br-swatch {
+  width: .52rem;
+  height: .52rem;
+  border-radius: 50%;
+  background: var(--tc, var(--accent));
+  flex: none;
+}
+
+.br-telemetry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .45rem 1rem;
+  padding-top: .75rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: .76rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.br-telemetry b {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.br-hint-pill {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .42rem .82rem;
+  border-radius: 10px;
+  background: var(--br-glass);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  font-size: .78rem;
+  color: var(--text);
+  font-family: var(--mono);
+  max-width: 24rem;
+  transition: opacity .28s cubic-bezier(0.22, 1, 0.36, 1), transform .28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.br-hint-dot {
+  width: .55rem;
+  height: .55rem;
+  border-radius: 50%;
+  background: var(--go);
+  flex: none;
+}
+
+/* Bottom spell console dock */
+.br-dock {
+  background: var(--br-glass-strong);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 12px 32px rgba(6, 10, 22, 0.18);
+  gap: .35rem;
+}
+
+.br-dock .lp-dock-items {
+  gap: .35rem;
+}
+
+.br-dock .lp-toy {
+  padding: .34rem .6rem;
+  font-size: .8rem;
+}
+
+/* Below-the-fold Grimoire Compendium & Alchemist */
+.br-grimoire-band {
+  background: var(--bg);
+}
+
+.br-spells-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(290px, 100%), 1fr));
+  gap: .95rem;
+}
+
+.br-spell-card {
+  display: flex;
+  flex-direction: column;
+  gap: .55rem;
+  padding: 1.15rem 1.2rem;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--tc, var(--accent)) 28%, var(--border));
+  transition: border-color .16s, transform .16s;
+}
+
+.br-spell-card:hover {
+  border-color: var(--tc, var(--accent));
+  transform: translateY(-2px);
+}
+
+.br-spell-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .6rem;
+}
+
+.br-spell-head h3 {
+  font-family: var(--lp-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.br-spell-tag {
+  font-family: var(--mono);
+  font-size: .78rem;
+  color: var(--tc, var(--accent));
+  white-space: nowrap;
+}
+
+.br-spell-card p {
+  margin: 0;
+  font-size: .9rem;
+  color: var(--muted);
+  max-width: 58ch;
+}
+
+.br-spell-foot {
+  margin-top: auto;
+  padding-top: .35rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+}
+
+/* Alchemical Tuning & Track Resonance Strip */
+.br-alchemy-band {
+  background: var(--sunken);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.br-alchemy-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 1.25rem;
+}
+
+.br-tune-list {
+  display: grid;
+  gap: .85rem;
+}
+
+.br-tune-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.br-tune-label {
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.br-tune-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+}
+
+.br-track-garden {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+}
+
+.br-track-seed {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .42rem .75rem;
+  border-radius: 8px;
+  background: var(--sunken);
+  border: 1px solid color-mix(in srgb, var(--tc, var(--accent)) 32%, var(--border));
+  color: var(--text);
+  font-size: .84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .15s, transform .15s, background-color .15s;
+}
+
+.br-track-seed:hover {
+  border-color: var(--tc, var(--accent));
+  background: color-mix(in srgb, var(--tc, var(--accent)) 12%, var(--surface));
+  transform: translateY(-1px);
+}
+
+.br-track-seed .nav-ico {
+  width: .95rem;
+  height: .95rem;
+}
+
+/* Mobile & Tablet responsiveness */
+@media (max-width: 960px) {
+  .br-stage-grid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .br-hint-pill {
+    align-self: flex-start;
+  }
+  .br-alchemy-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .br-realms {
+    display: none;
+  }
+  .br-hud {
+    max-width: 100%;
+    padding: .75rem .85rem;
+  }
+  .br-hud h1 {
+    font-size: clamp(1.5rem, 6.2vw, 2rem);
+    margin-bottom: .35rem;
+  }
+  .br-lede {
+    font-size: .85rem;
+    margin-bottom: .6rem;
+  }
+  .br-species-row {
+    gap: .28rem;
+    margin-bottom: .6rem;
+  }
+  .br-pill {
+    padding: .2rem .52rem;
+    font-size: .74rem;
+  }
+  .br-telemetry {
+    padding-top: .55rem;
+    gap: .35rem .75rem;
+  }
+  .br-hint-pill {
+    display: none;
+  }
+  .br-mobile-realms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .28rem;
+    margin-bottom: .5rem;
+  }
+}
+
+@media (min-width: 861px) {
+  .br-mobile-realms {
+    display: none;
+  }
+}

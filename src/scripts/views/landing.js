@@ -1,5 +1,5 @@
 // Live Distributed Packet Reactor landing view (#/).
-import { ico } from '../icons.js';
+import { ico, dockControlBar } from '../icons.js';
 import { toggleTheme } from '../state.js';
 
 const LOGO_SVG = `<svg viewBox="0 0 128 128" fill="none" aria-hidden="true"><rect width="128" height="128" rx="14" fill="#06090f"/><rect x="6" y="6" width="116" height="116" rx="10" stroke="#1e293b" stroke-width="3" fill="#090d16"/><path d="M6 18 H20 M18 6 V20 M122 18 H108 M110 6 V20 M6 110 H20 M18 122 V108 M122 110 H108 M110 122 V108" stroke="#38bdf8" stroke-width="3"/><path d="M26 44 L44 64 L26 84" stroke="#38bdf8" stroke-width="8" stroke-linecap="square" stroke-linejoin="miter"/><path d="M54 84 V44 L75 67 L96 44 V84" stroke="#f8fafc" stroke-width="8" stroke-linecap="square" stroke-linejoin="miter"/><circle cx="106" cy="84" r="4.5" fill="#38bdf8"/></svg>`;
@@ -105,7 +105,8 @@ export function landingView(onCleanup) {
     h('nav', { class: 'lp-nav', 'aria-label': T('Landing navigation') },
       h('button', { type: 'button', class: 'lp-nav-link', onclick: () => scrollToEl('lp-arch') }, T('Tracks')),
       h('button', { type: 'button', class: 'lp-nav-link', onclick: () => scrollToEl('lp-proof') }, T('Live Labs')),
-      h('a', { class: 'lp-nav-link', href: '#/interview' }, T('Interview preparation'))),
+      h('a', { class: 'lp-nav-link', href: '#/interview' }, T('Interview preparation')),
+      h('a', { class: 'lp-nav-link', href: '#/break' }, T('Flower Meadow'))),
     h('div', { class: 'lp-controls' },
       h('a', { href: '#/search', class: 'icon-btn lp-search-opt', 'aria-label': T('Search'), title: T('Search'), html: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' }),
       h('button', { type: 'button', class: 'icon-btn', lang: nextLang, 'aria-label': nextLangName, title: nextLangName, onclick: () => setLang(nextLang) }, nextLang.toUpperCase()),
@@ -190,7 +191,7 @@ export function landingView(onCleanup) {
 
   let releaseGravity = () => { };
 
-  const dock = h('div', { class: 'lp-dock', role: 'group', 'aria-label': T('Reactor interactive controls') },
+  const dock = dockControlBar(T('Reactor interactive controls'), '',
     spikeBtn, cacheBtn, gravBtn, slowBtn, h('span', { class: 'lp-dock-sep', 'aria-hidden': 'true' }), soundBtn, pauseBtn);
 
   const reactorSpace = h('div', { class: 'lp-reactor-space' }, inspector);
