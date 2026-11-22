@@ -782,6 +782,7 @@ mark { background: color-mix(in srgb, var(--tc) 24%, transparent); color: var(--
   display: grid;
   gap: .55rem;
 }
+.pomo-toast[hidden] { display: none; }
 .pomo-toast-copy strong { display: block; font-size: .92rem; color: var(--good); }
 .pomo-toast-copy p { margin: .15rem 0 0; font-size: .84rem; color: var(--muted); }
 .pomo-toast-actions { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }

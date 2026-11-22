@@ -67,6 +67,7 @@ const VIEWS = {
 };
 
 let activeCleanup = null;
+let lastRender = null;
 const runCleanup = () => {
   if (!activeCleanup) return;
   const fn = activeCleanup;
@@ -78,6 +79,12 @@ const registerCleanup = (fn) => {
 };
 
 addEventListener('pagehide', runCleanup);
+addEventListener('pageshow', (e) => {
+  if (e.persisted && lastRender && root) {
+    runCleanup();
+    root.replaceChildren(lastRender(registerCleanup));
+  }
+});
 
 async function mount() {
   if (!root) return;
@@ -86,6 +93,7 @@ async function mount() {
   const load = VIEWS[view];
   if (!load) return;
   const render = await load(args);
+  lastRender = render;
   runCleanup();
   root.replaceChildren(render(registerCleanup));
   root.removeAttribute('aria-busy');

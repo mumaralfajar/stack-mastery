@@ -6,7 +6,7 @@ import { h } from '../dom.ts';
 import { getLang, setLang, t as T } from '../i18n.ts';
 import { LOGO_SVG, dockControlBar, ico } from '../icons.ts';
 import { indexKey } from '../progress.ts';
-import { langFromPath, routePath } from '../routes.ts';
+import { routePath } from '../routes.ts';
 import { score, subscribeState, toggleTheme } from '../state.ts';
 import type { LastLessonRef, PomodoroPreset, PomodoroState } from '../types.ts';
 import { createBreakAudio } from './audio.ts';
@@ -51,8 +51,9 @@ function computeMilestones(study: PomodoroState): MeadowMilestoneInput {
 
 function resumeHref(lastLesson: LastLessonRef | null, lang: 'en' | 'id'): string {
   if (!lastLesson) return routePath(lang, '/dashboard/');
-  if (langFromPath(lastLesson.url) === lang) return lastLesson.url;
-  return routePath(lang, `/lesson/${lastLesson.trackId}/${lastLesson.lessonId}/`);
+  const entry = LESSON_INDEX.find((e) => e.trackId === lastLesson.trackId && e.id === lastLesson.lessonId);
+  if (!entry) return routePath(lang, '/dashboard/');
+  return routePath(lang, `/lesson/${entry.trackId}/${entry.id}/`);
 }
 
 export function breakView(onCleanup?: (fn: () => void) => void): HTMLElement {
@@ -198,11 +199,13 @@ export function breakView(onCleanup?: (fn: () => void) => void): HTMLElement {
   );
 
   // Break Room Pomodoro Timer Panel (visible by default over the sanctuary canvas)
+  const initialStudy = readPomodoroState();
+  const initialClock = formatClock(initialStudy.breakMin * 60);
   const RING_R = 46;
   const RING_C = 2 * Math.PI * RING_R;
   const ringWrap = h('div', {
     class: 'br-ring-wrap',
-    html: `<svg class="br-ring-svg" viewBox="0 0 112 112" role="img" aria-label="${T('Study timer')} 05:00"><circle cx="56" cy="56" r="${RING_R}" class="br-ring-bg"/><circle cx="56" cy="56" r="${RING_R}" class="br-ring-fg" stroke-dasharray="${RING_C.toFixed(2)}" stroke-dashoffset="0" transform="rotate(-90 56 56)"/><text x="56" y="54" text-anchor="middle" class="br-ring-time">05:00</text><text x="56" y="72" text-anchor="middle" class="br-ring-phase">${T('Ready')}</text></svg>`,
+    html: `<svg class="br-ring-svg" viewBox="0 0 112 112" role="img" aria-label="${T('Study timer')} ${initialClock}"><circle cx="56" cy="56" r="${RING_R}" class="br-ring-bg"/><circle cx="56" cy="56" r="${RING_R}" class="br-ring-fg" stroke-dasharray="${RING_C.toFixed(2)}" stroke-dashoffset="0" transform="rotate(-90 56 56)"/><text x="56" y="54" text-anchor="middle" class="br-ring-time">${initialClock}</text><text x="56" y="72" text-anchor="middle" class="br-ring-phase">${T('Ready')}</text></svg>`,
   });
   const ringSvg = ringWrap.querySelector('svg');
   const ringFg = ringWrap.querySelector<SVGCircleElement>('.br-ring-fg');

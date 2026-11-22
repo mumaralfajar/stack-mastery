@@ -469,6 +469,16 @@ def run_suite():
             check("1 cycles today" in page.inner_text("#view [data-break-cycles]"), "Break room must sync daily focus cycles from stackmastery.study")
             check("1 focus cycles today" in page.inner_text("#view [data-break-milestones]"), "Break room milestone summary must reflect completed focus cycles")
             check(page.locator("#view [data-break-resume]").get_attribute("href") == BASE_PATH + "dashboard/", "Before visiting a lesson, Break room Resume CTA must fall back to /dashboard/")
+            # Security regression: crafted javascript: URL in stackmastery.study lastLesson must be rejected.
+            page.evaluate("""() => {
+              const s = JSON.parse(localStorage.getItem('stackmastery.study') || '{}');
+              s.lastLesson = { trackId: 'go', lessonId: 'types', title: 'XSS', url: 'javascript:alert(1)' };
+              localStorage.setItem('stackmastery.study', JSON.stringify(s));
+            }""")
+            page.reload(wait_until="domcontentloaded")
+            page.wait_for_function(PAGE_READY, timeout=10000)
+            bad_href = page.locator("#view [data-break-resume]").get_attribute("href")
+            check(bad_href == BASE_PATH + "dashboard/" and not (bad_href or "").startswith("javascript:"), f"Break room Resume CTA must reject unsafe lastLesson URL, got {bad_href!r}")
             page.locator("#view [data-break-toggle]").click()
             check(page.inner_text("#view [data-break-toggle]") == "Pause", "Break room Start break must start break countdown")
             page.locator("#view [data-break-skip]").click()

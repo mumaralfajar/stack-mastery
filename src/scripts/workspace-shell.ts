@@ -2,6 +2,7 @@
 // focus-complete toast, mobile drawer, language/theme toggles, keyboard shortcuts, backup controls and cross-tab refresh.
 // Imports only the manifest-backed lib/* modules — never the curriculum data or canvas engines.
 import {
+  type PomodoroController,
   createPomodoroController,
   formatClock,
   resetPomodoro,
@@ -151,18 +152,24 @@ if (pomoRoot) {
   const focusInput = pomoRoot.querySelector<HTMLInputElement>('[data-pomo-focus-min]');
   const breakInput = pomoRoot.querySelector<HTMLInputElement>('[data-pomo-break-min]');
 
-  let toastEl: HTMLElement | null = null;
+  // Persistent live region so screen readers announce dynamic focus-complete toasts reliably.
+  const toastEl = h('div', {
+    class: 'pomo-toast',
+    role: 'status',
+    'aria-live': 'polite',
+    'aria-atomic': 'true',
+    'data-pomo-toast': '',
+    hidden: true,
+  });
+  document.body.append(toastEl);
+
   const dismissToast = (): void => {
-    if (!toastEl) return;
-    toastEl.remove();
-    toastEl = null;
+    toastEl.hidden = true;
+    toastEl.replaceChildren();
   };
 
   const showFocusCompleteToast = (state: PomodoroState): void => {
-    dismissToast();
-    toastEl = h(
-      'div',
-      { class: 'pomo-toast', role: 'status', 'aria-live': 'polite', 'data-pomo-toast': '' },
+    toastEl.replaceChildren(
       h(
         'div',
         { class: 'pomo-toast-copy' },
@@ -176,7 +183,7 @@ if (pomoRoot) {
         h('button', { type: 'button', class: 'btn sm ghost', onclick: dismissToast }, t('Dismiss')),
       ),
     );
-    document.body.append(toastEl);
+    toastEl.hidden = false;
   };
 
   const renderPomo = (state: PomodoroState, remainingSec: number): void => {
@@ -221,14 +228,27 @@ if (pomoRoot) {
   focusInput?.addEventListener('change', applyCustom);
   breakInput?.addEventListener('change', applyCustom);
 
-  const pomoCtrl = createPomodoroController({
-    onUpdate: (state, remainingSec) => renderPomo(state, remainingSec),
-    onComplete: (ev) => {
-      if (ev.completedPhase === 'focus') {
-        showFocusCompleteToast(ev.state);
-      }
-    },
-  });
+  const makePomoCtrl = () =>
+    createPomodoroController({
+      onUpdate: (state, remainingSec) => renderPomo(state, remainingSec),
+      onComplete: (ev) => {
+        if (ev.completedPhase === 'focus') {
+          showFocusCompleteToast(ev.state);
+        }
+      },
+    });
 
-  addEventListener('pagehide', () => pomoCtrl.destroy(), { once: true });
+  let pomoCtrl: PomodoroController | null = makePomoCtrl();
+
+  addEventListener('pagehide', () => {
+    pomoCtrl?.destroy();
+    pomoCtrl = null;
+  });
+  addEventListener('pageshow', (e) => {
+    if (e.persisted) {
+      refreshShell();
+      if (!pomoCtrl) pomoCtrl = makePomoCtrl();
+      else pomoCtrl.refresh();
+    }
+  });
 }

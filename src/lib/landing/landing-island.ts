@@ -141,11 +141,8 @@ export function hydrateLanding(root: HTMLElement): () => void {
   }
 
   let mountRaf = 0;
-  let tornDown = false;
 
-  const teardown = (): void => {
-    if (tornDown) return;
-    tornDown = true;
+  const stopEngine = (): void => {
     if (mountRaf) {
       cancelAnimationFrame(mountRaf);
       mountRaf = 0;
@@ -155,29 +152,45 @@ export function hydrateLanding(root: HTMLElement): () => void {
     audio.destroy();
   };
 
-  mountRaf = requestAnimationFrame(() => {
-    mountRaf = 0;
-    if (tornDown) return;
-    engine = createReactorEngine({
-      stage,
-      canvas,
-      reactorSpace,
-      inspDot,
-      inspText,
-      pulseDot,
-      rpsValue,
-      statusTag,
-      colorProbe,
-      tracks,
-      lang,
-      translate: T,
-      audio,
-      reducedMotion,
+  const startEngine = (): void => {
+    if (mountRaf || engine) return;
+    mountRaf = requestAnimationFrame(() => {
+      mountRaf = 0;
+      if (engine) return;
+      engine = createReactorEngine({
+        stage,
+        canvas,
+        reactorSpace,
+        inspDot,
+        inspText,
+        pulseDot,
+        rpsValue,
+        statusTag,
+        colorProbe,
+        tracks,
+        lang,
+        translate: T,
+        audio,
+        reducedMotion,
+      });
+      engine.setPaused(paused);
     });
-  });
+  };
 
-  addEventListener('pagehide', () => teardown(), { once: true });
-  return teardown;
+  const onPageHide = (): void => stopEngine();
+  const onPageShow = (e: PageTransitionEvent): void => {
+    if (e.persisted) startEngine();
+  };
+
+  startEngine();
+  addEventListener('pagehide', onPageHide);
+  addEventListener('pageshow', onPageShow);
+
+  return () => {
+    removeEventListener('pagehide', onPageHide);
+    removeEventListener('pageshow', onPageShow);
+    stopEngine();
+  };
 }
 
 const landingRoot = document.querySelector<HTMLElement>('.lp-root');

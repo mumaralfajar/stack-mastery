@@ -1,6 +1,7 @@
 // Pure Pomodoro study-timer state, wall-clock persistence (stackmastery.study), and cross-tab sync.
 // Dependency-free beyond keys/storage/types so the workspace sidebar stays strictly manifest-only.
 import { STUDY_KEY } from '../keys.ts';
+import { langFromPath, routePath } from '../routes.ts';
 import { getRaw, onStorageSync, writeJson } from '../storage.ts';
 import type { LastLessonRef, PomodoroPhase, PomodoroPreset, PomodoroState } from '../types.ts';
 
@@ -47,20 +48,30 @@ export function defaultPomodoroState(): PomodoroState {
   };
 }
 
+const SAFE_ID_RX = /^[\w-]+$/;
+const SAFE_LESSON_PATH_RX = /^\/stack-mastery(?:\/id)?\/lesson\/[\w-]+\/[\w-]+\/?$/;
+
 function sanitizeLastLesson(raw: unknown): LastLessonRef | null {
   if (!raw || typeof raw !== 'object') return null;
   const r = raw as Record<string, unknown>;
   if (
     typeof r.trackId === 'string' &&
-    r.trackId &&
+    SAFE_ID_RX.test(r.trackId) &&
     typeof r.lessonId === 'string' &&
-    r.lessonId &&
+    SAFE_ID_RX.test(r.lessonId) &&
     typeof r.title === 'string' &&
     r.title &&
     typeof r.url === 'string' &&
-    r.url
+    SAFE_LESSON_PATH_RX.test(r.url) &&
+    !r.url.startsWith('//')
   ) {
-    return { trackId: r.trackId, lessonId: r.lessonId, title: r.title, url: r.url };
+    const lessonLang = langFromPath(r.url);
+    return {
+      trackId: r.trackId,
+      lessonId: r.lessonId,
+      title: r.title,
+      url: routePath(lessonLang, `/lesson/${r.trackId}/${r.lessonId}/`),
+    };
   }
   return null;
 }
@@ -268,14 +279,10 @@ export interface CompletionEvent {
   state: PomodoroState;
 }
 
-// Checks whether a running timer reached 00:00 and commits the transition atomically.
-// Re-reads localStorage immediately before committing so multiple open tabs do not double-count cycles.
+// Checks whether a running timer reached 00:00 and commits the transition.
 export function checkPomodoroCompletion(now = Date.now()): CompletionEvent | null {
-  const cur = readPomodoroState();
-  if (!cur.running || cur.endsAtMs === null || now < cur.endsAtMs) return null;
-  const expectedEndsAt = cur.endsAtMs;
   const fresh = readPomodoroState();
-  if (!fresh.running || fresh.endsAtMs !== expectedEndsAt || now < fresh.endsAtMs) return null;
+  if (!fresh.running || fresh.endsAtMs === null || now < fresh.endsAtMs) return null;
 
   const today = todayIsoDate();
   if (fresh.phase === 'focus') {
