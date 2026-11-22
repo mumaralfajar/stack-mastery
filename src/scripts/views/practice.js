@@ -52,6 +52,8 @@ export function exam() {
   const stage = h('div', {});
   const start = () => {
     const pool = shuffle(allCards().filter(c => (!ts.value || c.t.id === ts.value) && (ls.value === '' || c.l.level === +ls.value))).slice(0, 10);
+    if (!pool.length) return stage.replaceChildren(h('div', { class: 'empty', role: 'status' }, h('strong', {}, 'No questions match these filters.'),
+      h('p', {}, 'Pick another track or level, or choose All levels.')));
     let answered = 0, right = 0; const missed = new Map();
     const result = h('div', { class: 'empty', hidden: true });
     stage.replaceChildren(...pool.map((c, i) => h('div', { class: 'exam-q', style: { '--tc': `var(--${c.t.id})` } },

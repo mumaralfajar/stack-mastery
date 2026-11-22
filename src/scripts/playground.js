@@ -218,8 +218,17 @@ PRAGMA foreign_keys = ON;`;
     ta.oninput = () => { prevInput && prevInput(); updateDialectTip(); };
     const checkAns = () => {
       if (cur < 0) return out.replaceChildren(h('p', { class: 'muted' }, 'Pick a challenge first.'));
-      const mine = run(); if (!mine) return;
-      const c = CHALLENGES[cur], good = norm(mine, c.ordered) === norm(db.exec(c.sol), c.ordered);
+      // Show the user's run in the live database, but grade both queries against a fresh copy of the seed,
+      // so an earlier DELETE or UPDATE in free play cannot change the expected rows.
+      if (!run()) return;
+      const c = CHALLENGES[cur];
+      let good = false;
+      const snap = new SQL.Database();
+      try {
+        snap.run(SEED);
+        const expected = norm(snap.exec(c.sol), c.ordered);
+        good = norm(snap.exec(ta.value), c.ordered) === expected;
+      } catch { good = false; } finally { snap.close(); }
       if (good) { solved.add(cur); store.set('stackmastery.sql', [...solved]); drawChips(); }
       out.prepend(h('p', { class: good ? 'ok' : 'err' }, T(good ? '✓ Correct. Now explain out loud why it works.' : c.ordered ? '✗ Not the expected rows yet. Compare your output with the task (row order matters here).' : '✗ Not the expected rows yet. Compare your output with the task.')));
     };
@@ -237,7 +246,7 @@ PRAGMA foreign_keys = ON;`;
     const drawChips = () => chips.replaceChildren(...CHALLENGES.map((c, i) => h('button', { type: 'button', class: (i === cur ? 'on ' : '') + (solved.has(i) ? 'solved' : ''), title: LEVELS[c.lvl], onclick: () => selectChallenge(i, true) }, c.t)));
     let SQL = null;
     drawChips();
-    if (sample && Object.prototype.hasOwnProperty.call(SQL_PRESETS, sample)) selectChallenge(SQL_PRESETS[sample], false);
+    if (sample && Object.hasOwn(SQL_PRESETS, sample)) selectChallenge(SQL_PRESETS[sample], false);
     const schemaDrawer = h('details', { class: 'schema-drawer' },
       h('summary', {}, 'Schema and foreign keys (5 tables)'),
       window.tableWrap('Database schema', h('table', { class: 't' },

@@ -40,7 +40,7 @@
           h('thead', {}, h('tr', {}, ['Widget', 'Constraints received ↓', 'Size reported ↑'].map(c => h('th', { scope: 'col' }, c)))),
           h('tbody', {}, rows.map((r, j) => h('tr', { class: j === focus ? 'cx-cur' : '' },
             h('td', {}, h('code', {}, (j > 2 ? '      ' : j === 2 ? '    ' : j === 1 ? '  ' : '') + r)), h('td', {}, cons[j] || '—'), h('td', {}, sizes[j] || '—')))))));
-        const textW = sizes[4] ? parseInt(sizes[4]) : 0, over = textW > 240;
+        const textW = sizes[4] ? parseInt(sizes[4], 10) : 0, over = textW > 240;
         bar.replaceChildren(...(i < 2 ? [h('span', { class: 'muted' }, T('The Row’s 328 pixels'))] : [
           h('i', { style: { width: 40 / 328 * 100 + '%' } }, '40'),
           textW ? h('i', { class: over ? 'over' : 'flex', style: { width: Math.min(textW, 240) / 328 * 100 + '%' } }, over ? '520 →' : '240') : h('i', { class: 'free', style: { width: 240 / 328 * 100 + '%' } }, '?'),

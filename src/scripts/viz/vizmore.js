@@ -15,8 +15,8 @@
         ['O(1)', 'hash lookup', () => 1], ['O(log n)', 'binary search', n => Math.log2(n)], ['O(n)', 'one loop', n => n],
         ['O(n log n)', 'sorting', n => n * Math.log2(n)], ['O(n²)', 'nested loops', n => n * n], ['O(2ⁿ)', 'all subsets', n => Math.pow(2, n)]
       ];
-      const num = x => !isFinite(x) || x > 1e30 ? T('more than 10³⁰') : x >= 1e15 ? x.toExponential(1).replace('e+', ' × 10^') : Math.round(x).toLocaleString('en');
-      const time = ops => { const s = ops / 1e8; return !isFinite(s) || s > 3.2e16 ? T('longer than the age of the universe') : s < 1e-3 ? T('instant') : s < 1 ? Math.round(s * 1000) + ' ms' : s < 120 ? s.toFixed(1) + ' s' : s < 7200 ? Math.round(s / 60) + ' ' + T('min') : s < 172800 ? Math.round(s / 3600) + ' ' + T('hours') : s < 6.3e7 ? Math.round(s / 86400) + ' ' + T('days') : Math.round(s / 3.15e7).toLocaleString('en') + ' ' + T('years'); };
+      const num = x => !Number.isFinite(x) || x > 1e30 ? T('more than 10³⁰') : x >= 1e15 ? x.toExponential(1).replace('e+', ' × 10^') : Math.round(x).toLocaleString('en');
+      const time = ops => { const s = ops / 1e8; return !Number.isFinite(s) || s > 3.2e16 ? T('longer than the age of the universe') : s < 1e-3 ? T('instant') : s < 1 ? Math.round(s * 1000) + ' ms' : s < 120 ? s.toFixed(1) + ' s' : s < 7200 ? Math.round(s / 60) + ' ' + T('min') : s < 172800 ? Math.round(s / 3600) + ' ' + T('hours') : s < 6.3e7 ? Math.round(s / 86400) + ' ' + T('days') : Math.round(s / 3.15e7).toLocaleString('en') + ' ' + T('years'); };
       const chips = h('div', { class: 'chips' }), body = h('div', {});
       const draw = n => {
         [...chips.children].forEach(c => c.classList.toggle('on', +c.dataset.n === n));

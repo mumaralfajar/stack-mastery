@@ -109,7 +109,7 @@ export function landingView(onCleanup) {
       h('a', { class: 'lp-nav-link', href: '#/break' }, T('Flower Meadow'))),
     h('div', { class: 'lp-controls' },
       h('a', { href: '#/search', class: 'icon-btn lp-search-opt', 'aria-label': T('Search'), title: T('Search'), html: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' }),
-      h('button', { type: 'button', class: 'icon-btn', lang: nextLang, 'aria-label': nextLangName, title: nextLangName, onclick: () => setLang(nextLang) }, nextLang.toUpperCase()),
+      h('button', { type: 'button', class: 'icon-btn', lang: nextLang, 'aria-label': `${nextLang.toUpperCase()}: ${nextLangName}`, title: nextLangName, onclick: () => setLang(nextLang) }, nextLang.toUpperCase()),
       h('button', {
         type: 'button', class: 'icon-btn', 'aria-label': T('Toggle theme'), title: T('Toggle theme'),
         onclick: () => { toggleTheme(); requestAnimationFrame(refreshTheme); },
@@ -279,14 +279,14 @@ export function landingView(onCleanup) {
     let orbitRx = 260, orbitRy = 180;
     let isDark = true;
     let colors = {};
-    let pointer = { x: 0, y: 0, active: false, down: false };
+    const pointer = { x: 0, y: 0, active: false, down: false };
     let dragIdx = -1;
     let hoverIdx = -1;
     let pulseTick = 0;
-    let packets = [];
-    let waves = [];
-    let sparks = [];
-    let meteors = [];
+    const packets = [];
+    const waves = [];
+    const sparks = [];
+    const meteors = [];
     let meteorClock = 0;
     let sparkTick = 0;
     const charge = { active: false, x: 0, y: 0, level: 0, heldFrames: 0, soundTick: 0, moteTick: 0 };

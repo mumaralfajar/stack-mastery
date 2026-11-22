@@ -215,7 +215,7 @@ export function breakView(onCleanup) {
   let glowPreset = 'radiant';
   let zenAuto = true;
   let soundOn = false;
-  let musicOn = true;
+  let musicOn = false;   // audio is opt-in: nothing plays until the learner presses Music
   let hudHidden = true;
   let paused = reducedMotion;
 
@@ -459,7 +459,7 @@ export function breakView(onCleanup) {
     h('a', { href: '#/', class: 'brand' }, h('span', { class: 'logo', html: LOGO_SVG }), 'Stack Mastery'),
     h('div', { class: 'br-realms', role: 'group', 'aria-label': T('Sanctuary realm') }, ...makeRealmButtons('br-realm-btn', realmBtns)),
     h('div', { class: 'lp-controls' },
-      h('button', { type: 'button', class: 'icon-btn', lang: nextLang, 'aria-label': nextLangName, title: nextLangName, onclick: () => setLang(nextLang) }, nextLang.toUpperCase()),
+      h('button', { type: 'button', class: 'icon-btn', lang: nextLang, 'aria-label': `${nextLang.toUpperCase()}: ${nextLangName}`, title: nextLangName, onclick: () => setLang(nextLang) }, nextLang.toUpperCase()),
       h('button', {
         type: 'button', class: 'icon-btn', 'aria-label': T('Toggle theme'), title: T('Toggle theme'),
         onclick: toggleTheme,
@@ -528,7 +528,7 @@ export function breakView(onCleanup) {
 
   const musicBtn = h('button', {
     type: 'button',
-    class: 'lp-toy active',
+    class: 'lp-toy',
     onclick: () => {
       musicOn = !musicOn;
       musicBtn.classList.toggle('active', musicOn);
@@ -536,7 +536,7 @@ export function breakView(onCleanup) {
       if (musicOn) startMusic(true);
       else stopMusic();
     }
-  }, T('Music: ON'));
+  }, T('Music: OFF'));
 
   const soundBtn = h('button', {
     type: 'button',
@@ -723,7 +723,7 @@ export function breakView(onCleanup) {
 
     let W = 1, H = 1, dpr = 1;
     let time = 0;
-    let pointer = { x: 0, y: 0, px: 0, py: 0, vx: 0, vy: 0, active: false, down: false };
+    const pointer = { x: 0, y: 0, px: 0, py: 0, vx: 0, vy: 0, active: false, down: false };
     let dragCooldown = 0;
     let zenClock = 0;
     let meteorClock = 0;

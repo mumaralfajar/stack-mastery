@@ -6,6 +6,19 @@
   let D;
   try { D = Object.assign(fresh(), JSON.parse(localStorage.getItem(KEY) || '{}')); } catch { D = fresh(); }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch { /* private mode */ } };
+  // Another tab changed interview data: reload D in place (closures hold the same object) and redraw
+  // the current interview page, unless an editor or mock session is open there.
+  addEventListener('storage', e => {
+    if (e.key !== KEY && e.key !== null) return;
+    let next;
+    try { next = Object.assign(fresh(), JSON.parse((e.key === null ? null : e.newValue) || '{}')); } catch { return; }
+    for (const k of Object.keys(D)) delete D[k];
+    Object.assign(D, next);
+    const view = document.getElementById('view');
+    if (!/^#\/interview/.test(location.hash) || !view || view.querySelector('.play, .mock-stage :is(textarea, select)')) return;
+    if (view.contains(document.activeElement) && document.activeElement.matches('input, textarea, select')) return;
+    dispatchEvent(new HashChangeEvent('hashchange'));
+  });
 
   const DIFF = ['Easy', 'Medium', 'Hard'];
   const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -220,11 +233,11 @@ self.onmessage = e => {
     const page = h('div', { class: 'page iv' });
     const draw = () => {
       const form = { title: h('input', { type: 'text', placeholder: 'Short name, e.g. “Checkout latency fix”' }) };
-      ['s', 't', 'a', 'r'].forEach(k => form[k] = h('textarea', { rows: k === 'a' ? 4 : 2 }));
+      ['s', 't', 'a', 'r', 'ref'].forEach(k => form[k] = h('textarea', { rows: k === 'a' ? 4 : 2 }));
       const tags = IV.behavioral.map(t => { const c = h('input', { type: 'checkbox', value: t.id }); return [c, h('label', {}, c, ' ' + t.name)]; });
       const add = () => {
         if (!form.title.value.trim()) return form.title.focus();
-        D.stories.push({ title: form.title.value.trim(), s: form.s.value, t: form.t.value, a: form.a.value, r: form.r.value, tags: tags.filter(([c]) => c.checked).map(([c]) => c.value) });
+        D.stories.push({ title: form.title.value.trim(), s: form.s.value, t: form.t.value, a: form.a.value, r: form.r.value, ref: form.ref.value, tags: tags.filter(([c]) => c.checked).map(([c]) => c.value) });
         save(); draw();
       };
       const drillQ = h('p', { class: 'fc-q' }), drillL = h('p', { class: 'muted' });
@@ -251,10 +264,10 @@ self.onmessage = e => {
         sec('Your story bank',
           h('div', { class: 'cover' }, IV.behavioral.map(t => { const n = D.stories.filter(s => s.tags.includes(t.id)).length; return h('span', { class: 'chip ' + (n ? 'diff-0' : '') }, `${t.name}: ${n}`); })),
           D.stories.length ? h('div', { class: 'stories' }, D.stories.map((s, i) => h('details', { class: 'story' }, h('summary', {}, s.title, ' ', h('small', {}, s.tags.map(id => (IV.behavioral.find(t => t.id === id)?.name || id)).join(' · '))),
-            [['Situation', s.s], ['Task', s.t], ['Action', s.a], ['Result', s.r]].map(([k, v]) => h('p', {}, h('b', {}, T(k) + ': '), v || '—')),
+            [['Situation', s.s], ['Task', s.t], ['Action', s.a], ['Result', s.r], ['Reflection', s.ref]].map(([k, v]) => h('p', {}, h('b', {}, T(k) + ': '), v || '—')),
             h('button', { type: 'button', class: 'btn sm ghost', onclick: async () => { if (await window.confirmDialog(T('Delete this story?'), { title: 'Delete', confirmText: 'Delete', danger: true })) { D.stories.splice(i, 1); save(); draw(); } } }, 'Delete')))) : h('p', { class: 'muted' }, 'No stories yet. Add your first below.'),
           h('div', { class: 'story-form' },
-            h('label', {}, 'Title', form.title), h('label', {}, 'Situation', form.s), h('label', {}, 'Task', form.t), h('label', {}, 'Action: what you did', form.a), h('label', {}, 'Result: with numbers', form.r),
+            h('label', {}, 'Title', form.title), h('label', {}, 'Situation', form.s), h('label', {}, 'Task', form.t), h('label', {}, 'Action: what you did', form.a), h('label', {}, 'Result: with numbers', form.r), h('label', {}, 'Reflection: what you learned', form.ref),
             h('div', { class: 'tagbox' }, h('span', { class: 'muted' }, 'Themes this story can answer:'), tags.map(([, l]) => l)),
             h('button', { type: 'button', class: 'btn', onclick: add }, 'Save story'))),
         sec('Question bank', IV.behavioral.map(t => h('details', {}, h('summary', {}, t.name), h('p', {}, h('b', {}, 'What a strong answer shows: '), t.looks), list(t.qs)))));
@@ -310,15 +323,25 @@ self.onmessage = e => {
       } }, 'Save result'), msg));
   }
 
-  function history() {
+  // onChange re-renders the caller's history block after a delete.
+  function history(onChange) {
     if (!D.mocks.length) return h('p', { class: 'muted' }, 'No mock interviews recorded yet.');
-    return window.tableWrap('Mock interview history', h('table', { class: 't' }, h('thead', {}, h('tr', {}, ['Date', 'Type', 'Session', 'Score', 'Verdict'].map(c => h('th', { scope: 'col' }, c)))),
-      h('tbody', {}, D.mocks.toReversed().map(m => h('tr', {}, h('td', {}, m.date), h('td', {}, m.type), h('td', {}, m.title), h('td', {}, m.avg.toFixed(2)), h('td', {}, verdict(m.avg)))))));
+    const remove = m => async () => {
+      if (!(await window.confirmDialog(T('Delete this mock interview result?'), { title: 'Delete', confirmText: 'Delete', danger: true }))) return;
+      const i = D.mocks.indexOf(m);
+      if (i >= 0) { D.mocks.splice(i, 1); save(); }
+      onChange && onChange();
+    };
+    return window.tableWrap('Mock interview history', h('table', { class: 't' }, h('thead', {}, h('tr', {}, ['Date', 'Type', 'Session', 'Score', 'Verdict', 'Notes', 'Actions'].map(c => h('th', { scope: 'col' }, c)))),
+      h('tbody', {}, D.mocks.toReversed().map(m => h('tr', {}, h('td', {}, m.date), h('td', {}, m.type), h('td', {}, m.title), h('td', {}, m.avg.toFixed(2)), h('td', {}, verdict(m.avg)),
+        h('td', { class: 'mock-notes' }, m.notes && m.notes.trim() ? h('details', {}, h('summary', {}, 'Show notes'), h('p', {}, m.notes.trim())) : h('span', { class: 'muted' }, '—')),
+        h('td', {}, h('button', { type: 'button', class: 'btn sm ghost', 'aria-label': T('Delete mock result from {date}', { date: m.date }), onclick: remove(m) }, 'Delete')))))));
   }
 
   function mockView() {
-    const stage = h('div', {}), hist = h('div', {}, history());
-    const refresh = () => hist.replaceChildren(history());
+    const stage = h('div', {}), hist = h('div', {});
+    const refresh = () => hist.replaceChildren(history(refresh));
+    refresh();
     const start = {
       coding: () => {
         const pool = IV.problems.filter(p => p.diff === +diffSel.value), unsolved = pool.filter(p => !D.solved[p.id]);
@@ -360,6 +383,9 @@ self.onmessage = e => {
   // ---------- hub ----------
   function hub() {
     const p = parts(), r = readiness();
+    const mockHist = h('div', {});
+    const refreshHist = () => mockHist.replaceChildren(history(refreshHist));
+    refreshHist();
     const loop = [
       ['Coding', '#/interview/coding', 'Two rounds in most loops. Data structures and algorithms, solved out loud in 35–45 minutes.'],
       ['System design', '#/interview/design', 'From mid-level up. Design a large system on a whiteboard and defend the trade-offs.'],
@@ -388,7 +414,7 @@ self.onmessage = e => {
         return el;
       })),
       sec('Getting the interview and building real credibility', list(IV.hiring)),
-      sec('Mock history', history()));
+      sec('Mock history', mockHist));
   }
 
   window.INTERVIEW = {
