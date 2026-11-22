@@ -6,35 +6,19 @@
 //   - Metadata: splits markers in code, 4-choice quiz/predict bounds, VIZ registrations in vizsys.js
 // Usage: node tools/verify-sysdesign.mjs [--show]
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import vm from 'node:vm';
+import { join } from 'node:path';
 import { parseAllDocuments } from 'yaml';
+import track from '../src/data/tracks/sysdesign.js';
+import { VIZ } from '../src/scripts/viz/vizsys.js';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const show = process.argv.includes('--show');
 
-const TRACKS = [];
-const sandboxTrack = { window: { TRACKS }, TRACKS };
-vm.runInNewContext(readFileSync(join(root, 'data/sysdesign.js'), 'utf8'), sandboxTrack);
-const track = TRACKS.find(t => t.id === 'sysdesign');
 if (!track) {
-  console.error('sysdesign track missing from data/sysdesign.js');
+  console.error('sysdesign track missing from src/data/tracks/sysdesign.js');
   process.exit(1);
 }
-
-// Verify vizsys.js parses and registers all VIZ modules referenced by lessons
-const registeredViz = new Set();
-const vizSrc = readFileSync(join(root, 'src/scripts/viz/vizsys.js'), 'utf8');
-for (const m of vizSrc.matchAll(/VIZ\.([a-zA-Z0-9_]+)\s*=/g)) registeredViz.add(m[1]);
-const VIZ = {};
-vm.runInNewContext(vizSrc, {
-  window: { VIZ, t: s => s },
-  h: (t, a, ...k) => ({ tag: t, a, k }),
-  document: { createElementNS: () => ({ setAttribute() {}, appendChild() {} }) }
-});
 
 const expectedViz = ['syscache', 'sysratelimit', 'sysdbscale', 'syshash', 'sysqueue', 'sysresilience'];
 let failures = 0;

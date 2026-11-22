@@ -5,17 +5,13 @@
 // No database is needed: the samples only connect when an endpoint is called.
 // Usage: node tools/verify-aspnet.mjs [--show]      (requires the .NET 10 SDK and internet access for NuGet)
 import { execSync, spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import aspnet from '../src/data/tracks/aspnet.js';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const show = process.argv.includes('--show');
-globalThis.window = globalThis;
-globalThis.TRACKS = [];
-(0, eval)(readFileSync(join(root, 'data/aspnet.js'), 'utf8'));
-const lessons = TRACKS.find(t => t.id === 'aspnet').lessons;
+const lessons = aspnet.lessons;
 
 // Microsoft packages pinned to the .NET 10 line the lessons target.
 const PACKAGES = {

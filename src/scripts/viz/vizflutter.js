@@ -1,6 +1,7 @@
 // Flutter visualizations: layout constraints, rebuilds, and the widget / element / render-object trees.
-(() => {
-  const VIZ = window.VIZ = window.VIZ || {}, T = window.t;
+import { h, tableWrap, treeWire } from '../../lib/dom.ts';
+import { t as T } from '../../lib/i18n.ts';
+import { VIZ } from './registry.ts';
   const meta = { track: 'flutter', trackName: 'Dart + Flutter' };
   const btn = (label, onclick, cls) => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
   const check = (label, on, onchange) => { const c = h('input', { type: 'checkbox', onchange }); c.checked = on; return [h('label', {}, c, label), c]; };
@@ -36,7 +37,7 @@
       const body = h('div', {}), bar = h('div', { class: 'cx-bar' }), note = h('p', { class: 'viz-note' });
       const s = stepper(() => 5, i => {
         const [focus, cons, sizes, text] = steps(ex.checked)[i];
-        body.replaceChildren(window.tableWrap('Widget constraints', h('table', { class: 't' },
+        body.replaceChildren(tableWrap('Widget constraints', h('table', { class: 't' },
           h('thead', {}, h('tr', {}, ['Widget', 'Constraints received ↓', 'Size reported ↑'].map(c => h('th', { scope: 'col' }, c)))),
           h('tbody', {}, rows.map((r, j) => h('tr', { class: j === focus ? 'cx-cur' : '' },
             h('td', {}, h('code', {}, (j > 2 ? '      ' : j === 2 ? '    ' : j === 1 ? '  ' : '') + r)), h('td', {}, cons[j] || '—'), h('td', {}, sizes[j] || '—')))))));
@@ -78,7 +79,7 @@
       const mk = name => { count[name] = 1; return nodes[name] = h('button', { type: 'button', class: 'comp', onclick: () => tap(name) }, name, h('small', {}, T('builds:') + ' 1')); };
       const reset = () => { Object.keys(nodes).forEach(n => { count[n] = 1; label(n); nodes[n].classList.remove('skip'); }); note.textContent = T('Tap any widget.'); };
       const treeEl = h('div', { class: 'tree' }, h('div', { class: 'tree-r' }, mk('ProductsPage')), h('div', { class: 'tree-r' }, tree.ProductsPage.map(mk)), h('div', { class: 'tree-r' }, tree.ProductList.map(mk)));
-      window.treeWire(treeEl, [[nodes.ProductsPage, [nodes.AppBar, nodes.ProductList, nodes.CartBadge]], [nodes.ProductList, [nodes['Tile A'], nodes['Tile B'], nodes['Tile C']]]]);
+      treeWire(treeEl, [[nodes.ProductsPage, [nodes.AppBar, nodes.ProductList, nodes.CartBadge]], [nodes.ProductList, [nodes['Tile A'], nodes['Tile B'], nodes['Tile C']]]]);
       el.append(h('div', { class: 'viz-ctl' }, constLab, btn('Reset counts', reset, 'ghost')),
         treeEl,
         h('p', { class: 'muted' }, 'ProductsPage contains AppBar, ProductList and CartBadge. ProductList contains the three tiles.'), note);
@@ -125,4 +126,3 @@
       s.start();
     }
   };
-})();

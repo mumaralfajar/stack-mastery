@@ -4,21 +4,15 @@
 // Usage: node tools/verify-sql.mjs [--server .\SQLEXPRESS] [--show]
 //   Requires sqlcmd and a SQL Server you can reach with Windows authentication.
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import track from '../src/data/tracks/sql.js';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const arg = name => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : null; };
 const server = arg('--server') || '.\\SQLEXPRESS';
 const show = process.argv.includes('--show');
 const DB = 'StackMasteryVerify';
-
-globalThis.window = globalThis;
-globalThis.TRACKS = [];
-(0, eval)(readFileSync(join(root, 'data/sql.js'), 'utf8'));
-const track = TRACKS.find(t => t.id === 'sql');
 
 // Same rows as the playground seed in src/scripts/playground.js, in SQL Server types.
 const SEED = `

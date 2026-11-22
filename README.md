@@ -193,23 +193,22 @@ If offline or behind a blocked CDN, editors fall back to plain text areas.
 | `src/layouts/Layout.astro`, `src/components/Sidebar.astro` | HTML shell, metadata, and sidebar container |
 | `src/styles/style.css`, `landing.css`, `break.css` | Styling, light/dark themes, print rules, landing reactor, and break room |
 | `src/scripts/main.js` | Hash router and lazy chunk loader |
-| `src/scripts/tracks-ui.js` | Lazy-loaded frontend and capstone track bundle |
-| `src/scripts/state.js`, `nav.js`, `icons.js`, `util.js` | State storage, drawer navigation, icons, and shared DOM/modal helpers |
+| `src/lib/` | Strict TypeScript core runtime (`types.ts`, `storage.ts`, `state.ts`, `dom.ts`, `highlight.ts`, `icons.ts`, `i18n.ts`) |
+| `src/scripts/nav.js` | Responsive sidebar & mobile drawer navigation |
 | `src/scripts/views/` | Route views (`landing.js` reactor at `#/`, `break.js` flower meadow at `#/break`, `dashboard.js`, `track.js`, `practice.js`, `teach.js`) |
 | `src/scripts/interview.js` | Interview hub, code judge, estimator, story bank, and mocks |
 | `src/scripts/playground.js` | SQL, TypeScript, CSS, and DartPad playgrounds |
-| `src/scripts/viz/` | 40 interactive labs (`viz.js`, `vizcss.js`, `vizmore.js`, `vizangular.js`, `vizflutter.js`, `vizplus.js`, `vizgo.js`, `vizsys.js`) |
-| `src/scripts/i18n.js`, `load-id.js`, `load-id-web.js` | Lazy-loads and overlays Bahasa Indonesia translations |
-| `data/*.js` | English curriculum tracks (`csharp`, `aspnet`, `go`, `sql`, `css`, `react`, `angular`, `flutter`, `sysdesign`, `fundamentals`), `projects.js`, `interview.js`, `interview-cs.js` |
-| `data/id/*.js` | Bahasa Indonesia tracks, UI dictionaries (`ui-*.js`, including `ui-landing.js` for the landing page and break room and `ui-vizsys.js` for the System Design labs), `projects.js`, and `interview.js` |
+| `src/scripts/viz/` | 40 interactive labs (`registry.ts`, `viz.js`, `vizcss.js`, `vizmore.js`, `vizangular.js`, `vizflutter.js`, `vizplus.js`, `vizgo.js`, `vizsys.js`) |
+| `src/data/` | Typed manifest (`manifest.ts`), chunked ES module loaders (`index.ts`, `tracks-core.ts`, `tracks-ui.ts`), English curriculum tracks (`tracks/*.js`), `projects.js`, `interview.js`, `interview-cs.js` |
+| `src/data/id/` | Bahasa Indonesia ES module loaders (`index.ts`, `core.ts`, `web.ts`), tracks (`tracks/*.js`), UI dictionaries (`ui-*.js`), `projects.js`, and `interview.js` |
 | `tools/check-i18n.mjs`, `extract-text.mjs` | Translation parity check (lessons, UI strings, `h()` labels, table headers, playground chips) and text extractor |
 | `tools/verify*.mjs`, `tools/verify-ui.py` | Language sample compilers/runners and the Playwright UI + axe-core WCAG 2.2 AA suite |
 
 ## Adding or editing content
 
-All curriculum content is plain data inside `data/` so no application logic needs edits.
+All curriculum content is plain ES module data inside `src/data/` so no application logic needs edits.
 
-Add a lesson by pushing an object onto `lessons` in a track file inside `data/`:
+Add a lesson to `lessons` in a track file inside `src/data/tracks/` (and keep `src/data/manifest.ts` in sync):
 
 ```js
 {
@@ -232,9 +231,9 @@ Add a lesson by pushing an object onto `lessons` in a track file inside `data/`:
 }
 ```
 
-Quiz options shuffle at render time. Add coding problems to `problems` in `data/interview.js` with `[arguments, expected]` test cases and matching C# solutions in `data/interview-cs.js`.
+Quiz options shuffle at render time. Add coding problems to `problems` in `src/data/interview.js` with `[arguments, expected]` test cases and matching C# solutions in `src/data/interview-cs.js`.
 
-When changing any English text, update the matching `data/id/` file and run:
+When changing any English text, update the matching `src/data/id/` file and run:
 
 ```bash
 bun run check:i18n

@@ -7,7 +7,6 @@
 			"tools/**",
 			"!**/dist",
 			"!**/.astro",
-			"!**/data",
 			"!**/node_modules",
 			"!**/__pycache__"
 		]
@@ -39,10 +38,17 @@
 	},
 	"overrides": [
 		{
+			"includes": ["src/data/**"],
+			"linter": {
+				"rules": {
+					"suspicious": { "noTemplateCurlyInString": "off" }
+				}
+			}
+		},
+		{
 			"includes": ["tools/**"],
 			"linter": {
 				"rules": {
-					"security": { "noGlobalEval": "off" },
 					"suspicious": { "noControlCharactersInRegex": "off" }
 				}
 			}

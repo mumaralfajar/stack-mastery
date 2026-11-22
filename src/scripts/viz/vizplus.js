@@ -1,6 +1,7 @@
 // Seven additional high-impact interactive visualizations across SQL, Angular, React, CSS, and CS Fundamentals.
-(() => {
-  const VIZ = window.VIZ = window.VIZ || {}, T = window.t;
+import { codeBlock, h, tableWrap } from '../../lib/dom.ts';
+import { t as T } from '../../lib/i18n.ts';
+import { VIZ } from './registry.ts';
   const btn = (label, onclick, cls) => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
   const pills = (opts, cur, onPick) => {
     const row = h('div', { class: 'chips' });
@@ -61,7 +62,7 @@
       const box = h('div', {}), note = h('p', { class: 'viz-note', 'aria-live': 'polite' });
       const s = stepper(() => scenarios[mode].length, i => {
         const st = scenarios[mode][i];
-        box.replaceChildren(window.tableWrap('Lock timeline', h('table', { class: 't' },
+        box.replaceChildren(tableWrap('Lock timeline', h('table', { class: 't' },
           h('thead', {}, h('tr', {}, ['Session A', 'Session B', 'Lock / Version State'].map(c => h('th', { scope: 'col' }, c)))),
           h('tbody', {}, h('tr', { class: st.res === 'bad' ? 'fail' : '' },
             h('td', {}, h('code', {}, st.a)),
@@ -95,8 +96,8 @@
           const map = new Map();
           for (const [, cat, , amt] of orders) map.set(cat, (map.get(cat) || 0) + amt);
           const rows = [...map.entries()].map(([cat, sum]) => [cat, sum]);
-          sqlPre.replaceChildren(window.codeBlock('SELECT category, SUM(amount) AS total\nFROM orders\nGROUP BY category;', 'sql'));
-          box.replaceChildren(window.tableWrap('GROUP BY result', h('table', { class: 't' },
+          sqlPre.replaceChildren(codeBlock('SELECT category, SUM(amount) AS total\nFROM orders\nGROUP BY category;', 'sql'));
+          box.replaceChildren(tableWrap('GROUP BY result', h('table', { class: 't' },
             h('thead', {}, h('tr', {}, ['category', 'total'].map(c => h('th', { scope: 'col' }, c)))),
             h('tbody', {}, rows.map(([c, s2]) => h('tr', {}, h('td', {}, c), h('td', {}, s2)))))));
           note.textContent = T('GROUP BY collapsed 6 order rows into 3 category totals, so per-order columns like order id and date disappear.');
@@ -107,8 +108,8 @@
             rank[cat] = (rank[cat] || 0) + 1;
             return [id, cat, dt, amt, run[cat], rank[cat]];
           });
-          sqlPre.replaceChildren(window.codeBlock('SELECT id, category, order_date, amount,\n  SUM(amount) OVER (PARTITION BY category ORDER BY order_date) AS running,\n  ROW_NUMBER() OVER (PARTITION BY category ORDER BY order_date) AS rn\nFROM orders;', 'sql'));
-          box.replaceChildren(window.tableWrap('Window function result', h('table', { class: 't' },
+          sqlPre.replaceChildren(codeBlock('SELECT id, category, order_date, amount,\n  SUM(amount) OVER (PARTITION BY category ORDER BY order_date) AS running,\n  ROW_NUMBER() OVER (PARTITION BY category ORDER BY order_date) AS rn\nFROM orders;', 'sql'));
+          box.replaceChildren(tableWrap('Window function result', h('table', { class: 't' },
             h('thead', {}, h('tr', {}, ['id', 'category', 'order_date', 'amount', 'running', 'rn'].map(c => h('th', { scope: 'col' }, c)))),
             h('tbody', {}, rows.map(r => h('tr', { class: 'hl' }, r.map(v => h('td', {}, String(v)))))))));
           note.textContent = T('OVER(PARTITION BY … ORDER BY …) keeps all 6 original order rows intact and adds the running sum and rank within each category.');
@@ -308,4 +309,3 @@
       s.start();
     }
   };
-})();

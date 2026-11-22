@@ -1,8 +1,8 @@
 // Frieren-Inspired Flower Magic Break Room (#/break, #/meadow)
-import { ico, dockControlBar } from '../icons.js';
-import { toggleTheme, allLessons, score } from '../state.js';
-
-const LOGO_SVG = `<svg viewBox="0 0 128 128" fill="none" aria-hidden="true"><rect width="128" height="128" rx="14" fill="#06090f"/><rect x="6" y="6" width="116" height="116" rx="10" stroke="#1e293b" stroke-width="3" fill="#090d16"/><path d="M6 18 H20 M18 6 V20 M122 18 H108 M110 6 V20 M6 110 H20 M18 122 V108 M122 110 H108 M110 122 V108" stroke="#38bdf8" stroke-width="3"/><path d="M26 44 L44 64 L26 84" stroke="#38bdf8" stroke-width="8" stroke-linecap="square" stroke-linejoin="miter"/><path d="M54 84 V44 L75 67 L96 44 V84" stroke="#f8fafc" stroke-width="8" stroke-linecap="square" stroke-linejoin="miter"/><circle cx="106" cy="84" r="4.5" fill="#38bdf8"/></svg>`;
+import { h } from '../../lib/dom.ts';
+import { getAllTracks, getLang, setLang, t as T } from '../../lib/i18n.ts';
+import { LOGO_SVG, dockControlBar, ico } from '../../lib/icons.ts';
+import { allLessons, score, toggleTheme } from '../../lib/state.ts';
 
 const REALMS = {
   alpine: {
@@ -203,7 +203,8 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const rgbStr = (arr, a = 1) => `rgba(${Math.round(arr[0])}, ${Math.round(arr[1])}, ${Math.round(arr[2])}, ${a})`;
 
 export function breakView(onCleanup) {
-  const { h, t: T, TRACKS, LANG, setLang } = window;
+  const TRACKS = getAllTracks();
+  const LANG = getLang();
   const allL = allLessons();
   const masteredCount = allL.filter(e => score(e.k) === 3).length;
   const reducedMotion = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;

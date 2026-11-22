@@ -1,6 +1,7 @@
 // Angular visualizations: Signal dependency graph & Change detection explorer (Eager vs OnPush vs Zoneless Signals).
-(() => {
-  const VIZ = window.VIZ = window.VIZ || {}, T = window.t;
+import { h, treeWire } from '../../lib/dom.ts';
+import { t as T } from '../../lib/i18n.ts';
+import { VIZ } from './registry.ts';
   const meta = { track: 'angular', trackName: 'Angular' };
   const btn = (label, onclick, cls) => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
   const check = (label, on, onchange) => { const c = h('input', { type: 'checkbox', onchange }); c.checked = on; return [h('label', {}, c, label), c]; };
@@ -232,7 +233,7 @@
         h('div', { class: 'tree-r' }, mk('App')),
         h('div', { class: 'tree-r' }, ['Header', 'ProductList', 'CartBadge'].map(mk)),
         h('div', { class: 'tree-r' }, ['Card A', 'Card B', 'Card C'].map(mk)));
-      window.treeWire(treeEl, [[nodes.App, [nodes.Header, nodes.ProductList, nodes.CartBadge]], [nodes.ProductList, [nodes['Card A'], nodes['Card B'], nodes['Card C']]]]);
+      treeWire(treeEl, [[nodes.App, [nodes.Header, nodes.ProductList, nodes.CartBadge]], [nodes.ProductList, [nodes['Card A'], nodes['Card B'], nodes['Card C']]]]);
       el.append(
         h('div', { class: 'viz-ctl' }, modeRow, sharedLab, btn('Update CartSignal', () => { shared.checked = true; trigger('CartBadge', true); }), btn('Reset counts', reset, 'ghost')),
         treeEl,
@@ -241,4 +242,3 @@
       );
     }
   };
-})();

@@ -1,6 +1,7 @@
 // CSS visualizations: specificity, box model, flexbox, grid.
-(() => {
-  const VIZ = window.VIZ = window.VIZ || {}, T = window.t;
+import { codeBlock, h } from '../../lib/dom.ts';
+import { t as T } from '../../lib/i18n.ts';
+import { VIZ } from './registry.ts';
   const meta = { track: 'css', trackName: 'CSS + Tailwind' };
   const select = (label, opts, onchange) => { const s = h('select', { onchange }, opts.map(o => h('option', {}, o))); return [h('label', {}, label, s), s]; };
   const range = (label, min, max, step, val, oninput) => {
@@ -133,4 +134,3 @@
       draw();
     }
   };
-})();

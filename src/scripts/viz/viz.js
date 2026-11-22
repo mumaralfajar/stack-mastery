@@ -1,10 +1,12 @@
 // Interactive visualizations. Each entry: { title, desc, track, trackName, mount(el) }.
-(() => {
-  const T = window.t;   // `t` is used as a local name in this file
+import { codeBlock, h, tableWrap, treeWire } from '../../lib/dom.ts';
+import { t as T } from '../../lib/i18n.ts';
+import { VIZ } from './registry.ts';
+
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const btn = (label, onclick, cls) => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
   const check = (label, checked, onchange) => { const cb = h('input', { type: 'checkbox', onchange }); cb.checked = checked; return [h('label', {}, cb, label), cb]; };
-  const table = (cols, rows, rowClass, cap) => window.tableWrap(cap || 'Comparison table', h('table', { class: 't' },
+  const table = (cols, rows, rowClass, cap) => tableWrap(cap || 'Comparison table', h('table', { class: 't' },
     h('thead', {}, h('tr', {}, cols.map(c => h('th', { scope: 'col' }, c)))),
     h('tbody', {}, rows.map((r, i) => h('tr', { class: rowClass ? rowClass(r, i) : null }, r.map(v => v == null ? h('td', { class: 'null' }, 'NULL') : h('td', {}, v)))))));
 
@@ -17,8 +19,6 @@
     return { el: h('div', { class: 'viz-ctl' }, back, next, btn('Reset', () => { i = 0; upd(); }, 'ghost'), label), start: upd };
   }
   const codeLines = lines => { const lis = lines.map(l => h('li', {}, l)); return { el: h('ol', { class: 'lines' }, lis), set: (cur, done) => lis.forEach((li, j) => li.className = j === cur ? 'cur' : done(j) ? 'done' : '') }; };
-
-  const VIZ = window.VIZ = window.VIZ || {};
 
   // ---------- C#: stack & heap ----------
   VIZ.stackheap = {
@@ -327,7 +327,7 @@
       const mk = name => { count[name] = 1; return nodes[name] = h('button', { type: 'button', class: 'comp', onclick: () => click(name) }, `<${name}>`, h('small', {}, T('renders:') + ' 1')); };
       const reset = () => { Object.keys(nodes).forEach(n => { count[n] = 1; label(n); nodes[n].classList.remove('skip'); }); note.textContent = T('Click any component.'); };
       const treeEl = h('div', { class: 'tree' }, h('div', { class: 'tree-r' }, mk('App')), h('div', { class: 'tree-r' }, tree.App.map(mk)), h('div', { class: 'tree-r' }, tree.TodoList.map(mk)));
-      window.treeWire(treeEl, [[nodes.App, [nodes.Header, nodes.TodoList, nodes.Footer]], [nodes.TodoList, [nodes['TodoItem A'], nodes['TodoItem B'], nodes['TodoItem C']]]]);
+      treeWire(treeEl, [[nodes.App, [nodes.Header, nodes.TodoList, nodes.Footer]], [nodes.TodoList, [nodes['TodoItem A'], nodes['TodoItem B'], nodes['TodoItem C']]]]);
       el.append(h('div', { class: 'viz-ctl' }, memoLab, inlineLab, btn('Reset counts', reset, 'ghost')),
         treeEl,
         h('p', { class: 'muted' }, 'App contains Header, TodoList and Footer. TodoList contains the three TodoItems.'), note);
@@ -357,4 +357,3 @@
       s.start();
     }
   };
-})();

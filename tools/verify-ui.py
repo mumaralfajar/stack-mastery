@@ -233,9 +233,13 @@ def run_suite():
             page.get_by_role("button", name="Restart app").click()
             check("#5" in page.inner_text("#view table"), "Restart app in VIZ.di must generate new singleton #5")
 
-            # Every VIZ lab, discovered from window.VIZ so a new lab is covered automatically.
+            # Every VIZ lab, discovered from #/lab DOM cards so a new lab is covered automatically without window globals.
             goto_hash(page, base, "#/lab")
-            viz_ids = page.evaluate("Object.keys(window.VIZ)")
+            leaked_globals = page.evaluate(
+                "['TRACKS','VIZ','I18N','PLAY','INTERVIEW','IV','PROJECTS','LEVELS','h','md','t','esc','codeBlock','codeFiles','confirmDialog','alertDialog','tableWrap'].filter(k => k in window)"
+            )
+            check(len(leaked_globals) == 0, f"Unexpected app globals leaked onto window: {leaked_globals}")
+            viz_ids = page.evaluate("[...document.querySelectorAll('#view .grid a.card')].map(a => a.getAttribute('href').replace(/^#\\/lab\\//, ''))")
             check(len(viz_ids) == EXPECTED_VIZ, f"Expected {EXPECTED_VIZ} VIZ labs, found {len(viz_ids)}: {viz_ids}")
             check(page.locator("#view .grid a.card").count() == len(viz_ids), "Visual lab index must list one card per VIZ lab")
             for vid in viz_ids:
@@ -272,7 +276,7 @@ def run_suite():
             goto_hash(page, base, "#/lesson/go/http")
             check(page.locator(".code-tabs [role='tab']").count() == 4, "go/http should render 4 tabs (3 slices + Full file)")
 
-            # SQL grading uses an isolated clean snapshot: a destructive free-play DELETE must not break grading.
+            # SQL grading uses an isolated clean snapshot: a destructive free-play DELETE or DROP TABLE must not break grading.
             goto_hash(page, base, "#/play/sql")
             page.wait_for_function("() => /Ready\\./.test(document.querySelector('#view .out')?.textContent || '')", timeout=30000)
             set_sql = "(v) => { const ta = document.querySelector('#view textarea.editor'); ta.value = v; ta.oninput && ta.oninput(); }"
@@ -284,6 +288,12 @@ def run_suite():
             page.locator("#view .actions button", has_text="Check answer").click()
             check("✓ Correct" in page.inner_text("#view .out"), "SQL Check answer must grade on a clean snapshot even after DELETE FROM products")
             check(page.locator("#view .chips button.solved", has_text="Cheap tech").count() == 1, "Solved SQL challenge chip should be marked solved")
+            page.evaluate(set_sql, "DROP TABLE order_items; DROP TABLE products;")
+            page.locator("#view .actions button", has_text="Run (Ctrl+Enter)").click()
+            page.locator("#view .chips button", has_text="Cheap tech").click()
+            page.evaluate(set_sql, "SELECT name, price FROM products WHERE category = 'Tech' AND price < 500 ORDER BY price;")
+            page.locator("#view .actions button", has_text="Check answer").click()
+            check("✓ Correct" in page.inner_text("#view .out"), "SQL Check answer must grade on a clean snapshot even after DROP TABLE products")
             page.locator("#view .actions button", has_text="Reset database").click()
 
             # TypeScript playground runs the selected example and prints output.
@@ -351,8 +361,18 @@ def run_suite():
             page.locator("dialog.sm-dialog[open] button[value='ok']").click()
             page.wait_for_timeout(120)
             check("No mock interviews recorded yet." in hist.inner_text(), "Deleting the only mock result must empty the history table")
+            # Save a mock, visit Hub, and confirm deleting it on Hub immediately refreshes readiness ring, meters, and sidebar %.
+            page.locator("#view .actions button", has_text="Save result").click()
             goto_hash(page, base, "#/interview")
+            ring_before = page.text_content("#view .ring-n")
+            nav_iv_before = page.inner_text("#nav a.nav-link[href='#/interview'] small")
+            hub_hist = page.locator("#view section.sec", has=page.locator("h2", has_text="Mock history"))
+            hub_hist.get_by_role("button", name="Delete mock result").first.click()
+            page.locator("dialog.sm-dialog[open] button[value='ok']").click()
+            page.wait_for_timeout(120)
             check("No mock interviews recorded yet." in page.inner_text("#view"), "Hub mock history must reflect the deletion")
+            check(page.text_content("#view .ring-n") != ring_before, "Deleting mock on Hub must refresh readiness ring immediately")
+            check(page.inner_text("#nav a.nav-link[href='#/interview'] small") != nav_iv_before, "Deleting mock on Hub must refresh sidebar readiness % immediately")
 
             # Mock exam renders a notice instead of a blank stage when no question matches the filters.
             goto_hash(page, base, "#/exam")
@@ -398,6 +418,19 @@ def run_suite():
             check(go_pct != "0%", f"Cross-tab progress must refresh the sidebar track percentage, got {go_pct}")
             other.evaluate("() => { const s = JSON.parse(localStorage.getItem('stackmastery.v1')); s.theme = ''; localStorage.setItem('stackmastery.v1', JSON.stringify(s)); }")
             page.wait_for_function("() => !document.documentElement.dataset.theme", timeout=5000)
+            # Cross-tab interview sync: saving a mock in another tab updates Interview Hub readiness & sidebar %.
+            goto_hash(page, base, "#/interview")
+            iv_nav_before = page.inner_text("#nav a.nav-link[href='#/interview'] small")
+            other.evaluate("""() => {
+              const d = JSON.parse(localStorage.getItem('stackmastery.interview') || '{}');
+              d.mocks = [{ date: '2026-11-23', type: 'coding', title: 'Two Sum', scores: [4,4,4,4], avg: 4, notes: 'Clean' }];
+              localStorage.setItem('stackmastery.interview', JSON.stringify(d));
+            }""")
+            page.wait_for_function("(prev) => document.querySelector(\"#nav a.nav-link[href='#/interview'] small\")?.textContent !== prev", arg=iv_nav_before, timeout=5000)
+            page.wait_for_function("() => { const n = document.querySelector('#view .ring-n'); return n && n.textContent !== '0%'; }", timeout=5000)
+            check(page.text_content("#view .ring-n") != "0%", "Cross-tab stackmastery.interview update must refresh Interview Hub readiness ring")
+            other.evaluate("() => { localStorage.removeItem('stackmastery.interview'); }")
+            page.wait_for_timeout(150)
             other.close()
 
             # Export backup includes the raw language preference (not JSON) next to the progress keys.
