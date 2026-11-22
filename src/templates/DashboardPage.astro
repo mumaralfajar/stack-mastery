@@ -1,0 +1,37 @@
+---
+// Dashboard: pre-rendered heading plus a compact track catalog; progress is computed client-side from the manifest.
+import { getAllTracks, loadSiteData } from '../data/site.ts';
+import { pageStrings } from '../lib/ssr.ts';
+import type { Lang } from '../lib/types.ts';
+import ViewPage from './ViewPage.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+await loadSiteData();
+const { lang } = Astro.props;
+const { T } = pageStrings(lang);
+const catalog = {
+  tracks: getAllTracks(lang).map((t) => ({
+    id: t.id,
+    name: t.name,
+    tagline: t.tagline,
+    lessons: t.lessons.map((l) => ({ id: l.id, title: l.title, level: l.level })),
+  })),
+};
+const lede = T(
+  'Nine stack tracks and CS fundamentals cover C#, ASP.NET Core, Go, SQL, CSS with Tailwind, TypeScript with React, Angular, Dart with Flutter, and System Design. You finish a lesson once you can teach it.',
+);
+---
+<ViewPage
+  lang={lang}
+  path="/dashboard/"
+  title={`${T('Dashboard')} — Stack Mastery`}
+  description={lede}
+  view="dashboard"
+  eyebrow={T('Beginner → Expert → Teacher')}
+  heading={T('Learn it. Prove it. Teach it.')}
+  lede={lede}
+  data={catalog}
+/>

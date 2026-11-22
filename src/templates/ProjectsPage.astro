@@ -1,0 +1,69 @@
+---
+// Capstone projects (static briefs) with checklist hydration stored in local progress.
+import { getProjects, loadSiteData } from '../data/site.ts';
+import WorkspaceLayout from '../layouts/WorkspaceLayout.astro';
+import { pageStrings } from '../lib/ssr.ts';
+import type { Lang } from '../lib/types.ts';
+
+interface Props {
+  lang: Lang;
+}
+
+await loadSiteData();
+const { lang } = Astro.props;
+const { T, md, levels } = pageStrings(lang);
+const projects = getProjects(lang);
+const lede = T('One full-stack project per level. Build them in your own editor without copy-pasting, and tick an item only when you can rebuild it from memory.');
+---
+<WorkspaceLayout lang={lang} path="/projects/" title={`${T('Capstone projects')} — Stack Mastery`} description={lede}>
+  <div class="page">
+    <header class="head">
+      <p class="eyebrow">{T('Build to learn')}</p>
+      <h1>{T('Capstone projects')}</h1>
+      <p class="lede">{lede}</p>
+    </header>
+    {projects.map((p, pi) => (
+      <section class="sec proj" data-project={pi}>
+        <h2><span class="chip">{levels[p.level]}</span> {p.title} <small data-project-progress>{`0 / ${p.build.length}`}</small></h2>
+        <p set:html={md(p.brief)} />
+        <div class="rubric">
+          {p.build.map((b, i) => <label><input type="checkbox" data-item={i} /><span set:html={md(b)} /></label>)}
+        </div>
+        <details>
+          <summary>{T('Stretch goals and teaching angle')}</summary>
+          <ul class="points">{p.stretch.map((s) => <li set:html={md(s)} />)}</ul>
+          <p class="prompt" set:html={md(p.teach)} />
+        </details>
+      </section>
+    ))}
+  </div>
+</WorkspaceLayout>
+<script>
+  import { S, subscribeState, touch } from '../lib/state.ts';
+
+  const sections = [...document.querySelectorAll<HTMLElement>('[data-project]')];
+  const draw = (): void => {
+    for (const sec of sections) {
+      const pi = Number(sec.dataset.project);
+      const done = S.projects[pi] || [];
+      const boxes = [...sec.querySelectorAll<HTMLInputElement>('input[data-item]')];
+      for (const cb of boxes) cb.checked = !!done[Number(cb.dataset.item)];
+      const prog = sec.querySelector('[data-project-progress]');
+      if (prog) prog.textContent = `${boxes.filter((cb) => cb.checked).length} / ${boxes.length}`;
+    }
+  };
+  for (const sec of sections) {
+    const pi = Number(sec.dataset.project);
+    for (const cb of sec.querySelectorAll<HTMLInputElement>('input[data-item]')) {
+      cb.addEventListener('change', () => {
+        const done = S.projects[pi] || [];
+        done[Number(cb.dataset.item)] = cb.checked;
+        S.projects[pi] = done;
+        touch();
+        draw();
+      });
+    }
+  }
+  draw();
+  subscribeState(draw);
+</script>

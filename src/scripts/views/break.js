@@ -1,8 +1,11 @@
-// Frieren-Inspired Flower Magic Break Room (#/break, #/meadow)
+// Frieren-Inspired Flower Magic Break Room (/break/, legacy #/meadow). Reads the manifest only — no lesson prose.
+import { LESSON_INDEX, TRACK_META } from '../../data/manifest.ts';
 import { h } from '../../lib/dom.ts';
-import { getAllTracks, getLang, setLang, t as T } from '../../lib/i18n.ts';
+import { getLang, setLang, t as T } from '../../lib/i18n.ts';
 import { LOGO_SVG, dockControlBar, ico } from '../../lib/icons.ts';
-import { allLessons, score, toggleTheme } from '../../lib/state.ts';
+import { masteredCountIndex } from '../../lib/progress.ts';
+import { routePath } from '../../lib/routes.ts';
+import { toggleTheme } from '../../lib/state.ts';
 
 const REALMS = {
   alpine: {
@@ -203,10 +206,10 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const rgbStr = (arr, a = 1) => `rgba(${Math.round(arr[0])}, ${Math.round(arr[1])}, ${Math.round(arr[2])}, ${a})`;
 
 export function breakView(onCleanup) {
-  const TRACKS = getAllTracks();
   const LANG = getLang();
-  const allL = allLessons();
-  const masteredCount = allL.filter(e => score(e.k) === 3).length;
+  const TRACKS = TRACK_META.map(tr => ({ id: tr.id, name: (LANG === 'id' && tr.nameId) || tr.name }));
+  const allL = LESSON_INDEX;
+  const masteredCount = masteredCountIndex();
   const reducedMotion = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   let activeRealm = 'bluemoon';
@@ -457,7 +460,7 @@ export function breakView(onCleanup) {
   });
 
   const topBar = h('header', { class: 'lp-bar br-bar' },
-    h('a', { href: '#/', class: 'brand' }, h('span', { class: 'logo', html: LOGO_SVG }), 'Stack Mastery'),
+    h('a', { href: routePath(LANG, '/'), class: 'brand' }, h('span', { class: 'logo', html: LOGO_SVG }), 'Stack Mastery'),
     h('div', { class: 'br-realms', role: 'group', 'aria-label': T('Sanctuary realm') }, ...makeRealmButtons('br-realm-btn', realmBtns)),
     h('div', { class: 'lp-controls' },
       h('button', { type: 'button', class: 'icon-btn', lang: nextLang, 'aria-label': `${nextLang.toUpperCase()}: ${nextLangName}`, title: nextLangName, onclick: () => setLang(nextLang) }, nextLang.toUpperCase()),
@@ -466,7 +469,7 @@ export function breakView(onCleanup) {
         onclick: toggleTheme,
         html: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>'
       }),
-      h('a', { href: '#/dashboard', class: 'btn lp-cta' }, T('Return to Study →'))));
+      h('a', { href: routePath(LANG, '/dashboard/'), class: 'btn lp-cta' }, T('Return to Study →'))));
 
   // HUD live counters & species pills
   const bloomStat = h('b', {}, '0');
@@ -703,8 +706,8 @@ export function breakView(onCleanup) {
     h('h2', {}, T('Ready to return to your journey?')),
     h('p', {}, T('Like Frieren’s unhurried travels, mastery compounds across steady seasons. Take what calm you need and step back in anytime.')),
     h('div', { class: 'lp-actions' },
-      h('a', { class: 'btn', href: '#/dashboard' }, T('Return to Study →')),
-      h('a', { class: 'btn ghost', href: '#/lab' }, T('Explore 40 Live Labs'))));
+      h('a', { class: 'btn', href: routePath(LANG, '/dashboard/') }, T('Return to Study →')),
+      h('a', { class: 'btn ghost', href: routePath(LANG, '/lab/') }, T('Explore 40 Live Labs'))));
 
   const root = h('div', { class: 'lp-root br-root' }, topBar, stage, grimoireBand, alchemyBand, closeBand);
 

@@ -1,0 +1,38 @@
+---
+// Flashcard review and mock exam shells (client views that need every lesson's quiz questions).
+import { pageStrings } from '../lib/ssr.ts';
+import type { Lang } from '../lib/types.ts';
+import ViewPage from './ViewPage.astro';
+
+interface Props {
+  lang: Lang;
+  kind: 'review' | 'exam';
+}
+
+const { lang, kind } = Astro.props;
+const { T } = pageStrings(lang);
+const meta =
+  kind === 'review'
+    ? {
+        eyebrow: T('Spaced repetition'),
+        heading: T('Flashcard review'),
+        lede: T(
+          'Questions from learned lessons and missed quizzes return after 1, 2, 4, 8, and 16 days. Say your answer out loud before revealing it.',
+        ),
+      }
+    : {
+        eyebrow: T('Prove it'),
+        heading: T('Mock exam'),
+        lede: T('Ten random questions, one attempt each. Use it to find the lessons you cannot yet teach.'),
+      };
+---
+<ViewPage
+  lang={lang}
+  path={`/${kind}/`}
+  title={`${meta.heading} — Stack Mastery`}
+  description={meta.lede}
+  view={kind}
+  eyebrow={meta.eyebrow}
+  heading={meta.heading}
+  lede={meta.lede}
+/>

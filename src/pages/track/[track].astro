@@ -1,0 +1,10 @@
+---
+// English route; the page itself lives in src/templates/TrackPage.astro.
+import { TRACK_META } from '../../data/manifest.ts';
+import TrackPage from '../../templates/TrackPage.astro';
+
+export function getStaticPaths() {
+  return TRACK_META.map((t) => ({ params: { track: t.id } }));
+}
+---
+<TrackPage lang="en" trackId={Astro.params.track as string} />

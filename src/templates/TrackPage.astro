@@ -1,0 +1,83 @@
+---
+// Track overview: every lesson grouped by level. Progress dots and percentages hydrate from the manifest.
+import { getTrack, loadSiteData } from '../data/site.ts';
+import WorkspaceLayout from '../layouts/WorkspaceLayout.astro';
+import { courseLd } from '../lib/seo.ts';
+import { pageStrings } from '../lib/ssr.ts';
+import type { Lang, Track } from '../lib/types.ts';
+
+interface Props {
+  lang: Lang;
+  trackId: string;
+}
+
+await loadSiteData();
+const { lang, trackId } = Astro.props;
+const { T, href, levels } = pageStrings(lang);
+const t = getTrack(trackId, lang) as Track;
+const path = `/track/${t.id}/`;
+const title = `${t.name} — ${T('Track')} · Stack Mastery`;
+const jsonLd = courseLd({
+  lang,
+  path,
+  name: t.name,
+  description: t.tagline,
+  parts: t.lessons.map((l) => ({ name: l.title, description: `${levels[l.level]} · ${l.mins} ${T('min')}`, path: `/lesson/${t.id}/${l.id}/` })),
+});
+---
+<WorkspaceLayout lang={lang} path={path} title={title} description={t.tagline} jsonLd={jsonLd}>
+  <div class="page" style={`--tc: var(--${t.id})`} data-track={t.id}>
+    <header class="head">
+      <p class="eyebrow">{T('Track')}</p>
+      <h1>{t.name}</h1>
+      <p class="lede">{t.tagline}</p>
+      <div class="bar" role="img" aria-label={`${t.name} 0%`} data-track-bar data-label={t.name}><i style="width: 0%"></i></div>
+    </header>
+    {levels.map((name, lvl) => (
+      <section class="sec">
+        <h2><span>{name} <small data-level-pct={lvl}>0%</small></span></h2>
+        <div class="rows">
+          {t.lessons
+            .filter((l) => l.level === lvl)
+            .map((l) => (
+              <a class="row" href={href(`/lesson/${t.id}/${l.id}/`)} data-k={`${t.id}/${l.id}`}>
+                <span class="dots" title={T('Learn · Check · Teach')}><i></i><i></i><i></i></span>
+                <span class="row-t">{l.title}</span>
+                {l.viz && <span class="chip viz-chip">{T('interactive')}</span>}
+                <small>{l.mins} {T('min')}</small>
+              </a>
+            ))}
+        </div>
+      </section>
+    ))}
+  </div>
+</WorkspaceLayout>
+<script>
+  import { peek, subscribeState } from '../lib/state.ts';
+  import { trackPctIndex } from '../lib/progress.ts';
+  import type { LevelIndex } from '../lib/types.ts';
+
+  const page = document.querySelector<HTMLElement>('[data-track]');
+  const draw = (): void => {
+    if (!page) return;
+    const id = page.dataset.track || '';
+    const pct = trackPctIndex(id);
+    const bar = page.querySelector<HTMLElement>('[data-track-bar]');
+    if (bar) {
+      bar.setAttribute('aria-label', `${bar.dataset.label} ${pct}%`);
+      const fill = bar.querySelector<HTMLElement>('i');
+      if (fill) fill.style.width = pct + '%';
+    }
+    for (const el of page.querySelectorAll<HTMLElement>('[data-level-pct]')) {
+      el.textContent = trackPctIndex(id, Number(el.dataset.levelPct) as LevelIndex) + '%';
+    }
+    for (const row of page.querySelectorAll<HTMLElement>('[data-k]')) {
+      const s = peek(row.dataset.k || '');
+      const flags = [s.read, s.quiz, s.teach];
+      for (const [i, dot] of [...row.querySelectorAll('.dots i')].entries()) dot.classList.toggle('on', !!flags[i]);
+    }
+  };
+  draw();
+  // Another tab saved progress: redraw in place.
+  subscribeState(draw);
+</script>

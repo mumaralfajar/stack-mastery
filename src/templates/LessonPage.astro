@@ -1,0 +1,193 @@
+---
+// One lesson, pre-rendered: header, Why, Key words, Key ideas, code tabs, practice, teacher notes and pager.
+// Interactive islands (Predict-first, quiz + SRS marking, Teach-back rubric, progress toggles, the lesson's
+// single viz) hydrate from the small JSON payload in #lesson-data via src/scripts/lesson-island.js.
+import CodeTabs from '../components/CodeTabs.astro';
+import { getTrack, loadSiteData, vizEntries } from '../data/site.ts';
+import WorkspaceLayout from '../layouts/WorkspaceLayout.astro';
+import { learningResourceLd, plainDescription } from '../lib/seo.ts';
+import { jsonForScript, pageStrings, uiSubset } from '../lib/ssr.ts';
+import type { Lang, Lesson, Track } from '../lib/types.ts';
+
+interface Props {
+  lang: Lang;
+  trackId: string;
+  lessonId: string;
+}
+
+await loadSiteData();
+const { lang, trackId, lessonId } = Astro.props;
+const { T, md, href, levels } = pageStrings(lang);
+const t = getTrack(trackId, lang) as Track;
+const l = t.lessons.find((x) => x.id === lessonId) as Lesson;
+const idx = t.lessons.indexOf(l);
+const prev = t.lessons[idx - 1];
+const nxt = t.lessons[idx + 1];
+const viz = l.viz ? vizEntries(lang).find((v) => v.id === l.viz) : undefined;
+const path = `/lesson/${t.id}/${l.id}/`;
+const RUBRIC = [
+  'Plain words, with no unexplained jargon',
+  'An analogy or a picture',
+  'A concrete code example',
+  'A common mistake, and why people make it',
+  'I could answer “but why?” twice in a row',
+];
+const STEPS: [string, string][] = [
+  ['read', 'Learn'],
+  ['quiz', 'Check'],
+  ['teach', 'Teach'],
+];
+const playLink =
+  t.id === 'sql'
+    ? { href: href(`/play/sql/?sample=${l.id}`), label: T('Open SQL playground') }
+    : t.id === 'css'
+      ? { href: href(`/play/css/?sample=${l.id}`), label: T('Open CSS playground') }
+      : t.id === 'react' || t.id === 'angular'
+        ? { href: href(`/play/ts/?sample=${t.id}-${l.id}`), label: T('Open TypeScript playground') }
+        : t.id === 'flutter'
+          ? { href: href(`/play/dart/?sample=${l.id}`), label: T('Open Dart + Flutter playground') }
+          : null;
+
+const title = `${l.title} — ${t.name} · Stack Mastery`;
+const description = plainDescription(l.why);
+const jsonLd = learningResourceLd({
+  lang,
+  path,
+  name: l.title,
+  description,
+  level: levels[l.level],
+  minutes: l.mins,
+  trackName: t.name,
+  trackPath: `/track/${t.id}/`,
+  keywords: [t.name, ...(l.terms || []).map(([term]) => term.replace(/[`*]/g, ''))],
+});
+
+// Only this lesson's interactive payload — never the rest of the curriculum.
+const lessonData = jsonForScript({
+  key: `${t.id}/${l.id}`,
+  predict: l.predict ? { answer: l.predict.answer, explain: l.predict.explain } : null,
+  quiz: l.quiz,
+  viz: viz ? viz.id : null,
+  i18n: uiSubset(lang, [
+    'Correct.',
+    'Not quite.',
+    'Not quite. Think about why, then try another.',
+    'Predicted.',
+    '✓ Learned (click to undo)',
+    'Mark as learned',
+  ]),
+});
+---
+<WorkspaceLayout lang={lang} path={path} title={title} description={description} ogType="article" jsonLd={jsonLd}>
+  <div class="page lesson" style={`--tc: var(--${t.id})`} data-lesson-root>
+    <header class="head">
+      <p class="eyebrow"><a href={href(`/track/${t.id}/`)}>{t.name}</a> · {levels[l.level]} · {l.mins} {T('min')}</p>
+      <h1>{l.title}</h1>
+      <div class="tracker" data-tracker>
+        {STEPS.map(([f, n], i) => <span class="tstep" data-step={f}><i>{i + 1}</i>{T(n)}</span>)}
+      </div>
+    </header>
+
+    <section class="sec">
+      <h2>{T('Why this matters')}</h2>
+      <p class="why" set:html={md(l.why)} />
+    </section>
+
+    {l.terms?.length ? (
+      <section class="sec">
+        <h2>{T('Key words')}</h2>
+        <dl class="terms">
+          {l.terms.map(([term, def]) => (
+            <div class="term-item"><dt set:html={md(term)} /><dd set:html={md(def)} /></div>
+          ))}
+        </dl>
+      </section>
+    ) : null}
+
+    <section class="sec">
+      <h2>{T('Key ideas')}</h2>
+      <ul class="points">{l.points.map((p) => <li set:html={md(p)} />)}</ul>
+    </section>
+
+    {l.predict && (
+      <section class="sec">
+        <h2>{T('Predict first')}</h2>
+        <div class="predict-card" data-predict>
+          <p class="muted">{T('Commit to a prediction before inspecting the output or explanation below.')}</p>
+          <p class="q-text" set:html={md(l.predict.prompt)} />
+          <div class="opts">
+            {l.predict.options.map((opt, oi) => <button type="button" class="opt" data-opt={oi} set:html={md(opt)} />)}
+          </div>
+          <p class="fb" aria-live="polite"></p>
+        </div>
+      </section>
+    )}
+
+    {l.code && (
+      <section class="sec">
+        <h2>{T('See it in code')}</h2>
+        <CodeTabs code={l.code} lang={l.lang || t.lang} splits={l.splits} uiLang={lang} blurHints={!!l.predict} />
+      </section>
+    )}
+
+    {viz && (
+      <section class="sec">
+        <h2>{T('Play with it: ') + viz.title}</h2>
+        <p class="muted">{viz.desc}</p>
+        <div class="viz" data-viz={viz.id}></div>
+      </section>
+    )}
+
+    <section class="sec">
+      <h2>{T('Your turn')}</h2>
+      <p set:html={md(l.practice)} />
+      <div class="actions">
+        <button type="button" class="btn" data-read-toggle>{T('Mark as learned')}</button>
+        {playLink && <a class="btn ghost" href={playLink.href}>{playLink.label}</a>}
+      </div>
+    </section>
+
+    <section class="sec">
+      <h2>{T('Check yourself')}</h2>
+      <div data-quiz>
+        {l.quiz.map((q) => (
+          <div class="q">
+            <p class="q-text" set:html={md(q.q)} />
+            <div class="opts">{q.a.map((a) => <button type="button" class="opt" set:html={md(a)} />)}</div>
+            <p class="fb" aria-live="polite"></p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="sec teach">
+      <h2>{T('Now teach it')}</h2>
+      <p class="prompt" set:html={md(l.teach)} />
+      <textarea
+        rows="7"
+        placeholder={T('Write it the way you would say it out loud to a beginner…')}
+        aria-label={T('Your explanation')}
+        data-teach-notes></textarea>
+      <p class="fb bad" role="alert" hidden data-teach-warn>{T('Write at least a brief explanation above before checking off the rubric.')}</p>
+      <p class="muted">{T('Grade your explanation honestly. All five ticks complete the Teach step.')}</p>
+      <div class="rubric">
+        {RUBRIC.map((text, i) => <label><input type="checkbox" data-rubric={i} /><span>{T(text)}</span></label>)}
+      </div>
+      <details>
+        <summary>{T('Teacher notes: analogy and misconceptions')}</summary>
+        <h3>{T('An analogy that works')}</h3>
+        <p set:html={md(l.analogy)} />
+        <h3>{T('Misconceptions to expect')}</h3>
+        <ul class="points">{l.pitfalls.map((p) => <li set:html={md(p)} />)}</ul>
+        <p><a href={href(`/plan/${t.id}/${l.id}/`)}>{T('Open the printable lesson plan →')}</a></p>
+      </details>
+    </section>
+
+    <div class="pager">
+      {prev ? <a href={href(`/lesson/${t.id}/${prev.id}/`)}>{'← ' + prev.title}</a> : <span></span>}
+      {nxt ? <a href={href(`/lesson/${t.id}/${nxt.id}/`)}>{nxt.title + ' →'}</a> : <a href={href(`/track/${t.id}/`)}>{T('Back to track →')}</a>}
+    </div>
+  </div>
+  <script type="application/json" id="lesson-data" set:html={lessonData} />
+</WorkspaceLayout>
+<script src="../scripts/lesson-island.js"></script>

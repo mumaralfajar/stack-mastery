@@ -2,7 +2,7 @@
 import { INTERVIEW_TOTALS } from '../data/manifest.ts';
 import { codeBlock, confirmDialog, h, md, tableWrap } from '../lib/dom.ts';
 import { getInterview, t as T } from '../lib/i18n.ts';
-import { bar, ring, shuffle } from '../lib/icons.ts';
+import { bar, href, ring, shuffle } from '../lib/icons.ts';
 import { notifyStateChange } from '../lib/state.ts';
 import { INTERVIEW_KEY, onStorageSync, readJson, writeJson } from '../lib/storage.ts';
 import { editor, loadTS, typeNote } from './playground.js';
@@ -45,7 +45,7 @@ const list = (items) => h('ul', { class: 'points' }, items.map((i) => h('li', { 
 const sec = (title, ...kids) => h('section', { class: 'sec' }, h('h2', {}, title), ...kids);
 const head = (eyebrow, title, lede, ...kids) =>
   h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, eyebrow), h('h1', {}, title), lede ? h('p', { class: 'lede' }, lede) : null, ...kids);
-const crumb = (label) => [h('a', { href: '#/interview' }, 'Interview prep'), ' · ', label];
+const crumb = (label) => [h('a', { href: href('/interview/') }, 'Interview prep'), ' · ', label];
 const diffChip = (d) => h('span', { class: 'chip diff-' + d }, DIFF[d]);
 const patternName = (iv, id) => iv.patterns.find((p) => p.id === id).name;
 
@@ -55,11 +55,11 @@ const getRapidTotal = (iv) => iv.rapid.reduce((a, r) => a + r.qs.length, 0);
 
 function parts(iv) {
   return [
-    ['Coding problems solved', Object.keys(D.solved).length, iv.problems.length, '#/interview/coding'],
-    ['System design cases mastered', Object.values(D.design).filter(Boolean).length, iv.design.cases.length, '#/interview/design'],
-    ['Behavioral themes with a story', covered(iv), iv.behavioral.length, '#/interview/behavioral'],
-    ['Rapid-fire answers rated solid', Object.values(D.rapid).filter((v) => v === 2).length, getRapidTotal(iv), '#/interview/rapid'],
-    ['Mock interviews completed', Math.min(D.mocks.length, INTERVIEW_TOTALS.maxMocks), INTERVIEW_TOTALS.maxMocks, '#/interview/mock'],
+    ['Coding problems solved', Object.keys(D.solved).length, iv.problems.length, href('/interview/coding/')],
+    ['System design cases mastered', Object.values(D.design).filter(Boolean).length, iv.design.cases.length, href('/interview/design/')],
+    ['Behavioral themes with a story', covered(iv), iv.behavioral.length, href('/interview/behavioral/')],
+    ['Rapid-fire answers rated solid', Object.values(D.rapid).filter((v) => v === 2).length, getRapidTotal(iv), href('/interview/rapid/')],
+    ['Mock interviews completed', Math.min(D.mocks.length, INTERVIEW_TOTALS.maxMocks), INTERVIEW_TOTALS.maxMocks, href('/interview/mock/')],
   ];
 }
 
@@ -249,7 +249,7 @@ function arena(iv, p, { mock } = {}) {
           ]
         : null,
       h('p', { style: { marginTop: '.6rem' } }, h('b', {}, 'Complexity: '), p.complexity),
-      h('p', { class: 'muted' }, 'Pattern: ', h('a', { href: '#/interview/patterns' }, patternName(iv, p.pattern))),
+      h('p', { class: 'muted' }, 'Pattern: ', h('a', { href: href('/interview/patterns/') }, patternName(iv, p.pattern))),
     ),
     h('details', {}, h('summary', {}, 'Interviewer follow-ups'), list(p.follow)),
   ];
@@ -309,7 +309,7 @@ function problemView(iv, id) {
     'div',
     { class: 'page wide iv' },
     head(
-      [...crumb(h('a', { href: '#/interview/coding' }, 'Coding'))],
+      [...crumb(h('a', { href: href('/interview/coding/') }, 'Coding'))],
       p.title,
       null,
       h(
@@ -325,8 +325,8 @@ function problemView(iv, id) {
     h(
       'div',
       { class: 'pager' },
-      prev ? h('a', { href: '#/interview/problem/' + prev.id }, '← ' + prev.title) : h('span'),
-      next ? h('a', { href: '#/interview/problem/' + next.id }, next.title + ' →') : h('a', { href: '#/interview/coding' }, 'All problems →'),
+      prev ? h('a', { href: href(`/interview/problem/${prev.id}/`) }, '← ' + prev.title) : h('span'),
+      next ? h('a', { href: href(`/interview/problem/${next.id}/`) }, next.title + ' →') : h('a', { href: href('/interview/coding/') }, 'All problems →'),
     ),
   );
 }
@@ -357,7 +357,7 @@ function codingView(iv) {
         iv.problems.map((p) =>
           h(
             'a',
-            { class: 'row', href: '#/interview/problem/' + p.id },
+            { class: 'row', href: href(`/interview/problem/${p.id}/`) },
             h('span', { class: 'tick' + (D.solved[p.id] ? ' on' : '') }, D.solved[p.id] ? '✓' : ''),
             h('span', { class: 'row-t' }, p.title),
             h('small', {}, patternName(iv, p.pattern)),
@@ -365,7 +365,7 @@ function codingView(iv) {
           ),
         ),
       ),
-      h('p', { style: { marginTop: '1rem' } }, h('a', { class: 'btn ghost', href: '#/interview/patterns' }, 'Study the 12 patterns →')),
+      h('p', { style: { marginTop: '1rem' } }, h('a', { class: 'btn ghost', href: href('/interview/patterns/') }, 'Study the 12 patterns →')),
     ),
     sec(
       'Complexity you must know cold',
@@ -382,7 +382,7 @@ function patternsView(iv) {
     'div',
     { class: 'page iv' },
     head(
-      [...crumb(h('a', { href: '#/interview/coding' }, 'Coding'))],
+      [...crumb(h('a', { href: href('/interview/coding/') }, 'Coding'))],
       'The 12 patterns',
       'Almost every coding question is one of these in disguise. Learn to recognize the signal, and the template follows. Templates are in C#.',
     ),
@@ -399,7 +399,7 @@ function patternsView(iv) {
           { class: 'chips', style: { marginTop: '.6rem' } },
           iv.problems
             .filter((x) => x.pattern === p.id)
-            .map((x) => h('a', { class: 'chip-link' + (D.solved[x.id] ? ' solved' : ''), href: '#/interview/problem/' + x.id }, x.title)),
+            .map((x) => h('a', { class: 'chip-link' + (D.solved[x.id] ? ' solved' : ''), href: href(`/interview/problem/${x.id}/`) }, x.title)),
         ),
       ),
     ),
@@ -524,7 +524,7 @@ function designView(iv, id) {
     return h(
       'div',
       { class: 'page iv' },
-      head([...crumb(h('a', { href: '#/interview/design' }, 'System design'))], c.title, c.prompt, h('div', { class: 'actions' }, timer(45))),
+      head([...crumb(h('a', { href: href('/interview/design/') }, 'System design'))], c.title, c.prompt, h('div', { class: 'actions' }, timer(45))),
       h('p', { class: 'muted' }, 'Attempt each step on paper or a whiteboard first, speaking out loud. Open a section only to compare.'),
       caseBody(c),
       h(
@@ -566,7 +566,7 @@ function designView(iv, id) {
         iv.design.cases.map((x) =>
           h(
             'a',
-            { class: 'card go', href: '#/interview/design/' + x.id },
+            { class: 'card go', href: href(`/interview/design/${x.id}/`) },
             h('span', { class: 'card-k' }, D.design[x.id] ? '✓ mastered' : 'case study'),
             h('strong', {}, x.title),
             h('p', {}, x.prompt),
@@ -582,21 +582,21 @@ function designView(iv, id) {
         'p',
         {},
         'Design answers get their depth from the ',
-        h('a', { href: '#/track/sysdesign' }, 'System Design'),
+        h('a', { href: href('/track/sysdesign/') }, 'System Design'),
         ' track and fundamentals: ',
-        h('a', { href: '#/lesson/sysdesign/caching' }, 'caching'),
+        h('a', { href: href('/lesson/sysdesign/caching/') }, 'caching'),
         ', ',
-        h('a', { href: '#/lesson/sysdesign/ratelimiting' }, 'rate limiting'),
+        h('a', { href: href('/lesson/sysdesign/ratelimiting/') }, 'rate limiting'),
         ', ',
-        h('a', { href: '#/lesson/sysdesign/db-scaling' }, 'scaling a database'),
+        h('a', { href: href('/lesson/sysdesign/db-scaling/') }, 'scaling a database'),
         ', ',
-        h('a', { href: '#/lesson/sysdesign/hashing' }, 'consistent hashing'),
+        h('a', { href: href('/lesson/sysdesign/hashing/') }, 'consistent hashing'),
         ', ',
-        h('a', { href: '#/lesson/sysdesign/messaging' }, 'queues and the outbox'),
+        h('a', { href: href('/lesson/sysdesign/messaging/') }, 'queues and the outbox'),
         ', ',
-        h('a', { href: '#/lesson/sysdesign/resilience' }, 'resilience'),
+        h('a', { href: href('/lesson/sysdesign/resilience/') }, 'resilience'),
         ' and ',
-        h('a', { href: '#/lesson/sysdesign/consistency' }, 'fencing tokens and sagas'),
+        h('a', { href: href('/lesson/sysdesign/consistency/') }, 'fencing tokens and sagas'),
         '.',
       ),
     ),
@@ -1044,11 +1044,11 @@ function hub(iv) {
   };
   refreshHist();
   const loop = [
-    ['Coding', '#/interview/coding', 'Two rounds in most loops. Data structures and algorithms, solved out loud in 35–45 minutes.'],
-    ['System design', '#/interview/design', 'From mid-level up. Design a large system on a whiteboard and defend the trade-offs.'],
-    ['Behavioral', '#/interview/behavioral', 'Evidence of ownership, collaboration and judgement, told as specific stories.'],
-    ['Stack knowledge', '#/interview/rapid', 'Depth in your own technologies: C#, ASP.NET Core, Go, SQL, TypeScript, React, Angular, CSS, Flutter, System design, the web.'],
-    ['Mock interviews', '#/interview/mock', 'Timed, scored simulations of every round to build speed and confidence.'],
+    ['Coding', href('/interview/coding/'), 'Two rounds in most loops. Data structures and algorithms, solved out loud in 35–45 minutes.'],
+    ['System design', href('/interview/design/'), 'From mid-level up. Design a large system on a whiteboard and defend the trade-offs.'],
+    ['Behavioral', href('/interview/behavioral/'), 'Evidence of ownership, collaboration and judgement, told as specific stories.'],
+    ['Stack knowledge', href('/interview/rapid/'), 'Depth in your own technologies: C#, ASP.NET Core, Go, SQL, TypeScript, React, Angular, CSS, Flutter, System design, the web.'],
+    ['Mock interviews', href('/interview/mock/'), 'Timed, scored simulations of every round to build speed and confidence.'],
   ];
   return h(
     'div',
@@ -1085,11 +1085,11 @@ function hub(iv) {
           'p',
           {},
           'Many backend and full-stack loops include live SQL: joins, grouping, window functions, and reading slow queries. The 14 graded challenges in the ',
-          h('a', { href: '#/play/sql' }, 'SQL playground'),
+          h('a', { href: href('/play/sql/') }, 'SQL playground'),
           ' cover that exact range. Solve them timed while explaining each clause out loud, then review ',
-          h('a', { href: '#/lesson/sql/indexes' }, 'indexes'),
+          h('a', { href: href('/lesson/sql/indexes/') }, 'indexes'),
           ' and ',
-          h('a', { href: '#/lesson/sql/plans' }, 'execution plans'),
+          h('a', { href: href('/lesson/sql/plans/') }, 'execution plans'),
           ' for the follow-up questions.',
         ),
       ),
@@ -1118,7 +1118,7 @@ function hub(iv) {
         'p',
         { class: 'muted' },
         'Before any coding round, make sure the ',
-        h('a', { href: '#/track/cs' }, 'CS Fundamentals'),
+        h('a', { href: href('/track/cs/') }, 'CS Fundamentals'),
         ' track is solid since every pattern here builds on it.',
       ),
     ),

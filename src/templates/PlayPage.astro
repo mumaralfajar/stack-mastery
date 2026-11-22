@@ -1,0 +1,47 @@
+---
+// Browser playground shells (SQL, TypeScript, CSS + Tailwind, Dart + Flutter). ?sample= picks the initial preset.
+import { pageStrings } from '../lib/ssr.ts';
+import type { Lang } from '../lib/types.ts';
+import ViewPage from './ViewPage.astro';
+
+interface Props {
+  lang: Lang;
+  kind: string;
+}
+
+const { lang, kind } = Astro.props;
+const { T } = pageStrings(lang);
+const META: Record<string, { heading: string; lede: string }> = {
+  sql: {
+    heading: 'SQL playground',
+    lede: 'A live SQLite database runs right in your browser, and you can reset it anytime. Lessons use SQL Server syntax, which mostly runs here with a few quirks. Put LIMIT at the end instead of TOP, use strftime() instead of YEAR(), and expect float rounding on money. SQLite is also looser on WHERE aliases, ungrouped columns, and "double-quoted" strings.',
+  },
+  ts: {
+    heading: 'TypeScript playground',
+    lede: 'Write TypeScript and run it right away. Type errors show red squiggles as you type and list below on run. Plain TypeScript runs in a worker with a 5-second limit, while React imports render live using React 19 from esm.sh.',
+  },
+  css: {
+    heading: 'CSS + Tailwind playground',
+    lede: "Write HTML and CSS and watch the preview update live. Toggle Tailwind to try utility classes and @theme (loads Tailwind's browser build, so internet is needed).",
+  },
+  dart: {
+    heading: 'Dart + Flutter playground',
+    lede: 'DartPad compiles and runs real Dart and Flutter right in your browser. Pick a lesson sample, click Run, edit the code, and try it again.',
+  },
+};
+const m = META[kind];
+const heading = T(m.heading);
+const lede = T(m.lede);
+---
+<ViewPage
+  lang={lang}
+  path={`/play/${kind}/`}
+  title={`${heading} — Stack Mastery`}
+  description={lede}
+  view="play"
+  args={{ kind }}
+  eyebrow={T('Practice')}
+  heading={heading}
+  lede={lede}
+  wide
+/>

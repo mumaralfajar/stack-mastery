@@ -1,9 +1,8 @@
+// Flashcard review and mock exam views (client-rendered; they need every lesson's quiz questions).
 import { h, md } from '../../lib/dom.ts';
 import { getAllTracks, getLevels, t as T } from '../../lib/i18n.ts';
-import { ico, lessonHref, quizItem, shuffle } from '../../lib/icons.ts';
-import { S, allCards, allLessons, day, dueCards, peek, touch } from '../../lib/state.ts';
-import { renderNav } from '../nav.js';
-import { VIZ } from '../viz/registry.ts';
+import { href, lessonHref, quizItem, shuffle } from '../../lib/icons.ts';
+import { S, allCards, allLessons, day, dueCards, notifyStateChange, peek, touch } from '../../lib/state.ts';
 
 const GAPS = [1, 2, 4, 8, 16];
 
@@ -61,14 +60,14 @@ export function review() {
       );
     }
     if (n >= queue.length) {
-      renderNav();
+      notifyStateChange('study');
       return stage.replaceChildren(
         h(
           'div',
           { class: 'empty' },
           h('strong', {}, T('Session complete: {got} of {n} recalled.', { got, n: queue.length })),
           h('p', {}, 'Missed cards return tomorrow.'),
-          h('a', { class: 'btn', href: '#/dashboard' }, 'Back to dashboard'),
+          h('a', { class: 'btn', href: href('/dashboard/') }, 'Back to dashboard'),
         ),
       );
     }
@@ -194,61 +193,4 @@ export function exam() {
   };
   page.append(h('div', { class: 'actions' }, ts, ls, h('button', { type: 'button', class: 'btn', onclick: start }, 'Start exam')), stage);
   return page;
-}
-
-export function labView(id) {
-  const v = VIZ[id];
-  if (!v) {
-    return h(
-      'div',
-      { class: 'page' },
-      h(
-        'header',
-        { class: 'head' },
-        h('p', { class: 'eyebrow' }, 'See it move'),
-        h('h1', {}, 'Visual lab'),
-        h(
-          'p',
-          { class: 'lede' },
-          'Every tough concept in this stack has a mental picture. Explore each visual model yourself, then use it when teaching others.',
-        ),
-      ),
-      h(
-        'div',
-        { class: 'grid' },
-        Object.entries(VIZ).map(([vid, x]) =>
-          h(
-            'a',
-            { class: 'card go', href: '#/lab/' + vid, style: { '--tc': `var(--${x.track})` } },
-            ico(x.track, 'card-ico'),
-            h('span', { class: 'card-k' }, x.trackName),
-            h('strong', {}, x.title),
-            h('p', {}, x.desc),
-          ),
-        ),
-      ),
-    );
-  }
-  const el = h('div', { class: 'viz' });
-  v.mount(el);
-  const used = allLessons().filter((e) => e.l.viz === id);
-  return h(
-    'div',
-    { class: 'page', style: { '--tc': `var(--${v.track})` } },
-    h(
-      'header',
-      { class: 'head' },
-      h('p', { class: 'eyebrow' }, h('a', { href: '#/lab' }, 'Visual lab'), ' · ', v.trackName),
-      h('h1', {}, v.title),
-      h('p', { class: 'lede' }, v.desc),
-    ),
-    el,
-    used.length ? h('p', { class: 'muted' }, 'Used in: ', used.map((e, i) => [i ? ', ' : '', h('a', { href: lessonHref(e.t, e.l) }, e.l.title)])) : null,
-  );
-}
-
-export function playView(which, sample, play) {
-  const el = h('div', { class: 'page wide' });
-  ({ ts: play.ts, css: play.css, dart: play.dart }[which] || play.sql)(el, sample);
-  return el;
 }

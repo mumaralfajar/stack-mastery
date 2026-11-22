@@ -1,0 +1,125 @@
+---
+// "Start here" machine setup guide (fully static).
+import CodeTabs from '../components/CodeTabs.astro';
+import WorkspaceLayout from '../layouts/WorkspaceLayout.astro';
+import { pageStrings } from '../lib/ssr.ts';
+import type { Lang } from '../lib/types.ts';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const { T, md, href } = pageStrings(lang);
+const steps: [string, string, string][] = [
+  [
+    '1. Install the tools',
+    'Install the **.NET SDK** (current LTS), **Go** (1.27+), **Node.js LTS**, **Git**, and the **Flutter SDK** (which includes Dart). Add **Visual Studio Code** with C# Dev Kit, Go, Angular, and Flutter extensions, then check each command in a terminal:',
+    `
+dotnet --version
+go version
+node --version
+git --version
+flutter --version
+code --version`,
+  ],
+  [
+    '2. Your first C# program',
+    'This is where the C# track’s code goes. Open the folder in VS Code and edit `Program.cs`.',
+    `
+dotnet new console -o hello
+cd hello
+dotnet run`,
+  ],
+  [
+    '3. Your first web API',
+    '`dotnet watch` rebuilds and restarts on every save. Leave it running as you work through ASP.NET Core.',
+    `
+dotnet new web -o shop-api
+cd shop-api
+dotnet watch run`,
+  ],
+  [
+    '4. Your first React + TypeScript app',
+    'Vite gives you a dev server with instant reload. The last line adds Tailwind for the CSS + Tailwind track.',
+    `
+npm create vite@latest shop-web -- --template react-ts
+cd shop-web
+npm install
+npm install tailwindcss @tailwindcss/vite
+npm run dev`,
+  ],
+  [
+    '5. Your first Angular app',
+    'The Angular CLI scaffolds a standalone, zoneless workspace with TypeScript and strict templates enabled. Start the dev server on `http://localhost:4200` and open it in the browser.',
+    `
+npx @angular/cli@latest new shop-ng
+cd shop-ng
+npx ng serve`,
+  ],
+  [
+    '6. Your first Flutter app',
+    '`flutter doctor` tells you what is still missing for each platform. The web target needs only Chrome, so you can start before setting up Android Studio or Xcode.',
+    `
+flutter doctor
+flutter create shop_app
+cd shop_app
+flutter run -d chrome`,
+  ],
+  [
+    '7. Your first Go program & API',
+    'Go compiles to a single native binary in milliseconds. Initialize a module with `go mod init`, create `main.go`, and use `go test ./...` for built-in testing.',
+    `
+mkdir shop-go
+cd shop-go
+go mod init shop
+go run .`,
+  ],
+  [
+    '8. A database',
+    'The SQL and ASP.NET Core tracks use **SQL Server**. On Windows, install free **SQL Server Express**, where samples connect as `.\SQLEXPRESS`. On macOS or Linux, run SQL Server in Docker with a `Shop` connection string. The SQL playground uses SQLite in your browser, so early SQL lessons work right away.',
+    `
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Design
+dotnet tool install --global dotnet-ef
+dotnet ef migrations add Init
+dotnet ef database update`,
+  ],
+  [
+    '9. Put everything in Git from day one',
+    'A commit history is both your safety net and, later, your portfolio. The first lesson of the CS Fundamentals track covers the workflow.',
+    `
+git init
+git add .
+git commit -m "First commit"`,
+  ],
+];
+const lede = T('Reading is not learning. Every lesson ends with something to build, and that needs a handful of free tools. This takes about twenty minutes, once.');
+---
+<WorkspaceLayout lang={lang} path="/start/" title={`${T('Start here: set up your machine')} — Stack Mastery`} description={lede}>
+  <div class="page">
+    <header class="head">
+      <p class="eyebrow">{T('Before lesson one')}</p>
+      <h1>{T('Start here: set up your machine')}</h1>
+      <p class="lede">{lede}</p>
+    </header>
+    {steps.map(([title, text, code]) => (
+      <section class="sec">
+        <h2>{T(title)}</h2>
+        <p set:html={md(text)} />
+        <CodeTabs code={code} lang="sh" uiLang={lang} />
+      </section>
+    ))}
+    <section class="sec">
+      <h2>{T('10. A routine that works')}</h2>
+      <ol class="steps">
+        <li><b>{T('10 minutes: ')}</b>{T('flashcard review. Do this first every day so concepts stick.')}</li>
+        <li><b>{T('30 minutes: ')}</b>{T('one lesson. Learn it, check yourself, and write the teach-back.')}</li>
+        <li><b>{T('30–45 minutes: ')}</b>{T('build. The lesson’s “Your turn” exercise, then the current capstone.')}</li>
+        <li><b>{T('Weekly: ')}</b>{T('one mock exam, and from the Intermediate level three coding problems.')}</li>
+      </ol>
+      <p class="muted">{T('Progress is stored in this browser only. Use “Export backup” in the sidebar now and then, and before switching browser or computer.')}</p>
+    </section>
+    <div class="actions"><a class="btn" href={href('/lesson/csharp/types/')}>{T('Begin with C# lesson one →')}</a></div>
+  </div>
+</WorkspaceLayout>

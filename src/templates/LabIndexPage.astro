@@ -1,0 +1,37 @@
+---
+// Index of all 40 visual labs (static cards; no lab module is loaded on this page).
+import { loadSiteData, vizEntries } from '../data/site.ts';
+import WorkspaceLayout from '../layouts/WorkspaceLayout.astro';
+import { ICONS } from '../lib/icons.ts';
+import { pageStrings } from '../lib/ssr.ts';
+import type { Lang } from '../lib/types.ts';
+
+interface Props {
+  lang: Lang;
+}
+
+await loadSiteData();
+const { lang } = Astro.props;
+const { T, href } = pageStrings(lang);
+const labs = vizEntries(lang);
+const lede = T('Every tough concept in this stack has a mental picture. Explore each visual model yourself, then use it when teaching others.');
+---
+<WorkspaceLayout lang={lang} path="/lab/" title={`${T('Visual lab')} — Stack Mastery`} description={lede}>
+  <div class="page">
+    <header class="head">
+      <p class="eyebrow">{T('See it move')}</p>
+      <h1>{T('Visual lab')}</h1>
+      <p class="lede">{lede}</p>
+    </header>
+    <div class="grid">
+      {labs.map((v) => (
+        <a class="card go" href={href(`/lab/${v.id}/`)} data-viz-id={v.id} style={`--tc: var(--${v.lab.track})`}>
+          <span class="card-ico" set:html={ICONS[v.lab.track]} />
+          <span class="card-k">{v.lab.trackName}</span>
+          <strong>{v.title}</strong>
+          <p>{v.desc}</p>
+        </a>
+      ))}
+    </div>
+  </div>
+</WorkspaceLayout>

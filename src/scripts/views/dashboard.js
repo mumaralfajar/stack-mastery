@@ -1,13 +1,18 @@
+import { LESSON_INDEX } from '../../data/manifest.ts';
 import { h } from '../../lib/dom.ts';
-import { getAllTracks, getLevels, t as T } from '../../lib/i18n.ts';
-import { bar, dots, ico, lessonHref, ring, section } from '../../lib/icons.ts';
-import { allLessons, dueCards, interviewReadiness, key, overall, pct, peek, score, streak } from '../../lib/state.ts';
+import { getLevels, t as T } from '../../lib/i18n.ts';
+import { bar, dots, href, ico, lessonHref, ring, section } from '../../lib/icons.ts';
+import { dueCountIndex, masteredCountIndex, overallPctIndex, trackPctIndex } from '../../lib/progress.ts';
+import { interviewReadiness, key, peek, score, streak } from '../../lib/state.ts';
 
-export function dashboard() {
-  const tracks = getAllTracks();
+// `catalog` is the page's pre-rendered track list ({ tracks: [{ id, name, tagline, lessons: [{ id, title, level }] }] }),
+// so the dashboard never loads lesson prose; progress comes from the manifest.
+export function dashboard(catalog) {
+  const tracks = catalog.tracks;
   const levels = getLevels();
-  const all = allLessons();
-  const mastered = all.filter((e) => score(e.k) === 3).length;
+  const mastered = masteredCountIndex();
+  const overall = overallPctIndex();
+  const pct = (t, lvl) => trackPctIndex(t.id, lvl);
   const started = tracks.filter((t) =>
     t.lessons.some((l) => score(key(t, l)) > 0 || peek(key(t, l)).read || peek(key(t, l)).quiz || peek(key(t, l)).teach),
   );
@@ -33,24 +38,24 @@ export function dashboard() {
           { class: 'lede' },
           'Nine stack tracks and CS fundamentals cover C#, ASP.NET Core, Go, SQL, CSS with Tailwind, TypeScript with React, Angular, Dart with Flutter, and System Design. You finish a lesson once you can teach it.',
         ),
-        overall() === 0
+        overall === 0
           ? h(
               'div',
               { class: 'actions' },
-              h('a', { class: 'btn', href: '#/start' }, 'New here? Set up your machine first →'),
-              h('a', { class: 'btn ghost', href: '#/lab/journey' }, 'See how one click travels through the whole stack →'),
+              h('a', { class: 'btn', href: href('/start/') }, 'New here? Set up your machine first →'),
+              h('a', { class: 'btn ghost', href: href('/lab/journey/') }, 'See how one click travels through the whole stack →'),
             )
           : null,
       ),
-      ring(overall()),
+      ring(overall),
     ),
     h(
       'div',
       { class: 'stats' },
       stat(streak(), 'day streak'),
-      stat(dueCards().length, 'cards due'),
+      stat(dueCountIndex(), 'cards due'),
       stat(mastered, 'lessons mastered'),
-      stat(all.length, 'lessons total'),
+      stat(LESSON_INDEX.length, 'lessons total'),
     ),
     next.length
       ? section(
@@ -79,7 +84,7 @@ export function dashboard() {
         tracks.map((t) =>
           h(
             'a',
-            { class: 'card track-card', href: `#/track/${t.id}`, style: { '--tc': `var(--${t.id})` } },
+            { class: 'card track-card', href: href(`/track/${t.id}/`), style: { '--tc': `var(--${t.id})` } },
             ico(t.id, 'card-ico'),
             h('strong', {}, t.name),
             h('p', {}, t.tagline),
@@ -92,7 +97,7 @@ export function dashboard() {
       'Get hired',
       h(
         'a',
-        { class: 'card go', href: '#/interview' },
+        { class: 'card go', href: href('/interview/') },
         ico('interview', 'card-ico'),
         h('span', { class: 'card-k' }, `${T('Interview readiness')} ${readyPct}%`),
         h('strong', {}, 'Interview preparation'),
@@ -155,13 +160,13 @@ export function dashboard() {
           'the eight-week interview plan. Steady weekly practice beats cramming.',
         ),
       ),
-      h('p', {}, h('a', { href: '#/lab/journey' }, 'See how one click travels through the whole stack →')),
+      h('p', {}, h('a', { href: href('/lab/journey/') }, 'See how one click travels through the whole stack →')),
     ),
     section(
       'Take a breather',
       h(
         'a',
-        { class: 'card go', href: '#/break', style: { '--tc': 'var(--csharp)' } },
+        { class: 'card go', href: href('/break/'), style: { '--tc': 'var(--csharp)' } },
         ico('break', 'card-ico'),
         h('span', { class: 'card-k' }, T('Frieren’s Grimoire Sanctuary')),
         h('strong', {}, T('Break room: Field of Flowers Magic')),

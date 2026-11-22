@@ -1,0 +1,223 @@
+---
+// Landing page, fully pre-rendered. Only the Packet Reactor canvas, telemetry toys, theme/language
+// switchers, opt-in audio and the legacy hash bridge run on the client (src/scripts/landing.js).
+import { LESSON_INDEX } from '../data/manifest.ts';
+import { getTrack, loadSiteData } from '../data/site.ts';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { DOCK_CHEV_SVG, DOCK_ICON_SVG, ICONS, LOGO_SVG } from '../lib/icons.ts';
+import { alternateUrl } from '../lib/routes.ts';
+import { courseLd } from '../lib/seo.ts';
+import { jsonForScript, pageStrings, uiSubset } from '../lib/ssr.ts';
+import type { Lang, Track } from '../lib/types.ts';
+
+interface Props {
+  lang: Lang;
+}
+
+await loadSiteData();
+const { lang } = Astro.props;
+const { T, href } = pageStrings(lang);
+const nextLang: Lang = lang === 'id' ? 'en' : 'id';
+const nextLangName = lang === 'id' ? 'English' : 'Bahasa Indonesia';
+const totalLessons = LESSON_INDEX.length;
+const track = (id: string) => getTrack(id, lang) as Track;
+
+const LAYER_GROUPS = [
+  { key: 'Interface Layer', desc: 'Rendering, typography, reactive signals, and multi-platform UI.', ids: ['css', 'react', 'angular', 'flutter'] },
+  { key: 'Services & Runtime', desc: 'Typed backends, memory management, concurrency, and API contracts.', ids: ['csharp', 'aspnet', 'go'] },
+  { key: 'Data & Distributed Scale', desc: 'Relational internals, caching, rate limits, consistency, and queues.', ids: ['sql', 'sysdesign'] },
+  { key: 'Foundations', desc: 'Algorithms, Big-O complexity, graphs, dynamic programming, and concurrency.', ids: ['cs'] },
+];
+const NODE_IDS = ['react', 'css', 'angular', 'flutter', 'sysdesign', 'go', 'aspnet', 'csharp', 'sql', 'cs'];
+const mottoLines = T('Learn it. Prove it. Teach it.').split(/(?<=\.)\s+/).filter(Boolean);
+
+const title = T('Stack Mastery — C#, ASP.NET Core, Go, SQL, CSS, TypeScript + React, Angular, Dart + Flutter, System Design');
+const description = T(
+  'Free, self-paced full-stack mastery in C#, ASP.NET Core, Go, SQL, CSS, React, Angular, Flutter, System Design, and CS fundamentals with interview prep.',
+);
+const jsonLd = courseLd({
+  lang,
+  path: '/',
+  name: 'Stack Mastery',
+  description,
+  parts: NODE_IDS.map((id) => ({ name: track(id).name, description: track(id).tagline, path: `/track/${id}/` })),
+});
+
+// Runtime data for the reactor: translated strings plus track names and lesson counts per node.
+const landingData = jsonForScript({
+  lang,
+  tracks: Object.fromEntries(NODE_IDS.map((id) => [id, { name: track(id).name, count: track(id).lessons.length }])),
+  i18n: uiSubset(lang, [
+    'Sound: ON',
+    'Sound: OFF',
+    'Play',
+    'Pause',
+    'Kill Cache',
+    'Restore Cache',
+    'Cache Nominal',
+    'Circuit OPEN · Bypassing Cache',
+    '{name} · {n} lessons · Double-click to open track',
+    'Drag any node, click or hold canvas to charge a ripple, double-click a node to explore.',
+    'Show',
+    'Hide',
+    'Show controls',
+    'Hide controls',
+  ]),
+});
+const SEARCH_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
+const THEME_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+---
+<BaseLayout lang={lang} path="/" title={title} description={description} bodyClass="is-landing" jsonLd={jsonLd} legacyBridge>
+  <div id="app">
+    <main id="view" tabindex="-1">
+      <div class="lp-root">
+        <span data-color-probe style="position: absolute; visibility: hidden; pointer-events: none"></span>
+        <header class="lp-bar">
+          <a href={href('/')} class="brand"><span class="logo" set:html={LOGO_SVG} />Stack Mastery</a>
+          <nav class="lp-nav" aria-label={T('Landing navigation')}>
+            <button type="button" class="lp-nav-link" data-scroll-to="lp-arch">{T('Tracks')}</button>
+            <button type="button" class="lp-nav-link" data-scroll-to="lp-proof">{T('Live Labs')}</button>
+            <a class="lp-nav-link" href={href('/interview/')}>{T('Interview preparation')}</a>
+            <a class="lp-nav-link" href={href('/break/')}>{T('Flower Meadow')}</a>
+          </nav>
+          <div class="lp-controls">
+            <a href={href('/search/')} class="icon-btn lp-search-opt" aria-label={T('Search')} title={T('Search')} set:html={SEARCH_SVG} />
+            <a
+              href={alternateUrl(nextLang, Astro.url.pathname)}
+              class="icon-btn"
+              lang={nextLang}
+              hreflang={nextLang}
+              data-set-lang={nextLang}
+              aria-label={`${nextLang.toUpperCase()}: ${nextLangName}`}
+              title={nextLangName}>{nextLang.toUpperCase()}</a>
+            <button type="button" class="icon-btn" data-theme-toggle aria-label={T('Toggle theme')} title={T('Toggle theme')} set:html={THEME_SVG} />
+            <a href={href('/dashboard/')} class="btn lp-cta">{T('Open Dashboard →')}</a>
+          </div>
+        </header>
+
+        <section class="lp-stage" data-dragging="false" data-hover-node="false">
+          <canvas class="lp-canvas" aria-hidden="true"></canvas>
+          <div class="lp-stage-grid">
+            <div class="lp-copy">
+              <h1>{mottoLines.map((line, i) => <>{i > 0 ? ' ' : ''}<span class="lp-line">{line}</span></>)}</h1>
+              <p class="lp-lede">{T('Ten full-stack tracks, {lessons} verified lessons, 40 interactive labs, and 4 browser playgrounds.', { lessons: totalLessons })}</p>
+              <div class="lp-actions">
+                <a class="btn" href={href('/dashboard/')}>{T('Open Dashboard →')}</a>
+                <a class="btn ghost" href={href('/lab/')}>{T('Explore 40 Live Labs')}</a>
+              </div>
+              <div class="lp-telemetry">
+                <span><b>10</b> {T('tracks')}</span>
+                <span><b>{totalLessons}</b> {T('lessons')}</span>
+                <span class="lp-rps-pill"><span class="lp-pulse-dot" data-broken="false"></span><b>48 RPS</b> · <span data-cache-status>{T('Cache Nominal')}</span></span>
+              </div>
+            </div>
+            <div class="lp-reactor-space">
+              <div class="lp-inspector" aria-live="polite">
+                <span class="lp-insp-dot" aria-hidden="true"></span>
+                <span data-inspector-text>{T('Drag any node, click or hold canvas to charge a ripple, double-click a node to explore.')}</span>
+              </div>
+            </div>
+          </div>
+          <div class="lp-dock" data-collapsed="true" role="group" aria-label={T('Reactor interactive controls')}>
+            <div class="lp-dock-items" inert>
+              <button type="button" class="lp-toy" data-toy="spike">{T('50× Spike')}</button>
+              <button type="button" class="lp-toy danger" data-toy="cache">{T('Kill Cache')}</button>
+              <button type="button" class="lp-toy" aria-pressed="false" data-toy="gravity">{T('Gravity Well')}</button>
+              <button type="button" class="lp-toy" aria-pressed="false" data-toy="slow">{T('Slow-Mo 0.25×')}</button>
+              <span class="lp-dock-sep" aria-hidden="true"></span>
+              <button type="button" class="lp-toy" data-toy="sound">{T('Sound: OFF')}</button>
+              <button type="button" class="lp-toy" data-toy="pause">{T('Pause')}</button>
+            </div>
+            <button type="button" class="lp-dock-toggle" aria-expanded="false" aria-label={T('Show controls')} title={T('Show controls')}>
+              <span set:html={DOCK_ICON_SVG} />
+              <span>{T('Show')}</span>
+              <span set:html={DOCK_CHEV_SVG} />
+            </button>
+          </div>
+        </section>
+
+        <section id="lp-arch" class="lp-band">
+          <div class="lp-band-head">
+            <div>
+              <h2>{T('Ten interconnected engineering tracks')}</h2>
+              <p class="lp-band-sub">{T('Work across layers—UI components, API services, relational internals, and distributed architecture reinforce each other.')}</p>
+            </div>
+            <a class="btn ghost" href={href('/dashboard/')}>{T('View full progress workspace →')}</a>
+          </div>
+          <div class="lp-arch-list">
+            {LAYER_GROUPS.map((grp) => (
+              <div class="lp-layer lp-reveal">
+                <div class="lp-layer-head">
+                  <h3>{T(grp.key)}</h3>
+                  <span>{T(grp.desc)}</span>
+                </div>
+                <div class="lp-track-rows">
+                  {grp.ids.map((id) => {
+                    const tr = track(id);
+                    return (
+                      <a class="lp-trow" href={href(`/track/${tr.id}/`)} style={`--tc: var(--${tr.id})`}>
+                        <span class="lp-trow-ico" set:html={ICONS[tr.id]} />
+                        <div class="lp-trow-meta">
+                          <div class="lp-trow-top">
+                            <strong>{tr.name}</strong>
+                            <small>{T('{n} lessons', { n: tr.lessons.length })}</small>
+                          </div>
+                          <p>{tr.tagline}</p>
+                        </div>
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="lp-proof" class="lp-proof-band">
+          <div class="lp-band">
+            <div class="lp-band-head lp-reveal">
+              <div>
+                <h2>{T('Learn interactively, verify in real runtimes')}</h2>
+                <p class="lp-band-sub">{T('Every lesson moves from prediction and live visualization straight into runnable sandboxes and interview scenarios.')}</p>
+              </div>
+            </div>
+            <div class="lp-proof-grid">
+              <div class="lp-panel lp-reveal">
+                <h3>{T('40 interactive labs & 4 browser sandboxes')}</h3>
+                <p>{T('Experiment with SQL locking, Go slice aliasing, Rate Limiter seam bursts, Consistent Hash rings, CSS layout grids, and React rendering right inside the browser.')}</p>
+                <div class="lp-chip-links">
+                  <a class="lp-chip-link" href={href('/lab/sysratelimit/')} style="--tc: var(--sysdesign)">{T('Rate Limiter Lab →')}</a>
+                  <a class="lp-chip-link" href={href('/lab/syshash/')} style="--tc: var(--sysdesign)">{T('Consistent Hash Ring →')}</a>
+                  <a class="lp-chip-link" href={href('/lab/goslices/')} style="--tc: var(--go)">{T('Go Slice Aliasing →')}</a>
+                  <a class="lp-chip-link" href={href('/play/sql/')} style="--tc: var(--sql)">{T('SQLite Sandbox →')}</a>
+                  <a class="lp-chip-link" href={href('/play/ts/')} style="--tc: var(--react)">{T('TypeScript Sandbox →')}</a>
+                </div>
+              </div>
+              <div class="lp-panel lp-reveal">
+                <h3>{T('Interview arena & timed mock rounds')}</h3>
+                <p>{T('Practice 21 coding problems, 8 worked system design architectures, 67 rapid-fire Q&As, and an 8-week schedule without leaving the app.')}</p>
+                <div class="lp-chip-links">
+                  <a class="lp-chip-link" href={href('/interview/design/')} style="--tc: var(--accent)">{T('8 Design Cases →')}</a>
+                  <a class="lp-chip-link" href={href('/interview/coding/')} style="--tc: var(--csharp)">{T('21 Coding Problems →')}</a>
+                  <a class="lp-chip-link" href={href('/interview/mock/')} style="--tc: var(--good)">{T('Timed Mock Loop →')}</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="lp-band lp-close lp-reveal">
+          <h2>{T('Private by architecture')}</h2>
+          <p>{T('Zero sign-ups, zero tracking scripts, zero server lock-in. All progress, quizzes, and JSON backups stay on your machine.')}</p>
+          <div class="lp-actions">
+            <a class="btn" href={href('/dashboard/')}>{T('Open Workspace →')}</a>
+            <a class="btn ghost" href={href('/start/')}>{T('New here? Set up your machine first →')}</a>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script type="application/json" id="landing-data" set:html={landingData} />
+</BaseLayout>
+<script src="../scripts/legacy-bridge.ts"></script>
+<script src="../scripts/landing.js"></script>

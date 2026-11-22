@@ -1,0 +1,128 @@
+---
+// Teaching toolkit (static) with a small lesson-plan picker island.
+import { getAllTracks, loadSiteData } from '../data/site.ts';
+import WorkspaceLayout from '../layouts/WorkspaceLayout.astro';
+import { jsonForScript, pageStrings } from '../lib/ssr.ts';
+import type { Lang } from '../lib/types.ts';
+
+interface Props {
+  lang: Lang;
+}
+
+await loadSiteData();
+const { lang } = Astro.props;
+const { T, md, href, levels } = pageStrings(lang);
+const tracks = getAllTracks(lang);
+const first = tracks[0];
+// Lesson options per track for the plan picker: { trackId: [[lessonId, "Level: Title"], ...] }.
+const lessonOptions = jsonForScript(
+  Object.fromEntries(tracks.map((t) => [t.id, t.lessons.map((l) => [l.id, `${levels[l.level]}: ${l.title}`])])),
+);
+const lists: [string, string[]][] = [
+  [
+    'Seven rules for teaching programmers',
+    [
+      '**One new idea per step.** If a demo needs three unfamiliar things, teach two of them earlier or hide them.',
+      '**Concrete before abstract.** Show a working example first, name the concept second, give the definition last.',
+      '**Predict, run, explain.** Before running any line, ask what happens. A wrong guess reveals the missing idea much better than an upfront lecture.',
+      '**Their hands on the keyboard.** Watching you type feels like learning and is not. Aim for students typing at least half of the session.',
+      '**Errors are the curriculum.** Cause the common error on purpose, read the message together, and fix it. Students who can read errors can teach themselves.',
+      '**Ask questions that cannot be answered with yes.** Not “does that make sense?” but “what would this print if I swapped these two lines?”',
+      '**Fight the curse of knowledge.** List every term you used. Any term the student did not have yesterday needs a definition or an analogy.',
+    ],
+  ],
+];
+const levelNeeds = [
+  '**Beginner** learners need a solid mental model and small wins. Hide complexity without lying by saying we’ll open that box later.',
+  '**Intermediate** learners need slightly oversized projects and reviews on their own code instead of more toy demos.',
+  '**Advanced** learners need real trade-offs. Give two valid designs and ask them to defend each one.',
+  '**Expert** learners need internals, measurement, and judgement. Stop giving answers and ask for benchmarks, query plans, or traces.',
+];
+const readySigns = [
+  'You can explain it three ways: an analogy, a diagram, and code.',
+  'You can name the two mistakes almost every learner makes, before they make them.',
+  'You can answer the follow-up to the follow-up question.',
+  'You can say what you deliberately left out, and why it is safe to leave out for now.',
+];
+const lede = T('Knowing a topic and teaching it take different skills. Experts skip steps they forget are hard, while teachers put those steps back.');
+---
+<WorkspaceLayout lang={lang} path="/teach/" title={`${T('Teaching toolkit')} — Stack Mastery`} description={lede}>
+  <div class="page">
+    <header class="head">
+      <p class="eyebrow">{T('Become the teacher')}</p>
+      <h1>{T('Teaching toolkit')}</h1>
+      <p class="lede">{lede}</p>
+    </header>
+    <section class="sec">
+      <h2>{T('Generate a lesson plan')}</h2>
+      <p>{T('Every lesson in this program converts into a 45-minute printable plan: hook, explanation, live demo, practice, checks, and misconceptions to watch for.')}</p>
+      <form class="actions" data-plan-picker action={href(`/plan/${first.id}/${first.lessons[0].id}/`)}>
+        <select aria-label={T('Track')} data-plan-track>
+          {tracks.map((t) => <option value={t.id}>{t.name}</option>)}
+        </select>
+        <select aria-label={T('Lesson')} data-plan-lesson>
+          {first.lessons.map((l) => <option value={l.id}>{`${levels[l.level]}: ${l.title}`}</option>)}
+        </select>
+        <button type="submit" class="btn">{T('Open plan')}</button>
+      </form>
+    </section>
+    {lists.map(([title, items]) => (
+      <section class="sec">
+        <h2>{T(title)}</h2>
+        <ul class="points">{items.map((i) => <li set:html={md(i)} />)}</ul>
+      </section>
+    ))}
+    <section class="sec">
+      <h2>{T('The question ladder')}</h2>
+      <p>{T('Climb it for any topic. If you can answer all four rungs, you can teach it at any level.')}</p>
+      <ol class="steps">
+        <li><b>{T('What does it do? ')}</b>{T('Beginner: describe the behavior and show it.')}</li>
+        <li><b>{T('What happens if…? ')}</b>{T('Intermediate: predict edge cases and failures.')}</li>
+        <li><b>{T('Why is it designed this way? ')}</b>{T('Advanced: name the trade-off and the rejected alternative.')}</li>
+        <li><b>{T('When should you not use it? ')}</b>{T('Expert: know the limits, cost, and better alternatives.')}</li>
+      </ol>
+    </section>
+    <section class="sec">
+      <h2>{T('What each level of student needs')}</h2>
+      <ul class="points">{levelNeeds.map((i) => <li set:html={md(i)} />)}</ul>
+    </section>
+    <section class="sec">
+      <h2>{T('A 45-minute session')}</h2>
+      <ol class="steps">
+        <li><b>{T('0–5 Hook. ')}</b>{T('A problem or analogy that makes the topic necessary.')}</li>
+        <li><b>{T('5–15 Explain. ')}</b>{T('Three key ideas at most, each with a picture.')}</li>
+        <li><b>{T('15–25 Live demo. ')}</b>{T('Type from scratch, make a mistake on purpose, recover out loud.')}</li>
+        <li><b>{T('25–40 Practice. ')}</b>{T('Students build a variation while you circulate and ask “why?”.')}</li>
+        <li><b>{T('40–45 Exit ticket. ')}</b>{T('Each student explains the idea back in one or two sentences.')}</li>
+      </ol>
+    </section>
+    <section class="sec">
+      <h2>{T('Signs you are ready to teach a topic')}</h2>
+      <ul class="points">{readySigns.map((i) => <li set:html={md(i)} />)}</ul>
+    </section>
+  </div>
+  <script type="application/json" id="plan-lessons" set:html={lessonOptions} />
+</WorkspaceLayout>
+<script>
+  import { getLang } from '../lib/i18n.ts';
+  import { routePath } from '../lib/routes.ts';
+
+  const form = document.querySelector<HTMLFormElement>('[data-plan-picker]');
+  const trackSel = form?.querySelector<HTMLSelectElement>('[data-plan-track]');
+  const lessonSel = form?.querySelector<HTMLSelectElement>('[data-plan-lesson]');
+  let options: Record<string, [string, string][]> = {};
+  try {
+    options = JSON.parse(document.getElementById('plan-lessons')?.textContent || '{}');
+  } catch {
+    options = {};
+  }
+  if (form && trackSel && lessonSel) {
+    trackSel.addEventListener('change', () => {
+      lessonSel.replaceChildren(...(options[trackSel.value] || []).map(([id, label]) => new Option(label, id)));
+    });
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      location.assign(routePath(getLang(), `/plan/${trackSel.value}/${lessonSel.value}/`));
+    });
+  }
+</script>

@@ -1,0 +1,65 @@
+---
+// Search page: static heading; the island fetches the pre-built search index for this language.
+import WorkspaceLayout from '../layouts/WorkspaceLayout.astro';
+import { jsonForScript, pageStrings, uiSubset } from '../lib/ssr.ts';
+import type { Lang } from '../lib/types.ts';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const { T, href } = pageStrings(lang);
+const searchData = jsonForScript({
+  index: href('/search-index.json'),
+  i18n: uiSubset(lang, [
+    'All',
+    'Lessons',
+    'Interview',
+    'Visualizations',
+    'Search',
+    'Search lessons, problems, interview questions…',
+    '{n} lessons, problems, questions and visualizations indexed. Try “index”, “async”, “flexbox” or “deadlock”.',
+    'Nothing found. Try a shorter or different word.',
+    'Find anything',
+  ]),
+});
+---
+<WorkspaceLayout
+  lang={lang}
+  path="/search/"
+  title={`${T('Search')} — Stack Mastery`}
+  description={T('Search lessons, problems, interview questions…')}>
+  <div id="search-root" aria-busy="true">
+    <div class="page">
+      <header class="head">
+        <p class="eyebrow">{T('Find anything')}</p>
+        <h1>{T('Search')}</h1>
+      </header>
+    </div>
+  </div>
+  <script type="application/json" id="search-data" set:html={searchData} />
+</WorkspaceLayout>
+<script>
+  import { registerUiDict } from '../lib/i18n.ts';
+  import { searchView } from '../scripts/views/search.js';
+
+  const root = document.getElementById('search-root');
+  const data = JSON.parse(document.getElementById('search-data')?.textContent || '{}') as {
+    index?: string;
+    i18n?: Record<string, string>;
+  };
+  registerUiDict(data.i18n || {});
+  if (root && data.index) {
+    fetch(data.index)
+      .then((r) => {
+        if (!r.ok) throw new Error(`search index HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((index) => {
+        root.replaceChildren(searchView(index));
+        root.removeAttribute('aria-busy');
+      })
+      .catch((e: unknown) => console.error(e));
+  }
+</script>

@@ -1,0 +1,28 @@
+---
+// Study workspace: static sidebar + main view, hydrated by the lightweight workspace shell.
+import Sidebar from '../components/Sidebar.astro';
+import type { Lang } from '../lib/types.ts';
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  lang: Lang;
+  path: string;
+  title: string;
+  description: string;
+  ogType?: 'website' | 'article';
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const { lang, path, title, description, ogType, jsonLd } = Astro.props;
+---
+<BaseLayout lang={lang} path={path} title={title} description={description} ogType={ogType} jsonLd={jsonLd}>
+  <div id="app">
+    <Sidebar lang={lang} />
+    <main id="view" tabindex="-1">
+      <slot />
+    </main>
+  </div>
+</BaseLayout>
+<script>
+  import '../scripts/workspace-shell.ts';
+</script>

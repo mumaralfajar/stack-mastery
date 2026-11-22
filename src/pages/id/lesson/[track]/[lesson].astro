@@ -1,0 +1,10 @@
+---
+// Indonesian route; the page itself lives in src/templates/LessonPage.astro.
+import { LESSON_INDEX } from '../../../../data/manifest.ts';
+import LessonPage from '../../../../templates/LessonPage.astro';
+
+export function getStaticPaths() {
+  return LESSON_INDEX.map((e) => ({ params: { track: e.trackId, lesson: e.id } }));
+}
+---
+<LessonPage lang="id" trackId={Astro.params.track as string} lessonId={Astro.params.lesson as string} />

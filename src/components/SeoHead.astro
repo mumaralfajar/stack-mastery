@@ -1,0 +1,46 @@
+---
+// Per-page SEO: title, description, canonical, hreflang alternates, Open Graph, Twitter Card and JSON-LD.
+import { absoluteUrl } from '../lib/routes.ts';
+import { jsonForScript } from '../lib/ssr.ts';
+import type { Lang } from '../lib/types.ts';
+
+interface Props {
+  lang: Lang;
+  /** Route path without base or language prefix, e.g. '/lesson/go/types/'. */
+  path: string;
+  title: string;
+  description: string;
+  ogType?: 'website' | 'article';
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  noindex?: boolean;
+}
+
+const { lang, path, title, description, ogType = 'website', jsonLd, noindex = false } = Astro.props;
+const canonicalUrl = absoluteUrl(lang, path);
+const enUrl = absoluteUrl('en', path);
+const idUrl = absoluteUrl('id', path);
+const image = absoluteUrl('en', '/icons/icon-512.png');
+const locale = lang === 'id' ? 'id_ID' : 'en_US';
+const altLocale = lang === 'id' ? 'en_US' : 'id_ID';
+const ld = jsonLd ? jsonForScript(Array.isArray(jsonLd) && jsonLd.length === 1 ? jsonLd[0] : jsonLd) : '';
+---
+<title>{title}</title>
+<meta name="description" content={description} />
+{noindex && <meta name="robots" content="noindex" />}
+<link rel="canonical" href={canonicalUrl} />
+<link rel="alternate" hreflang="en" href={enUrl} />
+<link rel="alternate" hreflang="id" href={idUrl} />
+<link rel="alternate" hreflang="x-default" href={enUrl} />
+<meta property="og:type" content={ogType} />
+<meta property="og:site_name" content="Stack Mastery" />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:locale" content={locale} />
+<meta property="og:locale:alternate" content={altLocale} />
+<meta property="og:image" content={image} />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={image} />
+{ld && <script type="application/ld+json" set:html={ld} />}

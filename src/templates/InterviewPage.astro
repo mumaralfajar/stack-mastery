@@ -1,0 +1,94 @@
+---
+// Interview prep shells: hub, coding, one problem, patterns, system design (+ one case), behavioral, rapid-fire, mock.
+import { getInterview, loadSiteData } from '../data/site.ts';
+import { plainDescription } from '../lib/seo.ts';
+import { pageStrings } from '../lib/ssr.ts';
+import type { InterviewData, Lang } from '../lib/types.ts';
+import ViewPage from './ViewPage.astro';
+
+export type InterviewSub = 'coding' | 'problem' | 'patterns' | 'design' | 'behavioral' | 'rapid' | 'mock';
+
+interface Props {
+  lang: Lang;
+  sub?: InterviewSub;
+  id?: string;
+}
+
+await loadSiteData();
+const { lang, sub, id } = Astro.props;
+const { T } = pageStrings(lang);
+const iv = getInterview(lang) as InterviewData;
+
+const SECTIONS: Record<string, { heading: string; lede: string; eyebrow: string }> = {
+  hub: {
+    eyebrow: 'Get hired',
+    heading: 'Interview preparation',
+    lede: 'Top companies hire through a structured loop, and the loop can be trained for. Everything here is practice under the same conditions: timed, out loud, and graded against a rubric.',
+  },
+  patterns: {
+    eyebrow: 'Coding',
+    heading: 'The 12 patterns',
+    lede: 'Almost every coding question is one of these in disguise. Learn to recognize the signal, and the template follows. Templates are in C#.',
+  },
+  design: {
+    eyebrow: 'System design',
+    heading: 'System design interview',
+    lede: 'An open-ended conversation where you lead. Interviewers look for structure, clear trade-offs, and depth where it matters rather than one right answer.',
+  },
+  behavioral: {
+    eyebrow: 'Behavioral',
+    heading: 'Behavioral interview',
+    lede: 'Interviewers predict future behavior from past actions. Share concrete stories focused on what you did instead of opinions or “we”.',
+  },
+  rapid: {
+    eyebrow: 'Rapid-fire',
+    heading: 'Rapid-fire stack questions',
+    lede: 'The knowledge round: short questions on your own stack. A good answer is two or three precise sentences plus one trade-off, said without hesitation.',
+  },
+  mock: {
+    eyebrow: 'Mock interview',
+    heading: 'Mock interview',
+    lede: 'Simulate one round with the timer running, thinking out loud, and using zero notes. Keep running mocks until your scores settle across sessions.',
+  },
+};
+
+let eyebrow: string;
+let heading: string;
+let lede: string;
+if (sub === 'coding') {
+  eyebrow = T('Coding');
+  heading = T('Coding interview');
+  lede = T(
+    '{n} classic problems across 12 patterns, judged in-browser against real tests. Write TypeScript here, or view the C# templates on the patterns page.',
+    { n: iv.problems.length },
+  );
+} else if (sub === 'problem') {
+  const p = iv.problems.find((x) => x.id === id);
+  eyebrow = T('Coding');
+  heading = p ? p.title : T('Coding interview');
+  lede = p ? plainDescription(p.prompt, 240) : '';
+} else if (sub === 'design' && id) {
+  const c = iv.design.cases.find((x) => x.id === id);
+  eyebrow = T('System design');
+  heading = c ? c.title : T('System design interview');
+  lede = c ? c.prompt : '';
+} else {
+  const s = SECTIONS[sub || 'hub'];
+  eyebrow = T(s.eyebrow);
+  heading = T(s.heading);
+  lede = T(s.lede);
+}
+const path = '/interview/' + (sub ? `${sub}/` : '') + (id ? `${id}/` : '');
+const hub = T('Interview preparation');
+---
+<ViewPage
+  lang={lang}
+  path={path}
+  title={sub ? `${heading} — ${hub} · Stack Mastery` : `${heading} — Stack Mastery`}
+  description={plainDescription(lede || heading)}
+  view="interview"
+  args={{ sub, id }}
+  eyebrow={eyebrow}
+  heading={heading}
+  lede={lede}
+/>

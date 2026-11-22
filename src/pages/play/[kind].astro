@@ -1,0 +1,10 @@
+---
+// English route; the page itself lives in src/templates/PlayPage.astro.
+import { PLAY_KINDS } from '../../lib/routes.ts';
+import PlayPage from '../../templates/PlayPage.astro';
+
+export function getStaticPaths() {
+  return PLAY_KINDS.map((kind) => ({ params: { kind } }));
+}
+---
+<PlayPage lang="en" kind={Astro.params.kind as string} />
