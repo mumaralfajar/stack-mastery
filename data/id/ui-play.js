@@ -77,5 +77,18 @@ I18N.add({
   'SQL Server NVARCHAR(n) → SQLite uses TEXT without length syntax.': 'NVARCHAR(n) di SQL Server → SQLite memakai TEXT tanpa panjang karakter.',
   'SQL Server OFFSET/FETCH → SQLite uses LIMIT n OFFSET m.': 'OFFSET/FETCH di SQL Server → SQLite memakai LIMIT n OFFSET m.',
   'Replace your current SQL query with the challenge solution?': 'Ganti query SQL-mu saat ini dengan solusi challenge?',
+  // Example chips (the data-k lookup key stays English)
+  'Array methods': 'Method array',
+  'Unions & narrowing': 'Union & narrowing',
+  'Generics': 'Generic',
+  'Immutable state': 'State immutable',
+  'React component': 'Komponen React',
+  'React effects': 'Effect di React',
+  'async / await': 'async / await',
+  'Flexbox navbar': 'Navbar flexbox',
+  'Responsive grid': 'Grid responsif',
+  'Theme tokens + :has()': 'Token tema + :has()',
+  'Tailwind card': 'Kartu Tailwind',
+  'Tailwind responsive': 'Tailwind responsif',
   'Note: Signal, linkedSignal, and RxJS models run directly here in TypeScript. Full Angular HTML @Component templates require Angular CLI or StackBlitz.': 'Catatan: Model Signal, linkedSignal, dan RxJS berjalan langsung di sini sebagai TypeScript. Template HTML @Component Angular lengkap memerlukan Angular CLI atau StackBlitz.'
 });

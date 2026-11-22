@@ -1,5 +1,7 @@
 // Bahasa Indonesia — teks visualisasi di js/viz.js.
 I18N.add({
+  'Buy now': 'Beli sekarang',
+  'Widget': 'Widget',
   '← Back': '← Kembali', 'Next →': 'Lanjut →',
   'Step {i} of {n}': 'Langkah {i} dari {n}',
   'Full stack': 'Full stack',

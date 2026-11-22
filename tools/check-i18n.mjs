@@ -110,6 +110,90 @@ const scanScripts = dir => {
 };
 scanScripts(fileURLToPath(new URL('../src/scripts', import.meta.url)));
 
+// ---------- h() children, translated attributes, table headers, playground example keys ----------
+// h() runs every plain string child and its placeholder / title / aria-label through t(), so each such
+// literal needs an Indonesian entry. Strings that are code, SQL or brand tokens are allowed through
+// NON_UI below, and anything without two consecutive letters (symbols, numbers) is skipped.
+const NON_UI = new Set([
+  // brand, language and tool names shown as-is in both languages
+  'Stack Mastery', 'HTML', 'CSS', 'NULL', 'DartPad', 'Tailwind', 'TypeScript', 'React', 'Angular', 'SQLite', 'Tailwind: ',
+  // code literals, identifiers and metric tokens drawn inside labs and diagrams
+  '48 RPS', '#1 Person', 'sub', 'err == nil', 'Header · z-index: 10', 'Tooltip · z-index: 9999',
+  // SQL table aliases and result column names
+  'customers c', 'orders o', 'id', 'category', 'total', 'order_date', 'amount', 'running', 'rn'
+]);
+const BS = String.fromCharCode(92);   // backslash
+const skipStr = (s, i, q) => { i++; while (i < s.length && s[i] !== q) { if (s[i] === BS) i++; i++; } return i + 1; };
+// A "/" starts a regex literal (not division) when the previous code character is an operator or bracket.
+const startsRegex = (s, i) => { let j = i - 1; while (j >= 0 && /\s/.test(s[j])) j--; return j < 0 || '(,=:[!&|?{};+-*%<>~^'.includes(s[j]); };
+const skipRegex = (s, i) => {
+  let cls = false; i++;
+  while (i < s.length && s[i] !== '\n') {
+    if (s[i] === BS) { i += 2; continue; }
+    if (s[i] === '[') cls = true; else if (s[i] === ']') cls = false; else if (s[i] === '/' && !cls) return i + 1;
+    i++;
+  }
+  return i;
+};
+// Splits the argument list that starts right after "(" at index i into [start, end] ranges.
+function splitArgs(s, i) {
+  const args = []; let depth = 0, start = i;
+  while (i < s.length) {
+    const c = s[i];
+    if (c === "'" || c === '"') { i = skipStr(s, i, c); continue; }
+    if (c === '`') { i = skipTpl(s, i); continue; }
+    if (c === '/' && s[i + 1] === '/') { const n = s.indexOf('\n', i); i = n < 0 ? s.length : n; continue; }
+    if (c === '/' && s[i + 1] === '*') { i = s.indexOf('*/', i) + 2; continue; }
+    if (c === '/' && startsRegex(s, i)) { i = skipRegex(s, i); continue; }
+    if (c === '(' || c === '[' || c === '{') depth++;
+    else if (c === ')' || c === ']' || c === '}') { if (!depth) { args.push([start, i]); return { args, end: i }; } depth--; }
+    else if (c === ',' && !depth) { args.push([start, i]); start = i + 1; }
+    i++;
+  }
+  return { args, end: i };
+}
+function skipTpl(s, i) {
+  i++;
+  while (i < s.length && s[i] !== '`') {
+    if (s[i] === BS) { i += 2; continue; }
+    if (s[i] === '$' && s[i + 1] === '{') { i = splitArgs(s, i + 2).end + 1; continue; }
+    i++;
+  }
+  return i + 1;
+}
+const unq = t => { const m = t.trim().match(/^(['"])((?:\\.|(?!\1).)*)\1$/); return m ? m[2].replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\n/g, '\n') : null; };
+const needsUi = (key, where) => {
+  if (key == null || !/[A-Za-z]{2,}/.test(key) || NON_UI.has(key) || I18N.ui.has(key)) return;
+  errors.push(`untranslated UI string (${where}): ${key}`);
+};
+const scanUi = dir => {
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, e.name);
+    if (e.isDirectory()) { scanUi(p); continue; }
+    if (!e.name.endsWith('.js')) continue;
+    const s = readFileSync(p, 'utf8');
+    for (const m of s.matchAll(/(?<![\w.$])h\(/g)) {
+      const { args } = splitArgs(s, m.index + 2);
+      if (/^\s*['"](?:pre|code|kbd|samp|style|script)['"]\s*$/.test(s.slice(...(args[0] || [0, 0])))) continue;   // code, never translated
+      args.slice(2).forEach(([a, b]) => needsUi(unq(s.slice(a, b)), e.name));
+      const attrs = args[1] && s.slice(...args[1]);
+      if (attrs) for (const am of attrs.matchAll(/(?:placeholder|title|'aria-label')\s*:\s*(['"])((?:\\.|(?!\1).)+)\1/g)) needsUi(unq(am[1] + am[2] + am[1]), e.name + ' attribute');
+    }
+    // Table header rows built as ['Col', ...].map(c => h('th', ...))
+    for (const m of s.matchAll(/\[((?:\s*(['"])(?:\\.|(?!\2).)*\2\s*,?)+)\]\s*\.map\(\s*\(?\s*\w+\s*\)?\s*=>\s*h\(\s*'th'/g)) {
+      for (const c of m[1].matchAll(/(['"])((?:\\.|(?!\1).)*)\1/g)) needsUi(unq(c[0]), e.name + ' table header');
+    }
+    // Playground example chips render their object keys as labels.
+    for (const name of ['TS_EXAMPLES', 'CSS_EXAMPLES']) {
+      const at = s.search(new RegExp(String.raw`\bconst ${name}\s*=\s*\{`));
+      if (at < 0) continue;
+      const open = s.indexOf('{', at), { args } = splitArgs(s, open + 1);
+      for (const [a, b] of args) { const k = s.slice(a, b).match(/^\s*(['"])((?:\\.|(?!\1).)+)\1\s*:/); if (k) needsUi(k[2], `${e.name} ${name} chip`); }
+    }
+  }
+};
+scanUi(fileURLToPath(new URL('../src/scripts', import.meta.url)));
+
 console.log(`${lessons} lessons, ${I18N.ui.size} interface strings checked.`);
 if (errors.length) { console.log(errors.length + ' problem(s):\n' + errors.join('\n')); process.exit(1); }
 console.log('Indonesian content matches the English structure.');

@@ -1,6 +1,7 @@
 // ---------- state ----------
 const KEY = 'stackmastery.v1';
-const KEYS = ['stackmastery.v1', 'stackmastery.sql', 'stackmastery.interview'];
+const LANG_KEY = 'stackmastery.lang';   // stores a raw 'en' or 'id', not JSON
+const KEYS = ['stackmastery.v1', 'stackmastery.sql', 'stackmastery.interview', LANG_KEY];
 const fresh = () => ({ lessons: {}, cards: {}, projects: {}, streak: { last: '', count: 0 }, theme: '' });
 
 // Lightweight readiness computation used until the full interview bundle is lazy-loaded.
@@ -71,11 +72,21 @@ export function toggleTheme() {
   save(); applyTheme();
 }
 
+// Another tab saved progress: reload every field of S in place. Views import S as a live binding,
+// so the object itself must stay the same; then tell the app to refresh what is on screen.
+export function reloadState(raw) {
+  let next;
+  try { next = Object.assign(fresh(), JSON.parse(raw || '{}')); } catch { return false; }
+  for (const k of Object.keys(S)) if (!(k in next)) delete S[k];
+  Object.assign(S, next);
+  applyTheme();
+  return true;
+}
+
 if (typeof addEventListener !== 'undefined') {
   addEventListener('storage', e => {
-    if (e.key === KEY) {
-      try { S.theme = JSON.parse(e.newValue || '{}').theme || ''; applyTheme(); } catch { /* ignore */ }
-    }
+    if (e.key !== KEY && e.key !== null) return;   // null: another tab cleared storage
+    if (reloadState(e.key === null ? null : e.newValue)) dispatchEvent(new CustomEvent('sm-state-sync'));
   });
 }
 
@@ -93,9 +104,14 @@ export function importBackup() {
       const data = JSON.parse(await input.files[0].text());
       if (data.app !== 'stack-mastery' || !data.keys) throw new Error(T('not a Stack Mastery backup file'));
       const entries = Object.entries(data.keys).filter(([k, v]) => KEYS.includes(k) && typeof v === 'string');
-      entries.forEach(([, v]) => JSON.parse(v));   // every value must itself be valid JSON
+      entries.forEach(([k, v]) => {
+        if (k === LANG_KEY) { if (v !== 'en' && v !== 'id') throw new Error(T('not a Stack Mastery backup file')); }
+        else JSON.parse(v);   // every progress value must itself be valid JSON
+      });
       if (!(await window.confirmDialog(T('Replace the progress in this browser with the backup from {date}?', { date: String(data.exported).slice(0, 10) }), { title: 'Import backup', confirmText: 'Import backup', danger: true }))) return;
-      KEYS.forEach(k => localStorage.removeItem(k));
+      // Older backups have no language entry: keep the current language instead of clearing it.
+      const hasLang = entries.some(([k]) => k === LANG_KEY);
+      KEYS.forEach(k => { if (k !== LANG_KEY || hasLang) localStorage.removeItem(k); });
       entries.forEach(([k, v]) => localStorage.setItem(k, v));
       location.reload();
     } catch (e) { await window.alertDialog(T('Could not import: ') + e.message); }

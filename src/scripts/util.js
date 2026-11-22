@@ -114,7 +114,7 @@ function rx(lang) {
 }
 W.highlight = function (code, lang) {
   let out = '', last = 0;
-  code.replace(rx(lang), (m, c, s, k, n, t, i) => {
+  code.replace(rx(lang), (m, c, s, k, n, _t, i) => {
     out += W.esc(code.slice(last, i));
     if (s) {
       if (lang === 'ts' && m.startsWith('`') && /(?:\n|<[a-zA-Z/]|@(?:if|for|switch|defer)\b|\{\{)/.test(m)) out += highlightTemplate(m);
@@ -136,7 +136,7 @@ W.codeBlock = function (code, lang, opts = {}) {
   code = code.replace(/^\n+|\s+$/g, '');
   const label = { cs: 'C#', sql: 'SQL', ts: 'TypeScript', tsx: 'TSX', dart: 'Dart', go: 'Go', lua: 'Lua', http: 'HTTP', yaml: 'YAML', sh: 'Shell', css: 'CSS', html: 'HTML' }[lang] || lang;
   const tip = W.h('span', { class: 'copy-tip', role: 'status' });
-  const pre = W.h('pre', {}, W.h('code', { html: W.highlight(code, lang === 'tsx' ? 'ts' : lang) }));
+  const pre = W.h('pre', { tabindex: '0' }, W.h('code', { html: W.highlight(code, lang === 'tsx' ? 'ts' : lang) }));
   let hidden = !!opts.blurComments;
   const wrap = W.h('div', { class: 'code' + (hidden ? ' hide-hints' : '') });
   const hintBtn = opts.blurToggle ? W.h('button', { type: 'button', class: 'copy', onclick: () => {

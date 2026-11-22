@@ -211,7 +211,7 @@
       };
       const draw = type => {
         [...chips.children].forEach(c => c.classList.toggle('on', c.textContent === type));
-        let rows = [];
+        const rows = [];
         if (type === 'CROSS') C.forEach(c => O.forEach(o => rows.push([...c, o[0], o[2]])));
         else {
           C.forEach(c => { const m = O.filter(o => o[1] === c[0]); m.forEach(o => rows.push([...c, o[0], o[2]])); if (!m.length && (type === 'LEFT' || type === 'FULL OUTER')) rows.push([...c, null, null]); });

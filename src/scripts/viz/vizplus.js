@@ -125,7 +125,7 @@
     title: 'RxJS flattening operators', track: 'angular', trackName: 'Angular',
     desc: 'Trigger overlapping async clicks and compare switchMap (cancel stale), exhaustMap (ignore duplicates), concatMap (queue FIFO), and mergeMap (run all concurrently).',
     mount(el) {
-      let op = 'switchMap', reqs = [], nextId = 0, busyId = null, noteTxt = 'Pick an operator and click Trigger HTTP request twice quickly.';
+      let op = 'switchMap', reqs = [], nextId = 0, noteTxt = 'Pick an operator and click Trigger HTTP request twice quickly.';
       const board = h('div', { class: 'rxjs-board' }), note = h('p', { class: 'viz-note', 'aria-live': 'polite' });
       const labelState = s => ({ running: 'in flight', done: 'completed', cancelled: 'cancelled (stale)', ignored: 'ignored (busy)', queued: 'queued (FIFO)' }[s] || s);
 
@@ -134,7 +134,6 @@
         if (op === 'switchMap') {
           reqs.forEach(r => { if (r.state === 'running') r.state = 'cancelled'; });
           reqs.push({ id, state: 'running', pct: 30 });
-          busyId = id;
           noteTxt = T('switchMap aborted previous in-flight request and kept only #{id}. Ideal for search typeahead.', { id });
         } else if (op === 'exhaustMap') {
           if (reqs.some(r => r.state === 'running')) {
@@ -172,7 +171,7 @@
         draw();
       };
 
-      const reset = () => { reqs = []; nextId = 0; busyId = null; noteTxt = 'Pick an operator and click Trigger HTTP request twice quickly.'; draw(); };
+      const reset = () => { reqs = []; nextId = 0; noteTxt = 'Pick an operator and click Trigger HTTP request twice quickly.'; draw(); };
       const draw = () => {
         board.replaceChildren(...(reqs.length ? reqs.slice(-6).map(r =>
           h('div', { class: 'slot rxjs-row state-' + r.state },

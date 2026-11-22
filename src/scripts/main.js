@@ -21,7 +21,6 @@ if (window.LANG === 'id') {
 }
 
 const view = document.getElementById('view');
-const nav = document.getElementById('nav');
 
 let routed = false, routeSeq = 0;
 let landingP, breakP, vizP, playP, ivP;
@@ -106,6 +105,8 @@ async function route() {
     return;
   }
   const transition = document.startViewTransition(updateDOM);
+  // A newer route skips this transition; its DOM update still runs, so the rejection is expected.
+  transition.ready.catch(() => {});
   if (a !== 'search') {
     transition.finished.finally(() => {
       view.focus({ preventScroll: true });
@@ -114,4 +115,11 @@ async function route() {
 }
 
 addEventListener('hashchange', route);
+// Progress changed in another tab: refresh the sidebar, and redraw views that only display progress.
+// Views with work in progress (lessons, reviews, exams, editors) keep their current screen.
+addEventListener('sm-state-sync', () => {
+  renderNav();
+  const a = location.hash.replace(/^#\/?/, '').split('/')[0];
+  if (a === 'dashboard' || a === 'track') route();
+});
 route();

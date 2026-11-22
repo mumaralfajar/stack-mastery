@@ -63,7 +63,7 @@ export function renderNav() {
       brand(),
       h('div', { class: 'nav-actions' },
         h('a', { href: '#/search', class: 'icon-btn mob-only', 'aria-label': 'Search', title: 'Search', html: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' }),
-        h('button', { type: 'button', class: 'icon-btn', lang: nextLang, 'aria-label': nextLangName, title: nextLangName, onclick: () => setLang(nextLang) }, nextLang.toUpperCase()),
+        h('button', { type: 'button', class: 'icon-btn', lang: nextLang, 'aria-label': `${nextLang.toUpperCase()}: ${nextLangName}`, title: nextLangName, onclick: () => setLang(nextLang) }, nextLang.toUpperCase()),
         h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Toggle theme', title: 'Toggle theme', onclick: toggleTheme, html: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>' }),
         h('button', { type: 'button', class: 'nav-toggle', 'aria-label': 'Menu', 'aria-expanded': String(menuOpen), 'aria-controls': 'nav-drawer', onclick: () => setMenu(!menuOpen) },
           h('span', { html: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>' }),

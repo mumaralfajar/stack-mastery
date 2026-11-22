@@ -146,6 +146,8 @@ I18N.add({
   'Revisit: ': 'Pelajari lagi: ',
   'Clean sweep. Raise the level.': 'Benar semua. Naikkan levelnya.',
   'Start exam': 'Mulai ujian',
+  'No questions match these filters.': 'Tidak ada pertanyaan yang cocok dengan filter ini.',
+  'Pick another track or level, or choose All levels.': 'Pilih track atau level lain, atau pilih Semua level.',
 
   // lab
   'See it move': 'Lihat cara kerjanya',
