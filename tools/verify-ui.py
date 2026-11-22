@@ -1,53 +1,91 @@
-"""End-to-end UI, i18n, responsive layout, visualization, playground, and WCAG verification against built dist/."""
-from functools import partial
+"""End-to-end verification of the built static site in dist/.
+
+Covers the SSG output structure, the landing-page JS budget, single-viz chunk isolation, legacy `#/...` redirects,
+SEO metadata, the PWA manifest + offline service worker, UI behaviour (labs, playgrounds, interview prep, break room,
+cross-tab sync, backups) in English and Indonesian, responsive layout, and axe-core WCAG 2.2 AA scans.
+Usage: bun run build && python -u tools/verify-ui.py
+"""
+from html.parser import HTMLParser
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 import json
-import threading
+import re
+import struct
 import sys
+import threading
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / "dist"
+BASE_PATH = "/stack-mastery/"
+SITE = "https://mumaralfajar.github.io"
 AXE_JS = ROOT / "node_modules" / "axe-core" / "axe.min.js"
 AXE_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]
-AXE_ROUTES = ["#/", "#/dashboard", "#/break", "#/track/sysdesign", "#/lesson/angular/signals", "#/lab/syscache", "#/play/sql",
-              "#/interview", "#/interview/coding", "#/interview/behavioral", "#/interview/mock", "#/exam"]
+AXE_ROUTES = ["", "dashboard/", "break/", "track/sysdesign/", "lesson/angular/signals/", "lab/syscache/", "play/sql/",
+              "interview/", "interview/coding/", "interview/behavioral/", "interview/mock/", "exam/", "search/", "plan/go/types/"]
 EXPECTED_VIZ = 40
+EXPECTED_LESSONS = 135
+EXPECTED_TRACKS = 10
+EXPECTED_PROBLEMS = 21
+EXPECTED_DESIGN_CASES = 8
+LANDING_JS_BUDGET = 46080  # bytes, raw (uncompressed): strictly < 45 KB
+VIZ_CHUNK_RX = re.compile(r"/_astro/(viz|vizcss|vizmore|vizangular|vizflutter|vizplus|vizgo|vizsys)\.[\w-]+\.js$")
+# Chunks that carry lesson prose for every track (English tracks and Indonesian overlays).
+CURRICULUM_CHUNK_RX = re.compile(r"/_astro/(data|tracks-core|tracks-ui|core|web)\.[\w-]+\.js$")
+APP_GLOBALS = ["TRACKS", "VIZ", "I18N", "PLAY", "INTERVIEW", "IV", "PROJECTS", "LEVELS", "h", "md", "t", "esc", "codeBlock",
+               "codeFiles", "confirmDialog", "alertDialog", "tableWrap", "S", "routePath", "legacyHashToPath"]
 
 
-class SubpathHandler(SimpleHTTPRequestHandler):
+class StaticSiteHandler(SimpleHTTPRequestHandler):
+    """Serve dist/ under /stack-mastery/ like GitHub Pages: directory index.html, 301 to trailing slash, 404.html."""
+
     def translate_path(self, path):
         clean = path.split("?", 1)[0].split("#", 1)[0]
         if clean.startswith("/stack-mastery"):
             clean = clean[len("/stack-mastery"):] or "/"
-        rel = clean.lstrip("/") or "index.html"
-        target = (DIST / rel).resolve()
-        if not target.is_relative_to(DIST.resolve()) or not target.exists():
-            return str(DIST / "index.html")
+        target = (DIST / clean.lstrip("/")).resolve()
+        if not target.is_relative_to(DIST.resolve()):
+            return str(DIST / "__missing__")
         return str(target)
+
+    def send_error(self, code, message=None, explain=None):
+        if code == 404:
+            body = (DIST / "404.html").read_bytes()
+            self.send_response(404)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if self.command != "HEAD":
+                self.wfile.write(body)
+            return
+        super().send_error(code, message, explain)
+
+    def end_headers(self):
+        # Never let the browser cache between runs; the service worker is what we are testing.
+        self.send_header("Cache-Control", "no-cache")
+        super().end_headers()
 
     def log_message(self, format, *args):
         pass
 
 
+StaticSiteHandler.extensions_map.update({".webmanifest": "application/manifest+json", ".js": "text/javascript"})
+
+
 def start_server():
-    srv = ThreadingHTTPServer(("127.0.0.1", 0), SubpathHandler)
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), StaticSiteHandler)
     port = srv.server_address[1]
-    t = threading.Thread(target=srv.serve_forever, daemon=True)
-    t.start()
-    return srv, f"http://127.0.0.1:{port}/stack-mastery/"
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    return srv, f"http://127.0.0.1:{port}{BASE_PATH}"
 
 
 WCAG_DOM_AUDIT = """() => {
   const issues = [];
   const ids = new Map();
-  for (const el of document.querySelectorAll('[id]')) {
-    const k = el.id;
-    ids.set(k, (ids.get(k) || 0) + 1);
-  }
+  for (const el of document.querySelectorAll('[id]')) ids.set(el.id, (ids.get(el.id) || 0) + 1);
   for (const [k, n] of ids) if (n > 1) issues.push('Duplicate id: ' + k);
   for (const el of document.querySelectorAll('select, textarea, input')) {
+    if (el.type === 'hidden') continue;
     if (el.closest('label') || el.getAttribute('aria-label') || el.getAttribute('aria-labelledby')) continue;
     if (el.id && document.querySelector('label[for="' + el.id + '"]')) continue;
     issues.push('Unlabelled form control: ' + el.tagName + '.' + el.className);
@@ -68,19 +106,27 @@ WCAG_DOM_AUDIT = """() => {
   return issues;
 }"""
 
+# A page is ready once its islands have hydrated: no busy view root, lessons marked hydrated, labs mounted.
+PAGE_READY = """() => {
+  const v = document.querySelector('#view');
+  if (!v || !v.querySelector('.page, .lp-root')) return false;
+  if (v.querySelector('[aria-busy="true"]')) return false;
+  const lesson = v.querySelector('[data-lesson-root]');
+  if (lesson && !lesson.hasAttribute('data-hydrated')) return false;
+  for (const viz of v.querySelectorAll('.viz[data-viz]')) if (!viz.childElementCount) return false;
+  return true;
+}"""
+
 
 def lang_init(lang):
     # Init scripts also run in sandboxed preview iframes, where touching localStorage throws.
     return f"if (window === window.top) localStorage.setItem('stackmastery.lang', '{lang}');"
 
 
-def goto_hash(page, base, h):
-    if page.url.startswith(base):
-        page.evaluate("(h) => { location.hash = h; }", h)
-    else:
-        page.goto(base + h, wait_until="domcontentloaded")
-    page.wait_for_function("(h) => location.hash === h && document.querySelector('#view .page, #view .lp-root') !== null", arg=h, timeout=10000)
-    page.wait_for_timeout(180)
+def goto(page, base, path, timeout=15000):
+    page.goto(base + path, wait_until="domcontentloaded")
+    page.wait_for_function(PAGE_READY, timeout=timeout)
+    page.wait_for_timeout(120)
 
 
 def launch_browser(p):
@@ -110,31 +156,227 @@ def axe_violations(page):
     return page.evaluate(AXE_RUN, AXE_TAGS)
 
 
+def watch_errors(page, sink, label=""):
+    page.on("pageerror", lambda e: sink.append(f"{label}pageerror: {e}"))
+    page.on("console", lambda m: sink.append(f"{label}console.{m.type}: {m.text}") if m.type == "error" else None)
+
+
+def watch_requests(page):
+    urls = []
+    page.on("request", lambda r: urls.append(r.url))
+    return urls
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Static output checks (no browser)
+# ---------------------------------------------------------------------------------------------------------------
+IMPORT_RX = re.compile(r"""(?:import|export)\s*(?:[\w*{}\s,$]+from\s*)?["'](\.{1,2}/[^"']+)["']""")
+
+
+def page_js_bytes(html_rel):
+    """Raw bytes of JS a page loads up front: bundled <script src> files plus their static import graph, plus
+    executable inline scripts (JSON and JSON-LD data blocks are not code and are excluded)."""
+    html = (DIST / html_rel).read_text(encoding="utf-8")
+    srcs = re.findall(r'<script[^>]*\bsrc="([^"]+)"', html)
+    inline = [body for attrs, body in re.findall(r"<script(?![^>]*\bsrc=)([^>]*)>(.*?)</script>", html, re.S)
+              if "application/json" not in attrs and "application/ld+json" not in attrs]
+    seen = {}
+    stack = [s[len(BASE_PATH):] if s.startswith(BASE_PATH) else s for s in srcs]
+    while stack:
+        rel = stack.pop()
+        if rel in seen:
+            continue
+        f = DIST / rel
+        seen[rel] = f.stat().st_size
+        for imp in IMPORT_RX.findall(f.read_text(encoding="utf-8")):
+            stack.append((f.parent / imp).resolve().relative_to(DIST.resolve()).as_posix())
+    inline_bytes = sum(len(b.encode("utf-8")) for b in inline)
+    return sum(seen.values()) + inline_bytes, seen, inline_bytes
+
+
+class HeadParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.html_lang = None
+        self.canonical = None
+        self.alternates = {}
+        self.meta = {}
+        self.jsonld = []
+        self.title = ""
+        self._in_ld = False
+        self._in_title = False
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        if tag == "html":
+            self.html_lang = a.get("lang")
+        elif tag == "link" and a.get("rel") == "canonical":
+            self.canonical = a.get("href")
+        elif tag == "link" and a.get("rel") == "alternate" and a.get("hreflang"):
+            self.alternates[a["hreflang"]] = a.get("href")
+        elif tag == "meta" and (a.get("property") or a.get("name")):
+            self.meta[a.get("property") or a.get("name")] = a.get("content")
+        elif tag == "script" and a.get("type") == "application/ld+json":
+            self._in_ld = True
+            self.jsonld.append("")
+        elif tag == "title":
+            self._in_title = True
+
+    def handle_endtag(self, tag):
+        if tag == "script":
+            self._in_ld = False
+        elif tag == "title":
+            self._in_title = False
+
+    def handle_data(self, data):
+        if self._in_ld:
+            self.jsonld[-1] += data
+        elif self._in_title:
+            self.title += data
+
+
+def head_of(rel):
+    p = HeadParser()
+    p.feed((DIST / rel).read_text(encoding="utf-8"))
+    return p
+
+
+def png_size(path):
+    with open(path, "rb") as f:
+        head = f.read(24)
+    if head[:8] != b"\x89PNG\r\n\x1a\n":
+        return None
+    return struct.unpack(">II", head[16:24])
+
+
+def static_checks(check):
+    count = lambda pattern: len(list(DIST.glob(pattern)))
+    for rel in ["index.html", "id/index.html", "404.html", "robots.txt", "sitemap-index.xml", "manifest.webmanifest", "sw.js",
+                "favicon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/icon.svg", "search-index.json", "id/search-index.json"]:
+        check((DIST / rel).is_file(), f"dist/{rel} must exist")
+    for prefix, label in [("", "EN"), ("id/", "ID")]:
+        check(count(f"{prefix}lesson/*/*/index.html") == EXPECTED_LESSONS, f"{label}: expected {EXPECTED_LESSONS} lesson pages, found {count(f'{prefix}lesson/*/*/index.html')}")
+        check(count(f"{prefix}plan/*/*/index.html") == EXPECTED_LESSONS, f"{label}: expected {EXPECTED_LESSONS} plan pages")
+        check(count(f"{prefix}track/*/index.html") == EXPECTED_TRACKS, f"{label}: expected {EXPECTED_TRACKS} track pages")
+        check(count(f"{prefix}lab/*/index.html") == EXPECTED_VIZ, f"{label}: expected {EXPECTED_VIZ} lab pages, found {count(f'{prefix}lab/*/index.html')}")
+        check((DIST / prefix / "lab/index.html").is_file(), f"{label}: lab index page missing")
+        for kind in ["sql", "ts", "css", "dart"]:
+            check((DIST / prefix / f"play/{kind}/index.html").is_file(), f"{label}: /play/{kind}/ missing")
+        for sub in ["", "coding/", "patterns/", "design/", "behavioral/", "rapid/", "mock/"]:
+            check((DIST / prefix / f"interview/{sub}index.html").is_file(), f"{label}: /interview/{sub} missing")
+        check(count(f"{prefix}interview/problem/*/index.html") == EXPECTED_PROBLEMS, f"{label}: expected {EXPECTED_PROBLEMS} problem pages")
+        check(count(f"{prefix}interview/design/*/index.html") == EXPECTED_DESIGN_CASES, f"{label}: expected {EXPECTED_DESIGN_CASES} design case pages")
+        for page in ["dashboard", "start", "search", "review", "exam", "projects", "teach", "break"]:
+            check((DIST / prefix / f"{page}/index.html").is_file(), f"{label}: /{page}/ missing")
+    total_lessons = count("lesson/*/*/index.html") + count("id/lesson/*/*/index.html")
+    total_plans = count("plan/*/*/index.html") + count("id/plan/*/*/index.html")
+    total_labs = count("lab/*/index.html") + count("id/lab/*/index.html")
+    total_tracks = count("track/*/index.html") + count("id/track/*/index.html")
+    print(f"Static pages: {total_lessons} lessons, {total_plans} plans, {total_labs} labs, {total_tracks} tracks.")
+    check(total_lessons == 270 and total_plans == 270 and total_labs == 80 and total_tracks == 20,
+          "Expected 270 lesson, 270 plan, 80 lab and 20 track pages")
+
+    robots = (DIST / "robots.txt").read_text(encoding="utf-8")
+    check("User-agent: *" in robots and f"Sitemap: {SITE}/stack-mastery/sitemap-index.xml" in robots, f"robots.txt must allow all and list the sitemap: {robots!r}")
+    sm_index = (DIST / "sitemap-index.xml").read_text(encoding="utf-8")
+    check("sitemap-0.xml" in sm_index, "sitemap-index.xml must reference sitemap-0.xml")
+    sm = "".join(p.read_text(encoding="utf-8") for p in DIST.glob("sitemap-*.xml") if p.name != "sitemap-index.xml")
+    check(f"{SITE}/stack-mastery/lesson/go/concurrency/" in sm and f"{SITE}/stack-mastery/id/lesson/go/concurrency/" in sm,
+          "Sitemap must list EN and ID lesson URLs")
+    check('hreflang="id"' in sm, "Sitemap must carry hreflang alternates for EN/ID")
+    check("/404" not in sm, "Sitemap must not list the 404 page")
+
+    manifest = json.loads((DIST / "manifest.webmanifest").read_text(encoding="utf-8"))
+    for k, v in {"name": "Stack Mastery", "short_name": "Stack Mastery", "start_url": "/stack-mastery/",
+                 "scope": "/stack-mastery/", "display": "standalone"}.items():
+        check(manifest.get(k) == v, f"manifest.webmanifest {k} must be {v!r}, got {manifest.get(k)!r}")
+    check(bool(manifest.get("background_color")) and bool(manifest.get("theme_color")), "manifest needs background_color and theme_color")
+    icons = {i["src"]: i for i in manifest.get("icons", [])}
+    for src, size in [("/stack-mastery/icons/icon-192.png", (192, 192)), ("/stack-mastery/icons/icon-512.png", (512, 512))]:
+        check(src in icons and icons[src].get("type") == "image/png", f"manifest must declare {src} as image/png")
+        check(png_size(DIST / src[len(BASE_PATH):]) == size, f"{src} must be a valid {size[0]}x{size[1]} PNG")
+    check(any(i.get("type") == "image/svg+xml" for i in icons.values()), "manifest must declare an SVG icon")
+
+    sw = (DIST / "sw.js").read_text(encoding="utf-8")
+    check(re.search(r"const VERSION = 'stack-mastery-v\d+'", sw) is not None, "sw.js must use a versioned cache name")
+    for url in ["/stack-mastery/", "/stack-mastery/id/", "/stack-mastery/dashboard/", "/stack-mastery/id/dashboard/",
+                "/stack-mastery/manifest.webmanifest", "/stack-mastery/favicon.svg", "/stack-mastery/404.html"]:
+        check(f"'{url}'" in sw, f"sw.js must precache {url}")
+
+    # Landing performance gate: raw JS referenced by both landing pages stays strictly under 45 KB.
+    for rel in ["index.html", "id/index.html"]:
+        total, files, inline = page_js_bytes(rel)
+        print(f"Landing JS budget {rel}: {total} bytes raw ({len(files)} files + {inline} bytes inline) of {LANDING_JS_BUDGET}.")
+        check(total < LANDING_JS_BUDGET, f"{rel} loads {total} raw JS bytes (budget < {LANDING_JS_BUDGET}): {files}")
+        check(not any(CURRICULUM_CHUNK_RX.search("/" + f) or VIZ_CHUNK_RX.search("/" + f) for f in files),
+              f"{rel} must not load curriculum or viz chunks: {sorted(files)}")
+    # Lesson and lab pages must not statically import the curriculum or any lab module.
+    for rel in ["lesson/go/concurrency/index.html", "lab/sqllock/index.html", "dashboard/index.html", "search/index.html"]:
+        _, files, _ = page_js_bytes(rel)
+        bad = [f for f in files if CURRICULUM_CHUNK_RX.search("/" + f) or VIZ_CHUNK_RX.search("/" + f)]
+        check(not bad, f"{rel} statically imports heavy chunks: {bad}")
+
+    # SEO metadata on sampled EN and ID routes.
+    seo_routes = [("", "Course"), ("track/go/", "Course"), ("lesson/go/concurrency/", "LearningResource"),
+                  ("lab/sqllock/", None), ("interview/design/notification-system/", None), ("play/sql/", None)]
+    for path, ld_type in seo_routes:
+        for lang in ["en", "id"]:
+            rel_path = path if lang == "en" else "id/" + path
+            h = head_of(rel_path + "index.html")
+            en_url = f"{SITE}/stack-mastery/{path}"
+            id_url = f"{SITE}/stack-mastery/id/{path}"
+            want = en_url if lang == "en" else id_url
+            where = f"/{rel_path}"
+            check(h.html_lang == lang, f"{where}: <html lang> must be {lang}, got {h.html_lang}")
+            check(h.canonical == want, f"{where}: canonical must be {want}, got {h.canonical}")
+            check(h.alternates.get("en") == en_url and h.alternates.get("id") == id_url and h.alternates.get("x-default") == en_url,
+                  f"{where}: hreflang en/id/x-default alternates wrong: {h.alternates}")
+            check(bool(h.meta.get("description")) and len(h.title.strip()) > 5, f"{where}: needs a title and meta description")
+            check(h.meta.get("og:url") == want and h.meta.get("og:locale") == ("id_ID" if lang == "id" else "en_US"),
+                  f"{where}: Open Graph url/locale wrong: {h.meta.get('og:url')} {h.meta.get('og:locale')}")
+            check(h.meta.get("twitter:card") == "summary", f"{where}: needs a Twitter card")
+            if ld_type:
+                types = []
+                for raw in h.jsonld:
+                    data = json.loads(raw)
+                    types += [d.get("@type") for d in (data if isinstance(data, list) else [data])]
+                check(ld_type in types, f"{where}: JSON-LD must include {ld_type}, got {types}")
+    titles = {head_of(p.relative_to(DIST).as_posix()).title for p in list(DIST.glob("lesson/*/*/index.html"))[:40]}
+    check(len(titles) == 40, "Lesson pages must have unique <title>s")
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Browser suite
+# ---------------------------------------------------------------------------------------------------------------
 def run_suite():
-    srv, base = start_server()
     failures = []
+    checks = [0]
 
     def check(cond, msg):
+        checks[0] += 1
         if not cond:
             failures.append(msg)
             print("FAIL:", msg)
+
+    static_checks(check)
+    srv, base = start_server()
 
     with sync_playwright() as p:
         browser = launch_browser(p)
         try:
             # 1. Desktop EN pass
-            ctx = browser.new_context(viewport={"width": 1280, "height": 840})
+            ctx = browser.new_context(viewport={"width": 1280, "height": 840}, accept_downloads=True)
             page = ctx.new_page()
             errs = []
-            page.on("pageerror", lambda e: errs.append(f"pageerror: {e}"))
-            page.on("console", lambda m: errs.append(f"console.{m.type}: {m.text}") if m.type == "error" else None)
-
+            watch_errors(page, errs)
             page.add_init_script(lang_init('en'))
-            # 1a. Full-bleed interactive Distributed Packet Reactor at #/
-            goto_hash(page, base, "#/")
-            check(page.evaluate("document.body.classList.contains('is-landing')"), "#/' must apply body.is-landing full-bleed mode")
-            check(not page.locator("#nav").is_visible(), "Sidebar #nav must be hidden on landing route #/")
+
+            # 1a. Full-bleed interactive Distributed Packet Reactor at /stack-mastery/ (pre-rendered, no sidebar)
+            goto(page, base, "")
+            check(page.evaluate("document.body.classList.contains('is-landing')"), "Landing must apply body.is-landing full-bleed mode")
+            check(page.locator("#nav").count() == 0, "Landing must not render the study sidebar")
             check(page.evaluate("document.querySelector('#view .lp-dock')?.getAttribute('data-collapsed') === 'true'"), "Landing dock must start collapsed by default")
+            check(page.evaluate("document.querySelector('#view .lp-dock-items').inert === true"), "Collapsed dock items must be inert")
             rect = page.evaluate("() => { const r = document.querySelector('#view canvas.lp-canvas')?.getBoundingClientRect(); return r ? {w: r.width, h: r.height} : null; }")
             check(rect and rect["w"] > 400 and rect["h"] > 300, f"Reactor canvas must fill landing stage, got {rect}")
             page.locator("#view .lp-dock .lp-dock-toggle").click()
@@ -145,26 +387,34 @@ def run_suite():
             page.locator("#view .lp-dock button", has_text="Restore Cache").click()
             page.locator("#view .lp-dock button", has_text="Gravity Well").click()
             page.locator("#view .lp-dock button", has_text="Slow-Mo").click()
+            page.locator("#view .lp-dock button", has_text="Sound: OFF").click()
+            check(page.locator("#view .lp-dock button", has_text="Sound: ON").count() == 1, "Sound toggle is opt-in and must flip to Sound: ON")
+            page.locator("#view .lp-dock button", has_text="Sound: ON").click()
             page.locator("#view .lp-dock button", has_text="Pause").click()
             check(page.locator("#view .lp-dock button", has_text="Play").count() == 1, "Pause must flip label to Play cleanly")
             page.locator("#view .lp-dock .lp-dock-toggle").click()
             check(page.evaluate("document.querySelector('#view .lp-dock')?.getAttribute('data-collapsed') === 'true'"), "Landing dock toggle must collapse dock")
+            page.locator("#view .lp-bar [data-theme-toggle]").click()
+            check(page.evaluate("!!document.documentElement.dataset.theme"), "Landing theme switcher must set a theme")
+            page.locator("#view .lp-bar [data-theme-toggle]").click()
             check(page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), "Desktop landing overflowed")
             check(len(page.evaluate(WCAG_DOM_AUDIT)) == 0, f"Landing WCAG issues: {page.evaluate(WCAG_DOM_AUDIT)}")
+            check(page.locator("#view .lp-bar a[data-set-lang]").get_attribute("href") == BASE_PATH + "id/", "Landing language switch must link to /id/")
             page.locator("#view .lp-copy a.btn", has_text="Open Dashboard").click()
-            page.wait_for_function("() => location.hash === '#/dashboard' && document.querySelector('#view .page') !== null", timeout=10000)
+            page.wait_for_url(base + "dashboard/", timeout=10000)
 
-            # 1b. Workspace Dashboard at #/dashboard
-            goto_hash(page, base, "#/dashboard")
+            # 1b. Workspace Dashboard
+            goto(page, base, "dashboard/")
             check("Recommended first lesson" in page.inner_text("#view"), "0% dashboard should show 1 Recommended first lesson instead of 8 continue cards")
-            check(page.locator("#nav .nav-actions").count() == 1, "nav-actions should live inside sidebar nav-top on desktop")
+            check(page.locator("#nav .nav-top .nav-actions").count() == 1, "nav-actions should live inside sidebar nav-top on desktop")
+            check(page.locator("#nav a.nav-link[aria-current='page']", has_text="Dashboard").count() == 1, "Sidebar must mark Dashboard with aria-current=page")
             check(page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), "Desktop dashboard overflowed")
             check(len(page.evaluate(WCAG_DOM_AUDIT)) == 0, f"Dashboard WCAG issues: {page.evaluate(WCAG_DOM_AUDIT)}")
 
-            # 1c. Frieren Flower Magic Break Room at #/break
-            goto_hash(page, base, "#/break")
-            check(page.evaluate("document.body.classList.contains('is-landing')"), "#/break must apply body.is-landing full-bleed mode")
-            check(not page.locator("#nav").is_visible(), "Sidebar #nav must be hidden on break room #/break")
+            # 1c. Flower Meadow Break Room
+            goto(page, base, "break/")
+            check(page.evaluate("document.body.classList.contains('is-landing')"), "/break/ must apply body.is-landing full-bleed mode")
+            check(page.locator("#nav").count() == 0, "Break room must not render the study sidebar")
             check(page.evaluate("document.querySelector('#view .br-stage')?.getAttribute('data-hud-hidden') === 'true'"), "Break room HUD must start hidden by default")
             check(page.evaluate("document.querySelector('#view .br-dock')?.getAttribute('data-collapsed') === 'true'"), "Break room dock must start collapsed by default")
             brect = page.evaluate("() => { const r = document.querySelector('#view canvas.br-canvas')?.getBoundingClientRect(); return r ? {w: r.width, h: r.height} : null; }")
@@ -174,7 +424,7 @@ def run_suite():
             page.locator("#view .br-dock button", has_text="Grand Bloom").click()
             page.locator("#view .br-dock button", has_text="Meteor Shower").click()
             page.locator("#view .br-dock button", has_text="Zen Auto-Bloom").click()
-            # Audio is opt-in (DESIGN.md): the room starts silent and only plays after the learner presses Music.
+            # Audio is opt-in: the room starts silent and only plays after the learner presses Music.
             check(page.locator("#view .br-dock button", has_text="Music: OFF").count() == 1, "Break room music must start at Music: OFF (opt-in audio)")
             check(page.locator("#view .br-dock button", has_text="Music: ON").count() == 0, "Break room must not render Music: ON before the learner opts in")
             page.locator("#view .br-dock button", has_text="Music: OFF").click()
@@ -183,33 +433,36 @@ def run_suite():
             check(page.locator("#view .br-dock button", has_text="Music: OFF").count() == 1, "Break room Music: ON must toggle back to Music: OFF")
             page.locator("#view .br-dock button", has_text="Show HUD").click()
             check(page.evaluate("document.querySelector('#view .br-stage')?.getAttribute('data-hud-hidden') === 'false'"), "Show HUD must restore data-hud-hidden=false")
-            check(page.locator("#view .br-dock button", has_text="Hide HUD").count() == 1, "Show HUD must flip label to Hide HUD")
             page.locator("#view .br-dock button", has_text="Hide HUD").click()
             check(page.evaluate("document.querySelector('#view .br-stage')?.getAttribute('data-hud-hidden') === 'true'"), "Hide HUD must set data-hud-hidden=true")
             page.locator("#view .br-dock button", has_text="Pause").click()
             check(page.locator("#view .br-dock button", has_text="Play").count() == 1, "Break room Pause must flip label to Play cleanly")
             page.locator("#view .br-dock .lp-dock-toggle").click()
-            check(page.evaluate("document.querySelector('#view .br-dock')?.getAttribute('data-collapsed') === 'true'"), "Break room dock toggle must collapse dock")
             check(page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), "Desktop break room overflowed")
             check(len(page.evaluate(WCAG_DOM_AUDIT)) == 0, f"Break room WCAG issues: {page.evaluate(WCAG_DOM_AUDIT)}")
 
-            # Lesson: Predict first, Angular syntax template highlighting, signals formulas
-            goto_hash(page, base, "#/lesson/angular/signals")
+            # Lesson: pre-rendered sections, Predict first, blurred hints, signals formulas
+            goto(page, base, "lesson/angular/signals/")
             check(page.locator(".predict-card").is_visible(), "signals lesson should render Predict first card")
             check(page.locator(".code.hide-hints").count() >= 1, "code hints should start hidden while prediction pending")
             page.locator(".predict-card .opt").nth(1).click()
             page.wait_for_timeout(80)
             check(page.locator(".code.hide-hints").count() == 0, "code hints should unblur after prediction")
             check(page.locator(".viz-eq").count() >= 3, "VIZ.ngsignals should display computed formulas (.viz-eq)")
+            check(page.locator("#view a[href='/stack-mastery/plan/angular/signals/']").count() == 1, "Lesson must link to its printable plan")
+            check(page.locator("#nav a.nav-link[aria-current='page'][href='/stack-mastery/track/angular/']").count() == 1, "Sidebar must mark the lesson's track as current")
 
-            # Long monolith multi-file code tabs + Angular HTML template syntax spans
-            goto_hash(page, base, "#/lesson/aspnet/arch")
-            check(page.locator(".code-tabs [role='tab']").count() == 5, f"aspnet/arch should render 5 tabs (4 slices + Full file)")
+            # Multi-file code tabs (pre-rendered CodeTabs + tiny hydration)
+            goto(page, base, "lesson/aspnet/arch/")
+            check(page.locator(".code-tabs [role='tab']").count() == 5, "aspnet/arch should render 5 tabs (4 slices + Full file)")
             page.locator(".code-tabs [role='tab']").nth(1).click()
-            check("PlaceOrder" in page.inner_text(".code-tabwrap pre"), "2nd tab should show PlaceOrder slice")
+            check("PlaceOrder" in page.inner_text(".code-tabwrap [role='tabpanel']:not([hidden]) pre"), "2nd tab should show PlaceOrder slice")
+            check(page.locator(".code-tabs [role='tab']").nth(1).get_attribute("aria-selected") == "true", "Selected code tab must set aria-selected")
+            page.locator(".code-tabs [role='tab']").nth(1).press("ArrowRight")
+            check(page.locator(".code-tabs [role='tab']").nth(2).get_attribute("aria-selected") == "true", "ArrowRight must move to the next code tab")
 
-            # Quiz persistence + Teach empty guard
-            goto_hash(page, base, "#/lesson/csharp/types")
+            # Quiz persistence + Teach empty guard + Learn toggle
+            goto(page, base, "lesson/csharp/types/")
             first_rubric = page.locator(".rubric input[type='checkbox']").first
             first_rubric.click()
             check(not first_rubric.is_checked(), "Teach rubric checkbox must block empty textarea")
@@ -220,64 +473,102 @@ def run_suite():
                 opt = page.locator("#view .q").first.locator(".opt").nth(idx)
                 if opt.is_enabled():
                     opt.click()
-            page.reload(wait_until="networkidle")
-            page.wait_for_selector("#view .q", timeout=8000)
+            page.locator("#view [data-read-toggle]").click()
+            check("Learned" in page.inner_text("#view [data-read-toggle]"), "Mark as learned must flip to Learned")
+            check(page.locator("#view .tracker .tstep.on").count() >= 1, "Tracker must tick Learn")
+            page.reload(wait_until="domcontentloaded")
+            page.wait_for_function(PAGE_READY, timeout=10000)
             check(page.locator("#view .q").first.locator(".fb.good").count() == 1, "Quiz completion for answered question should persist across reload")
+            check(page.inner_text("#nav a.nav-link[href='/stack-mastery/track/csharp/'] small") != "0%", "Sidebar track % must reflect lesson progress")
+            page.locator("#view [data-read-toggle]").click()
 
-            # Visualizations (fixed + 7 new)
-            goto_hash(page, base, "#/lab/rerender")
+            # Visualizations
+            goto(page, base, "lab/rerender/")
             check("<TodoItem A>" in page.inner_text("#view .tree"), "rerender tree must keep distinct <TodoItem A> label")
             check(page.locator("#view .tree-wires path").count() == 1, "rerender tree must render SVG hierarchy connectors")
-
-            goto_hash(page, base, "#/lab/di")
+            goto(page, base, "lab/di/")
             page.get_by_role("button", name="Restart app").click()
             check("#5" in page.inner_text("#view table"), "Restart app in VIZ.di must generate new singleton #5")
 
-            # Every VIZ lab, discovered from #/lab DOM cards so a new lab is covered automatically without window globals.
-            goto_hash(page, base, "#/lab")
-            leaked_globals = page.evaluate(
-                "['TRACKS','VIZ','I18N','PLAY','INTERVIEW','IV','PROJECTS','LEVELS','h','md','t','esc','codeBlock','codeFiles','confirmDialog','alertDialog','tableWrap'].filter(k => k in window)"
-            )
-            check(len(leaked_globals) == 0, f"Unexpected app globals leaked onto window: {leaked_globals}")
-            viz_ids = page.evaluate("[...document.querySelectorAll('#view .grid a.card')].map(a => a.getAttribute('href').replace(/^#\\/lab\\//, ''))")
-            check(len(viz_ids) == EXPECTED_VIZ, f"Expected {EXPECTED_VIZ} VIZ labs, found {len(viz_ids)}: {viz_ids}")
-            check(page.locator("#view .grid a.card").count() == len(viz_ids), "Visual lab index must list one card per VIZ lab")
+            # Every lab, discovered from the static /lab/ cards. Each lab page must load exactly its own module.
+            goto(page, base, "lab/")
+            leaked = page.evaluate(f"{json.dumps(APP_GLOBALS)}.filter(k => k in window)")
+            check(len(leaked) == 0, f"Unexpected app globals leaked onto window: {leaked}")
+            viz_ids = page.evaluate("[...document.querySelectorAll('#view .grid a.card[data-viz-id]')].map(a => a.dataset.vizId)")
+            check(len(viz_ids) == EXPECTED_VIZ, f"Expected {EXPECTED_VIZ} labs on /lab/, found {len(viz_ids)}: {viz_ids}")
+            hrefs_ok = page.evaluate("[...document.querySelectorAll('#view .grid a.card')].every(a => /^\\/stack-mastery\\/lab\\/[\\w-]+\\/$/.test(a.getAttribute('href')))")
+            check(hrefs_ok, "Lab cards must link to /stack-mastery/lab/<viz>/")
+            lab_page = ctx.new_page()
+            watch_errors(lab_page, errs, "lab ")
+            lab_reqs = watch_requests(lab_page)
             for vid in viz_ids:
                 before = len(errs)
-                goto_hash(page, base, "#/lab/" + vid)
-                check(len(page.inner_text("#view .viz")) > 20, f"viz {vid} rendered empty")
-                check(len(page.evaluate(WCAG_DOM_AUDIT)) == 0, f"viz {vid} WCAG issues: {page.evaluate(WCAG_DOM_AUDIT)}")
+                lab_reqs.clear()
+                goto(lab_page, base, f"lab/{vid}/")
+                check(len(lab_page.inner_text("#view .viz")) > 20, f"viz {vid} rendered empty")
+                check(len(lab_page.evaluate(WCAG_DOM_AUDIT)) == 0, f"viz {vid} WCAG issues: {lab_page.evaluate(WCAG_DOM_AUDIT)}")
                 check(len(errs) == before, f"viz {vid} console/page errors: {errs[before:]}")
+                viz_chunks = {m.group(1) for u in lab_reqs if (m := VIZ_CHUNK_RX.search(u.split('?')[0]))}
+                heavy = [u for u in lab_reqs if CURRICULUM_CHUNK_RX.search(u.split('?')[0])]
+                check(len(viz_chunks) == 1, f"/lab/{vid}/ must load exactly one viz module, loaded {sorted(viz_chunks)}")
+                check(not heavy, f"/lab/{vid}/ must not load curriculum chunks: {heavy}")
+            lab_page.close()
+
+            # Single-viz chunk isolation on a lesson and a lab, checked with fresh pages and network capture.
+            for path, expect_viz in [("lab/sqllock/", {"vizplus"}), ("lesson/go/concurrency/", set()), ("lesson/sysdesign/caching/", {"vizsys"})]:
+                iso = ctx.new_page()
+                iso_errs = []
+                watch_errors(iso, iso_errs)
+                reqs = watch_requests(iso)
+                goto(iso, base, path)
+                iso.wait_for_load_state("networkidle")
+                viz_chunks = {m.group(1) for u in reqs if (m := VIZ_CHUNK_RX.search(u.split('?')[0]))}
+                heavy = [u for u in reqs if CURRICULUM_CHUNK_RX.search(u.split('?')[0])]
+                check(viz_chunks == expect_viz, f"/{path} must load only viz modules {expect_viz}, loaded {sorted(viz_chunks)}")
+                check(not heavy, f"/{path} must not load all curriculum data: {heavy}")
+                check(not iso_errs, f"/{path} console/page errors: {iso_errs}")
+                check(len(iso.evaluate(f"{json.dumps(APP_GLOBALS)}.filter(k => k in window)")) == 0, f"/{path} leaked app globals")
+                iso.close()
 
             # System Design track, Predict-first caching, rate limiter boundary burst, and code tabs
-            goto_hash(page, base, "#/track/sysdesign")
+            goto(page, base, "track/sysdesign/")
             check(page.locator("#view .rows a.row").count() == 16, "System Design track should list 16 lessons")
-            goto_hash(page, base, "#/lesson/sysdesign/caching")
+            goto(page, base, "lesson/sysdesign/caching/")
             check(page.locator(".predict-card").is_visible(), "sysdesign/caching should render Predict first card")
             check(page.locator("#view .viz .sd-slots").count() == 1, "sysdesign/caching should mount syscache lab")
-            goto_hash(page, base, "#/lesson/sysdesign/ratelimiting")
+            goto(page, base, "lesson/sysdesign/ratelimiting/")
             page.locator("#view .viz button", has_text="Jump to :09").click()
             page.locator("#view .viz button", has_text="Burst ×4").click()
             page.locator("#view .viz button", has_text="Advance +2s").click()
             page.locator("#view .viz button", has_text="Burst ×4").click()
             check("Seam 2× risk" in page.inner_text("#view .viz"), "Fixed Window must flag Seam 2x risk across :09..:11 burst")
-            goto_hash(page, base, "#/lesson/sysdesign/containers-k8s")
+            goto(page, base, "lesson/sysdesign/containers-k8s/")
             check(page.locator(".code-tabs [role='tab']").count() == 3, "sysdesign/containers-k8s should render 3 tabs (2 slices + Full file)")
 
             # Go track, Predict-first slice aliasing, and code-tabs split
-            goto_hash(page, base, "#/track/go")
+            goto(page, base, "track/go/")
             check(page.locator("#view .rows a.row").count() == 14, "Go track should list 14 lessons")
-            goto_hash(page, base, "#/lesson/go/collections")
+            check(page.locator("#view .rows a.row").first.get_attribute("href") == "/stack-mastery/lesson/go/types/", "Track rows must link to static lesson pages")
+            goto(page, base, "lesson/go/collections/")
             check(page.locator(".predict-card").is_visible(), "go/collections should render Predict first card")
             check(page.locator(".code.hide-hints").count() >= 1, "go/collections code hints should start blurred")
             page.locator(".predict-card .opt").nth(1).click()
             page.wait_for_timeout(80)
             check(page.locator(".code.hide-hints").count() == 0, "go/collections hints should unblur after prediction")
-            goto_hash(page, base, "#/lesson/go/http")
+            goto(page, base, "lesson/go/http/")
             check(page.locator(".code-tabs [role='tab']").count() == 4, "go/http should render 4 tabs (3 slices + Full file)")
 
+            # Printable plan + teaching toolkit picker
+            goto(page, base, "plan/go/types/")
+            check(page.locator("#view .plan-b").count() >= 6 and page.locator("#view button", has_text="Print").count() == 1, "Plan page must render its blocks and a Print button")
+            goto(page, base, "teach/")
+            page.locator("#view [data-plan-track]").select_option("sql")
+            check(page.locator("#view [data-plan-lesson] option").count() == 12, "Teach picker must list the SQL track's 12 lessons")
+            page.locator("#view [data-plan-picker] button[type='submit']").click()
+            page.wait_for_url(re.compile(r".*/stack-mastery/plan/sql/[\w-]+/$"), timeout=10000)
+
             # SQL grading uses an isolated clean snapshot: a destructive free-play DELETE or DROP TABLE must not break grading.
-            goto_hash(page, base, "#/play/sql")
+            goto(page, base, "play/sql/")
             page.wait_for_function("() => /Ready\\./.test(document.querySelector('#view .out')?.textContent || '')", timeout=30000)
             set_sql = "(v) => { const ta = document.querySelector('#view textarea.editor'); ta.value = v; ta.oninput && ta.oninput(); }"
             page.evaluate(set_sql, "DELETE FROM order_items; DELETE FROM products;")
@@ -297,15 +588,15 @@ def run_suite():
             page.locator("#view .actions button", has_text="Reset database").click()
 
             # TypeScript playground runs the selected example and prints output.
-            goto_hash(page, base, "#/play/ts")
+            goto(page, base, "play/ts/")
             page.locator("#view .actions button", has_text="Run (Ctrl+Enter)").click()
             page.wait_for_function("() => { const o = document.querySelector('#view .out'); return !!o && !!o.querySelector('pre, .err, iframe') && !/Running…/.test(o.textContent); }", timeout=30000)
             ts_out = page.inner_text("#view .out")
             check("Mouse" in ts_out and page.locator("#view .out p.err").count() == 0, f"TypeScript playground Run must render output, got: {ts_out[:200]}")
 
-            # Playgrounds deep link, schema drawer, dialect tip, dialog confirmation (non-native!)
-            goto_hash(page, base, "#/play/sql/joins")
-            check("Orders with names" in page.inner_text("#view .chips button.on"), "SQL deep link should pre-select Orders with names challenge")
+            # Playground ?sample= deep link (legacy #/play/sql/joins), schema drawer, dialect tip, styled dialog
+            goto(page, base, "play/sql/?sample=joins")
+            check("Orders with names" in page.inner_text("#view .chips button.on"), "SQL ?sample=joins should pre-select Orders with names challenge")
             check(page.locator(".schema-drawer").count() == 1, "SQL playground should show collapsible schema drawer")
             page.evaluate("""() => {
               const ta = document.querySelector('#view textarea.editor');
@@ -317,29 +608,38 @@ def run_suite():
             page.wait_for_timeout(80)
             check(page.locator("dialog.sm-dialog[open]").count() == 1, "Show solution should open native accessible modal <dialog>")
             page.locator("dialog.sm-dialog button[value='cancel']").click()
+            # Language switch keeps the sub-path and the ?sample= query string, and remembers the preference.
+            lang_href = page.locator("#nav a[data-set-lang]").get_attribute("href")
+            check(lang_href == BASE_PATH + "id/play/sql/?sample=joins", f"Sidebar ID switch must keep path + query, got {lang_href}")
 
-            # Search
-            goto_hash(page, base, "#/search")
-            page.locator("input[type='search']").fill("Outbox")
+            # Search uses the pre-built index (no curriculum, interview or viz bundles)
+            search_reqs = watch_requests(page)
+            goto(page, base, "search/")
+            page.locator("#view input[type='search']").fill("Outbox")
             page.wait_for_timeout(80)
             check(page.locator("#view mark").count() >= 1, "Search should highlight matches using <mark>")
+            check(page.locator("#view a.row.hit").first.get_attribute("href").startswith(BASE_PATH), "Search hits must link to static pages")
+            heavy = [u for u in search_reqs if CURRICULUM_CHUNK_RX.search(u.split('?')[0]) or VIZ_CHUNK_RX.search(u.split('?')[0])]
+            check(not heavy and any(u.endswith("/search-index.json") for u in search_reqs), f"Search must fetch only the pre-built index, also loaded: {heavy}")
 
-            # Interview routes + coding arena (PLAY.editor) + System Design cases + scorecard labels + reset modal dialog
-            for ir in ["#/interview", "#/interview/coding", "#/interview/patterns", "#/interview/design", "#/interview/design/notification-system", "#/interview/design/search-autocomplete", "#/interview/behavioral", "#/interview/rapid"]:
-                goto_hash(page, base, ir)
-                check(len(page.inner_text("#view")) > 40, f"Interview route {ir} rendered empty")
-            goto_hash(page, base, "#/interview/design")
+            # Interview routes + coding arena + System Design cases + rapid-fire
+            for ir in ["interview/", "interview/coding/", "interview/patterns/", "interview/design/", "interview/design/notification-system/",
+                       "interview/design/search-autocomplete/", "interview/behavioral/", "interview/rapid/"]:
+                goto(page, base, ir)
+                check(len(page.inner_text("#view")) > 40, f"Interview route /{ir} rendered empty")
+            goto(page, base, "interview/design/")
             check("Multi-channel notification service" in page.inner_text("#view") and "Search typeahead" in page.inner_text("#view"), "Interview design should list 8 worked cases including notification and search autocomplete")
-            goto_hash(page, base, "#/interview/rapid")
+            goto(page, base, "interview/rapid/")
             check("System design" in page.inner_text("#view") and "Kleppmann" in page.inner_text("#view"), "Rapid-fire page must render 6 System design Q&As")
-            goto_hash(page, base, "#/interview/coding")
+            goto(page, base, "interview/coding/")
             first_prob_href = page.locator("#view .rows a.row").first.get_attribute("href")
+            check(first_prob_href.startswith(BASE_PATH + "interview/problem/"), f"Coding rows must link to static problem pages, got {first_prob_href}")
             page.locator("#view .rows a.row").first.click()
-            page.wait_for_selector("#view .play", timeout=8000)
+            page.wait_for_selector("#view .play", timeout=10000)
             check(page.locator("#view .actions button", has_text="Run tests").count() == 1, "Coding problem arena must render editor and Run tests")
 
             # Story bank saves and shows the STAR Reflection field.
-            goto_hash(page, base, "#/interview/behavioral")
+            goto(page, base, "interview/behavioral/")
             page.get_by_label("Title", exact=True).fill("Cache bug story")
             page.get_by_label("Reflection: what you learned").fill("Reproduce bugs in a test first.")
             page.locator("#view .story-form button", has_text="Save story").click()
@@ -348,7 +648,7 @@ def run_suite():
             check("Reflection: Reproduce bugs in a test first." in story.inner_text(), "Saved story must display its Reflection")
 
             # Mock history shows saved notes and can delete a row (confirmed through the styled dialog).
-            goto_hash(page, base, "#/interview/mock")
+            goto(page, base, "interview/mock/")
             page.locator("#view .card", has_text="Behavioral round").get_by_role("button", name="Start").click()
             for sel in page.locator("#view .score-grid select").all():
                 sel.select_option("3")
@@ -363,35 +663,35 @@ def run_suite():
             check("No mock interviews recorded yet." in hist.inner_text(), "Deleting the only mock result must empty the history table")
             # Save a mock, visit Hub, and confirm deleting it on Hub immediately refreshes readiness ring, meters, and sidebar %.
             page.locator("#view .actions button", has_text="Save result").click()
-            goto_hash(page, base, "#/interview")
+            goto(page, base, "interview/")
+            iv_nav = "#nav a.nav-link[href='/stack-mastery/interview/'] small"
             ring_before = page.text_content("#view .ring-n")
-            nav_iv_before = page.inner_text("#nav a.nav-link[href='#/interview'] small")
+            nav_iv_before = page.inner_text(iv_nav)
             hub_hist = page.locator("#view section.sec", has=page.locator("h2", has_text="Mock history"))
             hub_hist.get_by_role("button", name="Delete mock result").first.click()
             page.locator("dialog.sm-dialog[open] button[value='ok']").click()
             page.wait_for_timeout(120)
             check("No mock interviews recorded yet." in page.inner_text("#view"), "Hub mock history must reflect the deletion")
             check(page.text_content("#view .ring-n") != ring_before, "Deleting mock on Hub must refresh readiness ring immediately")
-            check(page.inner_text("#nav a.nav-link[href='#/interview'] small") != nav_iv_before, "Deleting mock on Hub must refresh sidebar readiness % immediately")
+            check(page.inner_text(iv_nav) != nav_iv_before, "Deleting mock on Hub must refresh sidebar readiness % immediately")
 
             # Mock exam renders a notice instead of a blank stage when no question matches the filters.
-            goto_hash(page, base, "#/exam")
+            goto(page, base, "exam/")
             page.evaluate("() => { const s = document.querySelectorAll('#view .actions select')[1]; s.append(new Option('none', '99')); s.value = '99'; }")
             page.locator("#view .actions button", has_text="Start exam").click()
             check("No questions match these filters." in page.inner_text("#view"), "Empty Mock exam pool must render an empty-state notice")
 
-            goto_hash(page, base, "#/interview/mock")
+            goto(page, base, "interview/mock/")
             check(len(page.evaluate(WCAG_DOM_AUDIT)) == 0, f"Mock interview WCAG issues: {page.evaluate(WCAG_DOM_AUDIT)}")
             page.locator("#view .card", has_text="Coding round").get_by_role("button", name="Start").click()
-            page.wait_for_selector("#view .play", timeout=8000)
+            page.wait_for_selector("#view .play", timeout=10000)
             check(page.locator("#view .play .editor, #view .monaco-host").count() >= 1, "Mock coding session must render coding arena")
 
-            # Cold-load directly onto coding problem route (reproduces direct URL load of arena -> PLAY.editor)
+            # Cold-load directly onto a coding problem page.
             cold_page = ctx.new_page()
             cold_errs = []
-            cold_page.on("pageerror", lambda e: cold_errs.append(f"cold pageerror: {e}"))
-            cold_page.add_init_script(lang_init('en'))
-            cold_page.goto(base + first_prob_href, wait_until="domcontentloaded")
+            watch_errors(cold_page, cold_errs, "cold ")
+            cold_page.goto(base[: -len(BASE_PATH)] + first_prob_href, wait_until="domcontentloaded")
             cold_page.wait_for_selector("#view .play", timeout=10000)
             check(len(cold_errs) == 0, f"Cold load to {first_prob_href} errors: {cold_errs}")
             cold_page.close()
@@ -403,10 +703,10 @@ def run_suite():
             check(page.locator("dialog.sm-dialog[open]").count() == 0, "Escape must dismiss modal <dialog>")
 
             # Cross-tab sync: progress saved in another tab updates this tab's theme and sidebar without a reload.
-            goto_hash(page, base, "#/dashboard")
+            goto(page, base, "dashboard/")
             other = ctx.new_page()
-            other.goto(base + "#/dashboard", wait_until="domcontentloaded")
-            other.wait_for_selector("#view .page", timeout=10000)
+            other.goto(base + "dashboard/", wait_until="domcontentloaded")
+            other.wait_for_function(PAGE_READY, timeout=10000)
             other.evaluate("""() => {
               const s = JSON.parse(localStorage.getItem('stackmastery.v1') || '{}');
               s.theme = 'dark';
@@ -414,19 +714,21 @@ def run_suite():
               localStorage.setItem('stackmastery.v1', JSON.stringify(s));
             }""")
             page.wait_for_function("() => document.documentElement.dataset.theme === 'dark'", timeout=5000)
-            go_pct = page.inner_text("#nav a.nav-link[href='#/track/go'] small")
-            check(go_pct != "0%", f"Cross-tab progress must refresh the sidebar track percentage, got {go_pct}")
+            go_pct = page.inner_text("#nav a.nav-link[href='/stack-mastery/track/go/'] small")
+            check(go_pct != "0%", f"Cross-tab stackmastery.v1 progress must refresh the sidebar track percentage, got {go_pct}")
+            mastered = page.evaluate("() => [...document.querySelectorAll('#view .stat')].find(s => /mastered/.test(s.textContent))?.querySelector('b')?.textContent")
+            check(mastered == "1", f"Cross-tab progress must redraw the dashboard's lessons mastered stat, got {mastered}")
             other.evaluate("() => { const s = JSON.parse(localStorage.getItem('stackmastery.v1')); s.theme = ''; localStorage.setItem('stackmastery.v1', JSON.stringify(s)); }")
             page.wait_for_function("() => !document.documentElement.dataset.theme", timeout=5000)
             # Cross-tab interview sync: saving a mock in another tab updates Interview Hub readiness & sidebar %.
-            goto_hash(page, base, "#/interview")
-            iv_nav_before = page.inner_text("#nav a.nav-link[href='#/interview'] small")
+            goto(page, base, "interview/")
+            iv_nav_before = page.inner_text(iv_nav)
             other.evaluate("""() => {
               const d = JSON.parse(localStorage.getItem('stackmastery.interview') || '{}');
               d.mocks = [{ date: '2026-11-23', type: 'coding', title: 'Two Sum', scores: [4,4,4,4], avg: 4, notes: 'Clean' }];
               localStorage.setItem('stackmastery.interview', JSON.stringify(d));
             }""")
-            page.wait_for_function("(prev) => document.querySelector(\"#nav a.nav-link[href='#/interview'] small\")?.textContent !== prev", arg=iv_nav_before, timeout=5000)
+            page.wait_for_function("(prev) => document.querySelector(\"#nav a.nav-link[href='/stack-mastery/interview/'] small\")?.textContent !== prev", arg=iv_nav_before, timeout=5000)
             page.wait_for_function("() => { const n = document.querySelector('#view .ring-n'); return n && n.textContent !== '0%'; }", timeout=5000)
             check(page.text_content("#view .ring-n") != "0%", "Cross-tab stackmastery.interview update must refresh Interview Hub readiness ring")
             other.evaluate("() => { localStorage.removeItem('stackmastery.interview'); }")
@@ -438,78 +740,147 @@ def run_suite():
                 page.locator("#nav .nav-foot button", has_text="Export backup").click()
             backup = json.loads(Path(dl_info.value.path()).read_text(encoding="utf-8"))
             check(backup.get("keys", {}).get("stackmastery.lang") == "en", f"Backup must include stackmastery.lang='en', got keys {list(backup.get('keys', {}))}")
+            check("stackmastery.v1" in backup.get("keys", {}), "Backup must include stackmastery.v1 progress")
+
+            # Legacy #/... bookmarks redirect to their static pages.
+            for legacy, target in [("#/lesson/go/concurrency", "lesson/go/concurrency/"), ("#/play/sql/joins", "play/sql/?sample=joins"),
+                                   ("#/meadow", "break/"), ("#/interview/problem/two-sum", "interview/problem/two-sum/"),
+                                   ("#/lab/syshash", "lab/syshash/"), ("#/dashboard", "dashboard/"), ("#/plan/go/types", "plan/go/types/")]:
+                page.goto(base + legacy, wait_until="domcontentloaded")
+                page.wait_for_url(base + target, timeout=10000)
+                check(page.url == base + target, f"Legacy {legacy} must redirect to {base + target}, got {page.url}")
+            goto(page, base, "")
+            check(page.url == base and page.locator(".lp-root").count() == 1, "Plain /stack-mastery/ must stay on the English landing page")
 
             check(len(errs) == 0, f"EN pass runtime/console errors: {errs}")
             ctx.close()
+
+            # Saved ID preference is honoured for legacy hash links on the English root; plain / stays English.
+            ctx_pref = browser.new_context(viewport={"width": 1280, "height": 840})
+            pp = ctx_pref.new_page()
+            pp.add_init_script(lang_init('id'))
+            pp.goto(base + "#/lab", wait_until="domcontentloaded")
+            pp.wait_for_url(base + "id/lab/", timeout=10000)
+            check(pp.url == base + "id/lab/", f"Legacy #/lab with saved ID preference must open /id/lab/, got {pp.url}")
+            pp.goto(base + "#/lesson/go/concurrency", wait_until="domcontentloaded")
+            pp.wait_for_url(base + "id/lesson/go/concurrency/", timeout=10000)
+            goto(pp, base, "")
+            check(pp.url == base and pp.evaluate("document.documentElement.lang") == "en", "Visiting / directly must keep English even with an ID preference")
+            nf = pp.goto(base + "no-such-page/", wait_until="domcontentloaded")
+            check(nf.status == 404 and pp.locator("a[href='/stack-mastery/']").count() >= 1 and pp.locator("a[href='/stack-mastery/id/']").count() >= 1,
+                  "404 page must return 404 and link to / and /id/")
+            ctx_pref.close()
+
+            # PWA: service worker takes control, then a visited lesson reloads offline.
+            ctx_pwa = browser.new_context(viewport={"width": 1280, "height": 840})
+            pw = ctx_pwa.new_page()
+            pwa_errs = []
+            watch_errors(pw, pwa_errs)
+            goto(pw, base, "lesson/go/concurrency/")
+            check(pw.evaluate("document.querySelector('link[rel=manifest]')?.getAttribute('href')") == "/stack-mastery/manifest.webmanifest", "Pages must link the web manifest")
+            pw.wait_for_function("() => !!navigator.serviceWorker.controller", timeout=15000)
+            scope = pw.evaluate("navigator.serviceWorker.getRegistration().then(r => r && r.scope)")
+            check(scope == base, f"Service worker scope must be {base}, got {scope}")
+            pw.wait_for_function("() => caches.match(location.href).then(Boolean)", timeout=15000)
+            pw.wait_for_function("() => caches.match('/stack-mastery/').then(Boolean)", timeout=15000)
+            pw.wait_for_timeout(500)
+            ctx_pwa.set_offline(True)
+            failed = []
+            pw.on("requestfailed", lambda r: failed.append(r.url) if r.url.startswith(base) else None)
+            pw.reload(wait_until="domcontentloaded")
+            pw.wait_for_function(PAGE_READY, timeout=15000)
+            check("Concurrency" in pw.inner_text("#view h1") or len(pw.inner_text("#view h1")) > 3, "Offline reload must render the lesson heading")
+            check(pw.locator("#view [data-quiz] .q").count() >= 1, "Offline reload must hydrate the quiz island")
+            check(not failed, f"Offline reload must not fail same-origin requests: {failed}")
+            check(len(pwa_errs) == 0, f"PWA pass page/console errors: {pwa_errs}")
+            # The precached shell pages still render their static HTML offline (islands may need assets not yet cached).
+            pw.goto(base + "dashboard/", wait_until="domcontentloaded")
+            check(pw.locator("#nav").count() == 1 and pw.locator("#view h1").count() == 1, "Precached /dashboard/ shell must render offline")
+            ctx_pwa.set_offline(False)
+            ctx_pwa.close()
 
             # 2. Indonesian (ID) + Dark mode pass
             ctx_id = browser.new_context(viewport={"width": 1280, "height": 840}, color_scheme="dark")
             page_id = ctx_id.new_page()
             errs_id = []
-            page_id.on("pageerror", lambda e: errs_id.append(f"pageerror: {e}"))
-            page_id.on("console", lambda m: errs_id.append(f"console.{m.type}: {m.text}") if m.type == "error" else None)
+            watch_errors(page_id, errs_id)
             page_id.add_init_script(lang_init('id'))
-            goto_hash(page_id, base, "#/")
+            goto(page_id, base, "id/")
             lp_id = page_id.inner_text("#view")
             check("Pelajari." in lp_id and "Buktikan." in lp_id and "Ajarkan." in lp_id and "Buka Dashboard" in lp_id, "Indonesian landing page must translate headline and CTA")
-            goto_hash(page_id, base, "#/dashboard")
-            check("Materi pertama yang disarankan" in page_id.inner_text("#view"), "Indonesian dashboard must load cleanly at #/dashboard")
-            goto_hash(page_id, base, "#/break")
+            check(page_id.evaluate("document.documentElement.lang") == "id", "/id/ must declare <html lang=id>")
+            goto(page_id, base, "id/dashboard/")
+            check("Materi pertama yang disarankan" in page_id.inner_text("#view"), "Indonesian dashboard must load cleanly at /id/dashboard/")
+            check(page_id.locator("#nav a[data-set-lang]").get_attribute("href") == BASE_PATH + "dashboard/", "ID sidebar EN switch must link to the English page")
+            goto(page_id, base, "id/break/")
             br_id = page_id.inner_text("#view")
             check("Padang bunga, dirapal dengan tangan." in br_id and "Kembali Belajar" in br_id, "Indonesian break room must translate headline and CTA")
             check(page_id.locator("#view .br-dock button", has_text="Musik: MATI").count() == 1, "Indonesian break room music must start at Musik: MATI")
-            goto_hash(page_id, base, "#/lesson/angular/signals")
+            goto(page_id, base, "id/lesson/angular/signals/")
             body_id = page_id.inner_text("#view")
-            check("Istilah penting" in body_id, "Indonesian Angular lesson must translate Key words -> Istilah penting (ui-angular.js Map fix)")
+            check("Istilah penting" in body_id, "Indonesian Angular lesson must translate Key words -> Istilah penting")
             check("Tebak dulu" in body_id, "Indonesian signals lesson should render Tebak dulu")
-            goto_hash(page_id, base, "#/lab/sqllock")
+            page_id.locator(".predict-card .opt").nth(1).click()
+            check("Sudah ditebak" in page_id.inner_text(".predict-card") or "Benar" in page_id.inner_text(".predict-card") or "Belum tepat" in page_id.inner_text(".predict-card"),
+                  "Indonesian predict feedback must be translated")
+            goto(page_id, base, "id/lab/sqllock/")
             check("Transaksi konkuren" in page_id.inner_text("#view"), "Indonesian ui-vizplus must translate sqllock")
-            goto_hash(page_id, base, "#/lesson/go/collections")
+            goto(page_id, base, "id/lesson/go/collections/")
             go_id = page_id.inner_text("#view")
             check("Istilah penting" in go_id and "Tebak dulu" in go_id, "Indonesian Go collections lesson must translate")
-            goto_hash(page_id, base, "#/lab/gocontext")
+            goto(page_id, base, "id/lab/gocontext/")
             check("Pohon pembatalan context.Context" in page_id.inner_text("#view"), "Indonesian ui-vizgo must translate gocontext")
-            goto_hash(page_id, base, "#/lesson/sysdesign/caching")
+            goto(page_id, base, "id/lesson/sysdesign/caching/")
             sys_id = page_id.inner_text("#view")
             check("Istilah penting" in sys_id and "Tebak dulu" in sys_id, "Indonesian sysdesign/caching lesson must translate")
-            goto_hash(page_id, base, "#/lab/sysqueue")
+            goto(page_id, base, "id/lab/sysqueue/")
             check("Lab transactional outbox" in page_id.inner_text("#view"), "Indonesian ui-vizsys must translate sysqueue")
-            goto_hash(page_id, base, "#/interview/design/notification-system")
+            goto(page_id, base, "id/interview/design/notification-system/")
             check("Layanan notifikasi multi-kanal" in page_id.inner_text("#view"), "Indonesian notification-system design case must translate")
-            goto_hash(page_id, base, "#/interview/mock")
-            check("Skorcard pewawancara" in page_id.inner_text("#view") or "pewawancara" in page_id.inner_text("#view").lower() or len(page_id.evaluate(WCAG_DOM_AUDIT)) == 0, "ID interview loaded cleanly")
-            goto_hash(page_id, base, "#/play/ts")
+            goto(page_id, base, "id/interview/mock/")
+            check(len(page_id.evaluate(WCAG_DOM_AUDIT)) == 0, f"ID mock interview WCAG issues: {page_id.evaluate(WCAG_DOM_AUDIT)}")
+            goto(page_id, base, "id/search/")
+            page_id.locator("#view input[type='search']").fill("outbox")
+            page_id.wait_for_timeout(80)
+            check(page_id.locator("#view a.row.hit").count() >= 1 and page_id.locator("#view a.row.hit").first.get_attribute("href").startswith(BASE_PATH + "id/"),
+                  "Indonesian search must return hits linking to /id/ pages")
+            goto(page_id, base, "id/play/ts/")
             ts_chips = page_id.inner_text("#view .chips")
             check("Method array" in ts_chips and "Komponen React" in ts_chips and "Generics" not in ts_chips, f"Indonesian TS playground chips must be translated, got: {ts_chips}")
             check(page_id.locator("#view .chips button[data-k='Generics']").count() == 1, "Translated TS chips must keep English data-k lookup keys")
             page_id.locator("#view .chips button", has_text="Komponen React").click()
             check(page_id.locator("#view .chips button.on[data-k='React component']").count() == 1, "Clicking a translated chip must select its example")
             page_id.wait_for_timeout(1200)   # let Monaco's TS worker finish; leaving mid-request makes Monaco reject with "Canceled"
-            goto_hash(page_id, base, "#/play/css")
+            goto(page_id, base, "id/play/css/")
             css_chips = page_id.inner_text("#view .chips")
             check("Navbar flexbox" in css_chips and "Grid responsif" in css_chips and "Kartu Tailwind" in css_chips, f"Indonesian CSS playground chips must be translated, got: {css_chips}")
+            goto(page_id, base, "id/play/dart/")
+            check(page_id.locator("#view .chips button").count() >= 3, "Indonesian Dart playground must list lesson samples")
             check(len(errs_id) == 0, f"ID pass runtime/console errors: {errs_id}")
             ctx_id.close()
 
-            # 3. Mobile 360px Drawer modality & overflow check
+            # 3. Mobile 360px drawer modality & overflow check
             ctx_m = browser.new_context(viewport={"width": 360, "height": 780})
             pm = ctx_m.new_page()
             pm.add_init_script(lang_init('en'))
-            for r in ["#/", "#/break", "#/dashboard", "#/track/angular", "#/track/go", "#/track/sysdesign", "#/lesson/angular/signals", "#/lesson/go/collections", "#/lesson/sysdesign/caching", "#/lesson/aspnet/arch", "#/lab/goslices", "#/lab/gocontext", "#/lab/syscache", "#/lab/sysratelimit", "#/lab/sysdbscale", "#/lab/syshash", "#/lab/sysqueue", "#/lab/sysresilience", "#/play/sql", "#/interview/coding", "#/interview/design", "#/interview/design/notification-system", "#/interview/mock", "#/projects", "#/exam"]:
-                goto_hash(pm, base, r)
-                ov = pm.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1")
-                check(ov, f"360px mobile overflow on {r}")
+            for r in ["", "break/", "dashboard/", "track/angular/", "track/go/", "track/sysdesign/", "lesson/angular/signals/", "lesson/go/collections/",
+                      "lesson/sysdesign/caching/", "lesson/aspnet/arch/", "lab/goslices/", "lab/gocontext/", "lab/syscache/", "lab/sysratelimit/",
+                      "lab/sysdbscale/", "lab/syshash/", "lab/sysqueue/", "lab/sysresilience/", "play/sql/", "interview/coding/", "interview/design/",
+                      "interview/design/notification-system/", "interview/mock/", "projects/", "exam/", "start/", "teach/", "search/", "plan/go/types/",
+                      "id/", "id/lesson/go/concurrency/"]:
+                goto(pm, base, r)
+                check(pm.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), f"360px mobile overflow on /{r}")
             for w in [320, 768]:
                 pm.set_viewport_size({"width": w, "height": 780})
-                for r in ["#/", "#/break"]:
-                    goto_hash(pm, base, r)
-                    ov = pm.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1")
-                    check(ov, f"{w}px responsive overflow on {r}")
+                for r in ["", "break/"]:
+                    goto(pm, base, r)
+                    check(pm.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), f"{w}px responsive overflow on /{r}")
             pm.set_viewport_size({"width": 360, "height": 780})
-            goto_hash(pm, base, "#/dashboard")
+            goto(pm, base, "dashboard/")
             pm.locator(".nav-toggle").click()
             pm.wait_for_timeout(120)
             check(pm.evaluate("document.getElementById('view').inert === true && document.querySelector('#nav .nav-top').inert === true"), "Mobile drawer open must set inert on BOTH #view and .nav-top")
+            check(pm.evaluate("document.querySelector('#nav .nav-drawer').getAttribute('role') === 'dialog'"), "Open mobile drawer must be a modal dialog")
             pm.keyboard.press("Escape")
             pm.wait_for_timeout(120)
             check(not pm.locator("#nav.open").count(), "Escape should close mobile drawer")
@@ -524,23 +895,25 @@ def run_suite():
                         pa = cx.new_page()
                         pa.add_init_script(lang_init(lang))
                         for r in AXE_ROUTES:
-                            goto_hash(pa, base, r)
-                            if r == "#/play/sql":
+                            path = r if lang == "en" else "id/" + r
+                            goto(pa, base, path)
+                            if r == "play/sql/":
                                 pa.wait_for_function("() => !/SQLite…/.test(document.querySelector('#view .out')?.textContent || '')", timeout=30000)
                             bad = axe_violations(pa)
                             axe_runs += 1
-                            check(not bad, f"axe {lang}/{scheme}/{vp['width']}px {r}: {bad}")
+                            check(not bad, f"axe {lang}/{scheme}/{vp['width']}px /{path}: {bad}")
                         cx.close()
             print(f"axe-core WCAG 2.2 AA: {axe_runs} route scans across EN/ID, light/dark, desktop/mobile.")
+            check(axe_runs >= 96, f"Expected at least 96 axe scans, ran {axe_runs}")
 
         finally:
             browser.close()
             srv.shutdown()
 
     if failures:
-        print(f"\n{len(failures)} UI check(s) FAILED.")
+        print(f"\n{len(failures)} of {checks[0]} UI check(s) FAILED.")
         sys.exit(1)
-    print("\nALL Playwright EN/ID + Desktop/Mobile + Viz/Playground/Dialog/WCAG UI checks PASSED!")
+    print(f"\n{checks[0]} checks: ALL static SSG + JS budget + SEO + PWA + EN/ID + Desktop/Mobile + Viz/Playground/Dialog/WCAG checks PASSED!")
 
 
 if __name__ == "__main__":

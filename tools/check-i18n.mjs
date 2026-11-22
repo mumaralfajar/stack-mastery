@@ -1,21 +1,25 @@
 // Checks that the Indonesian content, manifest metadata, and UI strings line up with English source data:
 // every lesson, quiz question, answer list, problem, design case, Q&A, manifest entry, and UI label matches.
+// UI strings are collected from t()/T()/md() calls and h() children in .js/.ts sources and from .astro templates.
 // Usage: node tools/check-i18n.mjs
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadCurriculum, loadInterviewData } from '../src/data/index.ts';
-import { ID_CORE_TRACKS, ID_CORE_UI_DICTS, ID_PROJECTS } from '../src/data/id/core.ts';
+import { ID_CORE_TRACKS, ID_PROJECTS } from '../src/data/id/core.ts';
 import { loadIdCurriculum, loadIdInterview } from '../src/data/id/index.ts';
 import { interviewId } from '../src/data/id/interview.js';
-import { ID_WEB_TRACKS, ID_WEB_UI } from '../src/data/id/web.ts';
+import { ID_UI_DICTS } from '../src/data/id/ui.ts';
+import { ID_WEB_TRACKS } from '../src/data/id/web.ts';
 import { INTERVIEW_TOTALS, LESSON_INDEX, LEVELS_EN, LEVELS_ID, TRACK_META } from '../src/data/manifest.ts';
 import { getAllTracks, getInterview, getProjects, getTrack } from '../src/lib/i18n.ts';
+import { VIZ, VIZ_IDS, VIZ_MODULE, loadAllViz } from '../src/scripts/viz/registry.ts';
 
 await loadCurriculum();
 const IV = await loadInterviewData();
 await loadIdCurriculum();
 await loadIdInterview();
+await loadAllViz();
 
 const TRACKS = getAllTracks('en');
 const PROJECTS = getProjects('en');
@@ -24,7 +28,7 @@ const errors = [];
 const uiMap = new Map();
 const uiOwners = new Map();
 
-const allUiDicts = [...ID_CORE_UI_DICTS, ['ui-vizsys.js', ID_WEB_UI]];
+const allUiDicts = ID_UI_DICTS;
 for (const [file, dict] of allUiDicts) {
   for (const [k, v] of Object.entries(dict)) {
     if (uiOwners.has(k)) {
@@ -164,14 +168,32 @@ TRACKS.forEach((t, i) => {
     errors.push(`manifest.TRACK_META[${i}]: mismatch for track ${t.id}`);
   }
 });
-const flatLessons = TRACKS.flatMap((t) => t.lessons.map((l) => ({ trackId: t.id, id: l.id, level: l.level, mins: l.mins, viz: l.viz })));
+const flatLessons = TRACKS.flatMap((t) =>
+  t.lessons.map((l) => ({ trackId: t.id, id: l.id, level: l.level, mins: l.mins, viz: l.viz, quizCount: l.quiz.length })),
+);
 same('manifest.LESSON_INDEX', flatLessons, LESSON_INDEX);
 flatLessons.forEach((fl, i) => {
   const m = LESSON_INDEX[i];
   if (!m || m.trackId !== fl.trackId || m.id !== fl.id || m.level !== fl.level || m.mins !== fl.mins || (m.viz || '') !== (fl.viz || '')) {
     errors.push(`manifest.LESSON_INDEX[${i}]: mismatch for ${fl.trackId}/${fl.id}`);
+  } else if (m.quizCount !== fl.quizCount) {
+    // The sidebar's due-card badge is computed from quizCount without loading lesson prose.
+    errors.push(`manifest.LESSON_INDEX[${i}].quizCount: expected ${fl.quizCount} (l.quiz.length) for ${fl.trackId}/${fl.id}, found ${m.quizCount}`);
   }
 });
+
+// ---------- Visual lab registry: loadViz(id) must find every lab in the module the registry names ----------
+const vizKeys = Object.keys(VIZ).sort().join(',');
+if (vizKeys !== [...VIZ_IDS].sort().join(',')) {
+  errors.push(`viz registry: VIZ_MODULE ids [${[...VIZ_IDS].sort()}] differ from registered labs [${vizKeys}]`);
+}
+const vizSrc = (mod) => readFileSync(fileURLToPath(new URL(`../src/scripts/viz/${mod}.js`, import.meta.url)), 'utf8');
+for (const [id, mod] of Object.entries(VIZ_MODULE)) {
+  if (!new RegExp(String.raw`\bVIZ\.${id}\s*=`).test(vizSrc(mod))) errors.push(`viz registry: ${id} is not defined in ${mod}.js`);
+}
+for (const l of flatLessons) {
+  if (l.viz && !VIZ_IDS.includes(l.viz)) errors.push(`${l.trackId}/${l.id}: lesson viz "${l.viz}" is not in the registry`);
+}
 
 // ---------- Pure immutability check for i18n selectors ----------
 const sampleEnTitle = getTrack('csharp', 'en')?.lessons[0]?.title;
@@ -369,6 +391,55 @@ const scanUi = (dir) => {
 scanUi(fileURLToPath(new URL('../src/scripts', import.meta.url)));
 scanUi(fileURLToPath(new URL('../src/lib', import.meta.url)));
 
+// ---------- .astro templates: T()/t()/md() literals and translatable string constants in frontmatter ----------
+// Templates translate at build time through pageStrings(lang).T / t(key, lang); every literal key and every
+// multi-word string constant in a template's frontmatter must exist in the Indonesian dictionaries.
+// 404.astro is intentionally bilingual inline and is skipped.
+const ASTRO_SKIP = new Set(['404.astro']);
+const NON_UI_ASTRO = new Set(['Stack Mastery', 'Bahasa Indonesia', 'English']);
+let astroFiles = 0;
+const scanAstro = (dir) => {
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, e.name);
+    if (e.isDirectory()) {
+      scanAstro(p);
+      continue;
+    }
+    if (!e.name.endsWith('.astro') || ASTRO_SKIP.has(e.name)) continue;
+    astroFiles++;
+    const s = readFileSync(p, 'utf8');
+    const where = `${e.name}`;
+    const reported = new Set();
+    const report = (kind, key) => {
+      if (reported.has(key)) return;
+      reported.add(key);
+      errors.push(`${kind} (${where}): ${key}`);
+    };
+    for (const m of s.matchAll(/(?<![.\w$])(?:t|T|md)\(\s*(['"])((?:\\.|(?!\1).)+)\1/g)) {
+      const key = m[2].replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\n/g, '\n');
+      if (/[A-Za-z]{2,}/.test(key) && !uiMap.has(key)) report('missing ui translation', key);
+    }
+    const fm = s.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    if (!fm) continue;
+    // Drop imports and line comments; scan quotes left to right so backtick templates (shell snippets,
+    // interpolated titles) are skipped while `code` spans inside quoted prose stay part of their string.
+    const front = fm[1]
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/^\s*import .*$/gm, '')
+      .replace(/^\s*\/\/.*$/gm, '');
+    for (const m of front.matchAll(/'((?:\\.|[^'\\\n])*)'|"((?:\\.|[^"\\\n])*)"|`(?:\\.|[^`\\])*`/g)) {
+      if (m[0].startsWith('`')) continue;
+      const key = (m[1] ?? m[2]).replace(/\\'/g, "'").replace(/\\"/g, '"');
+      // Prose-like constants only: two or more words, not markup, not a path, not an identifier list.
+      if (!/[A-Za-z]{2,}[^\n]*\s[^\n]*[A-Za-z]{2,}/.test(key) || key.startsWith('<') || NON_UI_ASTRO.has(key)) continue;
+      if (/^[\w./:-]+$/.test(key)) continue;
+      if (!uiMap.has(key)) report('untranslated template string', key);
+    }
+  }
+};
+scanAstro(fileURLToPath(new URL('../src', import.meta.url)));
+
+console.log(`${astroFiles} .astro templates scanned.`);
 console.log(`${lessons} lessons, ${uiMap.size} interface strings, and manifest (${TRACK_META.length} tracks, ${LESSON_INDEX.length} lessons, ${INTERVIEW_TOTALS.problems}/${INTERVIEW_TOTALS.cases}/${INTERVIEW_TOTALS.behavioralThemes}/${INTERVIEW_TOTALS.rapidTotal}/${INTERVIEW_TOTALS.maxMocks} IV) checked.`);
 if (errors.length) {
   console.log(errors.length + ' problem(s):\n' + errors.join('\n'));
