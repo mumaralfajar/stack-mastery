@@ -1,11 +1,9 @@
 // Safe localStorage helpers, cross-tab storage listener, and JSON backup export/import.
 import { alertDialog, confirmDialog, h } from './dom.ts';
 import { t } from './i18n.ts';
+import { INTERVIEW_KEY, LANG_KEY, SQL_KEY, STORAGE_KEY } from './keys.ts';
 
-export const STORAGE_KEY = 'stackmastery.v1';
-export const SQL_KEY = 'stackmastery.sql';
-export const INTERVIEW_KEY = 'stackmastery.interview';
-export const LANG_KEY = 'stackmastery.lang'; // stores a raw 'en' or 'id', not JSON
+export { INTERVIEW_KEY, LANG_KEY, SQL_KEY, STORAGE_KEY };
 
 export const BACKUP_KEYS: readonly string[] = [STORAGE_KEY, SQL_KEY, INTERVIEW_KEY, LANG_KEY];
 

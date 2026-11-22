@@ -111,7 +111,7 @@ export const trackId = {
         'Pakai **`effect(onCleanup => ...)`** hanya untuk berinteraksi ke luar Angular (`localStorage`, log, canvas, timer), sambil mendaftarkan `onCleanup(...)` untuk membatalkan timer lama. Jangan pakai `effect()` untuk menyalin satu signal ke signal lain; gunakan `computed()` atau `linkedSignal()`.',
         'Pelacakan signal hanya mencatat pembacaan sinkron. Baca semua signal yang diperlukan **sebelum** `await`, dan bungkus pembacaan yang tidak mau ikut dilacak memakai **`untracked(this.qty)`**.'
       ],
-      practice: 'Buka visualisasi interaktif **Graf ketergantungan Signal** di atas: setel `qty = 0`, klik toggle `hasCoupon`, lalu lihat `total()` tetap ter-cache karena `qty() > 0 && hasCoupon()` berhenti di kiri sebelum membaca `hasCoupon()`. Lalu buka **Playground TypeScript** (`#/play/ts`), jalankan **Signal Angular** dan **linkedSignal Angular**, dan ubah `price.set(150)` untuk melihat pembaruannya.',
+      practice: 'Buka visualisasi interaktif **Graf ketergantungan Signal** di atas: setel `qty = 0`, klik toggle `hasCoupon`, lalu lihat `total()` tetap ter-cache karena `qty() > 0 && hasCoupon()` berhenti di kiri sebelum membaca `hasCoupon()`. Lalu buka **Playground TypeScript** (`/play/ts/`), jalankan **Signal Angular** dan **linkedSignal Angular**, dan ubah `price.set(150)` untuk melihat pembaruannya.',
       teach: 'Jelaskan apa itu `signal()`, bagaimana `computed()` menyimpan cache sekaligus melacak cabang dinamis, dan mengapa `linkedSignal()` menyelesaikan kasus di mana orang sering keliru memakai `effect()`.',
       analogy: '`computed` mirip sel rumus di spreadsheet: kamu tidak bisa mengetik langsung di sel itu, dan spreadsheet cuma menghitung ulang kalau sel input yang dibacanya berubah. Sementara `linkedSignal` seperti dropdown ongkir pintar: otomatis pindah ke Reguler saat negara diganti, tapi tetap membolehkanmu memilih Kilat.',
       pitfalls: [
@@ -335,7 +335,7 @@ export const trackId = {
         '`concatMap` menjalankan request satu per satu berurutan untuk penulisan bertahap, sedangkan `mergeMap` menjalankan semuanya bersamaan saat urutan tidak penting.',
         'Selalu hentikan langganan saat component ditutup. Pasangkan `.pipe(takeUntilDestroyed())` di constructor atau inisialisasi field, atau ubah aliran menjadi signal dengan **`toSignal(obs$, { initialValue })`**.'
       ],
-      practice: 'Buka **Playground TypeScript** (`#/play/ts`), pilih **RxJS switchMap vs exhaustMap**, lalu jalankan untuk melihat `switchMap` membatalkan `\'typing ke\'` sementara `exhaustMap` mengabaikan `\'accidental double-click\'`. Lalu tukar `\'switch\'` dan `\'exhaust\'` di `compareFlattening` untuk menebak hasilnya.',
+      practice: 'Buka **Playground TypeScript** (`/play/ts/`), pilih **RxJS switchMap vs exhaustMap**, lalu jalankan untuk melihat `switchMap` membatalkan `\'typing ke\'` sementara `exhaustMap` mengabaikan `\'accidental double-click\'`. Lalu tukar `\'switch\'` dan `\'exhaust\'` di `compareFlattening` untuk menebak hasilnya.',
       teach: 'Jelaskan beda `Observable` dan `Signal`, kapan memilih `switchMap` ketimbang `exhaustMap`, dan mengapa `toSignal()` meniadakan pemanggilan `.unsubscribe()` manual.',
       analogy: '`switchMap` itu seperti koki yang langsung membuang pesanan setengah jadi begitu pembeli teriak "ganti ayam aja!". Sedangkan `exhaustMap` seperti tombol lift: menekannya lima kali saat lift sudah bergerak tidak akan mendatangkan lima lift.',
       pitfalls: [
@@ -380,7 +380,7 @@ export const trackId = {
         'Tangkap `HttpErrorResponse` untuk memetakan **`ProblemDetails`** ASP.NET Core (`title` dan `errors` seperti `{ Price: [\'Must be positive\'] }`) ke tipe `ApiError` supaya pesan tampil di bawah input pasangannya.',
         'Teruskan panggilan `/api` lewat `proxy.conf.json` saat dev lokal (atau izinkan `http://localhost:4200` di `AddCors` ASP.NET Core). Utility TypeScript seperti `Omit<Product, \'id\'>` dan `satisfies CreateProduct` mengecek kesesuaian payload dengan DTO backend tanpa menghapus tipe literalnya.'
       ],
-      practice: 'Buka **Playground TypeScript** (`#/play/ts`) lalu jalankan **Mapper ProblemDetails ASP.NET** untuk melihat bagaimana JSON validasi dipetakan ke `fieldErrors`. Hubungkan `ProductsPage` ke API ASP.NET Core lokalmu memakai `proxy.conf.json`, masukkan `-5` pada harga, lalu lihat `fieldErrors()[\'Price\']` muncul di samping input.',
+      practice: 'Buka **Playground TypeScript** (`/play/ts/`) lalu jalankan **Mapper ProblemDetails ASP.NET** untuk melihat bagaimana JSON validasi dipetakan ke `fieldErrors`. Hubungkan `ProductsPage` ke API ASP.NET Core lokalmu memakai `proxy.conf.json`, masukkan `-5` pada harga, lalu lihat `fieldErrors()[\'Price\']` muncul di samping input.',
       teach: 'Jelaskan kapan memilih `httpResource` dibanding `HttpClient`, mengapa `http.post(...)` tanpa `firstValueFrom()` tidak mengirim apa pun, dan beda CORS dengan `proxy.conf.json`.',
       analogy: '`httpResource` mirip konter pesanan yang langsung merobek slip antrean lamamu begitu kamu ganti pilihan. Sementara `HttpInterceptorFn` adalah pos pemeriksaan yang dilalui tiap request keluar dan response masuk.',
       pitfalls: [

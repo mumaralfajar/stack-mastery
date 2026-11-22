@@ -1,6 +1,7 @@
 // Shared SVG logo, track icons, progress widgets, quiz renderer, and collapsible control dock.
 import { type DomChild, h, md } from './dom.ts';
-import { t } from './i18n.ts';
+import { getLang, t } from './i18n.ts';
+import { routePath } from './routes.ts';
 import { peek } from './state.ts';
 import type { QuizItem } from './types.ts';
 
@@ -74,8 +75,13 @@ export function section(title: DomChild, ...kids: DomChild[]): HTMLElement {
   return h('section', { class: 'sec' }, h('h2', {}, title), ...kids);
 }
 
+// Site URL for a route path in the current page language, e.g. href('/lab/') -> '/stack-mastery/id/lab/'.
+export function href(path: string): string {
+  return routePath(getLang(), path);
+}
+
 export function lessonHref(tr: { id: string }, l: { id: string }): string {
-  return `#/lesson/${tr.id}/${l.id}`;
+  return href(`/lesson/${tr.id}/${l.id}/`);
 }
 
 export interface QuizItemOptions {
@@ -137,9 +143,9 @@ export function quizItem(
   return h('div', { class: 'q' }, h('p', { class: 'q-text', html: md(q.q) }), h('div', { class: 'opts' }, btns), fb);
 }
 
-const DOCK_ICON_SVG =
+export const DOCK_ICON_SVG =
   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M2 14h4M10 8h4M18 16h4"/></svg>';
-const DOCK_CHEV_SVG =
+export const DOCK_CHEV_SVG =
   '<svg class="lp-dock-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
 
 // Shared collapsible floating control dock used by the Landing reactor and Break Room meadow.

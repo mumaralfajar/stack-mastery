@@ -1,5 +1,5 @@
 // Typed DOM builder, mini-markdown, code blocks, SVG tree connectors, accessible modal dialogs, and table wrappers.
-import { esc, highlight } from './highlight.ts';
+import { LANG_LABELS, esc, highlight, mdInline } from './highlight.ts';
 import { t } from './i18n.ts';
 import type { SplitCode } from './types.ts';
 
@@ -18,9 +18,7 @@ const T_ATTR = new Set(['placeholder', 'title', 'aria-label']);
 
 // `code` and **bold** only.
 export function md(s: string): string {
-  return esc(t(s))
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  return mdInline(t(s));
 }
 
 export function h<K extends keyof HTMLElementTagNameMap>(
@@ -71,21 +69,6 @@ export interface CodeBlockOptions {
   blurComments?: boolean;
   blurToggle?: boolean;
 }
-
-const LANG_LABELS: Record<string, string> = {
-  cs: 'C#',
-  sql: 'SQL',
-  ts: 'TypeScript',
-  tsx: 'TSX',
-  dart: 'Dart',
-  go: 'Go',
-  lua: 'Lua',
-  http: 'HTTP',
-  yaml: 'YAML',
-  sh: 'Shell',
-  css: 'CSS',
-  html: 'HTML',
-};
 
 export function codeBlock(code: string, lang: string, opts: CodeBlockOptions = {}): HTMLDivElement {
   const cleanCode = code.replace(/^\n+|\s+$/g, '');
