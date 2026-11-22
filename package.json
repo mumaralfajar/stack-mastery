@@ -26,6 +26,7 @@
     "verify:ui": "python -u tools/verify-ui.py"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.6",
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",
     "astro": "^7.4.0"
   },
