@@ -1,0 +1,62 @@
+{
+	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+	"files": {
+		"includes": [
+			"src/**",
+			"tools/**",
+			"!**/dist",
+			"!**/.astro",
+			"!**/data",
+			"!**/node_modules",
+			"!**/__pycache__"
+		]
+	},
+	"formatter": { "enabled": false },
+	"assist": { "enabled": false },
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"preset": "recommended",
+			"complexity": {
+				"noCommaOperator": "off",
+				"noImportantStyles": "off",
+				"noUselessEscapeInRegex": "off",
+				"useArrowFunction": "off",
+				"useOptionalChain": "off"
+			},
+			"style": {
+				"noDescendingSpecificity": "off",
+				"useExponentiationOperator": "off",
+				"useTemplate": "off"
+			},
+			"suspicious": {
+				"noAssignInExpressions": "off",
+				"noUselessEscapeInString": "off",
+				"useIterableCallbackReturn": "off"
+			}
+		}
+	},
+	"overrides": [
+		{
+			"includes": ["tools/**"],
+			"linter": {
+				"rules": {
+					"security": { "noGlobalEval": "off" },
+					"suspicious": { "noControlCharactersInRegex": "off" }
+				}
+			}
+		},
+		{
+			"includes": ["**/*.astro"],
+			"linter": {
+				"rules": {
+					"correctness": {
+						"noUnusedImports": "off",
+						"noUnusedVariables": "off"
+					}
+				}
+			}
+		}
+	]
+}
