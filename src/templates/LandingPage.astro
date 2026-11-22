@@ -1,6 +1,6 @@
 ---
 // Landing page, fully pre-rendered. Only the Packet Reactor canvas, telemetry toys, theme/language
-// switchers, opt-in audio and the legacy hash bridge run on the client (src/scripts/landing.js).
+// switchers, opt-in audio and the legacy hash bridge run on the client (src/lib/landing/landing-island.ts).
 import { LESSON_INDEX } from '../data/manifest.ts';
 import { getTrack, loadSiteData } from '../data/site.ts';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -78,7 +78,6 @@ const THEME_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 
             <button type="button" class="lp-nav-link" data-scroll-to="lp-arch">{T('Tracks')}</button>
             <button type="button" class="lp-nav-link" data-scroll-to="lp-proof">{T('Live Labs')}</button>
             <a class="lp-nav-link" href={href('/interview/')}>{T('Interview preparation')}</a>
-            <a class="lp-nav-link" href={href('/break/')}>{T('Flower Meadow')}</a>
           </nav>
           <div class="lp-controls">
             <a href={href('/search/')} class="icon-btn lp-search-opt" aria-label={T('Search')} title={T('Search')} set:html={SEARCH_SVG} />
@@ -219,5 +218,6 @@ const THEME_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 
   </div>
   <script type="application/json" id="landing-data" set:html={landingData} />
 </BaseLayout>
-<script src="../scripts/legacy-bridge.ts"></script>
-<script src="../scripts/landing.js"></script>
+<script>
+  import '../lib/landing/landing-island.ts';
+</script>

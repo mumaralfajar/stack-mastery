@@ -83,7 +83,7 @@ Every lesson follows three steps and counts as mastered only when all three are 
 | **Mock exam** | Ten random questions filtered by track and level. |
 | **Capstone projects** | Four full-stack projects, one per mastery level. |
 | **Search** | Press `/` anywhere to search lessons, problems, questions, and diagrams. |
-| **Break room** | A hand-drawn flower meadow at `/break/` for short rests between sessions. Plant blooms, cast spells, and toggle Zen Auto-Bloom. It is silent by default: music and sound effects play only after you turn them on. |
+| **Break room** | A hand-drawn flower meadow at `/break/` paired with a Pomodoro study timer (`25/5`, `50/10`, or custom) synced with the workspace sidebar (`stackmastery.study`), permanent mastery & focus-cycle blooms/stars, a one-click **Resume: [Last Lesson]** CTA, and strictly opt-in audio (music, sparkles, and a gentle Lydian end-of-break chime only play after you turn audio on). |
 
 ### Interview preparation
 
@@ -227,11 +227,11 @@ Stack Mastery is a Progressive Web App (`public/manifest.webmanifest`, `public/s
 | `src/layouts/BaseLayout.astro`, `WorkspaceLayout.astro` | Document shell (language, theme, SEO head, manifest, service worker) and the study workspace with sidebar |
 | `src/components/SeoHead.astro`, `Sidebar.astro`, `CodeTabs.astro` | SEO tags and JSON-LD, the static bilingual sidebar, and build-time highlighted code tabs |
 | `src/styles/style.css`, `landing.css`, `break.css` | Styling, light/dark themes, print rules, landing reactor, and break room |
-| `src/lib/` | Strict, erasable TypeScript core (`routes.ts` URL builders and legacy hash bridge, `progress.ts` manifest-only progress, `types.ts`, `storage.ts`, `state.ts`, `theme.ts`, `dom.ts`, `highlight.ts`, `icons.ts`, `i18n.ts`, `seo.ts`, `ssr.ts`) |
-| `src/scripts/workspace-shell.ts` | Sidebar hydration: progress, due badge, drawer, language/theme toggles, backups (imports only the manifest and `src/lib/`) |
-| `src/scripts/landing.js`, `legacy-bridge.ts` | Landing-page interactivity and the `#/…` bookmark redirect |
-| `src/scripts/lesson-island.js`, `view-island.js` | Lesson islands (predict, quiz, teach-back, progress, one lab) and the loader for client-rendered views |
-| `src/scripts/views/` | Client views (`dashboard.js`, `practice.js` review/exam, `search.js`, `break.js` flower meadow) |
+| `src/lib/` | Strict, erasable TypeScript core (`routes.ts` URL builders and legacy hash bridge, `progress.ts` manifest-only progress, `types.ts`, `storage.ts`, `state.ts`, `theme.ts`, `dom.ts`, `highlight.ts`, `icons.ts`, `i18n.ts`, `seo.ts`, `ssr.ts`), plus modular `landing/` (`audio.ts`, `reactor-engine.ts`, `landing-island.ts`) and `break/` (`audio.ts`, `meadow-engine.ts`, `pomodoro.ts`, `break-island.ts`) engines |
+| `src/scripts/workspace-shell.ts` | Sidebar hydration: progress, due badge, compact Pomodoro study-timer pill & focus-complete toast, drawer, language/theme toggles, backups (imports only the manifest and `src/lib/`) |
+| `src/scripts/legacy-bridge.ts` | Legacy `#/…` bookmark redirect shared by the landing and 404 pages |
+| `src/scripts/lesson-island.js`, `view-island.js` | Lesson islands (predict, quiz, teach-back, progress, last-lesson tracking, one lab) and the loader for client-rendered views |
+| `src/scripts/views/` | Client views (`dashboard.js`, `practice.js` review/exam, `search.js`) |
 | `src/scripts/interview.js` | Interview hub, code judge, estimator, story bank, and mocks |
 | `src/scripts/playground.js` | SQL, TypeScript, CSS, and DartPad playgrounds |
 | `src/scripts/viz/` | 40 interactive labs; `registry.ts` maps each lab to its module so `loadViz(id)` imports only that one (`viz.js`, `vizcss.js`, `vizmore.js`, `vizangular.js`, `vizflutter.js`, `vizplus.js`, `vizgo.js`, `vizsys.js`) |

@@ -344,6 +344,12 @@ def static_checks(check):
     titles = {head_of(p.relative_to(DIST).as_posix()).title for p in list(DIST.glob("lesson/*/*/index.html"))[:40]}
     check(len(titles) == 40, "Lesson pages must have unique <title>s")
 
+    # 404 SEO hygiene: noindex page must not emit canonical or hreflang alternates.
+    h404 = head_of("404.html")
+    check(h404.meta.get("robots") == "noindex", f"404.html must declare robots=noindex, got {h404.meta.get('robots')!r}")
+    check(h404.canonical is None, f"404.html must not emit <link rel='canonical'>, got {h404.canonical!r}")
+    check(not h404.alternates, f"404.html must not emit hreflang alternates, got {h404.alternates}")
+
 
 # ---------------------------------------------------------------------------------------------------------------
 # Browser suite
@@ -400,10 +406,12 @@ def run_suite():
             check(page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), "Desktop landing overflowed")
             check(len(page.evaluate(WCAG_DOM_AUDIT)) == 0, f"Landing WCAG issues: {page.evaluate(WCAG_DOM_AUDIT)}")
             check(page.locator("#view .lp-bar a[data-set-lang]").get_attribute("href") == BASE_PATH + "id/", "Landing language switch must link to /id/")
+            check(page.locator("#view .lp-nav a[href*='/break/']").count() == 0, "Landing primary navbar must not link to Flower Meadow /break/")
+            check("Flower Meadow" not in page.inner_text("#view .lp-nav"), "Landing primary navbar must not display Flower Meadow")
             page.locator("#view .lp-copy a.btn", has_text="Open Dashboard").click()
             page.wait_for_url(base + "dashboard/", timeout=10000)
 
-            # 1b. Workspace Dashboard
+            # 1b. Workspace Dashboard + Sidebar Pomodoro timer pill
             goto(page, base, "dashboard/")
             check("Recommended first lesson" in page.inner_text("#view"), "0% dashboard should show 1 Recommended first lesson instead of 8 continue cards")
             check(page.locator("#nav .nav-top .nav-actions").count() == 1, "nav-actions should live inside sidebar nav-top on desktop")
@@ -411,10 +419,74 @@ def run_suite():
             check(page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), "Desktop dashboard overflowed")
             check(len(page.evaluate(WCAG_DOM_AUDIT)) == 0, f"Dashboard WCAG issues: {page.evaluate(WCAG_DOM_AUDIT)}")
 
-            # 1c. Flower Meadow Break Room
-            goto(page, base, "break/")
+            # Sidebar Pomodoro pill: presets, custom, start, reload persistence, pause, reset, focus-complete toast -> /break/
+            check(page.locator("#nav [data-pomo-root]").count() == 1, "Sidebar must render Pomodoro timer pill")
+            check(page.inner_text("#nav [data-pomo-clock]") == "25:00", "Sidebar Pomodoro must default to 25:00")
+            page.locator("#nav [data-pomo-preset='50/10']").click()
+            check(page.inner_text("#nav [data-pomo-clock]") == "50:00", "50/10 preset must set Pomodoro clock to 50:00")
+            page.locator("#nav [data-pomo-preset='custom']").click()
+            check(page.locator("#nav [data-pomo-custom]").is_visible(), "Custom preset must reveal focus/break minute inputs")
+            page.locator("#nav [data-pomo-focus-min]").fill("30")
+            page.locator("#nav [data-pomo-focus-min]").dispatch_event("change")
+            check(page.inner_text("#nav [data-pomo-clock]") == "30:00", "Custom focus minutes must update Pomodoro clock to 30:00")
+            page.locator("#nav [data-pomo-preset='25/5']").click()
+            check(page.inner_text("#nav [data-pomo-clock]") == "25:00", "Switching back to 25/5 must restore 25:00")
+            page.locator("#nav [data-pomo-toggle]").click()
+            check(page.inner_text("#nav [data-pomo-phase]").upper() == "FOCUS", "Starting Pomodoro must set phase badge to Focus")
+            check(page.inner_text("#nav [data-pomo-toggle]") == "Pause", "Running Pomodoro must flip button to Pause")
+            page.wait_for_timeout(1200)
+            clock_running = page.inner_text("#nav [data-pomo-clock]")
+            check(clock_running != "25:00", f"Running Pomodoro must tick down from 25:00, got {clock_running}")
+            page.reload(wait_until="domcontentloaded")
+            page.wait_for_function(PAGE_READY, timeout=10000)
+            check(page.inner_text("#nav [data-pomo-toggle]") == "Pause", "Reloading while running must keep Pomodoro running via endsAtMs")
+            check(page.inner_text("#nav [data-pomo-clock]") != "25:00", "Reloading must preserve elapsed Pomodoro countdown")
+            page.locator("#nav [data-pomo-toggle]").click()
+            check(page.inner_text("#nav [data-pomo-toggle]") == "Start", "Pausing Pomodoro must flip button back to Start")
+            page.locator("#nav [data-pomo-reset]").click()
+            check(page.inner_text("#nav [data-pomo-clock]") == "25:00" and page.inner_text("#nav [data-pomo-phase]").upper() == "READY", "Reset must restore 25:00 Ready state")
+            # Focus block hitting 00:00 increments daily cycles and shows accessible toast linking to /break/.
+            page.evaluate("""() => {
+              const cur = JSON.parse(localStorage.getItem('stackmastery.study') || '{}');
+              cur.preset = '25/5'; cur.focusMin = 25; cur.breakMin = 5;
+              cur.phase = 'focus'; cur.running = true; cur.remainingSec = 1;
+              cur.endsAtMs = Date.now() + 350;
+              localStorage.setItem('stackmastery.study', JSON.stringify(cur));
+            }""")
+            page.reload(wait_until="domcontentloaded")
+            page.wait_for_function(PAGE_READY, timeout=10000)
+            page.wait_for_selector("[data-pomo-toast]", timeout=5000)
+            check(page.locator("[data-pomo-toast][role='status'][aria-live='polite']").count() == 1, "Focus-complete toast must have role=status and aria-live=polite")
+            check("1 cycles today" in page.inner_text("#nav [data-pomo-cycles]"), f"Completing focus block must increment daily cycles, got: {page.inner_text('#nav [data-pomo-cycles]')}")
+            page.locator("[data-pomo-toast-break]").click()
+            page.wait_for_url(base + "break/", timeout=10000)
+            page.wait_for_function(PAGE_READY, timeout=10000)
+
+            # 1c. Flower Meadow Break Room (Pomodoro ring, milestones, opt-in audio, spells)
             check(page.evaluate("document.body.classList.contains('is-landing')"), "/break/ must apply body.is-landing full-bleed mode")
             check(page.locator("#nav").count() == 0, "Break room must not render the study sidebar")
+            check(page.locator("#view .br-timer-panel .br-ring-svg").count() == 1, "Break room must render circular countdown SVG ring")
+            check("1 cycles today" in page.inner_text("#view [data-break-cycles]"), "Break room must sync daily focus cycles from stackmastery.study")
+            check("1 focus cycles today" in page.inner_text("#view [data-break-milestones]"), "Break room milestone summary must reflect completed focus cycles")
+            check(page.locator("#view [data-break-resume]").get_attribute("href") == BASE_PATH + "dashboard/", "Before visiting a lesson, Break room Resume CTA must fall back to /dashboard/")
+            # Security regression: crafted javascript: URL in stackmastery.study lastLesson must be rejected.
+            page.evaluate("""() => {
+              const s = JSON.parse(localStorage.getItem('stackmastery.study') || '{}');
+              s.lastLesson = { trackId: 'go', lessonId: 'types', title: 'XSS', url: 'javascript:alert(1)' };
+              localStorage.setItem('stackmastery.study', JSON.stringify(s));
+            }""")
+            page.reload(wait_until="domcontentloaded")
+            page.wait_for_function(PAGE_READY, timeout=10000)
+            bad_href = page.locator("#view [data-break-resume]").get_attribute("href")
+            check(bad_href == BASE_PATH + "dashboard/" and not (bad_href or "").startswith("javascript:"), f"Break room Resume CTA must reject unsafe lastLesson URL, got {bad_href!r}")
+            page.locator("#view [data-break-toggle]").click()
+            check(page.inner_text("#view [data-break-toggle]") == "Pause", "Break room Start break must start break countdown")
+            page.locator("#view [data-break-skip]").click()
+            check(page.inner_text("#view [data-break-phase]").upper() == "READY", "Skip break must return Break timer to Ready state")
+            page.locator("#view [data-break-preset='50/10']").click()
+            check(page.text_content("#view .br-ring-time") == "10:00", "Break room 50/10 preset must show 10:00 break countdown")
+            page.locator("#view [data-break-preset='25/5']").click()
+            check(page.text_content("#view .br-ring-time") == "05:00", "Break room 25/5 preset must show 05:00 break countdown")
             check(page.evaluate("document.querySelector('#view .br-stage')?.getAttribute('data-hud-hidden') === 'true'"), "Break room HUD must start hidden by default")
             check(page.evaluate("document.querySelector('#view .br-dock')?.getAttribute('data-collapsed') === 'true'"), "Break room dock must start collapsed by default")
             brect = page.evaluate("() => { const r = document.querySelector('#view canvas.br-canvas')?.getBoundingClientRect(); return r ? {w: r.width, h: r.height} : null; }")
@@ -441,16 +513,26 @@ def run_suite():
             check(page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), "Desktop break room overflowed")
             check(len(page.evaluate(WCAG_DOM_AUDIT)) == 0, f"Break room WCAG issues: {page.evaluate(WCAG_DOM_AUDIT)}")
 
-            # Lesson: pre-rendered sections, Predict first, blurred hints, signals formulas
+            # Lesson: pre-rendered sections, Predict first, blurred hints, reload persistence, signals formulas, last-lesson Resume CTA
             goto(page, base, "lesson/angular/signals/")
             check(page.locator(".predict-card").is_visible(), "signals lesson should render Predict first card")
             check(page.locator(".code.hide-hints").count() >= 1, "code hints should start hidden while prediction pending")
             page.locator(".predict-card .opt").nth(1).click()
             page.wait_for_timeout(80)
             check(page.locator(".code.hide-hints").count() == 0, "code hints should unblur after prediction")
+            # PR #4 polish regression: reloading a previously-predicted lesson must keep code hints unblurred.
+            page.reload(wait_until="domcontentloaded")
+            page.wait_for_function(PAGE_READY, timeout=10000)
+            check(page.locator(".code.hide-hints").count() == 0, "Reloading a predicted lesson must keep code hints unblurred")
+            check("Hide hints" in page.inner_text("[data-static-code] [data-hints-toggle]"), "Reloaded predicted lesson hints button must say Hide hints")
             check(page.locator(".viz-eq").count() >= 3, "VIZ.ngsignals should display computed formulas (.viz-eq)")
             check(page.locator("#view a[href='/stack-mastery/plan/angular/signals/']").count() == 1, "Lesson must link to its printable plan")
             check(page.locator("#nav a.nav-link[aria-current='page'][href='/stack-mastery/track/angular/']").count() == 1, "Sidebar must mark the lesson's track as current")
+            # Break Room Resume CTA now links straight back to the last visited lesson.
+            goto(page, base, "break/")
+            resume_link = page.locator("#view [data-break-resume]")
+            check(resume_link.get_attribute("href") == BASE_PATH + "lesson/angular/signals/", f"Break room Resume CTA must link to last visited lesson, got {resume_link.get_attribute('href')}")
+            check("Resume:" in resume_link.inner_text(), f"Break room Resume CTA must show Resume: label, got {resume_link.inner_text()!r}")
 
             # Multi-file code tabs (pre-rendered CodeTabs + tiny hydration)
             goto(page, base, "lesson/aspnet/arch/")
@@ -621,6 +703,13 @@ def run_suite():
             check(page.locator("#view a.row.hit").first.get_attribute("href").startswith(BASE_PATH), "Search hits must link to static pages")
             heavy = [u for u in search_reqs if CURRICULUM_CHUNK_RX.search(u.split('?')[0]) or VIZ_CHUNK_RX.search(u.split('?')[0])]
             check(not heavy and any(u.endswith("/search-index.json") for u in search_reqs), f"Search must fetch only the pre-built index, also loaded: {heavy}")
+            # PR #4 polish regression: searching for HTML entity names (lt, amp) must never corrupt escaped HTML entities.
+            for entity_q in ["lt", "amp"]:
+                page.locator("#view input[type='search']").fill(entity_q)
+                page.wait_for_timeout(80)
+                hits_html = page.locator("#view .rows").inner_html()
+                check(f"&<mark>{entity_q}</mark>;" not in hits_html.lower() and f"&<mark>" not in hits_html.lower(),
+                      f"Search markText corrupted HTML entities for query {entity_q!r}")
 
             # Interview routes + coding arena + System Design cases + rapid-fire
             for ir in ["interview/", "interview/coding/", "interview/patterns/", "interview/design/", "interview/design/notification-system/",
@@ -732,15 +821,27 @@ def run_suite():
             page.wait_for_function("() => { const n = document.querySelector('#view .ring-n'); return n && n.textContent !== '0%'; }", timeout=5000)
             check(page.text_content("#view .ring-n") != "0%", "Cross-tab stackmastery.interview update must refresh Interview Hub readiness ring")
             other.evaluate("() => { localStorage.removeItem('stackmastery.interview'); }")
+            # Cross-tab study timer sync: updating stackmastery.study in another tab updates the sidebar Pomodoro pill in place.
+            other.evaluate("""() => {
+              const cur = JSON.parse(localStorage.getItem('stackmastery.study') || '{}');
+              const today = new Date().toLocaleDateString('sv');
+              cur.preset = '50/10'; cur.focusMin = 50; cur.breakMin = 10;
+              cur.phase = 'idle'; cur.running = false; cur.remainingSec = 3000; cur.endsAtMs = null;
+              cur.cycles = { date: today, todayCount: 3, totalCount: 3 };
+              localStorage.setItem('stackmastery.study', JSON.stringify(cur));
+            }""")
+            page.wait_for_function("() => document.querySelector('#nav [data-pomo-clock]')?.textContent === '50:00'", timeout=5000)
+            check("3 cycles today" in page.inner_text("#nav [data-pomo-cycles]"), "Cross-tab stackmastery.study sync must update sidebar Pomodoro cycles")
             page.wait_for_timeout(150)
             other.close()
 
-            # Export backup includes the raw language preference (not JSON) next to the progress keys.
+            # Export backup includes the raw language preference (not JSON) and stackmastery.study next to the progress keys.
             with page.expect_download() as dl_info:
                 page.locator("#nav .nav-foot button", has_text="Export backup").click()
             backup = json.loads(Path(dl_info.value.path()).read_text(encoding="utf-8"))
             check(backup.get("keys", {}).get("stackmastery.lang") == "en", f"Backup must include stackmastery.lang='en', got keys {list(backup.get('keys', {}))}")
             check("stackmastery.v1" in backup.get("keys", {}), "Backup must include stackmastery.v1 progress")
+            check("stackmastery.study" in backup.get("keys", {}), "Backup must include stackmastery.study Pomodoro session state")
 
             # Legacy #/... bookmarks redirect to their static pages.
             for legacy, target in [("#/lesson/go/concurrency", "lesson/go/concurrency/"), ("#/play/sql/joins", "play/sql/?sample=joins"),
@@ -764,6 +865,10 @@ def run_suite():
             check(pp.url == base + "id/lab/", f"Legacy #/lab with saved ID preference must open /id/lab/, got {pp.url}")
             pp.goto(base + "#/lesson/go/concurrency", wait_until="domcontentloaded")
             pp.wait_for_url(base + "id/lesson/go/concurrency/", timeout=10000)
+            # PR #4 polish regression: bare #/ bookmark with saved ID preference must redirect to /id/.
+            pp.goto(base + "#/", wait_until="domcontentloaded")
+            pp.wait_for_url(base + "id/", timeout=10000)
+            check(pp.url == base + "id/", f"Legacy bare #/ with saved ID preference must redirect to /id/, got {pp.url}")
             goto(pp, base, "")
             check(pp.url == base and pp.evaluate("document.documentElement.lang") == "en", "Visiting / directly must keep English even with an ID preference")
             nf = pp.goto(base + "no-such-page/", wait_until="domcontentloaded")

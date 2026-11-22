@@ -65,6 +65,9 @@ const jsonLd = learningResourceLd({
 // Only this lesson's interactive payload — never the rest of the curriculum.
 const lessonData = jsonForScript({
   key: `${t.id}/${l.id}`,
+  trackId: t.id,
+  lessonId: l.id,
+  title: l.title,
   predict: l.predict ? { answer: l.predict.answer, explain: l.predict.explain } : null,
   quiz: l.quiz,
   viz: viz ? viz.id : null,

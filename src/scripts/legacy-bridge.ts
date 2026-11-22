@@ -11,7 +11,13 @@ if (isLegacyHash(location.hash)) {
   } catch {
     /* private mode */
   }
-  location.replace(legacyHashToPath(location.hash, lang));
+  const dest = legacyHashToPath(location.hash, lang);
+  if (dest === location.pathname + location.search) {
+    history.replaceState(null, '', dest);
+    document.documentElement.removeAttribute('data-legacy-redirect');
+  } else {
+    location.replace(dest);
+  }
 } else {
   document.documentElement.removeAttribute('data-legacy-redirect');
 }

@@ -58,7 +58,7 @@ export function routeSegments(pathname: string): string[] {
 }
 
 export function isLegacyHash(hash: string): boolean {
-  return /^#\/[^/]/.test(hash);
+  return hash === '#/' || /^#\/[^/]/.test(hash);
 }
 
 // Convert a legacy `#/...` bookmark into its route path ('/lesson/go/types/'), relative to the language root.

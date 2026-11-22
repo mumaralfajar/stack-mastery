@@ -639,3 +639,153 @@ mark { background: color-mix(in srgb, var(--tc) 24%, transparent); color: var(--
 .sd-ring circle.ring-key.moved { fill: var(--bad); }
 .sd-ring text { fill: var(--text); font: 700 11px var(--mono); }
 .sd-slots { display: grid; grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); gap: .4rem; }
+
+/* Sidebar Pomodoro study timer pill & accessible focus-complete toast */
+.pomo-pill {
+  margin: .2rem .2rem .75rem;
+  padding: .65rem .7rem;
+  border-radius: 11px;
+  background: var(--sunken);
+  border: 1px solid var(--border);
+  display: grid;
+  gap: .48rem;
+}
+.pomo-pill[data-phase="focus"] {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+.pomo-pill[data-phase="break"] {
+  border-color: color-mix(in srgb, var(--good) 45%, var(--border));
+}
+.pomo-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .4rem;
+  font-size: .72rem;
+}
+.pomo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .1rem .48rem;
+  border-radius: 99px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.pomo-pill[data-phase="focus"] .pomo-badge {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  color: var(--accent);
+}
+.pomo-pill[data-phase="break"] .pomo-badge {
+  background: var(--good-bg);
+  border-color: color-mix(in srgb, var(--good) 50%, var(--border));
+  color: var(--good);
+}
+.pomo-cycles {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.pomo-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .45rem;
+}
+.pomo-clock {
+  font: 700 1.32rem/1.1 var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.pomo-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+}
+.pomo-btn {
+  padding: .24rem .55rem;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pomo-btn:hover { border-color: var(--accent); color: var(--accent); }
+.pomo-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+.pomo-btn.primary:hover { filter: brightness(1.08); color: var(--bg); }
+.pomo-presets {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .25rem;
+}
+.pomo-chip {
+  padding: .2rem .25rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.pomo-chip:hover { color: var(--text); border-color: var(--accent); }
+.pomo-chip[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+  color: var(--text);
+}
+.pomo-custom {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .35rem;
+  padding-top: .15rem;
+}
+.pomo-custom[hidden] { display: none; }
+.pomo-field {
+  display: grid;
+  gap: .15rem;
+  font-size: .7rem;
+  color: var(--muted);
+  min-width: 0;
+}
+.pomo-field input {
+  width: 100%;
+  min-width: 0;
+  padding: .22rem .38rem;
+  font-size: .8rem;
+  font-family: var(--mono);
+}
+
+.pomo-toast {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 120;
+  max-width: min(24rem, calc(100vw - 2rem));
+  padding: .85rem 1rem;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--good) 50%, var(--border));
+  box-shadow: 0 14px 36px rgba(6, 10, 22, 0.24);
+  display: grid;
+  gap: .55rem;
+}
+.pomo-toast[hidden] { display: none; }
+.pomo-toast-copy strong { display: block; font-size: .92rem; color: var(--good); }
+.pomo-toast-copy p { margin: .15rem 0 0; font-size: .84rem; color: var(--muted); }
+.pomo-toast-actions { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+@media (max-width: 600px) {
+  .pomo-toast { left: 1rem; right: 1rem; bottom: .75rem; max-width: none; }
+}

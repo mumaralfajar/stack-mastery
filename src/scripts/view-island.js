@@ -61,10 +61,30 @@ const VIEWS = {
     return () => ivMod.interviewView(sub, id);
   },
   async break() {
-    const [{ breakView }] = await Promise.all([import('./views/break.js'), idUi()]);
-    return () => breakView();
+    const [{ breakView }] = await Promise.all([import('../lib/break/break-island.ts'), idUi()]);
+    return (onCleanup) => breakView(onCleanup);
   },
 };
+
+let activeCleanup = null;
+let lastRender = null;
+const runCleanup = () => {
+  if (!activeCleanup) return;
+  const fn = activeCleanup;
+  activeCleanup = null;
+  fn();
+};
+const registerCleanup = (fn) => {
+  activeCleanup = fn;
+};
+
+addEventListener('pagehide', runCleanup);
+addEventListener('pageshow', (e) => {
+  if (e.persisted && lastRender && root) {
+    runCleanup();
+    root.replaceChildren(lastRender(registerCleanup));
+  }
+});
 
 async function mount() {
   if (!root) return;
@@ -73,7 +93,9 @@ async function mount() {
   const load = VIEWS[view];
   if (!load) return;
   const render = await load(args);
-  root.replaceChildren(render());
+  lastRender = render;
+  runCleanup();
+  root.replaceChildren(render(registerCleanup));
   root.removeAttribute('aria-busy');
 
   // Progress changed in another tab: redraw views that show summary progress when no editor or form is active.
@@ -86,7 +108,10 @@ async function mount() {
         (kind === 'interview' || kind === 'all') &&
         !root.querySelector('.play, .mock-stage :is(textarea, select)') &&
         !(root.contains(active) && active?.matches('input, textarea, select')));
-    if (shouldRedraw) root.replaceChildren(render());
+    if (shouldRedraw) {
+      runCleanup();
+      root.replaceChildren(render(registerCleanup));
+    }
   });
 }
 
