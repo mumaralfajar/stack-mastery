@@ -50,9 +50,9 @@ const VIEWS = {
     ]);
     const sample = new URLSearchParams(location.search).get('sample') || undefined;
     const run = { sql: play.sql, ts: play.ts, css: play.css, dart: play.dart }[kind] || play.sql;
-    return () => {
+    return (onCleanup) => {
       const el = h('div', { class: 'page wide' });
-      run(el, sample);
+      run(el, sample, onCleanup);
       return el;
     };
   },
@@ -66,16 +66,22 @@ const VIEWS = {
   },
 };
 
-let activeCleanup = null;
+// A view may register several cleanups (observers, listeners, timers); they all run before the next render or on pagehide.
+let cleanups = [];
 let lastRender = null;
 const runCleanup = () => {
-  if (!activeCleanup) return;
-  const fn = activeCleanup;
-  activeCleanup = null;
-  fn();
+  const fns = cleanups;
+  cleanups = [];
+  for (const fn of fns) {
+    try {
+      fn();
+    } catch (e) {
+      console.error(e);
+    }
+  }
 };
 const registerCleanup = (fn) => {
-  activeCleanup = fn;
+  cleanups.push(fn);
 };
 
 addEventListener('pagehide', runCleanup);

@@ -226,7 +226,35 @@ export function treeWire(
     }
     svg.innerHTML = `<path d="${d}"/>`;
   };
-  if (typeof ResizeObserver === 'function') new ResizeObserver(draw).observe(treeEl);
+  // The observer stops when the tree leaves the document or the page is hidden (and resumes if the page comes
+  // back from the back/forward cache), so wires never keep a detached tree alive.
+  let ro: ResizeObserver | null = null;
+  const stop = () => {
+    ro?.disconnect();
+    ro = null;
+  };
+  const onHide = () => stop();
+  const teardown = () => {
+    stop();
+    removeEventListener('pagehide', onHide);
+    removeEventListener('pageshow', onShow);
+  };
+  const start = () => {
+    if (ro || typeof ResizeObserver !== 'function') return;
+    ro = new ResizeObserver(() => {
+      if (!treeEl.isConnected) return teardown();
+      draw();
+    });
+    ro.observe(treeEl);
+  };
+  function onShow(e: PageTransitionEvent) {
+    if (!e.persisted || !treeEl.isConnected) return;
+    start();
+    draw();
+  }
+  addEventListener('pagehide', onHide);
+  addEventListener('pageshow', onShow);
+  start();
   requestAnimationFrame(draw);
   return treeEl;
 }

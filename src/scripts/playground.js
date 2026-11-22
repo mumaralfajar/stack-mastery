@@ -2,23 +2,76 @@
 import { codeBlock, confirmDialog, h, tableWrap } from '../lib/dom.ts';
 import { getLevels, getTrack, t as T } from '../lib/i18n.ts';
 import { SQL_KEY, readJson, writeJson } from '../lib/storage.ts';
+import { resolvedTheme, watchTheme } from '../lib/theme.ts';
 
   const CDN = 'https://cdnjs.cloudflare.com/ajax/libs/';
+  // Every pinned third-party script is loaded with Subresource Integrity: the browser refuses to run it unless its
+  // bytes match these sha384 digests, which were computed from the exact files the CDNs serve for these URLs.
+  // When bumping a version, fetch the new file and recompute the hash (see README, "Pinned CDN scripts").
+  const MONACO = CDN + 'monaco-editor/0.52.2/min';
+  const MONACO_LOADER = MONACO + '/vs/loader.js';
+  const SQLJS = CDN + 'sql.js/1.8.0/';
+  const SQLJS_LOADER = SQLJS + 'sql-wasm.js';
+  const TS_URL = CDN + 'typescript/5.8.3/typescript.min.js';
+  const TAILWIND_URL = 'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.4';
+  const SRI = {
+    [MONACO_LOADER]: 'sha384-pHG02SG8pId94Np3AbPmBEJ1yPqaH0IkJGLSNGXYmuGhkazT8Lr/57WYpbkGjJtu',
+    [SQLJS_LOADER]: 'sha384-KsfptB549CXfbfsdxZmPo2PlmgCyJ+RNqHTQE1Gj45t3p4DaA1QbZYVyqlni4pOO',
+    [TS_URL]: 'sha384-rzD+Kg5xW4cKW7h4a2bUXWbDteIVdFMLwdoSxDFy9ItGR4++5eDnPB9mDLJRIkhv',
+    [TAILWIND_URL]: 'sha384-Wvy1ssCJ6jK31FMWKSXxg4hwsnsgtYT2qpIUCYdQNmYfD6CBpVxUdyuvpr9LhZWb'
+  };
+
   const loaded = {};
-  const loadScript = src => loaded[src] || (loaded[src] = new Promise((ok, fail) => {
-    const s = document.createElement('script'); s.src = src; s.onload = ok;
-    s.onerror = () => { delete loaded[src]; fail(new Error(T('Could not load {src}. The playground needs an internet connection the first time.', { src }))); };
-    document.head.append(s);
-  }));
+  // Scripts load one at a time. Monaco's AMD loader defines a global `define` with an `amd` flag that makes UMD
+  // libraries such as sql.js register as AMD modules instead of setting their window global. So while any other
+  // script runs, that flag is hidden, and it is put back right after (also on failure). Nothing is deleted for good.
+  let queue = Promise.resolve();
+  const loadScript = (src, integrity = SRI[src]) => {
+    if (loaded[src]) return loaded[src];
+    const p = queue.then(() => new Promise((ok, fail) => {
+      const def = window.define, amd = def && def.amd;
+      if (amd) def.amd = undefined;
+      const restore = () => { if (amd) def.amd = amd; };
+      const s = document.createElement('script');
+      s.src = src;
+      if (integrity) { s.integrity = integrity; s.crossOrigin = 'anonymous'; }
+      s.onload = () => { restore(); ok(); };
+      s.onerror = () => { restore(); s.remove(); fail(new Error(T('Could not load {src}. The playground needs an internet connection the first time.', { src }))); };
+      document.head.append(s);
+    }));
+    queue = p.catch(() => {});
+    loaded[src] = p.catch(e => { delete loaded[src]; throw e; });
+    return loaded[src];
+  };
   const store = { get: k => readJson(k, () => []), set: (k, v) => writeJson(k, v) };
+
+  // Shown when a CDN script or embed cannot load (offline, blocked): the editor stays usable and Retry tries again.
+  const loadFailure = (message, retry) => h('div', { class: 'load-fail', role: 'alert' },
+    h('p', { class: 'err' }, message),
+    h('p', { class: 'muted' }, 'You can keep editing. Check your connection, then try again.'),
+    h('button', { type: 'button', class: 'btn ghost', onclick: retry }, 'Retry'));
+
+  // Optional links to full online sandboxes, for what a browser playground cannot run.
+  const SANDBOXES = {
+    go: { href: 'https://go.dev/play/', label: 'Go Playground' },
+    csharp: { href: 'https://sharplab.io/', label: 'SharpLab' },
+    stackblitz: { href: 'https://stackblitz.com/', label: 'StackBlitz' },
+    dartpad: { href: 'https://dartpad.dev/', label: 'DartPad' }
+  };
+  const sandboxLink = key => h('a', { href: SANDBOXES[key].href, target: '_blank', rel: 'noopener noreferrer', 'data-sandbox': key }, SANDBOXES[key].label);
+
   // Monaco (the open-source editor inside VS Code, MIT licence) gives syntax highlighting, autocomplete and
   // real TypeScript type checking. It loads lazily; if it cannot load, the plain textarea keeps working.
-  const MONACO = CDN + 'monaco-editor/0.52.2/min';
+  const monacoTheme = () => resolvedTheme() === 'dark' ? 'vs-dark' : 'vs';
+  // The worker script is one Blob URL, created on first use and revoked when the page is hidden. Returning from
+  // the back/forward cache creates it again on demand.
+  let workerUrl = null;
+  const getWorkerUrl = () => workerUrl || (workerUrl = URL.createObjectURL(new Blob(
+    [`self.MonacoEnvironment = { baseUrl: '${MONACO}/' }; importScripts('${MONACO}/vs/base/worker/workerMain.js');`], { type: 'text/javascript' })));
+  addEventListener('pagehide', () => { if (workerUrl) { URL.revokeObjectURL(workerUrl); workerUrl = null; } });
   let monacoP, seq = 0;
-  const getMonaco = () => monacoP || (monacoP = loadScript(MONACO + '/vs/loader.js').then(() => new Promise((ok, fail) => {
-    delete window.define.amd;   // keep other UMD libraries (sql.js) attaching to window instead of the AMD loader
-    window.MonacoEnvironment = { getWorkerUrl: () => URL.createObjectURL(new Blob(
-      [`self.MonacoEnvironment = { baseUrl: '${MONACO}/' }; importScripts('${MONACO}/vs/base/worker/workerMain.js');`], { type: 'text/javascript' })) };
+  const getMonaco = () => monacoP || (monacoP = loadScript(MONACO_LOADER).then(() => new Promise((ok, fail) => {
+    window.MonacoEnvironment = { getWorkerUrl };
     window.require.config({ paths: { vs: MONACO + '/vs' } });
     window.require(['vs/editor/editor.main'], () => {
       const t = window.monaco.languages.typescript;
@@ -26,6 +79,13 @@ import { SQL_KEY, readJson, writeJson } from '../lib/storage.ts';
       // declarations such as `const name` do not collide with browser globals or with other editors.
       t.typescriptDefaults.setCompilerOptions({ target: t.ScriptTarget.ESNext, module: t.ModuleKind.ESNext, moduleDetection: 3, strict: true, allowNonTsExtensions: true, jsx: t.JsxEmit.ReactJSX });
       t.typescriptDefaults.addExtraLib(REACT_TYPES, 'file:///react-shim.d.ts');
+      // Stock 'vs' paints HTML attribute names pure red, which is only 3.99:1 on white. Redefining 'vs' with a
+      // darker red keeps the theme id (and Monaco's `vs` class) while meeting WCAG AA.
+      window.monaco.editor.defineTheme('vs', { base: 'vs', inherit: true, rules: [{ token: 'attribute.name', foreground: 'cd3131' }], colors: {} });
+      // Monaco's theme is global, so one subscription keeps every editor in step with the site theme.
+      window.monaco.editor.setTheme(monacoTheme());
+      watchTheme(() => window.monaco.editor.setTheme(monacoTheme()));
+      addEventListener('pageshow', e => { if (e.persisted) window.monaco.editor.setTheme(monacoTheme()); });
       ok(window.monaco);
     }, fail);
   })).catch(e => { monacoP = null; throw e; }));
@@ -87,7 +147,7 @@ declare namespace JSX { interface IntrinsicElements { [tag: string]: ShimAttrs }
       ta.after(host); ta.hidden = true;
       const ext = fileExt || { typescript: 'ts', sql: 'sql', css: 'css', html: 'html' }[lang];
       const model = monaco.editor.createModel(ta.value, lang, monaco.Uri.parse(`file:///snippet${++seq}.${ext}`));
-      const ed = monaco.editor.create(host, { model, theme: 'vs-dark', minimap: { enabled: false }, automaticLayout: true, fontSize: 13.5,
+      const ed = monaco.editor.create(host, { model, theme: monacoTheme(), minimap: { enabled: false }, automaticLayout: true, fontSize: 13.5,
         scrollBeyondLastLine: false, tabSize: 2, lineNumbersMinChars: 3, padding: { top: 10 }, fixedOverflowWidgets: true, ariaLabel: T('Code editor') });
       // The textarea stays the single interface for the rest of the app: reads and writes go to the model.
       Object.defineProperty(ta, 'value', { configurable: true, get: () => model.getValue(), set: v => { if (v !== model.getValue()) model.setValue(v); } });
@@ -175,8 +235,8 @@ PRAGMA foreign_keys = ON;`;
   ];
 
   let SQLp;
-  const getSQL = () => SQLp || (SQLp = loadScript(CDN + 'sql.js/1.8.0/sql-wasm.js')
-    .then(() => window.initSqlJs({ locateFile: f => CDN + 'sql.js/1.8.0/' + f })).catch(e => { SQLp = null; throw e; }));
+  const getSQL = () => SQLp || (SQLp = loadScript(SQLJS_LOADER)
+    .then(() => window.initSqlJs({ locateFile: f => SQLJS + f })).catch(e => { SQLp = null; throw e; }));
 
   const SQL_PRESETS = { select: 0, dml: 2, aggregate: 3, joins: 4, design: 5, indexes: 1, transactions: 6, subqueries: 8, window: 9, locking: 11, plans: 12, scale: 13 };
   const SQL_DIALECT_HINTS = [
@@ -187,7 +247,7 @@ PRAGMA foreign_keys = ON;`;
     [/\bOFFSET\s+\d+\s+ROWS?\s+FETCH\b/i, 'SQL Server OFFSET/FETCH → SQLite uses LIMIT n OFFSET m.']
   ];
 
-  function sql(el, sample) {
+  function sql(el, sample, onCleanup) {
     const LEVELS = getLevels();
     let db = null, cur = -1;
     const solved = new Set(store.get(SQL_KEY));
@@ -301,8 +361,14 @@ PRAGMA foreign_keys = ON;`;
           } }, 'Show solution'),
           h('button', { type: 'button', class: 'btn ghost', onclick: reset }, 'Reset database'))),
         out));
-    getSQL().then(S => { SQL = S; reset(); out.replaceChildren(h('p', { class: 'muted' }, 'Ready. Run a query to see results here.')); })
-      .catch(e => out.replaceChildren(h('p', { class: 'err' }, e.message)));
+    // If SQLite cannot load (offline, blocked), the editor stays and Retry loads it again.
+    const loadSql = () => {
+      out.replaceChildren(h('p', { class: 'muted' }, 'Loading SQLite…'));
+      getSQL().then(S => { SQL = S; reset(); out.replaceChildren(h('p', { class: 'muted' }, 'Ready. Run a query to see results here.')); })
+        .catch(e => out.replaceChildren(loadFailure(e.message, loadSql)));
+    };
+    loadSql();
+    onCleanup?.(() => { if (db) { try { db.close(); } catch { /* ignore */ } db = null; } });
   }
 
   // ---------------- TypeScript ----------------
@@ -642,7 +708,7 @@ ${js.replace(/<\/script/gi, '<\\/script')}
     signals: 'Angular signals', rxjs: 'RxJS switchMap vs exhaustMap', http: 'ASP.NET ProblemDetails mapper'
   };
 
-  function ts(el, sample) {
+  function ts(el, sample, onCleanup) {
     const out = h('div', { class: 'out', 'aria-live': 'polite' }, h('p', { class: 'muted' }, 'Output appears here.'));
     const ngNote = h('p', { class: 'muted', hidden: true }, 'Note: Signal, linkedSignal, and RxJS models run directly here in TypeScript. Full Angular HTML @Component templates require Angular CLI or StackBlitz.');
     let frame = null;
@@ -654,6 +720,7 @@ ${js.replace(/<\/script/gi, '<\\/script')}
       else logs.textContent += (logs.textContent ? '\n' : '') + e.data.text;
     };
     addEventListener('message', onMessage);
+    onCleanup?.(() => { removeEventListener('message', onMessage); frame = null; });
     const showReact = async js => {
       frame = h('iframe', { class: 'preview', sandbox: 'allow-scripts', title: 'React preview' });
       frame.srcdoc = reactPage(js);
@@ -661,8 +728,9 @@ ${js.replace(/<\/script/gi, '<\\/script')}
     };
     const run = async () => {
       out.replaceChildren(h('p', { class: 'muted' }, 'Running…'));
+      // The compiler is a large CDN script: if it cannot load, say so and offer Retry instead of a bare error.
+      try { await loadTS(); } catch (e) { return out.replaceChildren(loadFailure(String(e.message || e), run)); }
       try {
-        await loadScript(CDN + 'typescript/5.4.5/typescript.min.js');
         const res = window.ts.transpileModule(ta.value, { fileName: 'snippet.tsx', reportDiagnostics: true, compilerOptions: { target: 'ES2022', module: 'ESNext', jsx: window.ts.JsxEmit.ReactJSX } });
         const diag = (res.diagnostics || []).map(d => window.ts.flattenDiagnosticMessageText(d.messageText, '\n'));
         if (diag.length) throw new Error(T('Syntax error: ') + diag.join('\n'));
@@ -690,7 +758,8 @@ ${js.replace(/<\/script/gi, '<\\/script')}
       chips, ngNote,
       h('div', { class: 'play' },
         h('div', {}, ta, h('div', { class: 'actions' }, h('button', { type: 'button', class: 'btn', onclick: run }, 'Run (Ctrl+Enter)'))),
-        out));
+        out),
+      h('p', { class: 'muted sandbox-note' }, 'Need a full project, such as the Angular CLI or a bundled React app? Open ', sandboxLink('stackblitz'), ' in a new tab.'));
   }
 
   // ---------------- HTML + CSS (+ Tailwind) ----------------
@@ -771,15 +840,18 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
     responsive: 'Tailwind responsive'
   };
 
-  function css(el, sample) {
-    let t = 0;
+  function css(el, sample, onCleanup) {
+    let t = 0, ro = null;
     const frame = h('iframe', { class: 'preview', sandbox: 'allow-scripts', title: 'Preview' });
     const size = h('span', { class: 'muted' });
     const render = () => {
       const tw = twBox.checked;
+      // Inside <style> the HTML parser ends the element at "</style", so a stray one in the CSS box would let the rest
+      // of the text become markup in the preview. Escaping the slash keeps it as plain (ignored) CSS text.
+      const safeCss = cssTa.value.replace(/<\/style/gi, '<\\/style');
       frame.srcdoc = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">` +
-        (tw ? `<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.4"><\/script>` : '') +
-        `<style${tw ? ' type="text/tailwindcss"' : ''}>${cssTa.value}</style></head><body>${htmlTa.value}</body></html>`;
+        (tw ? `<script src="${TAILWIND_URL}" integrity="${SRI[TAILWIND_URL]}" crossorigin="anonymous"><\/script>` : '') +
+        `<style${tw ? ' type="text/tailwindcss"' : ''}>${safeCss}</style></head><body>${htmlTa.value}</body></html>`;
     };
     const later = () => { clearTimeout(t); t = setTimeout(render, 350); };
     const htmlTa = editor('', render, 'html'), cssTa = editor('', render, 'css');
@@ -788,7 +860,15 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
     const load = name => { const x = CSS_EXAMPLES[name]; htmlTa.value = x.html; cssTa.value = x.css; twBox.checked = !!x.tw; [...chips.children].forEach(c => c.classList.toggle('on', c.dataset.k === name)); render(); };
     const chips = h('div', { class: 'chips' }, Object.keys(CSS_EXAMPLES).map(n => h('button', { type: 'button', 'data-k': n, onclick: () => load(n) }, n)));
     const wrap = h('div', { class: 'preview-wrap' }, frame);
-    if (window.ResizeObserver) new ResizeObserver(() => size.textContent = T('Preview width: {w}px (drag the right edge to test breakpoints)', { w: Math.round(frame.clientWidth) })).observe(frame);
+    const unwatch = () => { clearTimeout(t); if (ro) { ro.disconnect(); ro = null; } };
+    if (window.ResizeObserver) {
+      ro = new ResizeObserver(() => {
+        if (!frame.isConnected) return unwatch();   // the page was left
+        size.textContent = T('Preview width: {w}px (drag the right edge to test breakpoints)', { w: Math.round(frame.clientWidth) });
+      });
+      ro.observe(frame);
+    }
+    onCleanup?.(unwatch);
     el.style.setProperty('--tc', 'var(--css)');
     el.append(
       h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, 'Practice'), h('h1', {}, 'CSS + Tailwind playground'),
@@ -797,7 +877,8 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
       h('div', { class: 'play' },
         h('div', {}, h('p', { class: 'ed-label' }, 'HTML'), htmlTa, h('p', { class: 'ed-label' }, 'CSS'), cssTa,
           h('div', { class: 'actions' }, h('label', { class: 'tw-toggle' }, twBox, 'Use Tailwind CSS'))),
-        h('div', {}, wrap, size)));
+        h('div', {}, wrap, size)),
+      h('p', { class: 'muted sandbox-note' }, 'Need a full project with a bundler? Open ', sandboxLink('stackblitz'), ' in a new tab.'));
     load((sample && CSS_PRESETS[sample]) || (sample && CSS_EXAMPLES[sample] && sample) || Object.keys(CSS_EXAMPLES)[0]);
   }
 
@@ -805,20 +886,32 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
   // DartPad (dartpad.dev, the official open-source Dart playground) compiles and runs Dart and Flutter in the browser.
   // When the embedded editor reports that it is ready, the selected lesson sample is posted into it.
   const DARTPAD = 'https://dartpad.dev';
-  function dart(el, sample) {
+  const DART_READY_MS = 10000;   // DartPad answers with 'ready' within this long, or the embed counts as unreachable
+  const dartSrc = theme => `${DARTPAD}/?embed=true&theme=${theme}`;
+  function dart(el, sample, onCleanup) {
     const track = getTrack('flutter');
     // Samples DartPad can run as they are: a main() and no third-party packages.
     const samples = track.lessons.filter(l => /\bmain\(\)/.test(l.code) && !/package:(?!flutter\/)/.test(l.code));
-    let cur = samples.find(l => l.id === sample) || samples[0], ready = false;
+    let cur = samples.find(l => l.id === sample) || samples[0], ready = false, theme = resolvedTheme(), timer = 0;
     const code = l => l.code.replace(/^\n+|\s+$/g, '');
-    const frame = h('iframe', { class: 'dartpad', title: 'DartPad', src: DARTPAD + '/?embed=true&theme=dark', allow: 'clipboard-write' });
+    const frame = h('iframe', { class: 'dartpad', title: 'DartPad', src: dartSrc(theme), allow: 'clipboard-write' });
+    const notice = h('div', {});
     const codeBox = h('div', {});
     const send = () => { if (ready && frame.contentWindow) frame.contentWindow.postMessage({ sourceCode: code(cur), type: 'sourceCode' }, DARTPAD); };
+    // A cross-origin iframe cannot report a blocked load, so no 'ready' message in time (or being offline) is the signal.
+    const fail = () => { if (!ready) notice.replaceChildren(loadFailure(T('DartPad could not be loaded. It needs an internet connection and may be blocked on this network.'), reload)); };
+    const arm = () => { clearTimeout(timer); if (navigator.onLine === false) fail(); else timer = setTimeout(fail, DART_READY_MS); };
+    const reload = () => { ready = false; notice.replaceChildren(); frame.src = dartSrc(theme); arm(); };
     const onMsg = e => {
-      if (!frame.isConnected) return removeEventListener('message', onMsg);
-      if (e.origin === DARTPAD && e.data && e.data.type === 'ready') { ready = true; send(); }
+      if (!frame.isConnected) return stop();
+      if (e.origin === DARTPAD && e.source === frame.contentWindow && e.data && e.data.type === 'ready') { ready = true; clearTimeout(timer); notice.replaceChildren(); send(); }
     };
+    // Switching the site theme (or the OS theme) reloads DartPad with the matching theme, then posts the sample again.
+    const unwatchTheme = watchTheme(next => { theme = next; reload(); });
+    const stop = () => { removeEventListener('message', onMsg); unwatchTheme(); clearTimeout(timer); };
     addEventListener('message', onMsg);
+    onCleanup?.(stop);
+    arm();
     const chips = h('div', { class: 'chips' });
     const draw = () => {
       chips.replaceChildren(...samples.map(l => h('button', { type: 'button', class: l === cur ? 'on' : '', onclick: () => { cur = l; draw(); send(); } }, l.title)));
@@ -833,10 +926,11 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
       h('div', { class: 'play' },
         h('div', {}, h('p', { class: 'ed-label' }, 'Lesson sample'), codeBox,
           h('p', { class: 'muted' }, 'The sample is sent to DartPad automatically. If the editor on the right does not show it, press Copy and paste it in.')),
-        h('div', {}, frame,
-          h('p', { class: 'muted' }, 'DartPad needs an internet connection. Samples that use packages such as flutter_bloc or go_router are meant for a local project: ', h('code', {}, 'flutter create'), '.'))));
+        h('div', {}, frame, notice,
+          h('p', { class: 'muted' }, 'DartPad needs an internet connection. Samples that use packages such as flutter_bloc or go_router are meant for a local project: ', h('code', {}, 'flutter create'), '.'),
+          h('p', { class: 'muted sandbox-note' }, 'Prefer a bigger window? Open ', sandboxLink('dartpad'), ' in a new tab.'))));
   }
 
-export const loadTS = () => loadScript(CDN + 'typescript/5.4.5/typescript.min.js');
+export const loadTS = () => loadScript(TS_URL);
 export { sql, ts, css, dart, editor, typeNote };
 export const PLAY = { sql, ts, css, dart, editor, typeNote, loadTS };

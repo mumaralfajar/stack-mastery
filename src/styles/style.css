@@ -1,7 +1,7 @@
 :root {
   --bg: #f6f5f1; --surface: #ffffff; --sunken: #efede7; --text: #1b2030; --muted: #5d6677; --border: #e0ddd4;
   --accent: #3b47d6; --good: #0f7b4f; --bad: #c0362c; --good-bg: #e3f4ea; --bad-bg: #fbe9e6;
-  --csharp: #7c3aed; --aspnet: #4338ca; --go: #0e7490; --sql: #92400e; --css: #0d9488; --react: #0369a1; --angular: #b8145e; --flutter: #1d4ed8; --cs: #be123c; --sysdesign: #9a3412;
+  --csharp: #7c3aed; --aspnet: #4338ca; --go: #0e7490; --sql: #92400e; --css: #0f766e; --react: #0369a1; --angular: #b8145e; --flutter: #1d4ed8; --cs: #be123c; --sysdesign: #9a3412;
   --code-bg: #14171f; --code-text: #e4e7ee;
   --tc: var(--accent);
   --mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, Menlo, monospace;
@@ -40,7 +40,7 @@
     --csharp: light-dark(#7c3aed, #b79cff);
     --aspnet: light-dark(#4338ca, #818cf8);
     --sql: light-dark(#92400e, #f5b955);
-    --css: light-dark(#0d9488, #2dd4bf);
+    --css: light-dark(#0f766e, #2dd4bf);
     --react: light-dark(#0369a1, #38bdf8);
     --angular: light-dark(#b8145e, #f472b6);
     --flutter: light-dark(#1d4ed8, #60a5fa);
@@ -499,7 +499,7 @@ table.t tr.hl td { background: color-mix(in srgb, var(--tc) 14%, transparent); }
   .page { padding: 1.5rem 1rem 4rem; }
   .hero { flex-direction: column-reverse; align-items: flex-start; gap: 1rem; } .ring { flex-basis: auto; width: 110px; }
   .stats { grid-template-columns: repeat(2, 1fr); }
-  .play, .viz-cols { grid-template-columns: 1fr; }
+  .play, .viz-cols { grid-template-columns: minmax(0, 1fr); }
   .stage-row { grid-template-columns: 1fr; gap: .2rem; }
 }
 @media print {
@@ -789,3 +789,9 @@ mark { background: color-mix(in srgb, var(--tc) 24%, transparent); color: var(--
 @media (max-width: 600px) {
   .pomo-toast { left: 1rem; right: 1rem; bottom: .75rem; max-width: none; }
 }
+
+/* Playground load failures (CDN blocked or offline) and optional external sandbox links */
+.load-fail { display: grid; gap: .5rem; justify-items: start; margin-top: .75rem; padding: .85rem 1rem; border: 1px solid var(--bad); border-radius: 10px; background: color-mix(in srgb, var(--bad) 8%, var(--surface, transparent)); }
+.load-fail p { margin: 0; }
+.sandbox-note { margin-top: 1rem; }
+.sandbox-note a { color: var(--tc, inherit); text-underline-offset: 2px; }
