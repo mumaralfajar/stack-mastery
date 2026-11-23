@@ -5,13 +5,15 @@
 // - Pages: network-first, falling back to the cached page, then the offline 404 page.
 // - Hashed build assets (/stack-mastery/_astro/*): cache-first (file names change whenever content changes).
 // - Other same-origin files (search index, icons, manifest): stale-while-revalidate.
-const VERSION = 'stack-mastery-v1';
+const VERSION = 'stack-mastery-v2';
 const SCOPE = '/stack-mastery/';
 const SHELL = [
   '/stack-mastery/',
   '/stack-mastery/id/',
   '/stack-mastery/dashboard/',
   '/stack-mastery/id/dashboard/',
+  '/stack-mastery/notes/',
+  '/stack-mastery/id/notes/',
   '/stack-mastery/manifest.webmanifest',
   '/stack-mastery/favicon.svg',
   '/stack-mastery/favicon.ico',

@@ -2,9 +2,10 @@
 // spaced-repetition marking, the Teach-back rubric, the Learn/Check/Teach tracker, and the lesson's single lab,
 // which is dynamic-imported on its own via loadViz(id) (never every lab module).
 import { recordLastLesson } from '../lib/break/pomodoro.ts';
-import { getLang, registerUiDict, t as T } from '../lib/i18n.ts';
 import { md } from '../lib/dom.ts';
+import { getLang, registerUiDict, t as T } from '../lib/i18n.ts';
 import { quizItem } from '../lib/icons.ts';
+import { recordCardMiss } from '../lib/srs.ts';
 import { S, day, notifyStateChange, peek, save, st, touch } from '../lib/state.ts';
 import { loadViz } from './viz/registry.ts';
 
@@ -74,7 +75,7 @@ if (root && data) {
           if (results.every(Boolean)) set('quiz', true);
         },
         onMiss: () => {
-          S.cards[`${k}#${i}`] = { box: 1, due: day() };
+          S.cards[`${k}#${i}`] = recordCardMiss(S.cards[`${k}#${i}`], day());
           save();
           notifyStateChange('study');
         },
@@ -84,13 +85,34 @@ if (root && data) {
 
   // Teach: a written explanation is required before the rubric can be ticked.
   const notes = root.querySelector('[data-teach-notes]');
+  const teachCount = root.querySelector('[data-teach-count]');
   const teachWarn = root.querySelector('[data-teach-warn]');
   const rub = (s0.rubric || []).slice();
+  const countWords = (val) => {
+    const trimmed = String(val || '').trim();
+    return trimmed ? trimmed.split(/\s+/).length : 0;
+  };
+  const drawTeachCount = () => {
+    if (!teachCount || !notes) return;
+    const n = countWords(notes.value);
+    teachCount.classList.toggle('ready', n >= 15);
+    if (n === 0) {
+      teachCount.textContent = T('0 words — aim for a short explanation in your own words');
+    } else if (n === 1) {
+      teachCount.textContent = T('{n} word — add a short example or trade-off if helpful', { n });
+    } else if (n < 15) {
+      teachCount.textContent = T('{n} words — add a short example or trade-off if helpful', { n });
+    } else {
+      teachCount.textContent = T('{n} words — ready for rubric', { n });
+    }
+  };
   if (notes) {
     notes.value = s0.notes || '';
+    drawTeachCount();
     notes.addEventListener('input', () => {
       st(k).notes = notes.value;
       save();
+      drawTeachCount();
       if (notes.value.trim() && teachWarn) teachWarn.hidden = true;
     });
   }

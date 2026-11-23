@@ -795,3 +795,58 @@ mark { background: color-mix(in srgb, var(--tc) 24%, transparent); color: var(--
 .load-fail p { margin: 0; }
 .sandbox-note { margin-top: 1rem; }
 .sandbox-note a { color: var(--tc, inherit); text-underline-offset: 2px; }
+
+/* Goal-based onboarding selector & track recommendations */
+.goal-picker { display: grid; gap: .6rem; padding: 1rem 1.1rem; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.goal-opts { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; }
+.goal-btn { padding: .38rem .8rem; border-radius: 99px; border: 1px solid var(--border); background: var(--sunken); color: var(--text); font-size: .86rem; font-weight: 600; cursor: pointer; transition: border-color .15s, background-color .15s; }
+.goal-btn:hover { border-color: var(--accent); }
+.goal-btn.on, .goal-btn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.goal-btn.ghost { background: transparent; color: var(--muted); border-style: dashed; }
+.goal-btn.ghost:hover { color: var(--text); border-color: var(--text); }
+.goal-summary { margin: 0; }
+.goal-tracks { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.goal-tracks[hidden] { display: none; }
+.goal-badge { align-self: flex-start; background: var(--sunken); color: var(--text); border: 1px solid color-mix(in srgb, var(--tc) 55%, var(--border)); }
+.card.goal-rec { border-color: color-mix(in srgb, var(--tc) 58%, var(--border)); }
+
+/* Per-track Beginner placement quiz */
+.placement-bar { margin-top: 1rem; }
+.placement-panel { padding: 1.1rem 1.2rem; border: 1px solid color-mix(in srgb, var(--tc) 38%, var(--border)); border-radius: 12px; background: var(--surface); }
+.placement-panel[hidden] { display: none; }
+.placement-head { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; margin-bottom: .4rem; }
+.placement-head h2 { margin: 0; }
+.placement-q { border: 1px solid var(--border); margin: 0 0 .9rem; }
+.placement-q legend { padding: 0; margin-bottom: .35rem; float: left; width: 100%; }
+.placement-q legend + * { clear: both; }
+.placement-opt { display: flex; align-items: flex-start; gap: .55rem; width: 100%; }
+.placement-opt input { flex: none; margin-top: .25rem; accent-color: var(--tc); }
+.placement-summary { margin-top: 1rem; text-align: left; }
+
+/* Adaptive SRS flashcards & keyboard shortcut badges */
+.fc-grades { gap: .5rem; }
+.fc-keys { margin: .9rem 0 0; font-size: .82rem; }
+.fc-done-actions { justify-content: center; margin-top: 1rem; }
+.btn .kbd { font-size: .74em; line-height: 1.3; padding: .05em .4em; border-color: color-mix(in srgb, currentColor 38%, transparent); }
+
+/* Teach-Back word count coaching */
+.teach-count { margin: .35rem 0 .45rem; font-size: .84rem; }
+.teach-count.ready { color: var(--good); font-weight: 600; }
+
+/* My Study Notes view */
+.notes-controls { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto; gap: .75rem; align-items: end; margin: 0 0 1rem; }
+.notes-field { display: grid; gap: .25rem; min-width: 0; }
+.notes-field label { font-size: .82rem; font-weight: 600; color: var(--muted); }
+.notes-search { width: 100%; padding: .48rem .75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.notes-export-wrap { display: flex; align-items: flex-end; }
+.notes-list { display: grid; gap: .9rem; }
+.note-card { background: var(--surface); border: 1px solid color-mix(in srgb, var(--tc) 30%, var(--border)); border-radius: 12px; padding: 1rem 1.15rem; }
+.note-head { display: flex; justify-content: space-between; align-items: flex-start; gap: .75rem; flex-wrap: wrap; margin-bottom: .65rem; }
+.note-head h2 { margin: 0; font-size: 1.05rem; }
+.note-head h2 a { color: var(--text); text-decoration: none; }
+.note-head h2 a:hover { color: var(--tc); text-decoration: underline; }
+.note-meta { display: inline-flex; align-items: center; gap: .55rem; flex-wrap: wrap; }
+.note-body { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .95rem; line-height: 1.6; color: var(--text); border-top: 1px solid var(--border); padding-top: .65rem; }
+@media (max-width: 720px) {
+  .notes-controls { grid-template-columns: minmax(0, 1fr); }
+}

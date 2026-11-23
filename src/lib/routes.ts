@@ -7,7 +7,7 @@ export const BASE = '/stack-mastery';
 export const SITE = 'https://mumaralfajar.github.io';
 export const PLAY_KINDS: readonly string[] = ['sql', 'ts', 'css', 'dart'];
 
-const SIMPLE_PAGES = new Set(['dashboard', 'start', 'search', 'review', 'exam', 'projects', 'teach', 'break']);
+const SIMPLE_PAGES = new Set(['dashboard', 'start', 'search', 'review', 'exam', 'projects', 'teach', 'notes', 'break']);
 const INTERVIEW_PAGES = new Set(['coding', 'patterns', 'design', 'behavioral', 'rapid', 'mock']);
 
 export function isLang(v: unknown): v is Lang {

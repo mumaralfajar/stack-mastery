@@ -1,12 +1,18 @@
 // Flashcard review and mock exam views (client-rendered; they need every lesson's quiz questions).
-import { h, md } from '../../lib/dom.ts';
+import { h, md, tableWrap } from '../../lib/dom.ts';
 import { getAllTracks, getLevels, t as T } from '../../lib/i18n.ts';
-import { href, lessonHref, quizItem, shuffle } from '../../lib/icons.ts';
-import { S, allCards, allLessons, day, dueCards, notifyStateChange, peek, touch } from '../../lib/state.ts';
+import { href, lessonHref, quizItem, section, shuffle } from '../../lib/icons.ts';
+import { previewGrades, recordCardMiss, scheduleCard } from '../../lib/srs.ts';
+import { S, allCards, allLessons, day, dueCards, notifyStateChange, peek, save, touch } from '../../lib/state.ts';
 
-const GAPS = [1, 2, 4, 8, 16];
+const GRADE_META = [
+  ['again', 'Again', 'Again ({d}d)', 'ghost', '1'],
+  ['hard', 'Hard', 'Hard ({d}d)', 'ghost', '2'],
+  ['good', 'Good', 'Good ({d}d)', '', '3'],
+  ['easy', 'Easy', 'Easy ({d}d)', 'ghost', '4'],
+];
 
-export function review() {
+export function review(onCleanup) {
   const tracks = getAllTracks();
   const trackSel = h(
     'select',
@@ -25,7 +31,7 @@ export function review() {
       h(
         'p',
         { class: 'lede' },
-        'Questions from learned lessons and missed quizzes return after 1, 2, 4, 8, and 16 days. Say your answer out loud before revealing it.',
+        'Questions from learned lessons, missed quizzes, and mock exams adapt to your memory with spaced repetition. Rate each recall Again, Hard, Good, or Easy.',
       ),
     ),
     h('div', { class: 'actions' }, trackSel),
@@ -34,6 +40,10 @@ export function review() {
   let queue = [];
   let n = 0;
   let got = 0;
+  let revealed = false;
+  let revealHandler = null;
+  let gradeHandler = null;
+
   const resetQueue = () => {
     const tid = trackSel.value;
     queue = shuffle(dueCards().filter((c) => !tid || c.t.id === tid)).slice(0, 20);
@@ -42,7 +52,39 @@ export function review() {
     show();
   };
   trackSel.onchange = resetQueue;
+
+  const onKey = (e) => {
+    if (!stage.isConnected) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (document.querySelector('dialog[open]')) return;
+    const target = e.target;
+    if (target && target.closest('input, textarea, select, [contenteditable]')) return;
+    if (!queue.length || n >= queue.length) return;
+    if (e.key === ' ' || e.code === 'Space') {
+      if (target && target.closest('button, a')) return;
+      if (!revealed && revealHandler) {
+        e.preventDefault();
+        revealHandler();
+      }
+      return;
+    }
+    if (revealed && gradeHandler) {
+      const map = { 1: 'again', 2: 'hard', 3: 'good', 4: 'easy' };
+      const g = map[e.key];
+      if (g) {
+        e.preventDefault();
+        gradeHandler(g);
+      }
+    }
+  };
+  addEventListener('keydown', onKey);
+  onCleanup?.(() => removeEventListener('keydown', onKey));
+
   const show = () => {
+    revealed = false;
+    revealHandler = null;
+    gradeHandler = null;
+
     if (!queue.length) {
       return stage.replaceChildren(
         h(
@@ -61,19 +103,40 @@ export function review() {
     }
     if (n >= queue.length) {
       notifyStateChange('study');
+      const tid = trackSel.value;
+      const remaining = dueCards().filter((c) => !tid || c.t.id === tid).length;
       return stage.replaceChildren(
         h(
           'div',
           { class: 'empty' },
           h('strong', {}, T('Session complete: {got} of {n} recalled.', { got, n: queue.length })),
-          h('p', {}, 'Missed cards return tomorrow.'),
-          h('a', { class: 'btn', href: href('/dashboard/') }, 'Back to dashboard'),
+          remaining > 0
+            ? h('p', {}, T('{n} more due cards remaining.', { n: remaining }))
+            : h('p', {}, 'Missed cards return tomorrow.'),
+          h(
+            'div',
+            { class: 'actions fc-done-actions' },
+            remaining > 0
+              ? h('button', { type: 'button', class: 'btn', 'data-continue-due': '', onclick: resetQueue }, 'Continue next 20 due')
+              : null,
+            h('a', { class: remaining > 0 ? 'btn ghost' : 'btn', href: href('/dashboard/') }, 'Back to dashboard'),
+          ),
         ),
       );
     }
     const c = queue[n];
-    const nextBox = Math.min((S.cards[c.id]?.box || 0) + 1, 5);
-    const nextGap = GAPS[nextBox - 1];
+    const today = day();
+    const previews = previewGrades(S.cards[c.id], today);
+
+    const grade = (rating) => {
+      S.cards[c.id] = scheduleCard(S.cards[c.id], rating, today);
+      if (rating !== 'again') got++;
+      n++;
+      touch();
+      show();
+    };
+    gradeHandler = grade;
+
     const back = h(
       'div',
       { class: 'fc-back', hidden: true },
@@ -81,31 +144,42 @@ export function review() {
       h('p', { html: md(c.q.why) }),
       h(
         'div',
-        { class: 'actions' },
-        h('button', { type: 'button', class: 'btn ghost', onclick: () => grade(false) }, T('Missed ({d}d)', { d: 1 })),
-        h('button', { type: 'button', class: 'btn', onclick: () => grade(true) }, T('Got it ({d}d)', { d: nextGap })),
+        { class: 'actions fc-grades' },
+        GRADE_META.map(([id, , labelKey, cls, keyHint]) =>
+          h(
+            'button',
+            {
+              type: 'button',
+              class: 'btn' + (cls ? ' ' + cls : ''),
+              'data-grade': id,
+              onclick: () => grade(id),
+            },
+            h('span', {}, T(labelKey, { d: previews[id].interval })),
+            h('kbd', { class: 'kbd' }, keyHint),
+          ),
+        ),
       ),
     );
+    const doReveal = () => {
+      if (revealed) return;
+      revealed = true;
+      back.hidden = false;
+      reveal.hidden = true;
+    };
+    revealHandler = doReveal;
+
     const reveal = h(
       'button',
       {
         type: 'button',
         class: 'btn',
-        onclick: () => {
-          back.hidden = false;
-          reveal.hidden = true;
-        },
+        'data-reveal': '',
+        onclick: doReveal,
       },
-      'Show answer',
+      h('span', {}, 'Show answer'),
+      h('kbd', { class: 'kbd' }, 'Space'),
     );
-    const grade = (ok) => {
-      const box = ok ? nextBox : 1;
-      S.cards[c.id] = { box, due: day(ok ? nextGap : 1) };
-      if (ok) got++;
-      n++;
-      touch();
-      show();
-    };
+
     stage.replaceChildren(
       h(
         'div',
@@ -114,6 +188,7 @@ export function review() {
         h('p', { class: 'fc-q', html: md(c.q.q) }),
         reveal,
         back,
+        h('p', { class: 'muted fc-keys' }, 'Shortcuts: Space to reveal, 1–4 to grade.'),
       ),
     );
   };
@@ -123,6 +198,7 @@ export function review() {
 
 export function exam() {
   const tracks = getAllTracks();
+  const trackNames = new Map(tracks.map((t) => [t.id, t.name]));
   const levels = getLevels();
   const page = h(
     'div',
@@ -139,7 +215,43 @@ export function exam() {
   const ts = sel([['', 'All tracks'], ...tracks.map((t) => [t.id, t.name])], 'Filter by track');
   const ls = sel([['', 'All levels'], ...levels.map((n, i) => [i, n])], 'Filter by level');
   const stage = h('div', {});
+  const historyBody = h('div', {});
+
+  const drawHistory = () => {
+    const list = Array.isArray(S.examHistory) ? S.examHistory : [];
+    if (!list.length) {
+      historyBody.replaceChildren(h('p', { class: 'muted' }, 'No mock exams completed yet.'));
+      return;
+    }
+    historyBody.replaceChildren(
+      tableWrap(
+        'Exam history',
+        h(
+          'table',
+          { class: 't' },
+          h('thead', {}, h('tr', {}, ['Date', 'Track', 'Score'].map((col) => h('th', { scope: 'col' }, col)))),
+          h(
+            'tbody',
+            {},
+            list.map((attempt) => {
+              const pctScore = attempt.total ? Math.round((attempt.score / attempt.total) * 100) : 0;
+              const trLabel = attempt.track === 'all' ? T('All tracks') : trackNames.get(attempt.track) || attempt.track;
+              return h(
+                'tr',
+                {},
+                h('td', {}, attempt.date),
+                h('td', {}, trLabel),
+                h('td', {}, `${attempt.score} / ${attempt.total} (${pctScore}%)`),
+              );
+            }),
+          ),
+        ),
+      ),
+    );
+  };
+
   const start = () => {
+    const selectedTrack = ts.value || 'all';
     const pool = shuffle(
       allCards().filter((c) => (!ts.value || c.t.id === ts.value) && (ls.value === '' || c.l.level === +ls.value)),
     ).slice(0, 10);
@@ -167,9 +279,26 @@ export function exam() {
             once: true,
             onResult: (ok) => {
               answered++;
-              if (ok) right++;
-              else missed.set(c.t.id + c.l.id, c);
+              if (ok) {
+                right++;
+              } else {
+                missed.set(c.t.id + c.l.id, c);
+                S.cards[c.id] = recordCardMiss(S.cards[c.id], day());
+                save();
+                notifyStateChange('study');
+              }
               if (answered === pool.length) {
+                const attempt = {
+                  date: day(),
+                  track: selectedTrack,
+                  score: right,
+                  total: pool.length,
+                };
+                S.examHistory = [attempt, ...(Array.isArray(S.examHistory) ? S.examHistory : [])].slice(0, 20);
+                touch();
+                notifyStateChange('study');
+                drawHistory();
+
                 result.hidden = false;
                 result.replaceChildren(
                   h('strong', {}, `${T('Score:')} ${right} / ${pool.length}`),
@@ -181,6 +310,9 @@ export function exam() {
                         [...missed.values()].map((m, j) => [j ? ', ' : '', h('a', { href: lessonHref(m.t, m.l) }, m.l.title)]),
                       )
                     : h('p', {}, 'Clean sweep. Raise the level.'),
+                  missed.size
+                    ? h('p', { class: 'muted' }, 'Missed questions were added to Flashcard review (due today).')
+                    : null,
                 );
                 result.scrollIntoView({ behavior: 'smooth', block: 'center' });
               }
@@ -191,6 +323,12 @@ export function exam() {
       result,
     );
   };
-  page.append(h('div', { class: 'actions' }, ts, ls, h('button', { type: 'button', class: 'btn', onclick: start }, 'Start exam')), stage);
+
+  drawHistory();
+  page.append(
+    h('div', { class: 'actions' }, ts, ls, h('button', { type: 'button', class: 'btn', onclick: start }, 'Start exam')),
+    stage,
+    section('Exam history', historyBody),
+  );
   return page;
 }

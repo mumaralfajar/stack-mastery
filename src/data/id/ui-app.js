@@ -29,6 +29,7 @@ const dict = {
   'Mock interview': 'Mock interview',
   'Become the teacher': 'Jadi pengajar',
   'Teaching toolkit': 'Toolkit mengajar',
+  'My study notes': 'Catatan belajarku',
   'Capstone projects': 'Capstone project',
   'Your progress is saved only in this browser. Nothing is uploaded or shared.': 'Progress kamu hanya tersimpan di browser ini. Tidak ada yang di-upload atau dibagikan.',
   'Toggle theme': 'Ganti tema',
@@ -126,7 +127,7 @@ const dict = {
 
   // flashcards
   'Spaced repetition': 'Spaced repetition',
-  'Questions from learned lessons and missed quizzes return after 1, 2, 4, 8, and 16 days. Say your answer out loud before revealing it.': 'Soal dari materi yang sudah dipelajari dan kuis yang salah muncul lagi di hari ke-1, 2, 4, 8, dan 16. Ucapkan jawabanmu dulu sebelum membuka kartu.',
+  'Questions from learned lessons, missed quizzes, and mock exams adapt to your memory with spaced repetition. Rate each recall Again, Hard, Good, or Easy.': 'Soal dari materi yang sudah dipelajari, kuis yang salah, dan simulasi ujian menyesuaikan jadwal dengan ingatanmu. Nilai tiap kartu: Lagi, Sulit, Bagus, atau Mudah.',
   'Nothing due.': 'Belum ada yang jatuh tempo.',
   "You're caught up. Come back tomorrow, or try a mock exam.": 'Semua sudah beres. Kembali lagi besok, atau coba simulasi ujian.',
   'Mark a lesson as learned and its questions will appear here.': 'Tandai sebuah materi sebagai sudah dipelajari, nanti pertanyaannya akan muncul di sini.',
@@ -134,6 +135,13 @@ const dict = {
   'Missed cards return tomorrow.': 'Kartu yang terlewat akan muncul lagi besok.',
   'Back to dashboard': 'Kembali ke dashboard',
   'Show answer': 'Lihat jawaban',
+  'Again ({d}d)': 'Lagi ({d} h)',
+  'Hard ({d}d)': 'Sulit ({d} h)',
+  'Good ({d}d)': 'Bagus ({d} h)',
+  'Easy ({d}d)': 'Mudah ({d} h)',
+  'Shortcuts: Space to reveal, 1–4 to grade.': 'Pintasan: Space untuk lihat jawaban, 1–4 untuk menilai.',
+  '{n} more due cards remaining.': 'Masih ada {n} kartu jatuh tempo tersisa.',
+  'Continue next 20 due': 'Lanjut 20 kartu berikutnya',
 
   // exam
   'Prove it': 'Buktikan',
@@ -147,6 +155,9 @@ const dict = {
   'Start exam': 'Mulai ujian',
   'No questions match these filters.': 'Tidak ada pertanyaan yang cocok dengan filter ini.',
   'Pick another track or level, or choose All levels.': 'Pilih track atau level lain, atau pilih Semua level.',
+  'Missed questions were added to Flashcard review (due today).': 'Soal yang salah sudah ditambahkan ke Review flashcard (jatuh tempo hari ini).',
+  'Exam history': 'Riwayat ujian',
+  'No mock exams completed yet.': 'Belum ada simulasi ujian yang diselesaikan.',
 
   // lab
   'See it move': 'Lihat cara kerjanya',
@@ -304,6 +315,60 @@ const dict = {
   'Focus block complete — start your {min}-minute break.': 'Sesi fokus selesai — mulai istirahat {min} menitmu.',
   '{mastered} mastery blooms · {cycles} focus cycles today': '{mastered} bunga dikuasai · {cycles} siklus fokus hari ini',
   'Resume: {title} →': 'Lanjut: {title} →',
+
+  // goal-based onboarding
+  'Your learning goal': 'Tujuan belajarmu',
+  'Choose your learning goal': 'Pilih tujuan belajarmu',
+  'CS Student / Fresh Grad': 'Mahasiswa CS / Fresh Grad',
+  'Build core fundamentals across CS, C#, SQL, and System Design.': 'Bangun fondasi kuat di CS, C#, SQL, dan System Design.',
+  'Backend Engineer': 'Backend Engineer',
+  'Focus on APIs, concurrency, relational databases, and distributed systems.': 'Fokus pada API, konkurensi, database relasional, dan sistem terdistribusi.',
+  'Frontend / Mobile': 'Frontend / Mobile',
+  'Master modern CSS, React, Angular, and Flutter UI architecture.': 'Kuasai CSS modern, React, Angular, dan arsitektur UI Flutter.',
+  'Full-Stack Mastery': 'Full-Stack Mastery',
+  'Balanced path across React, ASP.NET Core, SQL, CSS, and C#.': 'Jalur seimbang melintasi React, ASP.NET Core, SQL, CSS, dan C#.',
+  'Interview Crunch': 'Persiapan Interview Kilat',
+  'Prioritize CS fundamentals, System Design, SQL, and timed mock rounds.': 'Prioritaskan fondasi CS, System Design, SQL, dan latihan mock berbatas waktu.',
+  'Clear goal': 'Hapus tujuan',
+  'Pick a goal to prioritize matching tracks first. Every track stays available.': 'Pilih tujuan untuk memprioritaskan track yang paling cocok di atas. Semua track tetap tersedia.',
+  'Recommended for your goal': 'Disarankan untuk tujuanmu',
+  'Priority for Interview Crunch': 'Prioritas Persiapan Interview Kilat',
+  'Recommended tracks:': 'Track yang disarankan:',
+  'Begin with {track} lesson one →': 'Mulai dari materi pertama {track} →',
+
+  // per-track Beginner placement quiz
+  'Test out of Beginner': 'Uji lewati level Pemula',
+  'Beginner placement quiz': 'Kuis penempatan level Pemula',
+  'Close placement quiz': 'Tutup kuis penempatan',
+  'Already know the basics? Score 80% or higher to mark Beginner Learn & Check complete.': 'Sudah paham dasarnya? Raih skor 80% ke atas untuk menandai Pelajari & Uji level Pemula selesai.',
+  'All Beginner lessons are already checked off. You can still retake the placement quiz anytime.': 'Semua materi Pemula sudah selesai. Kamu tetap bisa mengulang kuis penempatan kapan saja.',
+  'Answer {n} questions from Beginner lessons. Score 80% or higher to test out of Beginner Learn & Check.': 'Jawab {n} soal dari materi Pemula. Raih skor 80% ke atas untuk menandai Pelajari & Uji level Pemula selesai.',
+  'Submit placement quiz': 'Kirim jawaban kuis',
+  'Answer all questions before submitting.': 'Jawab semua pertanyaan sebelum mengirim.',
+  'Placement score: {correct} / {total} ({pct}%)': 'Skor penempatan: {correct} / {total} ({pct}%)',
+  'You passed! You can mark all Beginner lessons in {track} as Learned and Checked (Teach-Back stays unchecked so you can still write your own explanations).': 'Kamu lulus! Kamu bisa menandai semua materi Pemula di {track} sebagai Dipelajari dan Diuji (Ajarkan tetap terbuka supaya kamu tetap menulis penjelasanmu sendiri).',
+  'Score at least 80% to test out of Beginner. Review the explanations above or start with the first Beginner lesson.': 'Raih minimal 80% untuk melewati level Pemula. Baca penjelasan di atas atau mulai dari materi Pemula pertama.',
+  'Mark Beginner lessons complete': 'Tandai materi Pemula selesai',
+  'Mark all {n} Beginner lessons in {track} as Learned and Checked? Teach-Back stays unchecked so you can still write your own explanations.': 'Tandai semua {n} materi Pemula di {track} sebagai Dipelajari dan Diuji? Bagian Ajarkan tetap belum dicentang agar catatanmu tetap asli.',
+  'Beginner lessons marked Learned and Checked. Teach-Back remains open for your own notes.': 'Materi Pemula sudah ditandai Dipelajari dan Diuji. Bagian Ajarkan tetap terbuka untuk catatanmu.',
+  'Retake quiz': 'Ulangi kuis',
+
+  // study notes & teach-back coaching
+  'Every Teach-Back explanation you write across lessons gathers here. Search, filter by track, or export your personal Markdown study guide.': 'Semua penjelasan Ajarkan yang kamu tulis di tiap materi terkumpul di sini. Cari, filter per track, atau ekspor panduan belajar Markdown pribadimu.',
+  'Search notes': 'Cari catatan',
+  'Search your Teach-Back notes…': 'Cari catatan penjelasanmu…',
+  'Export Markdown Study Guide': 'Ekspor Panduan Belajar Markdown',
+  'No study notes yet.': 'Belum ada catatan belajar.',
+  'Write a Teach-Back explanation at the bottom of any lesson and it will appear here for review and export.': 'Tulis penjelasan Ajarkan di bagian bawah materi mana pun, lalu catatannya akan muncul di sini untuk ditinjau dan diekspor.',
+  'Explore tracks on dashboard': 'Jelajahi track di dashboard',
+  'Showing {shown} of {total} study notes.': 'Menampilkan {shown} dari {total} catatan belajar.',
+  'No notes match your filter.': 'Tidak ada catatan yang cocok dengan filtermu.',
+  'Try clearing the search box or switching to All tracks.': 'Coba kosongkan kolom pencarian atau pilih Semua track.',
+  'Rubric {done}/{total}': 'Rubrik {done}/{total}',
+  '0 words — aim for a short explanation in your own words': '0 kata — tulis penjelasan singkat dengan bahasamu sendiri',
+  '{n} word — add a short example or trade-off if helpful': '{n} kata — tambahkan contoh singkat atau trade-off jika perlu',
+  '{n} words — add a short example or trade-off if helpful': '{n} kata — tambahkan contoh singkat atau trade-off jika perlu',
+  '{n} words — ready for rubric': '{n} kata — siap dinilai dengan rubrik',
 };
 
 export default dict;

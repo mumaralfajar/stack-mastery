@@ -1,12 +1,27 @@
 // Pure study progress state store, interview readiness, theme management, and reactive subscriptions.
 import { INTERVIEW_TOTALS } from '../data/manifest.ts';
 import { getAllTracks, getTrack } from './i18n.ts';
+import { normalizeCard } from './srs.ts';
 import { INTERVIEW_KEY, STORAGE_KEY, STUDY_KEY, getRaw, onStorageSync, readJson, writeJson } from './storage.ts';
 import { applyThemePref, nextThemePref, systemPrefersDark } from './theme.ts';
-import type { InterviewProgress, Lesson, LessonProgress, LevelIndex, QuizItem, StudyProgress, Track } from './types.ts';
+import type {
+  ExamAttempt,
+  InterviewProgress,
+  LearnerGoal,
+  Lesson,
+  LessonProgress,
+  LevelIndex,
+  QuizItem,
+  SrsCard,
+  StudyOnboarding,
+  StudyProgress,
+  Track,
+} from './types.ts';
 
 export type StateChangeKind = 'study' | 'interview' | 'pomodoro' | 'all';
 export type StateListener = (kind: StateChangeKind, external: boolean) => void;
+
+const VALID_GOALS = new Set<string>(['cs-student', 'backend', 'frontend', 'fullstack', 'interview']);
 
 const fresh = (): StudyProgress => ({
   lessons: {},
@@ -14,9 +29,62 @@ const fresh = (): StudyProgress => ({
   projects: {},
   streak: { last: '', count: 0 },
   theme: '',
+  onboarding: {},
+  examHistory: [],
 });
 
-export const S: StudyProgress = readJson<StudyProgress>(STORAGE_KEY, fresh);
+function sanitizeCards(raw: unknown): Record<string, SrsCard> {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+  const out: Record<string, SrsCard> = {};
+  for (const [id, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (!v || typeof v !== 'object' || Array.isArray(v)) continue;
+    const card = v as SrsCard;
+    if (typeof card.due !== 'string' || !card.due) continue;
+    out[id] = normalizeCard(card, card.due);
+  }
+  return out;
+}
+
+function sanitizeOnboarding(raw: unknown): StudyOnboarding {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+  const g = (raw as { goal?: unknown }).goal;
+  return typeof g === 'string' && VALID_GOALS.has(g) ? { goal: g as LearnerGoal } : {};
+}
+
+function sanitizeExamHistory(raw: unknown): ExamAttempt[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter(
+      (x): x is ExamAttempt =>
+        Boolean(x) &&
+        typeof x === 'object' &&
+        typeof (x as ExamAttempt).date === 'string' &&
+        typeof (x as ExamAttempt).track === 'string' &&
+        typeof (x as ExamAttempt).score === 'number' &&
+        typeof (x as ExamAttempt).total === 'number' &&
+        (x as ExamAttempt).total > 0,
+    )
+    .slice(0, 20);
+}
+
+function normalizeStudy(raw: Partial<StudyProgress>): StudyProgress {
+  const base = fresh();
+  const merged = Object.assign(base, raw);
+  merged.lessons = merged.lessons && typeof merged.lessons === 'object' && !Array.isArray(merged.lessons) ? merged.lessons : {};
+  merged.cards = sanitizeCards(merged.cards);
+  merged.projects =
+    merged.projects && typeof merged.projects === 'object' && !Array.isArray(merged.projects) ? merged.projects : {};
+  merged.streak =
+    merged.streak && typeof merged.streak === 'object'
+      ? { last: typeof merged.streak.last === 'string' ? merged.streak.last : '', count: Number(merged.streak.count) || 0 }
+      : { last: '', count: 0 };
+  merged.theme = merged.theme === 'light' || merged.theme === 'dark' ? merged.theme : '';
+  merged.onboarding = sanitizeOnboarding(merged.onboarding);
+  merged.examHistory = sanitizeExamHistory(merged.examHistory);
+  return merged;
+}
+
+export const S: StudyProgress = normalizeStudy(readJson<StudyProgress>(STORAGE_KEY, fresh));
 
 const listeners = new Set<StateListener>();
 
@@ -150,7 +218,7 @@ export function toggleTheme(): void {
 export function reloadState(raw: string | null): boolean {
   let next: StudyProgress;
   try {
-    next = Object.assign(fresh(), JSON.parse(raw || '{}'));
+    next = normalizeStudy(JSON.parse(raw || '{}') as Partial<StudyProgress>);
   } catch {
     return false;
   }
@@ -159,6 +227,8 @@ export function reloadState(raw: string | null): boolean {
   S.projects = next.projects;
   S.streak = next.streak;
   S.theme = next.theme;
+  S.onboarding = next.onboarding;
+  S.examHistory = next.examHistory;
   applyTheme();
   return true;
 }

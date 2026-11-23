@@ -161,9 +161,37 @@ export interface InterviewTotals {
   maxMocks: number;
 }
 
+export type LearnerGoal = 'cs-student' | 'backend' | 'frontend' | 'fullstack' | 'interview';
+
+export interface ExamAttempt {
+  date: string;
+  track: string;
+  score: number;
+  total: number;
+}
+
+export type SrsGrade = 'again' | 'hard' | 'good' | 'easy';
+
 export interface SrsCard {
-  box: number;
   due: string;
+  box?: number;
+  interval?: number;
+  ease?: number;
+  reps?: number;
+  lapses?: number;
+}
+
+export interface AdaptiveSrsCard {
+  due: string;
+  interval: number;
+  ease: number;
+  reps: number;
+  lapses: number;
+  box?: number;
+}
+
+export interface StudyOnboarding {
+  goal?: LearnerGoal;
 }
 
 export interface LessonProgress {
@@ -185,6 +213,8 @@ export interface StudyProgress {
     count: number;
   };
   theme: '' | 'light' | 'dark';
+  onboarding?: StudyOnboarding;
+  examHistory?: ExamAttempt[];
 }
 
 export interface InterviewStory {

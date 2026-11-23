@@ -54,8 +54,8 @@ export function resolvedTheme(): ResolvedTheme {
   return systemPrefersDark() ? 'dark' : 'light';
 }
 
-// Calls `listener` whenever the resolved theme changes: a toggle (data-theme, also set by another tab's sync)
-// or an OS prefers-color-scheme change. Returns a function that stops listening.
+// Calls `listener` whenever the resolved theme changes: a toggle (data-theme, also set by another tab's sync),
+// an OS prefers-color-scheme change, or a back/forward cache restore. Returns a function that stops listening.
 export function watchTheme(listener: (theme: ResolvedTheme) => void): () => void {
   if (typeof document === 'undefined') return () => {};
   let last = resolvedTheme();
@@ -69,8 +69,13 @@ export function watchTheme(listener: (theme: ResolvedTheme) => void): () => void
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   const mq = typeof matchMedia !== 'undefined' ? matchMedia('(prefers-color-scheme: dark)') : null;
   mq?.addEventListener('change', check);
+  const onPageShow = (e: PageTransitionEvent) => {
+    if (e.persisted) check();
+  };
+  if (typeof addEventListener !== 'undefined') addEventListener('pageshow', onPageShow);
   return () => {
     observer.disconnect();
     mq?.removeEventListener('change', check);
+    if (typeof removeEventListener !== 'undefined') removeEventListener('pageshow', onPageShow);
   };
 }

@@ -79,8 +79,10 @@ Every lesson follows three steps and counts as mastered only when all three are 
 | **TypeScript playground** | Monaco editor featuring live type checking and React 19 previews. |
 | **Dart + Flutter playground** | Embedded DartPad preloaded with runnable lesson samples. |
 | **CSS + Tailwind playground** | Resizable live preview for testing responsive breakpoints. |
-| **Flashcard review** | 424 quiz questions scheduled on a 1, 2, 4, 8, and 16-day spaced-repetition loop. |
-| **Mock exam** | Ten random questions filtered by track and level. |
+| **Flashcard review** | 424 quiz questions scheduled with adaptive SM-2/FSRS-lite spaced repetition (`Again`, `Hard`, `Good`, `Easy` with interval previews, `Space` and `1`–`4` shortcuts, and batch pagination beyond 20 due cards). |
+| **Mock exam** | Ten random questions filtered by track and level, routing missed questions straight into today's flashcard review and keeping a 20-attempt exam history. |
+| **My study notes** | Gather every Teach-Back explanation at `/notes/`, search or filter by track, and export a structured Markdown study guide. |
+| **Goal onboarding & placement** | Choose a learning goal on `/dashboard/` or `/start/` to prioritize matching tracks, or take a track's **Test out of Beginner** placement quiz (score ≥ 80% to mark Beginner Learn & Check complete while keeping Teach-Back genuine). |
 | **Capstone projects** | Four full-stack projects, one per mastery level. |
 | **Search** | Press `/` anywhere to search lessons, problems, questions, and diagrams. |
 | **Break room** | A hand-drawn flower meadow at `/break/` paired with a Pomodoro study timer (`25/5`, `50/10`, or custom) synced with the workspace sidebar (`stackmastery.study`), permanent mastery & focus-cycle blooms/stars, a one-click **Resume: [Last Lesson]** CTA, and strictly opt-in audio (music, sparkles, and a gentle Lydian end-of-break chime only play after you turn audio on). |
@@ -207,7 +209,7 @@ The site is a static multi-page build (`astro build` with `trailingSlash: 'alway
 | `/play/sql/`, `/play/ts/`, `/play/css/`, `/play/dart/` | Browser playgrounds; `?sample=<id>` preselects a challenge or example (for example `/play/sql/?sample=joins`) |
 | `/review/`, `/exam/` | Flashcard review and mock exam |
 | `/interview/` and `/interview/coding/`, `/interview/problem/<id>/`, `/interview/patterns/`, `/interview/design/`, `/interview/design/<id>/`, `/interview/behavioral/`, `/interview/rapid/`, `/interview/mock/` | Interview hub and its rounds |
-| `/teach/`, `/projects/`, `/break/` | Teaching toolkit, capstone projects, and the flower-meadow break room |
+| `/teach/`, `/notes/`, `/projects/`, `/break/` | Teaching toolkit, personal Teach-Back study notes & Markdown export, capstone projects, and the flower-meadow break room |
 
 Each page ships its own title, description, canonical URL, `hreflang` alternates (`en`, `id`, `x-default`), Open Graph and Twitter Card tags, and JSON-LD (`Course` on the landing and track pages, `LearningResource` on lessons). `sitemap-index.xml` (with EN/ID alternates) and `robots.txt` are generated at build time.
 

@@ -1,9 +1,9 @@
 ---
-// Track overview: every lesson grouped by level. Progress dots and percentages hydrate from the manifest.
+// Track overview: every lesson grouped by level. Progress dots, percentages, and Beginner placement hydrate via track-island.js.
 import { getTrack, loadSiteData } from '../data/site.ts';
 import WorkspaceLayout from '../layouts/WorkspaceLayout.astro';
 import { courseLd } from '../lib/seo.ts';
-import { pageStrings } from '../lib/ssr.ts';
+import { jsonForScript, pageStrings, uiSubset } from '../lib/ssr.ts';
 import type { Lang, Track } from '../lib/types.ts';
 
 interface Props {
@@ -24,6 +24,37 @@ const jsonLd = courseLd({
   description: t.tagline,
   parts: t.lessons.map((l) => ({ name: l.title, description: `${levels[l.level]} · ${l.mins} ${T('min')}`, path: `/lesson/${t.id}/${l.id}/` })),
 });
+
+// Only this track's Beginner (level === 0) quiz questions for the optional placement quiz.
+const beginnerLessons = t.lessons.filter((l) => l.level === 0);
+const placementData = jsonForScript({
+  trackId: t.id,
+  trackName: t.name,
+  beginnerLessons: beginnerLessons.map((l) => ({
+    id: l.id,
+    title: l.title,
+    quiz: l.quiz,
+  })),
+  i18n: uiSubset(lang, [
+    'All Beginner lessons are already checked off. You can still retake the placement quiz anytime.',
+    'Already know the basics? Score 80% or higher to mark Beginner Learn & Check complete.',
+    'Beginner placement quiz',
+    'Close placement quiz',
+    'Answer {n} questions from Beginner lessons. Score 80% or higher to test out of Beginner Learn & Check.',
+    'Submit placement quiz',
+    'Answer all questions before submitting.',
+    'Correct.',
+    'Not quite.',
+    'Placement score: {correct} / {total} ({pct}%)',
+    'You passed! You can mark all Beginner lessons in {track} as Learned and Checked (Teach-Back stays unchecked so you can still write your own explanations).',
+    'Score at least 80% to test out of Beginner. Review the explanations above or start with the first Beginner lesson.',
+    'Mark Beginner lessons complete',
+    'Mark all {n} Beginner lessons in {track} as Learned and Checked? Teach-Back stays unchecked so you can still write your own explanations.',
+    'Test out of Beginner',
+    'Beginner lessons marked Learned and Checked. Teach-Back remains open for your own notes.',
+    'Retake quiz',
+  ]),
+});
 ---
 <WorkspaceLayout lang={lang} path={path} title={title} description={t.tagline} jsonLd={jsonLd}>
   <div class="page" style={`--tc: var(--${t.id})`} data-track={t.id}>
@@ -32,7 +63,20 @@ const jsonLd = courseLd({
       <h1>{t.name}</h1>
       <p class="lede">{t.tagline}</p>
       <div class="bar" role="img" aria-label={`${t.name} 0%`} data-track-bar data-label={t.name}><i style="width: 0%"></i></div>
+      {beginnerLessons.length > 0 && (
+        <div class="actions placement-bar">
+          <button type="button" class="btn ghost" data-placement-open aria-expanded="false" aria-controls="placement-panel">
+            {T('Test out of Beginner')}
+          </button>
+          <span class="muted" data-placement-note>
+            {T('Already know the basics? Score 80% or higher to mark Beginner Learn & Check complete.')}
+          </span>
+        </div>
+      )}
     </header>
+    {beginnerLessons.length > 0 && (
+      <section class="sec placement-panel" id="placement-panel" data-placement-panel hidden aria-label={T('Beginner placement quiz')}></section>
+    )}
     {levels.map((name, lvl) => (
       <section class="sec">
         <h2><span>{name} <small data-level-pct={lvl}>0%</small></span></h2>
@@ -51,33 +95,6 @@ const jsonLd = courseLd({
       </section>
     ))}
   </div>
+  <script type="application/json" id="track-placement-data" set:html={placementData} />
 </WorkspaceLayout>
-<script>
-  import { peek, subscribeState } from '../lib/state.ts';
-  import { trackPctIndex } from '../lib/progress.ts';
-  import type { LevelIndex } from '../lib/types.ts';
-
-  const page = document.querySelector<HTMLElement>('[data-track]');
-  const draw = (): void => {
-    if (!page) return;
-    const id = page.dataset.track || '';
-    const pct = trackPctIndex(id);
-    const bar = page.querySelector<HTMLElement>('[data-track-bar]');
-    if (bar) {
-      bar.setAttribute('aria-label', `${bar.dataset.label} ${pct}%`);
-      const fill = bar.querySelector<HTMLElement>('i');
-      if (fill) fill.style.width = pct + '%';
-    }
-    for (const el of page.querySelectorAll<HTMLElement>('[data-level-pct]')) {
-      el.textContent = trackPctIndex(id, Number(el.dataset.levelPct) as LevelIndex) + '%';
-    }
-    for (const row of page.querySelectorAll<HTMLElement>('[data-k]')) {
-      const s = peek(row.dataset.k || '');
-      const flags = [s.read, s.quiz, s.teach];
-      for (const [i, dot] of [...row.querySelectorAll('.dots i')].entries()) dot.classList.toggle('on', !!flags[i]);
-    }
-  };
-  draw();
-  // Another tab saved progress: redraw in place.
-  subscribeState(draw);
-</script>
+<script src="../scripts/track-island.js"></script>
