@@ -11,6 +11,12 @@ export const trackId = {
       ['`rune` vs `byte`', 'String di Go berisi deretan byte UTF-8 yang tidak bisa diubah isinya, jadi `len(s)` menghitung jumlah byte, bukan huruf. Tipe `rune` (`int32`) mewakili satu karakter Unicode saat melakukan iterasi.']
     ],
     title: 'Package, value, dan zero value',
+    predict: {
+      prompt: 'Dengan `cafe := "café"`, apa yang dicetak `len(cafe)` dan `len([]rune(cafe))`?',
+      options: ['`4` dan `4`', '`5` dan `4`', '`4` dan `5`'],
+      answer: 1,
+      explain: '`string` di Go adalah deretan byte yang read-only (literal di source code berformat UTF-8), dan `len` menghitung byte. `é` (U+00E9) butuh dua byte dalam UTF-8, jadi `len(cafe)` bernilai `5`. Konversi ke `[]rune` mendekode code point-nya sehingga hasilnya `4`. Mengakses `cafe[3]` hanya mengembalikan satu byte, bukan karakter `é`, jadi pakai `for i, r := range cafe` saat kamu butuh karakter.'
+    },
     why: "Aturan dasar Go dibuat ringkas dan jelas. Setiap file `.go` masuk ke sebuah package, simbol publik diawali huruf kapital, dan variabel yang baru dideklarasikan dimulai dari nilai bawaan seperti `0` atau `\"\"`. Begitu paham tiga aturan ini, kode standard library Go langsung mudah diikuti.",
     points: [
       "Setiap file `.go` termasuk dalam sebuah `package`. Titik masuk program adalah `package main` dengan `func main()`, sedangkan library hanya mengekspor simbol yang diawali huruf kapital.",
@@ -79,6 +85,12 @@ export const trackId = {
       ['Tag `omitzero` (Go 1.24+)', 'Tag `json:"discount,omitzero"` menghapus field bernilai nol saat encode JSON, termasuk struct dan `time.Time` yang dulu sering lolos oleh `omitempty`.']
     ],
     title: 'Struct, pointer, dan method',
+    predict: {
+      prompt: 'Misalkan `AddItem` memakai value receiver, `func (o OrderConfig) AddItem(name string)`, dengan isi yang sama. Apa yang dicetak `cfg.ItemsCount()` setelah `cfg.AddItem("Mechanical Keyboard")`?',
+      options: ['`1`: method selalu bekerja pada struct aslinya', '`0`: method menambahkan item ke salinan `cfg`', 'Error compile: `append` tidak boleh dipakai di dalam value receiver'],
+      answer: 1,
+      explain: 'Value receiver menerima salinan struct. `append` menyimpan slice header baru ke `o.items` milik salinan itu, dan salinannya dibuang begitu method selesai, jadi `cfg.items` tetap kosong. Pointer receiver (`*OrderConfig`) bekerja pada aslinya, itulah sebabnya method yang mengubah state memakainya. Gunakan satu jenis receiver per tipe agar konsisten.'
+    },
     why: "Go tidak punya class atau inheritance. Kamu mengelompokkan data ke dalam struct, memilih value atau pointer receiver untuk method, menyusun type lewat embedding, dan memakai struct tag untuk JSON atau SQL.",
     points: [
       "Di Go, argumen dikirim by value (disalin). Kirim `&x` (`*T`) saat function perlu mengubah struct pemanggil atau menghindari salinan besar. Aritmetika pointer dilarang.",
@@ -147,6 +159,12 @@ export const trackId = {
       ['`errors.AsType[T]` (Go 1.26+)', 'Pengganti generik untuk `var target T; errors.As(err, &target)` guna mengambil tipe error khusus tanpa deklarasi variabel terpisah.']
     ],
     title: 'Error sebagai nilai: wrapping dan errors.AsType',
+    predict: {
+      prompt: 'Jika `reserveItem` membungkus dengan `%v` alih-alih `%w` (`fmt.Errorf("reserving item %q: %v", id, err)`), apa yang dikembalikan `errors.Is(err, ErrNotFound)` untuk `"missing"`?',
+      options: ['`true`: pesannya masih memuat teks dari `ErrNotFound`', '`false`: `%v` hanya memformat teks, jadi tautan ke `ErrNotFound` hilang', 'Panic, karena `errors.Is` mewajibkan error yang dibungkus'],
+      answer: 1,
+      explain: 'Dengan `%w`, `fmt.Errorf` mengembalikan error yang `Unwrap()`-nya menunjuk ke error asli, dan `errors.Is` menelusuri rantai itu sambil membandingkan nilainya. `%v` hanya menyalin pesan ke string baru: tampilannya sama persis saat dicetak, tetapi `errors.Is` dan `errors.AsType` tidak bisa lagi menemukan `ErrNotFound`. Jangan pernah membandingkan string error; bungkus dengan `%w` setiap kali pemanggil perlu bercabang berdasarkan penyebabnya.'
+    },
     why: "Go memperlakukan error sebagai nilai kembalian biasa, bukan exception yang meloncat keluar dari stack. Mengecek `err != nil` dengan early return dan membungkus konteks lewat `%w` menunjukkan di langkah mana proses berhenti dan apa penyebabnya.",
     points: [
       "Periksa tiap error lalu return lebih awal (`if err != nil { return ..., fmt.Errorf(...: %w, err) }`). Jangan membuang error ke `_`, dan hindari blok `else` setelah return agar alur normal tetap rata kiri.",
@@ -171,7 +189,7 @@ export const trackId = {
     ]
   },
   http: {
-    splits: [['1 · Handler & json/v2', '// ---------- Handlers'], ['2 · Security & middleware', '// ---------- Middleware'], ['3 · Server & timeouts', '// ---------- Server']],
+    splits: ['1 · Handler & json/v2', '2 · Security & middleware', '3 · Server & timeouts'],
     terms: [
       ['Pattern `ServeMux` (Go 1.22+)', 'Mendukung method HTTP dan parameter path langsung di stdlib (`mux.HandleFunc("GET /products/{id}", h)` dan `r.PathValue("id")`).'],
       ['`encoding/json/v2` (Go 1.27+)', 'Package JSON default yang menolak key duplikat atau UTF-8 rusak, membaca stream dari `r.Body` lewat `json.UnmarshalRead`, dan menolak field tak dikenal lewat `json.RejectUnknownMembers`.'],
@@ -201,7 +219,7 @@ export const trackId = {
     ]
   },
   testing: {
-    splits: [['1 · shop.go', '// ---------- shop.go'], ['2 · shop_test.go', '// ---------- shop_test.go']],
+    splits: ['1 · shop.go', '2 · shop_test.go'],
     terms: [
       ['Table-driven test (`t.Run`)', 'Menaruh input, hasil harapan, dan `name` kasus uji di dalam slice struct agar tiap baris berjalan sebagai subtest terpisah.'],
       ['`httptest.NewTestServer` (Go 1.27+)', 'Membuat HTTP test server di memori yang terikat ke `t` tanpa membuka port TCP asli, dan langsung cocok dipakai bersama `testing/synctest`.'],
@@ -306,6 +324,12 @@ export const trackId = {
       ['`context.WithoutCancel` (Go 1.21+)', 'Membuat turunan yang menjaga nilai request dan tracing sambil mengabaikan pembatalan induk, cocok untuk tugas audit setelah respons HTTP dikirim.']
     ],
     title: '`context.Context`: deadline, pembatalan, dan leak',
+    predict: {
+      prompt: '`reqCtx` punya timeout `20 ms`, `runQuery` butuh `100 ms`, dan `writeAudit` menurunkan context-nya dari `context.WithoutCancel(parent)`. Apa yang dicetak `main`?',
+      options: ['`handler: aborted query: context deadline exceeded`, lalu baris audit dengan `req-42`', 'Hanya baris handler: audit dilewati karena `reqCtx` sudah kedaluwarsa', '`handler: aborted query: context canceled`, lalu baris audit dengan `<nil>`'],
+      answer: 0,
+      explain: 'Setelah `20 ms` deadline tercapai, `ctx.Done()` memenangkan `select`, dan `ctx.Err()` bernilai `context.DeadlineExceeded` dengan pesan `context deadline exceeded` (`context.Canceled` muncul kalau kamu sendiri memanggil `cancel()`). `context.WithoutCancel` mempertahankan semua value dari parent-nya, seperti request ID, tetapi membuang deadline dan pembatalannya, sehingga audit mendapat jatah baru `50 ms` dan mencetak `req-42`.'
+    },
     why: "Saat melayani request nyata, client bisa memutus koneksi di tengah jalan dan layanan lain bisa melambat. `context.Context` menyambungkan HTTP request masuk ke setiap goroutine pekerja dan query SQL di bawahnya supaya pekerjaan berhenti saat request dibatalkan.",
     points: [
       "Pilih sumber context yang tepat: pakai `r.Context()` di handler HTTP, `t.Context()` di test Go 1.24+, `context.Background()` hanya di titik masuk awal (`main`), dan `context.TODO()` sementara selama merangkai signature. Jangan mengoper `nil`.",
@@ -385,7 +409,7 @@ export const trackId = {
     ]
   },
   architecture: {
-    splits: [['1 · Config & options', '// ---------- Config & Logger'], ['2 · Wiring & handlers', '// ---------- Wiring'], ['3 · Graceful shutdown', '// ---------- Shutdown']],
+    splits: ['1 · Config & options', '2 · Wiring & handlers', '3 · Graceful shutdown'],
     terms: [
       ['Wiring eksplisit di `main`', 'Merangkai dependensi (`db` -> `store` -> `handler` -> `server`) langsung di `cmd/api/main.go` supaya alur startup terlihat jelas tanpa DI container berbasis reflection.'],
       ['`log/slog` & `NewMultiHandler` (Go 1.26+)', 'Logger JSON terstruktur di stdlib; `slog.NewMultiHandler` mengirim catatan log ke stdout dan penampung error sekaligus tanpa library eksternal.'],
@@ -414,7 +438,7 @@ export const trackId = {
     ]
   },
   profiling: {
-    splits: [['1 · format.go', '// ---------- format.go'], ['2 · format_bench_test.go', '// ---------- format_bench_test.go']],
+    splits: ['1 · format.go', '2 · format_bench_test.go'],
     terms: [
       ['Escape analysis (`-gcflags=-m`)', 'Menentukan saat compile time apakah sebuah nilai cukup tinggal di stack goroutine atau harus dipindahkan ke heap yang dikelola GC.'],
       ['Selisih statistik `benchstat`', 'Membandingkan beberapa kali run benchmark (`-count=6`) untuk memisahkan penghematan CPU atau memori (`B/op`, `allocs/op`) dari noise antar-run.'],

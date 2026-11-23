@@ -4,6 +4,7 @@ export const trackId = {
   tagline: 'Tampilannya: cascade, layout, desain responsif, dan Tailwind CSS.',
   lessons: {
   html: {
+    splits: ["1 · Dokumen & Navigasi","2 · Main & Kartu Produk","3 · Form & Footer"],
     terms: [
       ['Landmark semantik', 'Elemen seperti `<header>`, `<nav>`, `<main>`, dan `<article>` yang menunjukkan peta halaman ke pembaca layar.'],
       ['`<button>` vs `<a>`', 'Pakai `<a href="...">` untuk pindah halaman atau URL, lalu pakai `<button type="button">` untuk aksi langsung di tempat.'],
@@ -35,6 +36,16 @@ export const trackId = {
     ]
   },
   cascade: {
+    predict: {
+      prompt: "Elemen `<a id=\"buy\" class=\"btn primary\">` cocok dengan `.btn.primary { color: green }`, `#buy { color: red }`, lalu `:where(#buy) { color: purple }` sesuai urutan itu. Warna apa yang tampil?",
+      options: [
+        "`purple` karena `:where(#buy)` muncul paling terakhir di stylesheet",
+        "`red` karena `#buy` punya specificity `(1,0,0)` sedangkan `:where(#buy)` menyumbang `(0,0,0)`",
+        "`green` karena `.btn.primary` mencocokkan dua class",
+      ],
+      answer: 1,
+      explain: "`#buy` bernilai `(1,0,0)`, mengalahkan `.btn.primary` `(0,2,0)`. Walau `:where(#buy)` ditulis paling akhir, `:where()` selalu berskor `(0,0,0)` sehingga tidak bisa menimpa `#buy`.",
+    },
     terms: [
       ['Specificity (`id`, `class`, `tag`)', 'Skor tiga bagian penentu rule pemenang saat selector berbenturan (`#id` kalahkan `.class`, lalu `a`).'],
       ['Source order (urutan kode)', 'Penentu seri kalau dua rule skornya sama. Deklarasi yang muncul lebih belakangan di CSS yang menang.'],
@@ -67,6 +78,16 @@ export const trackId = {
     ]
   },
   box: {
+    predict: {
+      prompt: "Sebuah `<h2>` dengan `margin-bottom: 24px` berada tepat di atas `<p>` dengan `margin-top: 32px` di dalam `<div>` biasa, lalu parent diubah ke `display: flex; flex-direction: column`. Berapa jarak vertikal sebelum vs sesudahnya?",
+      options: [
+        "`56px` di kedua layout",
+        "`32px` di `<div>` blok (margin melebur), lalu `56px` di kolom flex (margin flex tidak pernah melebur)",
+        "`24px` di `<div>` blok, lalu `32px` di kolom flex",
+      ],
+      answer: 1,
+      explain: "Di alur blok biasa, margin vertikal yang bersentuhan melebur ke nilai terbesar (`32px`). Begitu parent menjadi container flex, margin anak berhenti melebur dan dijumlahkan (`24px + 32px = 56px`).",
+    },
     terms: [
       ['`box-sizing: border-box`', 'Memasukkan padding dan border ke dalam lebar `width` supaya kotak tidak meluber melewati ukuran yang kamu tulis.'],
       ['Padding vs Margin', 'Padding memberi ruang napas di dalam latar dan border, sedangkan margin memberi jarak antar-elemen di luar border.'],
@@ -128,6 +149,17 @@ export const trackId = {
     ]
   },
   flexbox: {
+    splits: ["1 · Navbar & Hero","2 · Sidebar & Kartu Wrap"],
+    predict: {
+      prompt: "Di baris `display: flex`, `.sidebar` memakai `flex: 0 0 240px` dan `.content` memakai `flex: 1` (tanpa `min-width: 0`) berisi blok `<pre>` lebar atau URL panjang tanpa spasi. Apa yang terjadi di layar sempit?",
+      options: [
+        "`.content` menyusut mulus mengikuti sisa lebar dan memotong URL",
+        "`.content` menolak menyusut di bawah lebar kontennya dan meluber keluar baris flex ke samping",
+        "`.sidebar` mengecil ke `0px` demi memberi ruang",
+      ],
+      answer: 1,
+      explain: "Flex item bawaannya memakai `min-width: auto` yang menahan lebar minimalnya selebar isi konten. Menambahkan `min-width: 0` pada `.content` memungkinkan `flex: 1` menyusut dan menggulir atau turun baris.",
+    },
     terms: [
       ['Main axis vs Cross axis', '`flex-direction: row` menempatkan sumbu utama horizontal (`justify-content`) dan sumbu silang vertikal (`align-items`).'],
       ['`min-width: 0` / `min-inline-size: 0`', 'Menghilangkan batas bawaan `min-width: auto` milik flex item supaya teks panjang bisa turun baris atau terpotong rapi.'],
@@ -158,6 +190,16 @@ export const trackId = {
     ]
   },
   grid: {
+    predict: {
+      prompt: "Grid dua kolom memakai `grid-template-columns: 240px 1fr` di container `900px`, dan kolom kedua berisi `<table>` selebar `1000px`. Mengapa halaman ikut scroll ke samping, dan apa perbaikannya?",
+      options: [
+        "`1fr` berarti `minmax(auto, 1fr)` sehingga track melebar mengikuti tabel; menggantinya ke `minmax(0, 1fr)` membuatnya bisa menyusut",
+        "`240px` terlalu lebar untuk container `900px`; ganti memakai `%`",
+        "CSS Grid selalu mengabaikan `overflow: auto` pada elemen anak",
+      ],
+      answer: 0,
+      explain: "Track `1fr` polos punya ukuran minimum otomatis (`minmax(auto, 1fr)`), jadi konten lebar mendorong track melewati container. Menggantinya ke `minmax(0, 1fr)` membatasi kolom pada sisa ruang agar `overflow: auto` di dalamnya berfungsi.",
+    },
     terms: [
       ['Satuan `fr`', 'Pecahan ruang kosong tersisa di container grid sesudah kolom berukuran tetap dan berbasis konten diletakkan.'],
       ['`repeat(auto-fit, minmax(min(260px, 100%), 1fr))`', 'Grid responsif tanpa media query yang otomatis menumpuk card di layar sempit tanpa horizontal overflow.'],
@@ -189,6 +231,7 @@ export const trackId = {
     ]
   },
   responsive: {
+    splits: ["1 · Mobile-first & Media","2 · Container Query","3 · Hover & Reduced Motion"],
     terms: [
       ['`@media` mobile-first', 'Mulai dari gaya satu kolom ponsel lalu tambahkan aturan `min-width` bertahap seiring layar melebar.'],
       ['Tipografi cair `clamp(min, pref, max)`', 'Menskalakan ukuran huruf mulus di antara dua batas viewport dalam satu baris tanpa lompatan breakpoint kaku.'],
@@ -220,6 +263,16 @@ export const trackId = {
     ]
   },
   position: {
+    predict: {
+      prompt: "Sebuah `.header` sticky memiliki `z-index: 10`. Di dalam `.sidebar` (yang memakai `transform: translateX(0)`), ada modal dengan `position: fixed; inset: 0; z-index: 9999`. Di mana modal itu tampil?",
+      options: [
+        "Layar penuh di atas `.header` karena `9999 > 10`",
+        "Terjebak di dalam ukuran kotak `.sidebar` SEKALIGUS tampil di belakang `.header`",
+        "Tengah viewport penuh, tapi di belakang `.header`",
+      ],
+      answer: 1,
+      explain: "`transform` pada `.sidebar` menciptakan stacking context baru (mengurung `z-index: 9999` di dalam `.sidebar`) sekaligus containing block baru (membuat `position: fixed` mengacu ke `.sidebar`, bukan viewport).",
+    },
     terms: [
       ['`relative` vs `absolute`', '`position: absolute` berpatokan ke leluhur terdekat yang posisinya bukan `static` (umumnya `relative`).'],
       ['`position: sticky`', 'Mengalir normal sampai menyentuh batas `top`, lalu menempel. Akan gagal kalau ada leluhur memakai `overflow: hidden`.'],
@@ -252,6 +305,17 @@ export const trackId = {
     ]
   },
   modern: {
+    splits: ["1 · Token & Ganti Tema","2 · Nesting Komponen & :has()"],
+    predict: {
+      prompt: "OS user memakai mode gelap, lalu mereka memilih Light di aplikasimu (`<html data-theme=\"light\">`). CSS kamu menulis `:root { --bg: #fff; }` dan `@media (prefers-color-scheme: dark) { :root { --bg: #0e1117; } }` tanpa `:not([data-theme=\"light\"])`. Warna latar apa yang tampil?",
+      options: [
+        "`#fff` karena `data-theme=\"light\"` otomatis membatalkan media query OS",
+        "`#0e1117` karena rule `@media` tetap cocok dan muncul lebih belakangan di urutan kode",
+        "Transparan karena kedua rule saling bentrok",
+      ],
+      answer: 1,
+      explain: "Atribut `data-theme` tidak mematikan `prefers-color-scheme: dark`. Karena kedua selector berskor sama dan blok `@media` ditulis belakangan, token gelap menang kecuali dijaga dengan `:root:not([data-theme=\"light\"])`.",
+    },
     terms: [
       ['CSS custom property (`--bg`)', 'Variabel pewarisan langsung yang dihitung browser saat runtime. Mengubah `data-theme="dark"` ikut mewarnai ulang seluruh layar seketika.'],
       ['Selector induk `:has()`', 'Memberi gaya pada wadah parent berdasarkan kondisi elemen di dalamnya (`label:has(input:invalid)`) cukup dengan CSS murni.'],
@@ -316,6 +380,17 @@ export const trackId = {
     ]
   },
   twreact: {
+    splits: ["1 · Setup & CSS @theme","2 · cn() & Peta Variant","3 · Komponen <Button> Bertipe"],
+    predict: {
+      prompt: "Komponen `<Button>` merender `className={\"px-4 \" + className}` tanpa `twMerge`, lalu pemanggil mengirim `<Button className=\"px-8\" />`. Padding horizontal mana yang menang di CSS?",
+      options: [
+        "Selalu `px-8` karena ditulis lebih belakangan di atribut `class` HTML",
+        "Rule mana pun yang muncul lebih belakangan di file CSS hasil kompilasi, BUKAN urutan di `className`",
+        "Keduanya dijumlahkan menjadi `px-12`",
+      ],
+      answer: 1,
+      explain: "Urutan nama class di atribut HTML tidak berpengaruh pada cascade CSS. Baik `px-4` maupun `px-8` berskor `(0,1,0)`, jadi urutan di stylesheet yang menentukan—itulah sebab `cn()` memakai `tailwind-merge` untuk membuang `px-4`.",
+    },
     terms: [
       ['Abstraksi komponen', 'Memakai ulang `<Button variant="danger">` di React daripada `@apply` CSS menjaga bundel kecil dan ber-type aman.'],
       ['Peta variant eksplisit', 'Memetakan key (`primary: "bg-indigo-600..."`) ketimbang menyambung string dinamis supaya pemindai Tailwind menemukan tiap class.'],
@@ -349,6 +424,17 @@ export const trackId = {
     ]
   },
   arch: {
+    splits: ["1 · Layer, Reset & Token","2 · Komponen & Utilitas","3 · Jebakan Unlayered & @scope"],
+    predict: {
+      prompt: "Stylesheet menulis `@layer components, utilities;` dengan `.hidden { display: none }` di dalam `@layer utilities`, serta `.card { display: block }` di luar layer pada baris paling atas file. Apa yang terjadi pada `<div class=\"card hidden\">`?",
+      options: [
+        "Tersembunyi (`display: none`), karena `@layer utilities` adalah layer tertinggi dan muncul belakangan",
+        "Tampil (`display: block`), karena CSS normal di luar layer mengalahkan semua `@layer` tanpa peduli urutan baris",
+        "Tersembunyi hanya jika `.hidden` memakai `#app .hidden`",
+      ],
+      answer: 1,
+      explain: "Dalam CSS Cascade Layers, rule biasa di luar `@layer` selalu mengungguli semua rule di dalam layer—bahkan jika rule tak berlapis itu ditulis lebih awal. Selalu bungkus CSS kustom di `@layer` saat memakai Tailwind v4.",
+    },
     terms: [
       ['Token semantik vs primitif', 'Komponen memakai nama peran `--surface` atau `--accent` (semantik), bukan `--blue-500`, agar ganti tema aman tanpa ubah komponen.'],
       ['Pembatasan cakupan gaya (CSS Modules / Layers)', 'Mencegah aturan CSS antarhalaman saling tabrakan saat banyak engineer menyentuh stylesheet bersama.'],

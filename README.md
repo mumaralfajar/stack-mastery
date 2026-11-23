@@ -66,7 +66,7 @@ What this means in practice:
 
 Every lesson follows three steps and counts as mastered only when all three are done:
 
-1. Read **Learn** to study key ideas, runnable code, and interactive diagrams.
+1. Read **Learn** to study key ideas, **Predict-First** active-recall prompts (across 73 lessons), runnable code with multi-file **code tabs** (59 lessons across all 10 tracks), and interactive diagrams.
 2. Answer **Check** questions with explanations. Missed items enter flashcard review immediately, and marking the lesson learned adds the rest.
 3. Complete **Teach** by explaining the concept for a beginner and scoring against the rubric. Each lesson includes an analogy, common mistakes, and a printable 45-minute plan.
 

@@ -42,6 +42,12 @@ export const trackId = {
       ['Endpoint Minimal API', '`app.MapGet("/path", handler)` memetakan rute langsung ke lambda C# tanpa boilerplate controller tambahan.']
     ],
     title: 'Anatomi aplikasi ASP.NET Core',
+    predict: {
+      prompt: '`appsettings.json` berisi `"Greeting": "Selamat pagi"`, dan server juga punya environment variable `Greeting=Hi`. `GET /` akan diawali dengan kata apa?',
+      options: ['`Selamat pagi`: file JSON adalah sumber kebenaran utama', '`Hi`: environment variable dimuat setelah `appsettings.json`, jadi ia yang menang', '`Hello`: fallback `??` selalu berlaku di luar Development'],
+      answer: 1,
+      explain: '`WebApplication.CreateBuilder` menyusun provider konfigurasi berurutan: `appsettings.json`, `appsettings.{Environment}.json`, user secrets (hanya Development), environment variable, lalu argumen command-line. Provider yang belakangan menimpa provider sebelumnya untuk key yang sama, sehingga `Greeting=Hi` yang menang. Fallback `"Hello"` hanya dipakai kalau tidak ada satu provider pun yang mengisi key tersebut.'
+    },
     why: "`Program.cs` terbagi jadi dua bagian, dan hampir semua masalah 'kenapa service-ku tidak ketemu?' atau 'kenapa middleware-ku tidak jalan?' langsung jelas begitu kamu tahu barisnya masuk bagian mana.",
     points: [
       "Di **bagian pertama (builder)**, daftarkan semua service yang dibutuhkan aplikasi lewat `builder.Services.Add…` dan muat konfigurasi.",
@@ -73,6 +79,12 @@ export const trackId = {
       ['`TypedResults` vs `Results`', '`TypedResults.Ok(x)` menanamkan tipe balikan nyata (`Results<Ok<T>, NotFound>`) di signature agar OpenAPI mendokumentasikan semua status code.']
     ],
     title: 'Routing, endpoint, dan model binding',
+    predict: {
+      prompt: 'Dengan `api.MapGet("/{id:int}", ...)` terdaftar, sebuah client memanggil `GET /api/products/abc`. Apa yang dikembalikan?',
+      options: ['`400 Bad Request`: `abc` gagal di-bind ke `int id`', '`404 Not Found`: tidak ada endpoint yang cocok, jadi handler tidak pernah berjalan', '`500`: parsing `abc` melempar exception di dalam handler'],
+      answer: 1,
+      explain: 'Route constraint seperti `{id:int}` adalah bagian dari proses *pencocokan*, bukan validasi. `abc` tidak memenuhi `int`, jadi route tidak pernah cocok, dan karena tak ada endpoint lain untuk path itu aplikasi menjawab `404`. Tanpa constraint (route `/{id}` dengan parameter `int id`), route-nya cocok tetapi binding gagal, sehingga Minimal API mengembalikan `400`.'
+    },
     why: "API pada dasarnya adalah daftar endpoint. Memetakan URL ke kode C#, membaca input dengan aman, dan mengembalikan status code yang tepat adalah rutinitas harian developer backend.",
     points: [
       "**Routing** mencocokkan HTTP method dan pola URL dengan handler, seperti `GET /api/products/{id}`.",
@@ -106,6 +118,12 @@ export const trackId = {
       ['Urutan pipeline', 'Memasang `ExceptionHandler` paling luar dan `UseAuthentication()` sebelum `UseAuthorization()` menjaga error tertangkap serta identitas siap sebelum izin dicek.']
     ],
     title: 'Middleware pipeline',
+    predict: {
+      prompt: 'Sebuah request mengenai `GET /boom`, yang handler-nya melempar exception. Apakah middleware pengukur waktu tetap menulis log `{Method} {Path} -> {Status}` untuk request itu?',
+      options: ['Ya, dengan status `500`, karena `UseExceptionHandler` sudah menanganinya', 'Tidak: exception lolos dari `await next(context)`, jadi baris log setelahnya tidak pernah berjalan', 'Ya, dengan status `200`, karena response belum sempat dimulai'],
+      answer: 1,
+      explain: 'Middleware bersarang seperti pemanggilan fungsi. Exception dari handler merambat balik melewati middleware pengukur waktu: `await next(context)` melempar ulang, dan karena tidak ada `try`/`finally`, baris log terlewati. Exception terus naik ke `UseExceptionHandler`, yang berada *di luar* timer dan mengubahnya menjadi ProblemDetails `500`. Bungkus pemanggilan `next` dengan `try`/`finally` agar setiap request tetap tercatat.'
+    },
     why: "Penanganan error, CORS, authentication, dan logging semuanya berjalan lewat middleware. Salah urutan adalah salah satu kesalahan paling sering di ASP.NET Core dan susah ditebak sebelum kamu punya gambaran jelas tentang alur pipeline-nya.",
     points: [
       "Request masuk melewati middleware **sesuai urutan pendaftaran**, lalu response keluar kembali dalam urutan **terbalik**.",
@@ -137,6 +155,12 @@ export const trackId = {
       ['Bug captive dependency', 'Menyuntikkan service `Scoped` ke dalam `Singleton`, yang membuat koneksi DB usang ikut tertahan selamanya.']
     ],
     title: 'Dependency injection dan service lifetime',
+    predict: {
+      prompt: 'Kamu mengganti `AddScoped<OrderService>()` menjadi `AddSingleton<OrderService>()` sementara `AppDbContext` tetap scoped. Apa yang terjadi saat aplikasi dijalankan di Development?',
+      options: ['Tetap jalan, tetapi semua request berbagi satu `DbContext`', 'Startup gagal: container menolak singleton yang bergantung pada service scoped', 'Setiap request tetap dapat `DbContext` baru karena EF Core mengatur ulang scope-nya'],
+      answer: 1,
+      explain: 'Di Development, host menyalakan `ValidateScopes` dan `ValidateOnBuild`, sehingga `builder.Build()` melempar `InvalidOperationException` yang menjelaskan bahwa service scoped `AppDbContext` tidak bisa dipakai oleh singleton `OrderService`. Di Production pengecekan itu mati secara default, jadi captive dependency ini diam-diam membuat satu `DbContext` yang tidak thread-safe dipakai bersama oleh semua request. Itulah kenapa pengecekan di Development sangat berharga.'
+    },
     why: "DI menopang seluruh arsitektur ASP.NET Core. Salah memilih lifetime bikin datamu basi, memicu race condition pada state bersama, dan memunculkan error 'cannot consume scoped service from singleton'.",
     points: [
       "Class cukup meminta dependency-nya lewat constructor agar **container** yang membuat dan mengirimkannya, tanpa menginstansiasi sendiri lewat `new`.",
@@ -168,6 +192,12 @@ export const trackId = {
       ['Migration', 'Kode C# berversi (`dotnet ef migrations add`) untuk menjaga perubahan skema database tetap sinkron di Git.']
     ],
     title: 'EF Core: database-mu di dalam C#',
+    predict: {
+      prompt: 'Di endpoint diskon, bayangkan produk dimuat dengan `db.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id, ct)` alih-alih `FindAsync`. Setelah `product.Price *= 0.9m;` dan `SaveChangesAsync`, apa yang terjadi?',
+      options: ['Harga ter-update, sama persis seperti sebelumnya', 'Tidak ada yang tersimpan: entity tidak di-track, jadi `SaveChangesAsync` tidak menemukan perubahan dan mengembalikan `0`', 'EF Core melempar exception karena entity no-tracking diubah'],
+      answer: 1,
+      explain: '`SaveChangesAsync` hanya menulis perubahan pada entity yang sedang di-track oleh `DbContext`. `AsNoTracking()` mengembalikan object yang terlepas, jadi mengeditnya hanya mengubah memori: tidak ada `UPDATE` yang dibuat, tidak ada error, dan hasilnya `0` baris terdampak. Pakai query yang di-track, pasang lagi dengan `db.Update(product)`, atau tulis secara set-based lewat `ExecuteUpdateAsync`.'
+    },
     why: "EF Core menjembatani C#, LINQ, dan SQL. Kalau dipakai pas, kodenya bebas boilerplate, tapi kalau asal pakai ia diam-diam mencetak query lambat. Kebiasaan terbaik di sini adalah rutin membaca SQL yang dihasilkan.",
     points: [
       "`DbContext` mewakili satu sesi dengan database, tempat setiap `DbSet<T>` memetakan tabel dan tiap entity menjadi baris.",
@@ -200,6 +230,12 @@ export const trackId = {
       ['RFC 9457 `ProblemDetails`', 'Format payload error JSON standar (`title`, `status`, `errors`) untuk gagal validasi maupun exception tak terduga.']
     ],
     title: 'DTO, validasi, dan penanganan error',
+    predict: {
+      prompt: 'Sebuah client mengirim `{ "name": "Mouse", "price": -5 }` ke `/api/products`. Sampai mana request itu berjalan?',
+      options: ['Handler berjalan, lalu `SaveChangesAsync` gagal dan client menerima `500`', 'Validasi menolaknya dengan `400` sebelum isi handler dijalankan, jadi database tidak tersentuh sama sekali', 'Data tersimpan, karena `[Range]` hanya memengaruhi dokumen OpenAPI'],
+      answer: 1,
+      explain: '`AddValidation()` membuat Minimal API memvalidasi parameter seperti `CreateProductRequest` terhadap data annotation-nya *sebelum* handler dipanggil. `[Range(0.01, 100_000)]` gagal, sehingga endpoint langsung berhenti dengan ValidationProblem `400` yang mencantumkan `Price` di bawah `errors`. Tidak ada pemanggilan `DbContext`, jadi input buruk ditolak dengan biaya murah.'
+    },
     why: "API itu kontrak dengan pihak luar. Memvalidasi semua input masuk dan membalas error dalam format konsisten memudahkan siapa pun berintegrasi dengan API-mu.",
     points: [
       "**Jangan pernah percaya input.** Validasi di batas pintu masuk dan balas body yang invalid dengan `400 Bad Request` yang rinci.",
@@ -233,6 +269,12 @@ export const trackId = {
       ['Kebijakan CORS', 'Header server yang menentukan origin frontend mana (jangan `*` bareng credentials) yang boleh membaca respons lintas origin di browser.']
     ],
     title: 'Authentication dan authorization',
+    predict: {
+      prompt: 'Budi login dengan token yang valid (tanpa role `Admin`) lalu memanggil `GET /api/orders/7`, pesanan milik Ana. Status apa yang ia terima?',
+      options: ['`401 Unauthorized`', '`403 Forbidden`', '`404 Not Found`'],
+      answer: 2,
+      explain: 'Budi sudah terautentikasi, jadi `RequireAuthorization()` lolos dan `401` gugur. Endpoint ini tidak mensyaratkan role, jadi `403` juga tidak muncul. Pengecekan kepemilikan ada di dalam query (`o.UserId == userId`), sehingga tidak ada data yang ditemukan dan handler mengembalikan `404`. Ini disengaja: `403` justru mengonfirmasi bahwa pesanan itu ada kepada orang yang sedang menebak-nebak id.'
+    },
     why: "Bug keamanan paling mahal ongkos perbaikannya. Kamu harus selalu tahu siapa yang memanggil API, bagaimana server memastikan identitasnya, dan cara tiap endpoint membatasi aksesnya.",
     points: [
       "**Authentication** membuktikan identitas dan **authorization** menentukan hak akses. Keduanya adalah dua langkah dan middleware yang terpisah.",
@@ -265,6 +307,12 @@ export const trackId = {
       ['User Secrets / Key Vault', 'Menyimpan password DB dan API key di luar Git serta `appsettings.json` per environment.']
     ],
     title: 'Options, logging, dan environment',
+    predict: {
+      prompt: 'Kamu men-deploy tanpa `Smtp:Host` di sumber konfigurasi mana pun. Kapan masalahnya muncul?',
+      options: ['Saat `POST /users/{userId}/welcome` pertama, ketika `options.Value` dibaca', 'Saat startup: `ValidateOnStart()` menjalankan pengecekan `[Required]` dan host menolak berjalan', 'Tidak pernah: `Host` bernilai default `""`, yang sudah memenuhi `[Required]`'],
+      answer: 1,
+      explain: 'Tanpa `ValidateOnStart()`, options divalidasi secara malas saat `.Value` pertama kali diakses, jadi deployment yang rusak tampak sehat sampai ada user yang memicu email. `ValidateOnStart()` memvalidasi ketika host mulai berjalan dan melempar `OptionsValidationException`, sehingga deploy langsung gagal. `[Required]` menolak string kosong secara default (`AllowEmptyStrings = false`), jadi `""` tidak bisa lolos.'
+    },
     why: "Aplikasi hasil build yang sama jalan di laptop, CI, sampai server production dengan setelan berbeda-beda. Begitu production bermasalah, catatan log sering kali menjadi satu-satunya petunjuk.",
     points: [
       "**Options pattern** memetakan konfigurasi ke class bertipe: `IOptions<T>` membaca sekali, `IOptionsSnapshot<T>` me-reload tiap request, dan `IOptionsMonitor<T>` memantau update langsung.",

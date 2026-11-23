@@ -7,6 +7,16 @@ export const track = {
     // ---------------- Beginner ----------------
     {
       id: 'dart', title: 'Dart essentials: types, null safety and functions', level: 0, mins: 30,
+      predict: {
+        prompt: "What happens when Dart compiles `const now = DateTime.now();` alongside `final half = 7 / 2;`?",
+        options: [
+          "Both compile, and `half` is `int` `3`",
+          "`const now = DateTime.now()` fails at compile time (not a constant expression), while `half` compiles as `double` `3.5`",
+          "Both fail because `final` cannot hold a division expression",
+        ],
+        answer: 1,
+        explain: "`const` values must be known at compile time, so `DateTime.now()` requires `final`. Meanwhile, Dart's `/` operator always returns a `double` (`3.5`); use `~/` for integer division (`3`).",
+      },
       terms: [
         ['Sound null safety (`String` vs `String?`)', 'Non-nullable types guarantee a real value. Nullable types (`String?`) require handling `null` (`??`, `?.`) before use.'],
         ['`final` vs `const`', '`final` is assigned once at run time, while `const` is fixed at compile time so Flutter can reuse widget instances.'],
@@ -63,6 +73,16 @@ void main() {
     },
     {
       id: 'dartoop', title: 'Classes, collections and immutability', level: 0, mins: 30,
+      predict: {
+        prompt: "A class `class Tag { const Tag(this.name); final String name; }` does NOT override `==`. What do `Tag(\"a\") == Tag(\"a\")` and `const Tag(\"a\") == const Tag(\"a\")` evaluate to?",
+        options: [
+          "Both evaluate to `true`",
+          "`false` for `Tag(\"a\") == Tag(\"a\")`, and `true` for `const Tag(\"a\") == const Tag(\"a\")`",
+          "Both evaluate to `false`",
+        ],
+        answer: 1,
+        explain: "Without overriding `==`, Dart compares object identity. Two non-`const` `Tag(\"a\")` calls allocate two distinct instances (`false`), while identical `const` expressions are canonicalized into one shared instance (`true`).",
+      },
       terms: [
         ['Constructor initializers & `required`', 'Shaping valid objects in one expression (`const Product({required this.id, required this.name})`).'],
         ['Collection `if` / `for` & Spread (`...`)', 'Building conditional widget lists right inside `[ ... ]` instead of calling `.add()` step by step.'],
@@ -207,6 +227,16 @@ class ProductTile extends StatelessWidget {
     },
     {
       id: 'layout', title: 'Layout: rows, columns and constraints', level: 0, mins: 35, viz: 'constraints',
+      predict: {
+        prompt: "You place a `ListView` directly inside `Column(children: [Text(\"Shop\"), ListView(...)])` without wrapping the `ListView` in `Expanded`. What happens at runtime?",
+        options: [
+          "`ListView` automatically fills the remaining screen height below `\"Shop\"`",
+          "Flutter throws a layout error: `Vertical viewport was given unbounded height`",
+          "`ListView` shrinks to `0px` silently with no error",
+        ],
+        answer: 1,
+        explain: "A `Column` passes unbounded vertical height (`∞`) to non-flex children, and a `ListView` tries to expand as tall as its parent allows—an impossible combination. Wrapping `ListView` in `Expanded` passes a bounded height constraint.",
+      },
       terms: [
         ['Constraints go down, sizes go up', 'Parent passes min and max bounds down, the child picks a fitting size, and the parent sets the child\'s final x/y position.'],
         ['Unbounded constraint (`∞`)', 'Happens on scroll axes or bare `Row`/`Column` children; nesting `Expanded` or an unbounded `ListView` inside triggers overflow errors.'],
@@ -294,6 +324,16 @@ class ResponsiveGrid extends StatelessWidget {
     // ---------------- Intermediate ----------------
     {
       id: 'async', title: 'Async Dart: Future, Stream and the event loop', level: 1, mins: 35,
+      predict: {
+        prompt: "In `main()`, you run `print(\"1\")`, `Timer.run(() => print(\"4\"))`, `scheduleMicrotask(() => print(\"3\"))`, and `print(\"2\")`. What order prints?",
+        options: [
+          "`1, 4, 3, 2`",
+          "`1, 2, 3, 4` (sync finishes, then microtasks drain before events)",
+          "`1, 2, 4, 3` (timers run before microtasks)",
+        ],
+        answer: 1,
+        explain: "Dart's single-threaded event loop finishes synchronous code (`1`, `2`), drains the entire microtask queue (`3`), and only then pulls the next event from the event queue (`4`).",
+      },
       terms: [
         ['`Future<T>` & `async`/`await`', 'Holds one async value or error arriving later without stalling Flutter\'s 60/120 fps UI isolate.'],
         ['`Stream<T>`', 'Emits zero or more values over time (WebSocket frames, scroll positions, Bloc states) until cancelled.'],
@@ -369,6 +409,16 @@ Future<void> main() async {
     },
     {
       id: 'state', title: 'State: StatefulWidget, setState and lifecycle', level: 1, mins: 35, viz: 'frebuild',
+      predict: {
+        prompt: "An async method in `State` runs `final data = await api.load(); setState(() => _data = data);` without checking `if (!mounted) return;`, and the user hits Back before `api.load()` finishes. What happens when the `Future` resolves?",
+        options: [
+          "Flutter silently ignores `setState` on disposed widgets",
+          "In debug mode, Flutter throws an error (`setState() called after dispose()`)",
+          "The popped screen automatically reopens with the loaded data",
+        ],
+        answer: 1,
+        explain: "Leaving the screen disposes the `State` object, but the in-flight `Future` still completes later—tripping a debug-mode assertion and wasting work in release builds. Always guard `setState` and `context` usage after any `await` with `if (!mounted) return;`.",
+      },
       terms: [
         ['`mounted` check', 'Guards against calling `setState()` after a widget leaves the tree while an async `Future` was still running.'],
         ['`initState()` & `dispose()`', 'One-time setup at mount (controllers and listeners) paired with cleanup (`controller.dispose()`) on unmount.'],
@@ -460,6 +510,16 @@ class Quantity extends StatelessWidget {
     },
     {
       id: 'navforms', title: 'Navigation and forms', level: 1, mins: 35,
+      predict: {
+        prompt: "In `GoRouter`, `/products/:id` is declared as a top-level sibling of `/` (not inside `/`’s `routes: [...]`). From Home, you call `context.go(\"/products/42\")`. What happens to the navigation stack?",
+        options: [
+          "Home stays underneath so `ProductPage` shows a Back button",
+          "`ProductPage` replaces the stack alone with no Home underneath and no Back button",
+          "`go_router` refuses to navigate and throws a route error",
+        ],
+        answer: 1,
+        explain: "`context.go()` builds the stack directly from the route hierarchy. Only nesting `products/:id` under `/` puts `HomePage` below `ProductPage` when navigating with `go()`.",
+      },
       splits: [['1 · GoRouter setup', "import 'package:flutter/material.dart';"], ['2 · Home & Product pages', 'class HomePage'], ['3 · NewProductPage form', 'class NewProductPage']],
       terms: [
         ['Declarative routing (`GoRouter`)', 'Maps URL paths (`/products/:id`) directly to screen stacks with browser deep linking and typed parameters.'],
@@ -721,6 +781,16 @@ class _ProductListState extends State<ProductList> {
     // ---------------- Advanced ----------------
     {
       id: 'bloc', title: 'State management with Bloc and Cubit', level: 2, mins: 45,
+      predict: {
+        prompt: "Suppose a mutable-list `CartBloc` has already emitted one item, and on the next event the handler runs `state.add(event.name); emit(state);` instead of `emit([...state, event.name])`. What happens to `BlocBuilder`?",
+        options: [
+          "`BlocBuilder` rebuilds with the new item immediately",
+          "Nothing rebuilds because `state == nextState` is `true` (identical reference), so Bloc skips the emission",
+          "Bloc throws a `ConcurrentModificationError`",
+        ],
+        answer: 1,
+        explain: "After the first emission (`_emitted`), `Bloc` compares the newly emitted state against `state == _state` before notifying listeners. Mutating a growable list in place leaves `identical(prev, next)` as `true`, so `Bloc` skips the emission (whereas calling `.add` directly on `super(const [])` throws `UnsupportedError`). Always emit a new list or immutable state.",
+      },
       splits: [['1 · Sealed ProductsState', "import 'package:flutter/foundation.dart';"], ['2 · ProductsCubit', '// ---- Cubit'], ['3 · CartBloc events', '// ---- Bloc'], ['4 · ProductsPage UI', 'class ProductsPage']],
       terms: [
         ['`Cubit` vs `Bloc`', '`Cubit` exposes methods like `load()`; `Bloc` uses an explicit `Event` stream for debouncing, cancelling, and logging.'],

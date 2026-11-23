@@ -10,6 +10,12 @@ export const track = {
         ['`var` (type inference)', 'Lets the compiler infer the exact variable type from the right-hand expression rather than making it dynamic.'],
         ['`decimal` vs `double`', '`decimal` (`0.1m`) uses base-10 arithmetic for money, while `double` uses binary floating point and can round `0.1 + 0.2`.']
       ],
+      predict: {
+        prompt: 'Before running it, what do `Console.WriteLine(7 / 2)` and `Console.WriteLine(7 / 2.0)` print?',
+        options: ['`3.5` and `3.5`', '`3` and `3.5`', '`4` and `3.5` (integer division rounds up)'],
+        answer: 1,
+        explain: 'When both operands are `int`, C# performs integer division and truncates toward zero, so `7 / 2` is `3` (and `-7 / 2` is `-3`, not `-4`). Making either operand a `double` (`2.0`) promotes the whole expression to floating point, giving `3.5`.'
+      },
       why: "Every C# program passes typed values through statements. Once you see that the compiler checks types **before** running anything, most beginner errors stop looking random. They're just early warnings that two types don't match.",
       points: [
         "C# compiles to IL (intermediate language), and the .NET runtime (CLR) turns IL into machine code at run time via JIT. `dotnet run` handles both steps.",
@@ -219,6 +225,7 @@ class Person { public string Name { get; set; } = ""; }
     },
     {
       id: 'interfaces', title: 'Interfaces, inheritance and polymorphism', level: 1, mins: 35,
+      splits: [['1 · Usage', '// Interfaces: one service, any notifier'], ['2 · Interface & notifiers', 'public interface INotifier'], ['3 · Abstract base & subclasses', 'public abstract class Animal']],
       terms: [
         ['Interface (`IPayment`)', 'A contract listing *what* a type supports without dictating *how*, letting unit tests swap live calls for fakes.'],
         ['Polymorphism', 'Calling `.Charge(...)` through an `IPayment` reference so each concrete class runs its own implementation.'],
@@ -356,6 +363,7 @@ Console.WriteLine(Max(new[] { "kiwi", "fig" }));  // kiwi
     },
     {
       id: 'errors', title: 'Exceptions and cleanup', level: 1, mins: 30,
+      splits: [['1 · Calling code', 'Console.WriteLine(ReadFirstLine("missing.txt"));'], ['2 · ReadFirstLine & using', 'static string ReadFirstLine(string path)'], ['3 · ParseAge & wrapping', 'static int ParseAge(string text)']],
       terms: [
         ['`using` / `IDisposable`', 'Closes files, sockets, and database connections deterministically even if an exception fires mid-method.'],
         ['Exception filter / catch order', 'Catch specific exceptions (`FileNotFoundException`) where you can recover rather than swallowing bare `Exception` everywhere.'],
@@ -440,6 +448,12 @@ static int ParseAge(string text)
         ['`IEnumerable<T>` vs `IQueryable<T>`', '`IEnumerable` runs lambdas over objects in memory, whereas `IQueryable` keeps an expression tree EF Core translates into SQL.'],
         ['`Any()` vs `Count() > 0`', '`Any()` stops on the first matching item (`EXISTS` in SQL), while `Count()` may count every row unnecessarily.']
       ],
+      predict: {
+        prompt: '`cheapTech` is defined first. Then `products.Add(new("Cable", "Tech", 10))` runs, and only after that does the `foreach` loop over `cheapTech`. What prints?',
+        options: ['Only `Mouse`: the query captured the list as it was when defined', '`Cable` then `Mouse`: the query runs when enumerated, so it sees the new item', 'An `InvalidOperationException`: the collection was modified'],
+        answer: 1,
+        explain: '`Where`, `OrderBy` and `Select` use deferred execution: `cheapTech` stores the recipe, not the results. The pipeline runs during the `foreach`, after `Cable` was added, and `OrderBy(p => p.Price)` puts `Cable` (10) before `Mouse` (25). Call `.ToList()` to take a snapshot. Modifying the list *while* it is being enumerated is what throws.'
+      },
       why: "LINQ is how C# code filters, transforms and summarises data: in memory and, through EF Core, in SQL. It is the bridge between this track and the SQL track.",
       points: [
         "LINQ provides extension methods on `IEnumerable<T>` like `Where` (filter), `Select` (map), `OrderBy` (sort), and `GroupBy` (group).",
@@ -490,11 +504,18 @@ record Product(string Name, string Category, decimal Price);
     // ---------------- Advanced ----------------
     {
       id: 'delegates', title: 'Delegates, lambdas and events', level: 2, mins: 30,
+      splits: [['1 · Lambdas & closures', 'Func<int, int> twice'], ['2 · Events', '// Event: subscribe'], ['3 · Extension method & event source', 'public static class SequenceExtensions']],
       terms: [
         ['Delegate (`Func<>` / `Action<>`)', 'A strongly typed function reference (`Func<int, bool>` takes an `int` and returns `bool`, while `Action` returns void).'],
         ['Lambda (`x => x * 2`)', 'An inline anonymous function passed straight into LINQ, middleware, or event handlers.'],
         ['Closure capture', 'A lambda keeping live access to outer variables. Watch out for mutated loop counters or objects kept alive in memory.']
       ],
+      predict: {
+        prompt: 'You build `var actions = new List<Action>(); for (int i = 0; i < 3; i++) actions.Add(() => Console.Write(i));` and then invoke every action. What prints?',
+        options: ['`012`', '`333`', '`222`'],
+        answer: 1,
+        explain: 'A lambda captures the *variable*, not its value at that moment, exactly as `bump` captures `count`. A `for` loop declares a single `i` shared by every iteration, so when the actions finally run, `i` is `3`. A `foreach` variable is fresh on each iteration (since C# 5), so `foreach (var i in Enumerable.Range(0, 3))` prints `012`. Inside a `for` loop, copy it first with `int copy = i;`.'
+      },
       why: "Passing functions as arguments powers LINQ, middleware, and Minimal APIs. Once signatures like `Func<T, bool>` feel natural, framework code becomes easy to read.",
       points: [
         "A **delegate** defines a typed slot for a method, like 'takes an `int` and returns a `bool`'.",
@@ -562,6 +583,7 @@ public class Thermostat
     },
     {
       id: 'async', title: 'async, await and Tasks', level: 2, mins: 40, viz: 'async',
+      splits: [['1 · Sequential vs WhenAll', 'using System.Diagnostics;'], ['2 · Cancellation & streaming', '// Cancellation: stop work'], ['3 · Async helpers', '// Stands in for a database query']],
       terms: [
         ['Non-blocking I/O (`await`)', 'Hands the thread back to ASP.NET Core while waiting for SQL/HTTP, letting one thread pool serve thousands of concurrent requests.'],
         ['`Task.WhenAll(...)`', 'Awaits multiple independent async operations concurrently instead of running them one-by-one.'],
@@ -656,6 +678,12 @@ static async IAsyncEnumerable<string> LoadPagesAsync(int count, [EnumeratorCance
         ['`record`', 'Compact immutable data class with automatic value-based equality (`a == b` compares fields, not references) and `with` copying.'],
         ['Pattern matching', 'Declarative branching on type and shape (`is Order { Total: > 100 } o`) checked for exhaustiveness by the compiler.']
       ],
+      predict: {
+        prompt: 'With `public record Money(decimal Amount, string Currency);`, what does `price == new Money(10, "USD")` print? And what would it print if `Money` were a plain `class` with the same two properties?',
+        options: ['`True` for the record, `False` for the class', '`False` for both: they are two different objects', '`True` for both: the compiler compares properties'],
+        answer: 0,
+        explain: 'A `record` synthesizes `Equals`, `GetHashCode` and `==` that compare every property, so two separately created `Money` values with the same `Amount` and `Currency` are equal. A plain `class` keeps reference equality: `==` asks whether both variables point to the same heap object, which is `False` for two `new` instances.'
+      },
       why: "Modern C# lets the compiler catch whole categories of bugs before you run anything: null references, unhandled shapes of data, accidental mutation. Code that uses these features well is shorter and harder to break.",
       points: [
         "New projects turn on **nullable reference types** by default. `string` expects non-null values, while `string?` warns you to check before dereferencing.",
@@ -766,11 +794,18 @@ finally { ArrayPool<byte>.Shared.Return(buffer); }
     },
     {
       id: 'concurrency', title: 'Concurrency and thread safety', level: 3, mins: 40,
+      splits: [['1 · Atomic counters', 'using System.Threading.Channels;'], ['2 · SemaphoreSlim gate', '// Async-friendly mutual exclusion'], ['3 · Bounded channel', '// Producer / consumer']],
       terms: [
         ['Race condition', 'Two threads reading and writing shared state without coordination so outcomes depend on lucky thread timing.'],
         ['`ConcurrentDictionary` vs `lock`', '`ConcurrentDictionary` makes map calls thread-safe, while `SemaphoreSlim(1, 1)` guards async sections (never `lock` across `await`).'],
         ['`Channel<T>`', 'Fast async producer/consumer queue for offloading background jobs from HTTP endpoints to worker loops.']
       ],
+      predict: {
+        prompt: '`Parallel.For` runs `unsafeCount++` and `Interlocked.Increment(ref safeCount)` 100,000 times each across several threads. What is the most likely output?',
+        options: ['`100000 vs 100000`: `++` on an `int` is a single atomic step', 'Something like `73412 vs 100000`: `unsafeCount` loses updates', "A compile error: a captured local can't be mutated inside `Parallel.For`"],
+        answer: 1,
+        explain: '`unsafeCount++` is three steps: read, add, write. Two threads can read the same value and both write back that value plus one, so an increment vanishes. `Interlocked.Increment` performs the read-modify-write as one atomic CPU instruction, so `safeCount` is always `100000`. The number of lost updates changes on every run, which is exactly what makes races hard to reproduce.'
+      },
       why: "Web APIs process many concurrent requests at once. Any shared static field, singleton collection, or cache gets hit from multiple threads simultaneously, creating rare and painful bugs.",
       points: [
         "A **race condition** makes correctness depend on thread timing. Even `count++` runs read, add, and write separately, so it isn't atomic.",

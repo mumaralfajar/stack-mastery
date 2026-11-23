@@ -66,6 +66,16 @@ async function load(): Promise<void> {
     },
     {
       id: 'ts', title: 'TypeScript: types that catch bugs', level: 0, mins: 35,
+      predict: {
+        prompt: "Given `type Result<T> = { ok: true; data: T } | { ok: false; error: string }`, you write `function show(r: Result<Product>) { console.log(r.data.name); }` without checking `if (r.ok)`. What happens?",
+        options: [
+          "Compiles cleanly and prints `undefined` at runtime when `ok` is `false`",
+          "TypeScript compile error: `Property \"data\" does not exist on type \"{ ok: false; error: string }\"`",
+          "TypeScript inserts a runtime `if (r.ok)` guard automatically",
+        ],
+        answer: 1,
+        explain: "Before narrowing on the discriminant `r.ok`, `r` could be the error branch where `data` does not exist. Checking `if (r.ok)` narrows `r` to `{ ok: true; data: Product }` inside that branch.",
+      },
       terms: [
         ['Discriminated union', 'Object shapes sharing a literal tag (`ok: true` with `data: T`, or `ok: false` with `error: string`) narrowed in `if` blocks.'],
         ['Type narrowing', 'TypeScript tracks checks like `typeof x === "string"`, `in`, and `switch` so it knows the exact subtype inside each branch.'],
@@ -127,6 +137,16 @@ function show(r: Result<Product>) {
     },
     {
       id: 'components', title: 'React: components, JSX and props', level: 0, mins: 35,
+      predict: {
+        prompt: "A component renders `{products.length && <ProductList items={products} />}` when `products` is `[]`. What actually appears in the DOM?",
+        options: [
+          "Nothing (empty DOM)",
+          "The digit `0` rendered as text on the page",
+          "A runtime error because `&&` requires a boolean",
+        ],
+        answer: 1,
+        explain: "In JavaScript, `0 && <ProductList />` evaluates to `0`, and React renders the number `0` into the DOM (unlike `false`, `null`, or `undefined`). Write `products.length > 0 && ...` instead.",
+      },
       terms: [
         ['JSX expression', 'JavaScript syntax like `<Card price={p.price} />` that compiles into `jsx(...)` function calls, rather than a separate HTML template parser.'],
         ['Props (one-way down)', 'Read-only inputs flowing from parent to child. Changing a child never mutates the parent props directly.'],
@@ -261,6 +281,16 @@ async function loadDashboard() {
     },
     {
       id: 'state', title: 'State and re-rendering', level: 1, mins: 40, viz: 'rerender',
+      predict: {
+        prompt: "With `count` currently `0`, a single click handler calls `setCount(count + 1); setCount(count + 1); setCount(c => c + 1);`. What is `count` on the next render?",
+        options: [
+          "`1` (React ignores duplicate `setCount` calls in one handler)",
+          "`2` (both `count + 1` calls queue `1`, then `c => c + 1` adds `1` to `1`)",
+          "`3` (all three increments add up)",
+        ],
+        answer: 1,
+        explain: "Inside one render, `count` is frozen at `0`, so both `setCount(count + 1)` calls replace the queued value with `1`. The functional updater `c => c + 1` then receives that queued `1` and returns `2`.",
+      },
       terms: [
         ['Render snapshot', 'State like `count` stays fixed inside one render pass. Passing `c => c + 1` reads the latest queued state safely.'],
         ['Immutable state update', 'Creating a fresh array or object (`setItems([...items, x])`) so `Object.is(prev, next)` detects a new reference and triggers a render.'],
@@ -398,6 +428,7 @@ export function ProductDetails({ id }: { id: number }) {
     },
     {
       id: 'forms', title: 'Forms, lifting state and composition', level: 1, mins: 35,
+      splits: [["1 · ProductForm & useActionState","import { useActionState"],["2 · Catalog (Lifted State)","export function Catalog()"]],
       terms: [
         ['Controlled input', 'An `<input value={val} onChange={...} />` driven by React state rather than reading values from the DOM on submit.'],
         ['Lifting state up', 'Moving shared state up to the closest common parent so sibling components stay synced through props.'],
@@ -546,6 +577,17 @@ export function List<T>({ items, render, keyOf }: ListProps<T>) {
     // ---------------- Advanced ----------------
     {
       id: 'hooks', title: 'Custom hooks, context and reducers', level: 2, mins: 40,
+      splits: [["1 · useDebounced Hook","import { createContext"],["2 · Typed cartReducer","// Reducer with typed actions"],["3 · CartContext & Provider","// Context + provider"]],
+      predict: {
+        prompt: "Components `<Header />` and `<Sidebar />` both call `useDebounced(query, 300)` from the same module. When `<Header />` updates its input, what happens to `<Sidebar />`'s debounced state?",
+        options: [
+          "`<Sidebar />` updates too because both call the same custom hook",
+          "`<Sidebar />` is unaffected because each component call site gets its own independent hook state",
+          "React throws an error for calling a custom hook in two components",
+        ],
+        answer: 1,
+        explain: "Custom hooks share stateful *logic*, not state itself. Each call to `useDebounced()` registers separate `useState` and `useEffect` slots on that component's own Fiber.",
+      },
       terms: [
         ['Custom hook (`useX`)', 'A plain TypeScript function extracting stateful hook logic so components reuse behavior without adding extra DOM wrappers.'],
         ['`useReducer`', 'Groups complex state transitions into one `switch (action.type)` function outside your JSX component.'],
@@ -626,6 +668,16 @@ export function useCart() {
     },
     {
       id: 'perf', title: 'Rendering performance', level: 2, mins: 35, viz: 'rerender',
+      predict: {
+        prompt: "Without React Compiler, `<ProductRow>` is wrapped in `memo`, and `<Catalog>` renders `<ProductRow key={r.id} row={r} onSelect={(id) => setSelected(id)} />`. When the user types in the search box, do unchanged rows skip re-rendering?",
+        options: [
+          "Yes, because `r` is the same object and `memo` ignores function props",
+          "No, because `(id) => setSelected(id)` creates a new function reference on every `<Catalog>` render",
+          "Only the first row re-renders",
+        ],
+        answer: 1,
+        explain: "`memo` compares every prop with `Object.is`. An inline arrow function produces a brand-new reference on each parent render (`prevOnSelect !== nextOnSelect`), defeating `memo` unless stabilized with `useCallback` (or React Compiler).",
+      },
       terms: [
         ['`React.memo`', 'Skips re-rendering a child when props match shallowly via `Object.is`. Fresh inline objects or callbacks defeat it unless stabilized.'],
         ['`useCallback` & `useMemo`', 'Keeps object or function references stable across renders, worth adding only when profiling proves a slow child or calculation needs it.'],
@@ -876,6 +928,16 @@ type RouteName = keyof typeof routes;                // "home" | "product"
     },
     {
       id: 'internals', title: 'React internals: reconciliation and concurrency', level: 3, mins: 45,
+      predict: {
+        prompt: "A parent renders `{isAdmin ? <EditForm user={admin} /> : <EditForm user={guest} />}` with no `key` prop. When `isAdmin` flips from `true` to `false`, what happens to draft text stored in `EditForm`'s `useState`?",
+        options: [
+          "It resets to empty because it is in a different ternary branch",
+          "It stays intact with the admin's old draft because the same component type sits in the same tree position",
+          "React throws a reconciliation warning",
+        ],
+        answer: 1,
+        explain: "React reconciles by tree position, element type, and `key`—not by which branch of `?:` returned the JSX. Same slot + same `EditForm` type means React keeps the existing Fiber state unless you pass `key={user.id}`.",
+      },
       terms: [
         ['Fiber tree (work unit)', "React's internal linked tree storing component state and hooks so renders can pause, resume, or abort low-priority work."],
         ['Reconciliation (render vs commit)', 'Render computes the next UI diff in JavaScript. Commit applies the minimal DOM updates in one pass so screens never tear.'],
@@ -941,6 +1003,7 @@ export function Search({ items }: { items: string[] }) {
     },
     {
       id: 'arch', title: 'Frontend architecture, testing and accessibility', level: 3, mins: 45,
+      splits: [["1 · MSW Server Setup","// ProductsPage is the component"],["2 · Query Helper & User Test","// The same provider"]],
       terms: [
         ['Query-level test (`render` + `userEvent`)', "Tests components from the user's side via roles and labels (`getByRole(\"button\")`) rather than reading internal component state."],
         ['API mocking (`MSW`)', 'Intercepts `fetch` at the network boundary so tests run real serialization, validation, and HTTP error paths.'],

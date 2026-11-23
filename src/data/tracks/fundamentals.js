@@ -77,6 +77,12 @@ git log --oneline --graph       # read the history
         ['Nested loop `O(n²)` trap', 'Scanning an array inside a loop turns `1,000` items into `1,000,000` steps. A `HashSet` cuts it to `O(n)`.'],
         ['Space-time trade-off', 'Spending `O(n)` extra RAM for a hash table or memo table turns `O(n²)` or `O(2ⁿ)` work into fast linear time.']
       ],
+      predict: {
+        prompt: '`BinarySearch` finds a value among 1,000,000 sorted items in about 20 steps. Roughly how many steps does it need once the array grows to 2,000,000 items?',
+        options: ['About `40`: twice the data, twice the work', 'About `21`: doubling `n` adds a single halving step', 'About `400`: binary search is `O(n²)` in the worst case'],
+        answer: 1,
+        explain: 'Binary search is `O(log n)`: each comparison halves the remaining range. `log₂(1,000,000)` is about `20` and `log₂(2,000,000)` is about `21`, so doubling the input costs one extra step. Compare `HasDuplicateSlow`, which is `O(n²)`: doubling `n` there roughly quadruples the comparisons.'
+      },
       why: "Interviews almost always ask for the time and space complexity of your answer. Big-O matters even more day to day: it tells you whether code that survives 100 rows will choke on 10 million.",
       points: [
         "Big-O describes how the **number of steps grows** as input size n grows. It drops constants and smaller terms, so 3n + 10 simplifies to O(n).",
@@ -346,11 +352,18 @@ Console.WriteLine(string.Join(", ", byAge.Select(p => p.Item1)));   // Budi, Ana
     // ---------------- Advanced ----------------
     {
       id: 'trees', title: 'Trees, heaps and binary search', level: 2, mins: 40,
+      splits: [['1 · BST insert & traversal', '// Binary search tree'], ['2 · Build & heap', 'Node? root = null;'], ['3 · Binary search on a condition', '// Binary search on a condition'], ['4 · Node class', 'class Node(int value)']],
       terms: [
         ['Binary search invariant (`lo <= hi`)', 'Halves any sorted monotonic range in `O(log n)` steps, including binary search on answers.'],
         ['Heap (`PriorityQueue`)', 'Partially ordered tree pulling the min or max item in `O(log n)`, powering Top-K, timers, and Dijkstra.'],
         ['Tree traversals (`DFS` pre/in/post vs `BFS`)', 'DFS drills root-to-leaf recursively, while BFS visits level by level with a queue.']
       ],
+      predict: {
+        prompt: 'The code inserts `8, 3, 10, 1, 6` and `Height(root)` prints `3`. What would `Height(root)` print if you inserted the already sorted `1, 3, 6, 8, 10` into an empty tree instead?',
+        options: ['`3`: the same values always build the same tree', '`5`: every value becomes a right child, so the tree turns into a linked list', '`1`: sorted input produces a perfectly flat tree'],
+        answer: 1,
+        explain: 'This BST never rebalances. Each new value is larger than everything before it, so it goes right every time and the tree degenerates into a chain of height `5`. Search then costs `O(n)` instead of `O(log n)`. Self-balancing trees (red-black or AVL) rotate nodes to keep the height logarithmic; `SortedDictionary` is built on a red-black tree for exactly this reason.'
+      },
       why: "Trees show up everywhere in the stack: the DOM, JSON, filesystems, React's component tree, and SQL B-tree indexes. Heaps handle 'what comes next?' problems like top K and scheduling, and binary search works on far more than arrays.",
       points: [
         "A **tree** is nodes with children and no cycles, and a **binary tree** caps each node at two children. A balanced tree with n nodes is around log₂ n levels deep.",
@@ -434,11 +447,18 @@ class Node(int value)
     },
     {
       id: 'graphs', title: 'Graphs: BFS, DFS and topological order', level: 2, mins: 40, viz: 'graphsearch',
+      splits: [['1 · Adjacency list & driver', '// Adjacency list'], ['2 · BFS shortest path', '// BFS: level by level'], ['3 · DFS', '// DFS: go deep first'], ['4 · Topological order', '// Topological order']],
       terms: [
         ['Visited set (`seen`)', 'Tracks explored vertices *as you enqueue* so cycles never loop forever or visit nodes twice.'],
         ['BFS shortest path (unweighted)', 'Explores distance rings `0, 1, 2...` in order, ensuring the first path reaching a target is shortest.'],
         ['Topological sort (`in-degree`)', 'Orders directed acyclic tasks (`DAG`: build pipelines, migrations, installers) before anything depending on them runs.']
       ],
+      predict: {
+        prompt: 'Starting from `A`, in what order does `Dfs` add nodes to `seen`?',
+        options: ['`A B C D E`', '`A B D E C`', '`A B D E C D E`'],
+        answer: 1,
+        explain: 'DFS follows one branch as deep as it can before backtracking: `A`, `B`, `D`, `E`, then back up to `A` to try `C`. When `C` looks at `D`, `visited.Add` returns false, so `D` is not visited twice and no cycle is involved. `A B C D E` is the level-by-level order BFS would produce from `A`.'
+      },
       why: "Maps, social networks, build tools, and grids are graphs, and so is your app code. A DI container wiring constructors and EF Core ordering migrations both walk a graph, so the hard part is spotting the graph in a problem.",
       points: [
         "A **graph** connects nodes (vertices) with edges that can be directed or weighted. Trees and linked lists are special cases.",
@@ -527,6 +547,7 @@ static List<string> TopoOrder(Dictionary<string, string[]> g)
     },
     {
       id: 'backtracking', title: "Backtracking: exploring every choice", level: 2, mins: 35, viz: 'backtrack',
+      splits: [['1 · Driver', '// Subsets: each item'], ['2 · Subsets', 'static void Subsets('], ['3 · Combination sum', 'static void CombinationSum('], ['4 · Permutations & Show', 'static void Permute(']],
       terms: [
         ['Decision tree', 'Maps partial candidates where each branch picks one valid option (`include`, `skip`, or next valid digit).'],
         ['Choose → Explore → Un-choose', 'Push one candidate onto `path`, recurse deeper, then `pop()` (`undo`) so sibling branches share zero leaked state.'],

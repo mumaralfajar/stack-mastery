@@ -62,6 +62,12 @@ app.Run();
         ['Middleware pipeline (`app.Use*`)', 'Second half of `Program.cs`: builds the ordered chain of steps that processes each HTTP request and response.'],
         ['Minimal API endpoint', '`app.MapGet("/path", handler)` maps a route directly to a C# lambda without extra controller boilerplate.']
       ],
+      predict: {
+        prompt: '`appsettings.json` sets `"Greeting": "Selamat pagi"`, and the server also has the environment variable `Greeting=Hi`. What does `GET /` start with?',
+        options: ['`Selamat pagi`: the JSON file is the main source of truth', '`Hi`: environment variables are loaded after `appsettings.json`, so they win', '`Hello`: the `??` fallback always applies outside Development'],
+        answer: 1,
+        explain: '`WebApplication.CreateBuilder` layers configuration providers in order: `appsettings.json`, `appsettings.{Environment}.json`, user secrets (Development only), environment variables, then command-line arguments. A later provider overrides an earlier one for the same key, so `Greeting=Hi` wins. The `"Hello"` fallback is used only when no provider sets the key at all.'
+      },
       why: "`Program.cs` splits into two halves. Knowing which half owns a line immediately answers most 'why is my service missing?' or 'why isn't middleware running?' bugs.",
       points: [
         "In the **builder half**, register services the app depends on via `builder.Services.Add…` and wire up configuration.",
@@ -126,6 +132,12 @@ public class Greeter : IGreeter
         ['Model binding', 'Automatically pulls typed values from route segments, query strings (`?page=2`), headers, and JSON request bodies.'],
         ['`TypedResults` vs `Results`', '`TypedResults.Ok(x)` bakes concrete return types (`Results<Ok<T>, NotFound>`) into signatures so OpenAPI documents every status code.']
       ],
+      predict: {
+        prompt: 'With `api.MapGet("/{id:int}", ...)` registered, a client calls `GET /api/products/abc`. What comes back?',
+        options: ['`400 Bad Request`: `abc` failed to bind to `int id`', '`404 Not Found`: no endpoint matched, so the handler never ran', '`500`: parsing `abc` threw inside the handler'],
+        answer: 1,
+        explain: 'A route constraint like `{id:int}` is part of *matching*, not validation. `abc` does not satisfy `int`, so the route never matches, and with no other endpoint for that path the app answers `404`. Without the constraint (a `/{id}` route with an `int id` parameter), the route matches but binding fails, and Minimal APIs return `400` instead.'
+      },
       why: "An API is a set of endpoints. Mapping URLs to handlers, reading input safely, and returning accurate status codes are everyday backend work.",
       points: [
         "**Routing** matches an HTTP method and URL pattern like `GET /api/products/{id}` to your handler.",
@@ -201,6 +213,12 @@ public record CreateProduct(string Name, decimal Price);
         ['Short-circuiting', 'Returning `401` or a cached response early without invoking `next()`, skipping downstream handlers safely.'],
         ['Pipeline ordering', 'Running `ExceptionHandler` first and `UseAuthentication()` before `UseAuthorization()` keeps errors caught and identity populated first.']
       ],
+      predict: {
+        prompt: 'A request hits `GET /boom`, whose handler throws. Does the custom timing middleware write its `{Method} {Path} -> {Status}` log line for that request?',
+        options: ['Yes, with status `500`, because `UseExceptionHandler` already handled it', 'No: the exception escapes `await next(context)`, so the log line after it never runs', 'Yes, with status `200`, because the response had not started yet'],
+        answer: 1,
+        explain: "Middleware nests like function calls. The handler's exception unwinds back through the timing middleware: `await next(context)` rethrows, and because there is no `try`/`finally`, the logging line is skipped. The exception keeps travelling outward to `UseExceptionHandler`, which sits *outside* the timer and turns it into a `500` ProblemDetails. Wrap the `next` call in `try`/`finally` to log every request."
+      },
       why: "Error handling, CORS, authentication, and logging are all middleware. Misordering them is a classic ASP.NET Core mistake, and it's tough to spot until you picture how the pipeline flows.",
       points: [
         "Requests pass through middleware **in registration order**, and responses unwind back out in **reverse**.",
@@ -266,6 +284,12 @@ app.Run();
         ['`Scoped`', 'One instance shared per HTTP request and disposed at the end, which `DbContext` and unit-of-work state require.'],
         ['Captive dependency bug', 'Injecting a short-lived `Scoped` service inside a long-lived `Singleton`, pinning stale DB state forever.']
       ],
+      predict: {
+        prompt: 'You change `AddScoped<OrderService>()` to `AddSingleton<OrderService>()` while `AppDbContext` stays scoped. What happens when the app starts in Development?',
+        options: ['It works, but every request shares one `DbContext`', 'Startup fails: the container refuses a singleton that depends on a scoped service', 'Each request still gets a fresh `DbContext`, because EF Core re-scopes it'],
+        answer: 1,
+        explain: 'In Development, the host turns on `ValidateScopes` and `ValidateOnBuild`, so `builder.Build()` throws an `InvalidOperationException` explaining that it cannot consume scoped service `AppDbContext` from singleton `OrderService`. In Production those checks are off by default, so the captive dependency would silently share one non-thread-safe `DbContext` across every request. That is why the Development check is so valuable.'
+      },
       why: "DI wires the whole app together in ASP.NET Core. Picking the wrong lifetime causes stale data, race conditions on shared state, and the 'cannot consume scoped service from singleton' crash.",
       points: [
         "Classes ask for what they need in constructors, and the **container** builds and passes it in instead of classes calling `new` themselves.",
@@ -344,6 +368,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         ['Projection (`.Select(...)`)', 'Fetches only the DTO columns you need directly in SQL instead of loading entire entity graphs into memory.'],
         ['Migration', 'Versioned C# code (`dotnet ef migrations add`) keeping database schema evolution synced in Git.']
       ],
+      predict: {
+        prompt: 'In the discount endpoint, imagine loading the product with `db.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id, ct)` instead of `FindAsync`. After `product.Price *= 0.9m;` and `SaveChangesAsync`, what happens?',
+        options: ['The price is updated, exactly as before', "Nothing is saved: the entity isn't tracked, so `SaveChangesAsync` finds no changes and returns `0`", 'EF Core throws because a no-tracking entity was modified'],
+        answer: 1,
+        explain: '`SaveChangesAsync` only writes changes to entities the `DbContext` is tracking. `AsNoTracking()` hands back a detached object, so editing it changes memory only: no `UPDATE` is generated, no error is raised, and the call reports `0` rows affected. Use a tracked query, attach it with `db.Update(product)`, or write set-based with `ExecuteUpdateAsync`.'
+      },
       why: "EF Core bridges C#, LINQ, and SQL. Used thoughtfully, it cuts boilerplate, though using it blindly hides slow queries. Checking the generated SQL is the best habit you can build here.",
       points: [
         "A `DbContext` is a session with the database, where each `DbSet<T>` maps to a table and each entity maps to a row.",
@@ -441,6 +471,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         ['`AddValidation()`', 'Minimal API opt-in endpoint filter enforcing `[Required]`, `[Range]`, and `[MaxLength]` data annotations before your handler executes.'],
         ['RFC 9457 `ProblemDetails`', 'Standard machine-readable JSON error payload (`title`, `status`, `errors`) returned on validation errors or unhandled exceptions.']
       ],
+      predict: {
+        prompt: 'A client posts `{ "name": "Mouse", "price": -5 }` to `/api/products`. How far does the request get?',
+        options: ['The handler runs, then `SaveChangesAsync` fails and the client gets a `500`', 'Validation rejects it with a `400` before the handler body runs, so the database is never touched', 'It is saved, because `[Range]` only affects the OpenAPI document'],
+        answer: 1,
+        explain: '`AddValidation()` makes Minimal APIs validate parameters such as `CreateProductRequest` against their data annotations *before* the handler is invoked. `[Range(0.01, 100_000)]` fails, so the endpoint short-circuits with a `400` ValidationProblem that lists `Price` under `errors`. No `DbContext` call is made, which keeps bad input cheap to reject.'
+      },
       why: "An API is a contract with strangers. Checking every input and returning consistent, predictable errors keeps other developers able to integrate without guessing.",
       points: [
         "**Never trust input.** Validate right at the boundary and answer invalid bodies with `400 Bad Request` details.",
@@ -536,6 +572,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         ['Resource-based auth', 'Checking ownership (`order.UserId == callerId`) per record, returning `404` rather than revealing another user’s order exists.'],
         ['CORS policy', 'Server headers telling browsers which exact frontend origin (never `*` with credentials) may read responses cross-origin.']
       ],
+      predict: {
+        prompt: 'Budi signs in with a valid token (no `Admin` role) and calls `GET /api/orders/7`, an order that belongs to Ana. Which status does he get?',
+        options: ['`401 Unauthorized`', '`403 Forbidden`', '`404 Not Found`'],
+        answer: 2,
+        explain: 'Budi is authenticated, so `RequireAuthorization()` passes and `401` is ruled out. The endpoint needs no role, so there is no `403` either. The ownership check lives in the query (`o.UserId == userId`), so nothing is found and the handler returns `404`. That is deliberate: a `403` would confirm the order exists to someone probing ids.'
+      },
       why: "Security bugs are the most expensive ones to ship. Always know who is calling, how the server verifies them, and how each endpoint enforces permissions.",
       points: [
         "**Authentication** proves identity, and **authorization** enforces permissions. They are two separate steps with separate middleware.",
@@ -634,6 +676,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         ['Structured logging', 'Logging templates (`"Paid {OrderId} for {Total}"`) preserve searchable named fields in Seq/OpenTelemetry instead of plain text strings.'],
         ['User Secrets / Key Vault', 'Keeps DB passwords and API keys out of Git and `appsettings.json` per environment.']
       ],
+      predict: {
+        prompt: 'You deploy with no `Smtp:Host` anywhere in configuration. When does the problem surface?',
+        options: ['On the first `POST /users/{userId}/welcome`, when `options.Value` is read', 'At startup: `ValidateOnStart()` runs the `[Required]` check and the host refuses to start', 'Never: `Host` defaults to `""`, which satisfies `[Required]`'],
+        answer: 1,
+        explain: 'Without `ValidateOnStart()`, options are validated lazily on the first `.Value` access, so a broken deployment looks healthy until a user triggers the email. `ValidateOnStart()` validates while the host starts and throws an `OptionsValidationException`, failing the deploy immediately. `[Required]` rejects empty strings by default (`AllowEmptyStrings = false`), so `""` does not slip through.'
+      },
       why: "The same build runs on a laptop, in CI, and in production with different settings. When production misbehaves, logs are often all you have.",
       points: [
         "The **options pattern** binds config sections into typed classes: `IOptions<T>` reads once, `IOptionsSnapshot<T>` reloads per request, and `IOptionsMonitor<T>` reacts live.",

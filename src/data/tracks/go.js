@@ -12,6 +12,12 @@ export const track = {
         ['Zero value', 'Every declared variable starts with a predictable default (`0`, `""`, `false`, or `nil`). Types like `bytes.Buffer` and `sync.Mutex` work right away without calling a constructor.'],
         ['`rune` vs `byte`', 'Go strings hold immutable UTF-8 bytes, so `len(s)` counts bytes rather than characters. A `rune` (`int32`) holds one Unicode code point when iterating text.']
       ],
+      predict: {
+        prompt: 'With `cafe := "café"`, what do `len(cafe)` and `len([]rune(cafe))` print?',
+        options: ['`4` and `4`', '`5` and `4`', '`4` and `5`'],
+        answer: 1,
+        explain: 'A Go `string` is a read-only sequence of bytes (source literals are UTF-8), and `len` counts bytes. `é` (U+00E9) takes two bytes in UTF-8, so `len(cafe)` is `5`. Converting to `[]rune` decodes the code points, giving `4`. Indexing `cafe[3]` returns a single byte, not the character `é`, so use `for i, r := range cafe` when you need characters.'
+      },
       why: "Go keeps its core rules small. Every `.go` file belongs to a named package, exported identifiers start with an uppercase letter, and declared variables start at known zero values like `0` or `\"\"`. Once you know those three rules, standard-library code is easy to read.",
       points: [
         "Every `.go` file belongs to a `package`. An executable entry point is `package main` with `func main()`, while library packages export only symbols starting with an uppercase letter.",
@@ -149,6 +155,12 @@ func main() {
         ['Struct embedding', 'Listing a type without a field name (`Logger` inside `Server`) exposes its fields and methods on the outer struct without inheritance.'],
         ['`omitzero` tag (Go 1.24+)', 'The `json:"discount,omitzero"` tag drops any zero-valued field when encoding JSON, including structs and `time.Time` where `omitempty` often failed.']
       ],
+      predict: {
+        prompt: 'Suppose `AddItem` had a value receiver, `func (o OrderConfig) AddItem(name string)`, with the same body. What would `cfg.ItemsCount()` print after `cfg.AddItem("Mechanical Keyboard")`?',
+        options: ['`1`: methods always operate on the original struct', '`0`: the method appended to a copy of `cfg`', "A compile error: `append` isn't allowed inside a value receiver"],
+        answer: 1,
+        explain: 'A value receiver gets a copy of the struct. `append` stores the new slice header in `o.items` on that copy, and the copy is thrown away when the method returns, so `cfg.items` stays empty. A pointer receiver (`*OrderConfig`) works on the original, which is why mutating methods use one. Keep a single receiver kind per type for consistency.'
+      },
       why: "Go has no classes or inheritance. Instead, you group data into structs, choose value or pointer receivers for methods, compose types by embedding, and add struct tags for JSON or SQL.",
       points: [
         "Go passes arguments by value (a copy). Pass `&x` (`*T`) when a function needs to change the caller's struct or avoid copying a large value. Pointer arithmetic isn't allowed.",
@@ -311,6 +323,12 @@ func main() {
         ['Error wrapping (`%w`)', '`fmt.Errorf("loading order %s: %w", id, err)` adds caller context while keeping the original error inspectable further up the stack.'],
         ['`errors.AsType[T]` (Go 1.26+)', 'A generic, type-safe replacement for `var target T; errors.As(err, &target)` that pulls matching error structs without pre-declaring a variable.']
       ],
+      predict: {
+        prompt: 'If `reserveItem` wrapped with `%v` instead of `%w` (`fmt.Errorf("reserving item %q: %v", id, err)`), what would `errors.Is(err, ErrNotFound)` return for `"missing"`?',
+        options: ['`true`: the message still contains the text of `ErrNotFound`', '`false`: `%v` only formats text, so the link to `ErrNotFound` is lost', 'It panics, because `errors.Is` requires a wrapped error'],
+        answer: 1,
+        explain: 'With `%w`, `fmt.Errorf` returns an error whose `Unwrap()` points at the original, and `errors.Is` walks that chain comparing values. `%v` just copies the message into a new string: it prints identically, but `errors.Is` and `errors.AsType` can no longer find `ErrNotFound`. Never compare error strings; wrap with `%w` whenever callers need to branch on the cause.'
+      },
       why: "Go treats errors as ordinary return values instead of hidden exceptions unwinding the stack. Checking `err != nil` with early returns and wrapping context with `%w` shows you where and why an operation failed.",
       points: [
         "Check every error and return early (`if err != nil { return ..., fmt.Errorf(...: %w, err) }`). Don't discard errors with `_`, and avoid `else` after a return so normal code stays at the first indentation level.",
@@ -851,6 +869,12 @@ func main() {
         ['`defer cancel()`', 'Call `defer cancel()` right after every `context.WithTimeout`, `WithCancel`, or `WithDeadline` so timers detach as soon as the function returns.'],
         ['`context.WithoutCancel` (Go 1.21+)', 'Creates a child keeping request values and tracing while ignoring parent cancellation, useful for post-response audit or metrics writes.']
       ],
+      predict: {
+        prompt: '`reqCtx` has a `20 ms` timeout, `runQuery` needs `100 ms`, and `writeAudit` derives its context from `context.WithoutCancel(parent)`. What does `main` print?',
+        options: ['`handler: aborted query: context deadline exceeded`, then the audit line with `req-42`', 'Only the handler line: the audit is skipped because `reqCtx` already expired', '`handler: aborted query: context canceled`, then the audit line with `<nil>`'],
+        answer: 0,
+        explain: 'After `20 ms` the deadline fires, `ctx.Done()` wins the `select`, and `ctx.Err()` is `context.DeadlineExceeded`, whose message is `context deadline exceeded` (`context.Canceled` comes from calling `cancel()` yourself). `context.WithoutCancel` keeps every value of its parent, such as the request ID, but drops the deadline and cancellation, so the audit gets its own fresh `50 ms` budget and prints `req-42`.'
+      },
       why: "Slow clients disconnect and downstream calls stall. `context.Context` links an incoming HTTP request to every worker goroutine and SQL query below it so abandoned work stops instead of hogging threads and connections.",
       points: [
         "Pick the right context source: `r.Context()` in HTTP handlers, `t.Context()` in Go 1.24+ tests, `context.Background()` only at program entry points (`main`), and `context.TODO()` as a placeholder while wiring functions. Never pass `nil`.",
