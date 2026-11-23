@@ -19,12 +19,6 @@ body:not(.is-landing) #nav .nav-top .brand {
   view-transition-name: sm-brand;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  @view-transition {
-    navigation: auto;
-  }
-}
-
 .lp-root {
   --lp-display: "Bricolage Grotesque Variable", var(--sans);
   --lp-void: light-dark(#f2efe8, #070a10);
