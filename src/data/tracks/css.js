@@ -5,6 +5,7 @@ export const track = {
     // ---------------- Beginner ----------------
     {
       id: 'html', title: 'HTML essentials: structure and meaning', level: 0, mins: 30, lang: 'html',
+      splits: [["1 · Document & Nav","<!doctype html>"],["2 · Main & Product Card","<main>"],["3 · Form & Footer","<form action=\"/subscribe\""]],
       terms: [
         ['Semantic landmarks', 'Elements like `<header>`, `<nav>`, `<main>`, and `<article>` that tell screen readers how the page is structured.'],
         ['`<button>` vs `<a>`', 'Use `<a href="...">` to navigate between URLs, and use `<button type="button">` for actions right on the page.'],
@@ -74,6 +75,16 @@ export const track = {
     },
     {
       id: 'cascade', title: 'Selectors, the cascade and specificity', level: 0, mins: 30, viz: 'specificity',
+      predict: {
+        prompt: "An element `<a id=\"buy\" class=\"btn primary\">` matches `.btn.primary { color: green }`, `#buy { color: red }`, and `:where(#buy) { color: purple }` in that order. What color renders?",
+        options: [
+          "`purple` because `:where(#buy)` comes last in the stylesheet",
+          "`red` because `#buy` has specificity `(1,0,0)` while `:where(#buy)` contributes `(0,0,0)`",
+          "`green` because `.btn.primary` matches two classes",
+        ],
+        answer: 1,
+        explain: "`#buy` scores `(1,0,0)`, beating `.btn.primary` `(0,2,0)`. Even though `:where(#buy)` appears last, `:where()` always has `(0,0,0)` specificity so it cannot override `#buy`.",
+      },
       terms: [
         ['Specificity (`id`, `class`, `tag`)', 'Three-part score picking the winning rule when selectors clash (`#id` beats `.class`, which beats `a`).'],
         ['Source order', 'Tie-breaker when two matching rules share equal specificity. Whichever declaration appears later in the stylesheet wins.'],
@@ -133,6 +144,16 @@ body { font-family: system-ui, sans-serif; color: #1b2030; }
     },
     {
       id: 'box', title: 'The box model', level: 0, mins: 25, viz: 'boxmodel',
+      predict: {
+        prompt: "An `<h2>` with `margin-bottom: 24px` sits directly above a `<p>` with `margin-top: 32px` inside a plain `<div>`, then you switch the parent to `display: flex; flex-direction: column`. What is the vertical gap before vs after?",
+        options: [
+          "`56px` in both layouts",
+          "`32px` in the block `<div>` (margins collapse), then `56px` in the flex column (flex margins never collapse)",
+          "`24px` in the block `<div>`, then `32px` in the flex column",
+        ],
+        answer: 1,
+        explain: "In normal block flow, touching vertical margins collapse to the larger value (`32px`). Once the parent becomes a flex container, child margins stop collapsing and add together (`24px + 32px = 56px`).",
+      },
       terms: [
         ['`box-sizing: border-box`', 'Includes padding and border inside declared `width` rather than tacking them on top and causing overflow.'],
         ['Padding vs Margin', 'Padding creates inner breathing room inside backgrounds and borders, while margin pushes neighboring elements apart outside.'],
@@ -238,6 +259,17 @@ p  { max-width: 65ch; margin-block: 0 1rem; }
     // ---------------- Intermediate ----------------
     {
       id: 'flexbox', title: 'Flexbox: layout in one dimension', level: 1, mins: 35, viz: 'flexbox',
+      splits: [["1 · Navbar & Hero","/* Navbar:"],["2 · Sidebar & Wrapping Cards","/* Fixed sidebar,"]],
+      predict: {
+        prompt: "In a `display: flex` row, `.sidebar` is `flex: 0 0 240px` and `.content` is `flex: 1` (without `min-width: 0`) containing a wide `<pre>` block or long unbroken URL. What happens on a narrow screen?",
+        options: [
+          "`.content` shrinks smoothly to fit the remaining width and wraps the URL",
+          "`.content` refuses to shrink below its content width and overflows the flex row horizontally",
+          "`.sidebar` collapses to `0px` to make room",
+        ],
+        answer: 1,
+        explain: "Flex items default to `min-width: auto`, which floors their minimum width at their intrinsic content size. Adding `min-width: 0` on `.content` lets `flex: 1` actually shrink and scroll or wrap.",
+      },
       terms: [
         ['Main axis vs Cross axis', '`flex-direction: row` runs horizontally as the main axis (`justify-content`) and vertically as cross (`align-items`).'],
         ['`min-width: 0` / `min-inline-size: 0`', 'Overrides flex items’ default `min-width: auto` so long text or code wraps/truncates instead of bursting the row.'],
@@ -295,6 +327,16 @@ p  { max-width: 65ch; margin-block: 0 1rem; }
     },
     {
       id: 'grid', title: 'CSS Grid: layout in two dimensions', level: 1, mins: 35, viz: 'grid',
+      predict: {
+        prompt: "A two-column grid uses `grid-template-columns: 240px 1fr` on a `900px` container, and the second column contains a `1000px` wide `<table>`. Why does the page scroll sideways, and what fixes it?",
+        options: [
+          "`1fr` means `minmax(auto, 1fr)` so the track expands to fit the table; changing it to `minmax(0, 1fr)` lets it shrink",
+          "`240px` is too wide for a `900px` container; use `%` instead",
+          "CSS Grid always ignores `overflow: auto` on children",
+        ],
+        answer: 0,
+        explain: "A bare `1fr` track has an automatic minimum size (`minmax(auto, 1fr)`), so wide content pushes the track past the container. Switching to `minmax(0, 1fr)` caps the column at the remaining space so inner `overflow: auto` can scroll.",
+      },
       terms: [
         ['`fr` unit', 'Fraction of leftover track space inside a grid container after fixed and content-sized columns are placed.'],
         ['`repeat(auto-fit, minmax(min(260px, 100%), 1fr))`', 'Zero-media-query responsive grid wrapping cards automatically without overflowing narrow phones.'],
@@ -354,6 +396,7 @@ p  { max-width: 65ch; margin-block: 0 1rem; }
     },
     {
       id: 'responsive', title: 'Responsive design', level: 1, mins: 35,
+      splits: [["1 · Mobile-first & Media","/* Mobile first:"],["2 · Container Queries","/* Container query:"],["3 · Hover & Reduced Motion","/* Hover effects"]],
       terms: [
         ['Mobile-first `@media`', 'Start with single-column mobile styles as default and layer `min-width` rules upward as screens widen.'],
         ['Fluid `clamp(min, pref, max)`', 'Scales typography smoothly between viewport bounds with one line instead of stepped breakpoints.'],
@@ -415,6 +458,16 @@ img, video { max-width: 100%; height: auto; }
     // ---------------- Advanced ----------------
     {
       id: 'position', title: 'Positioning and stacking contexts', level: 2, mins: 30, viz: 'stacking',
+      predict: {
+        prompt: "A sticky `.header` has `z-index: 10`. Inside `.sidebar` (which has `transform: translateX(0)`), a modal has `position: fixed; inset: 0; z-index: 9999`. Where does the modal appear?",
+        options: [
+          "Full-screen above `.header` because `9999 > 10`",
+          "Trapped inside `.sidebar`'s box AND painted behind `.header`",
+          "Centered on the viewport, but behind `.header`",
+        ],
+        answer: 1,
+        explain: "`transform` on `.sidebar` creates both a new stacking context (trapping `z-index: 9999` inside `.sidebar`) and a new containing block (so `position: fixed` sizes against `.sidebar` instead of the viewport).",
+      },
       terms: [
         ['`relative` vs `absolute`', '`position: absolute` aligns itself against the nearest ancestor whose position is not `static` (usually `relative`).'],
         ['`position: sticky`', 'Scrolls with the page until hitting its `top` offset, then sticks. Breaks if any ancestor sets `overflow: hidden`.'],
@@ -468,6 +521,17 @@ img, video { max-width: 100%; height: auto; }
     },
     {
       id: 'modern', title: 'Custom properties, theming and modern CSS', level: 2, mins: 35,
+      splits: [["1 · Tokens & Theme Switch",":root {"],["2 · Component Nesting & :has()",".button {"]],
+      predict: {
+        prompt: "A user's OS is set to dark mode, and they click Light in your app (`<html data-theme=\"light\">`). Your CSS defines `:root { --bg: #fff; }` and `@media (prefers-color-scheme: dark) { :root { --bg: #0e1117; } }` without `:not([data-theme=\"light\"])`. What background renders?",
+        options: [
+          "`#fff` because `data-theme=\"light\"` automatically cancels OS media queries",
+          "`#0e1117` because the `@media` rule still matches and comes later in source order",
+          "Transparent because the two rules conflict",
+        ],
+        answer: 1,
+        explain: "A `data-theme` attribute does not disable `prefers-color-scheme: dark`. Because both selectors have equal specificity and the `@media` block appears later, dark tokens win unless guarded with `:root:not([data-theme=\"light\"])`.",
+      },
       terms: [
         ['CSS custom property (`--bg`)', 'A live inherited CSS variable evaluated in the browser at runtime. Flipping `data-theme="dark"` updates every theme color immediately.'],
         ['`:has()` parent selector', 'Styles a parent wrapper based on a child state (`label:has(input:invalid)`) using pure CSS.'],
@@ -605,6 +669,17 @@ body { background: var(--bg); color: var(--text); }
     },
     {
       id: 'twreact', title: 'Tailwind in React: components, variants and theming', level: 2, mins: 40, lang: 'tsx',
+      splits: [["1 · Setup & @theme CSS","// vite.config.ts:"],["2 · cn() & Variant Maps","import { clsx,"],["3 · Typed <Button> Component","interface ButtonProps"]],
+      predict: {
+        prompt: "`<Button>` renders `className={\"px-4 \" + className}` without `twMerge`, and a caller passes `<Button className=\"px-8\" />`. Which horizontal padding wins in CSS?",
+        options: [
+          "Always `px-8` because it comes later in the HTML `class` attribute",
+          "Whichever rule appears later in the generated CSS stylesheet, NOT the order in `className`",
+          "Both add together to `px-12`",
+        ],
+        answer: 1,
+        explain: "HTML class attribute order has zero effect on CSS cascade. Both `px-4` and `px-8` have specificity `(0,1,0)`, so stylesheet order decides—which is why `cn()` uses `tailwind-merge` to drop `px-4`.",
+      },
       terms: [
         ['Component abstraction', 'Reusing `<Button variant="danger">` components instead of `@apply` CSS classes keeps bundles small and typed.'],
         ['Explicit variant map', 'Mapping keys (`primary: "bg-indigo-600..."`) instead of concatenating strings so Tailwind finds every class at build time.'],
@@ -690,6 +765,17 @@ export function Button({ intent = "primary", size = "md", type = "button", class
     // ---------------- Expert ----------------
     {
       id: 'arch', title: 'CSS architecture and design systems', level: 3, mins: 40,
+      splits: [["1 · Layers, Reset & Tokens","/* Layer order"],["2 · Components & Utilities","@layer components {"],["3 · Unlayered Trap & @scope","/* Careful: a rule"]],
+      predict: {
+        prompt: "A stylesheet declares `@layer components, utilities;` with `.hidden { display: none }` inside `@layer utilities`, and an unlayered `.card { display: block }` at the top of the file. What happens to `<div class=\"card hidden\">`?",
+        options: [
+          "Hidden (`display: none`), because `@layer utilities` is the highest layer and appears later",
+          "Visible (`display: block`), because unlayered normal CSS beats every `@layer` regardless of source order",
+          "Hidden only if `.hidden` uses `#app .hidden`",
+        ],
+        answer: 1,
+        explain: "In CSS Cascade Layers, normal rules outside any `@layer` always outrank all layered rules—even if the unlayered rule appears earlier in the file. Always wrap custom CSS in a `@layer` when using Tailwind v4.",
+      },
       terms: [
         ['Semantic vs primitive tokens', 'Components reference `--surface` / `--accent` (semantic), never raw `--blue-500` (primitive), enabling painless theme changes.'],
         ['Style scoping (CSS Modules / Layers)', 'Prevents unintended cross-page leakage when multiple developers style components concurrently.'],

@@ -4,6 +4,16 @@ export const trackId = {
   tagline: 'Framework frontend lengkap: component, Signal, dependency injection, Signal Forms, HTTP, hingga SSR.',
   lessons: {
     components: {
+      predict: {
+        prompt: "Di template Angular, developer menulis `<button type=\"button\" (click)=\"() => toggle()\">Select</button>` bukannya `(click)=\"toggle()\"`. Apa yang terjadi saat tombol diklik user?",
+        options: [
+          "`toggle()` berjalan normal di setiap klik",
+          "Tidak terjadi apa-apa: Angular hanya mengevaluasi ekspresi menjadi objek arrow function baru tanpa memanggilnya",
+          "Angular menolak mengompilasi template tersebut",
+        ],
+        answer: 1,
+        explain: "Berbeda dari `onClick={() => toggle()}` di React, event binding Angular langsung mengeksekusi pernyataan template saat event muncul. Membungkusnya dengan `() =>` hanya membuat lalu membuang fungsi di tiap klik.",
+      },
       title: 'Component, template, dan binding',
       why: 'Setiap halaman Angular tersusun dari potongan UI kecil bernama component. Begitu paham cara class TypeScript menyimpan data lalu template HTML menampilkannya dan merespons aksi user, framework ini langsung masuk akal.',
       terms: [
@@ -48,6 +58,16 @@ export const trackId = {
       ]
     },
     flow: {
+      predict: {
+        prompt: "Daftar input memakai `@for (p of products; track $index)` lalu user mengetik catatan di item `A` pada indeks `0`. Kemudian item baru `X` disisipkan di depan (indeks `0`). Di mana catatan itu tampil?",
+        options: [
+          "Ikut turun bersama item `A` ke indeks `1`",
+          "Tetap menempel di indeks `0` pada baris milik item baru `X`",
+          "Angular otomatis mengosongkan semua input saat array disisipi di depan",
+        ],
+        answer: 1,
+        explain: "Dengan `track $index`, Angular memakai ulang baris DOM `0` untuk item apa pun yang kini di indeks `0` (`X`), sehingga isi `<input>` lama menempel di baris yang salah. Memakai `track p.id` memindahkan baris DOM mengikuti `A`.",
+      },
       title: 'Control flow, pipe, dan slot konten',
       why: 'HTML biasa tidak bisa mengulang array, mengganti tabel dengan spinner loading, atau memformat `240` menjadi `$240.00`. Angular menambahkan blok template `@if`, `@for`, dan `@switch`, operator pemformatan bernama pipe, serta slot `<ng-content />` agar template tetap ekspresif namun mudah dibaca.',
       terms: [
@@ -184,6 +204,16 @@ export const trackId = {
       ]
     },
     di: {
+      predict: {
+        prompt: "Dua `<app-editor-panel />` bersaudara sama-sama meng-inject `CartStore` (`@Service()`) dan `DraftBuffer` (didaftarkan di `providers: [DraftBuffer]` milik `EditorPanel`). Panel 1 memanggil `cart.add(\"Mug\")` dan `localDraft.notes.set(\"VIP\")`. Apa yang dilihat Panel 2?",
+        options: [
+          "Panel 2 melihat `\"Mug\"` sekaligus `\"VIP\"`",
+          "Panel 2 melihat `\"Mug\"` di `cart`, tapi `\"\"` (kosong) di `localDraft`-nya sendiri",
+          "Panel 2 tidak melihat keduanya karena component bersaudara tidak pernah berbagi service",
+        ],
+        answer: 1,
+        explain: "`CartStore` adalah singleton root yang dibagi lewat `EnvironmentInjector` aplikasi sehingga kedua panel melihat `\"Mug\"`. `DraftBuffer` didaftarkan di `ElementInjector` milik `EditorPanel`, memberi tiap panel instance terpisah.",
+      },
       title: 'Service dan dependency injection',
       why: 'Component fokus ke tampilan, sementara state bersama seperti keranjang belanja atau sesi login serta helper API ditaruh di **service**. Dengan **Dependency Injection (DI)** Angular, component mana saja bisa meminta service bersama tanpa memanggil `new CartStore()` manual, sekaligus memudahkan tes menggantinya dengan objek tiruan.',
       terms: [
@@ -318,6 +348,16 @@ export const trackId = {
     },
     // ---------------- Advanced ----------------
     rxjs: {
+      predict: {
+        prompt: "Request `40 ms` dipicu oleh `\"first\"` di `t = 0 ms` lalu `\"second\"` di `t = 10 ms`. Apa yang dipancarkan `triggers$.pipe(switchMap(req))` dibanding `triggers$.pipe(exhaustMap(req))`?",
+        options: [
+          "Keduanya memancarkan `[\"first\", \"second\"]`",
+          "`switchMap` hanya memancarkan `[\"second\"]` (membatalkan `\"first\"`), sedangkan `exhaustMap` hanya memancarkan `[\"first\"]` (mengabaikan `\"second\"`)",
+          "`switchMap` memancarkan `[\"first\"]`, sedangkan `exhaustMap` memancarkan `[\"second\"]`",
+        ],
+        answer: 1,
+        explain: "`switchMap` berhenti mendengarkan observable `\"first\"` yang sedang jalan saat `\"second\"` datang sehingga hanya `\"second\"` selesai. `exhaustMap` membuang `\"second\"` selama `\"first\"` masih sibuk, sehingga hanya `\"first\"` yang keluar.",
+      },
       title: 'Stream event asinkron: RxJS dan interop Signal',
       why: 'Signal cocok menyimpan *nilai terkini* seperti jumlah barang, total harga, atau status buka/tutup. **RxJS** cocok mengatur **event berurutan seiring waktu**, seperti menunggu 300 ms setelah user berhenti mengetik, membatalkan pencarian usang, atau menolak klik ganda di tombol Bayar. Memahami stream `Observable` juga membantu kamu memahami `HttpClient` dan event router di Angular.',
       terms: [
@@ -363,6 +403,16 @@ export const trackId = {
       ]
     },
     http: {
+      predict: {
+        prompt: "Di dalam handler klik, kamu menulis `this.http.post(\"/api/products\", payload);` tanpa `.subscribe()` maupun `await firstValueFrom(...)`. Apa yang muncul di tab Network browser?",
+        options: [
+          "Satu request `POST /api/products` dengan respons yang diabaikan",
+          "Nol request jaringan: `HttpClient` mengembalikan cold `Observable` yang tidak berjalan sebelum di-subscribe",
+          "Error runtime sinkron dari TypeScript",
+        ],
+        answer: 1,
+        explain: "`HttpClient` Angular menghasilkan cold Observable—memanggil `.post()` cuma menyusun rencananya. Tidak ada request keluar browser sampai kamu subscribe atau mengubahnya lewat `await firstValueFrom(...)`.",
+      },
       title: 'HTTP, httpResource, dan berkomunikasi dengan ASP.NET Core',
       splits: ['1 · Mapper ApiError', '2 · Interceptor', '3 · Component + loader'],
       why: 'Di bagian ini Angular tersambung ke backend ASP.NET Core dan database kamu. Kamu memakai **`httpResource`** untuk memuat data `GET` reaktif, serta **`HttpClient`** (lengkap dengan interceptor dan proteksi XSRF bawaan) untuk operasi tulis dan error `ProblemDetails` terstruktur.',
@@ -408,6 +458,7 @@ export const trackId = {
       ]
     },
     guards: {
+      splits: ["1 · AuthSession & Guard","2 · Resolver & @boundary","3 · Rute Terlindungi"],
       title: 'Route guard, resolver, dan pemulihan @boundary',
       why: 'Aplikasi produksi menjaga user tak berizin agar tidak masuk ke layar privat, memuat data kecil sebelum halaman buka, dan mengisolasi widget bermasalah supaya satu grafik error tidak membuat seluruh halaman blank. Ingat: pengecekan route di browser cuma mengatur alur tampilan, kontrol akses asli tetap ditegakkan API ASP.NET Core.',
       terms: [
@@ -495,6 +546,16 @@ export const trackId = {
     },
     // ---------------- Expert ----------------
     cd: {
+      predict: {
+        prompt: "Parent menyimpan `items` lalu menjalankan `items.push(newProduct)` langsung di tempat dengan referensi array yang sama, lalu mengirimnya ke child `OnPush` (`<app-catalog-view [items]=\"items\" />`). Apa yang terjadi?",
+        options: [
+          "Child langsung diperbarui karena `items.length` bertambah",
+          "Child `OnPush` melewatkan update karena `Object.is(prevItems, nextItems)` masih bernilai `true`",
+          "Angular melempar error immutability saat `.push()` dipanggil",
+        ],
+        answer: 1,
+        explain: "`OnPush` mengecek perubahan input lewat identitas referensi (`Object.is`), bukan isi array secara mendalam. Membuat array baru (`items.update(list => [...list, newProduct])`) memberi referensi baru agar Angular menyegarkan child.",
+      },
       title: 'Change detection dan performa rendering',
       why: '**Change detection** adalah cara Angular membandingkan state aplikasi ke template lalu memperbarui DOM. Melihat pergeseran Angular dari pemindaian atas-ke-bawah Zone.js (`Eager`) ke `OnPush` dan **update Signal zoneless** menjelaskan mengapa aplikasi modern tetap ringan dan bug apa yang masih boros render.',
       terms: [
@@ -539,6 +600,17 @@ export const trackId = {
       ]
     },
     ssr: {
+      splits: ["1 · @defer & ProductScreen","2 · ServerRoutes & Hydration"],
+      predict: {
+        prompt: "Kamu menaruh `<app-product-reviews />` di dalam `@defer (on viewport)` agar dimuat lazy, lalu di class component yang sama kamu juga menulis `private readonly reviews = viewChild(ProductReviews);`. Apa pengaruhnya ke bundle JS?",
+        options: [
+          "`ProductReviews` tetap terpisah di chunk lazy dan `viewChild` terisi setelah dimuat",
+          "`ProductReviews` ditarik kembali ke bundle utama karena merujuk class-nya di luar `@defer` menciptakan import eager",
+          "Angular menggagalkan build dengan error",
+        ],
+        answer: 1,
+        explain: "Agar `@defer` memecah ke chunk lazy terpisah, component hanya boleh dirujuk di dalam blok template `@defer`. Merujuk `ProductReviews` di TypeScript (`viewChild(ProductReviews)`) menahannya di bundle utama.",
+      },
       title: 'Deferrable view (@defer), SSR, dan hybrid rendering',
       why: 'Loading halaman awal yang cepat menggabungkan dua teknik: memecah UI sekunder ke chunk **`@defer`** yang baru dimuat saat perlu, serta memilih per route apakah HTML dibuat di browser (**CSR**), saat build (**Prerender / SSG**), atau per request di server Node (**SSR**). **Hydration** lalu mengaktifkan halaman itu tanpa menggambar ulang DOM dari nol.',
       terms: [

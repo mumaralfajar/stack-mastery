@@ -4,6 +4,16 @@ export const trackId = {
   tagline: 'Aplikasi mobile-nya: bahasa Dart, widget, state dengan Bloc, testing, sampai rilis ke HP sungguhan.',
   lessons: {
   dart: {
+    predict: {
+      prompt: "Apa yang terjadi saat Dart mengompilasi `const now = DateTime.now();` bersama `final half = 7 / 2;`?",
+      options: [
+        "Keduanya lolos kompilasi, dan `half` bertipe `int` `3`",
+        "`const now = DateTime.now()` gagal saat compile time (bukan ekspresi konstan), sedangkan `half` lolos sebagai `double` `3.5`",
+        "Keduanya gagal karena `final` tidak bisa menyimpan hasil pembagian",
+      ],
+      answer: 1,
+      explain: "Nilai `const` harus sudah diketahui saat compile time, jadi `DateTime.now()` wajib memakai `final`. Sementara itu, operator `/` di Dart selalu menghasilkan `double` (`3.5`); gunakan `~/` untuk pembagian bulat (`3`).",
+    },
     terms: [
       ['Sound null safety (`String` vs `String?`)', 'Tipe non-nullable menjamin nilainya ada. Tipe nullable (`String?`) mewajibkanmu menangani kasus `null` (`??`, `?.`) sebelum dipakai.'],
       ['`final` vs `const`', '`final` diisi sekali saat run time, sedangkan `const` dikunci sejak compile time supaya Flutter bisa memakai ulang instance widget.'],
@@ -34,6 +44,16 @@ export const trackId = {
     ]
   },
   dartoop: {
+    predict: {
+      prompt: "Class `class Tag { const Tag(this.name); final String name; }` TIDAK meng-override `==`. Apa hasil `Tag(\"a\") == Tag(\"a\")` dan `const Tag(\"a\") == const Tag(\"a\")`?",
+      options: [
+        "Keduanya bernilai `true`",
+        "`false` untuk `Tag(\"a\") == Tag(\"a\")`, dan `true` untuk `const Tag(\"a\") == const Tag(\"a\")`",
+        "Keduanya bernilai `false`",
+      ],
+      answer: 1,
+      explain: "Tanpa override `==`, Dart membandingkan identitas referensi. Dua panggilan non-`const` `Tag(\"a\")` membuat dua instance terpisah (`false`), sedangkan ekspresi `const` yang sama dikanonisasi menjadi satu instance tunggal (`true`).",
+    },
     terms: [
       ['Constructor initializer & `required`', 'Membentuk object yang valid dalam satu baris (`const Product({required this.id, required this.name})`).'],
       ['Collection `if` / `for` & Spread (`...`)', 'Menyusun daftar widget bersyarat langsung di dalam `[ ... ]` ketimbang memanggil `.add()` satu per satu.'],
@@ -94,6 +114,16 @@ export const trackId = {
     ]
   },
   layout: {
+    predict: {
+      prompt: "Kamu menaruh `ListView` langsung di dalam `Column(children: [Text(\"Shop\"), ListView(...)])` tanpa membungkus `ListView` dengan `Expanded`. Apa yang terjadi saat runtime?",
+      options: [
+        "`ListView` otomatis mengisi sisa tinggi layar di bawah `\"Shop\"`",
+        "Flutter melempar error layout: `Vertical viewport was given unbounded height`",
+        "`ListView` mengecil ke `0px` diam-diam tanpa error",
+      ],
+      answer: 1,
+      explain: "`Column` mengirim batas tinggi tak terhingga (`∞`) ke child non-flex, sementara `ListView` ingin melebar setinggi mungkin—kombinasi yang mustahil. Membungkus `ListView` dengan `Expanded` memberinya batas tinggi yang pasti.",
+    },
     terms: [
       ['Constraints go down, sizes go up', 'Parent menurunkan batas min/maks, child memilih ukuran yang pas di rentang itu, lalu parent menentukan koordinat x/y akhir child.'],
       ['Batasan tak terhingga (`∞`)', 'Terjadi pada sumbu scrollable atau child `Row`/`Column` polos; menaruh `Expanded` atau `ListView` tak terbatas memicu error overflow.'],
@@ -125,6 +155,16 @@ export const trackId = {
     ]
   },
   async: {
+    predict: {
+      prompt: "Di `main()`, kamu menjalankan `print(\"1\")`, `Timer.run(() => print(\"4\"))`, `scheduleMicrotask(() => print(\"3\"))`, lalu `print(\"2\")`. Apa urutan yang tercetak?",
+      options: [
+        "`1, 4, 3, 2`",
+        "`1, 2, 3, 4` (sinkron selesai, lalu antrean microtask dikuras sebelum event)",
+        "`1, 2, 4, 3` (timer berjalan lebih dulu dari microtask)",
+      ],
+      answer: 1,
+      explain: "Event loop satu thread milik Dart menyelesaikan kode sinkron (`1`, `2`), menguras seluruh antrean microtask (`3`), barulah mengambil event berikutnya dari event queue (`4`).",
+    },
     terms: [
       ['`Future<T>` & `async`/`await`', 'Mewakili satu nilai atau error asinkron yang datang nanti tanpa memacetkan UI isolate 60/120 fps Flutter.'],
       ['`Stream<T>`', 'Memancarkan nol atau banyak nilai dari waktu ke waktu (pesan WebSocket, posisi scroll, state Bloc) sampai dihentikan.'],
@@ -156,6 +196,16 @@ export const trackId = {
     ]
   },
   state: {
+    predict: {
+      prompt: "Method async di `State` menjalankan `final data = await api.load(); setState(() => _data = data);` tanpa mengecek `if (!mounted) return;`, lalu user menekan Back sebelum `api.load()` selesai. Apa yang terjadi saat `Future` selesai?",
+      options: [
+        "Flutter diam-diam mengabaikan `setState` pada widget yang sudah di-dispose",
+        "Flutter melempar error (`setState() called after dispose()`)",
+        "Layar yang sudah ditutup otomatis terbuka lagi dengan data baru",
+      ],
+      answer: 1,
+      explain: "Keluar dari layar menghancurkan object `State`, tapi `Future` yang sedang berjalan tetap selesai belakangan. Selalu lindungi pemakaian `setState` dan `context` sesudah `await` dengan `if (!mounted) return;`.",
+    },
     terms: [
       ['Pemeriksaan `mounted`', 'Mencegah pemanggilan `setState()` sesudah widget meninggalkan layar saat `Future` baru selesai belakangan.'],
       ['`initState()` & `dispose()`', 'Setup satu kali waktu mount (controller dan listener) berpasangan dengan pembersihan (`controller.dispose()`) saat widget dicopot permanen.'],
@@ -186,6 +236,16 @@ export const trackId = {
     ]
   },
   navforms: {
+    predict: {
+      prompt: "Di `GoRouter`, `/products/:id` dideklarasikan sejajar di level teratas bersama `/` (bukan di dalam `routes: [...]` milik `/`). Dari Home, kamu memanggil `context.go(\"/products/42\")`. Apa yang terjadi pada stack navigasi?",
+      options: [
+        "Home tetap di bawah sehingga `ProductPage` menampilkan tombol Back",
+        "`ProductPage` menggantikan stack sendirian tanpa Home di bawahnya dan tanpa tombol Back",
+        "`go_router` menolak navigasi dan melempar error route",
+      ],
+      answer: 1,
+      explain: "`context.go()` menyusun stack langsung dari struktur hierarki route. Hanya dengan menaruh `products/:id` bersarang di bawah `/` barulah `HomePage` ikut berada di bawah `ProductPage` saat memakai `go()`.",
+    },
     splits: ['1 · Setup GoRouter', '2 · Halaman Home & Product', '3 · Form NewProductPage'],
     terms: [
       ['Routing deklaratif (`GoRouter`)', 'Memetakan path URL (`/products/:id`) ke tumpukan layar lengkap dengan deep link browser dan parameter bertipe.'],
@@ -254,6 +314,16 @@ export const trackId = {
     ]
   },
   bloc: {
+    predict: {
+      prompt: "Di dalam `CartBloc`, handler menjalankan `state.add(event.name); emit(state);` bukan `emit([...state, event.name])`. Apa yang terjadi pada `BlocBuilder`?",
+      options: [
+        "`BlocBuilder` langsung rebuild menampilkan item baru",
+        "Tidak ada yang rebuild karena `state == nextState` bernilai `true` (referensi sama), jadi Bloc melewati emisi tersebut",
+        "Bloc melempar `ConcurrentModificationError`",
+      ],
+      answer: 1,
+      explain: "Bloc membandingkan state yang baru di-emit dengan state saat ini memakai `==`. Mengubah list yang sama di tempat membuat `identical(prev, next)` bernilai `true`, sehingga Bloc menahan pembaruan. Selalu emit list atau state immutable baru.",
+    },
     splits: ['1 · ProductsState sealed', '2 · ProductsCubit', '3 · Event CartBloc', '4 · UI ProductsPage'],
     terms: [
       ['`Cubit` vs `Bloc`', '`Cubit` memaparkan method sederhana (`load()`); `Bloc` memakai stream `Event` untuk debounce, pembatalan, dan jejak audit.'],
