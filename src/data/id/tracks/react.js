@@ -35,6 +35,16 @@ export const trackId = {
     ]
   },
   ts: {
+    predict: {
+      prompt: "Diketahui `type Result<T> = { ok: true; data: T } | { ok: false; error: string }`, lalu kamu menulis `function show(r: Result<Product>) { console.log(r.data.name); }` tanpa mengecek `if (r.ok)`. Apa yang terjadi?",
+      options: [
+        "Lolos kompilasi dan mencetak `undefined` saat runtime bila `ok` bernilai `false`",
+        "Error kompilasi TypeScript: `Property \"data\" does not exist on type \"{ ok: false; error: string }\"`",
+        "TypeScript otomatis menyisipkan pengecekan `if (r.ok)` saat runtime",
+      ],
+      answer: 1,
+      explain: "Sebelum narrowing lewat penanda `r.ok`, `r` bisa saja cabang error yang tidak punya `data`. Mengecek `if (r.ok)` mempersempit `r` menjadi `{ ok: true; data: Product }` di dalam blok tersebut.",
+    },
     terms: [
       ['Discriminated union', 'Bentuk object berbeda yang berbagi penanda literal (`ok: true` dengan `data: T`, atau `ok: false` dengan `error: string`) sehingga otomatis menyempit di blok `if`.'],
       ['Type narrowing', 'TypeScript melacak pengecekan seperti `typeof x === "string"`, `in`, dan `switch` agar tahu sub-tipe persisnya di tiap cabang.'],
@@ -65,6 +75,16 @@ export const trackId = {
     ]
   },
   components: {
+    predict: {
+      prompt: "Sebuah komponen merender `{products.length && <ProductList items={products} />}` saat `products` bernilai `[]`. Apa yang benar-benar tampil di DOM?",
+      options: [
+        "Tidak ada apa-apa (DOM kosong)",
+        "Angka `0` tercetak sebagai teks di halaman",
+        "Error runtime karena `&&` mewajibkan boolean",
+      ],
+      answer: 1,
+      explain: "Di JavaScript, `0 && <ProductList />` menghasilkan `0`, dan React merender angka `0` ke DOM (berbeda dengan `false`, `null`, atau `undefined`). Tulis `products.length > 0 && ...` sebagai gantinya.",
+    },
     terms: [
       ['Ekspresi JSX', 'Sintaks JavaScript seperti `<Card price={p.price} />` yang dikompilasi menjadi pemanggilan fungsi `jsx(...)`, bukan parser template terpisah.'],
       ['Props (satu arah ke bawah)', 'Input read-only dari parent ke child. Mengubah tampilan di child tidak pernah mengubah props milik parent langsung.'],
@@ -131,6 +151,16 @@ export const trackId = {
     ]
   },
   state: {
+    predict: {
+      prompt: "Saat `count` bernilai `0`, satu handler klik memanggil `setCount(count + 1); setCount(count + 1); setCount(c => c + 1);`. Berapa nilai `count` di render berikutnya?",
+      options: [
+        "`1` (React mengabaikan panggilan `setCount` berulang di satu handler)",
+        "`2` (kedua `count + 1` mengantrekan `1`, lalu `c => c + 1` menambah `1` ke `1`)",
+        "`3` (ketiga penambahan terjumlahkan)",
+      ],
+      answer: 1,
+      explain: "Di dalam satu render, `count` terkunci di `0`, sehingga kedua `setCount(count + 1)` sama-sama menyetel antrean ke `1`. Updater fungsi `c => c + 1` lalu menerima angka `1` tersebut dan mengembalikan `2`.",
+    },
     terms: [
       ['Snapshot render', 'State seperti `count` tetap konstan selama satu giliran render. Memberi updater `c => c + 1` membaca antrean state terbaru dengan aman.'],
       ['Update state immutable', 'Membuat array atau object baru (`setItems([...items, x])`) agar `Object.is(prev, next)` melihat referensi berubah lalu memicu render.'],
@@ -197,6 +227,7 @@ export const trackId = {
     ]
   },
   forms: {
+    splits: ["1 · ProductForm & useActionState","2 · Catalog (State Diangkat)"],
     terms: [
       ['Controlled input', 'Elemen `<input value={val} onChange={...} />` yang dikendalikan state React daripada baru membaca isi DOM saat submit.'],
       ['Lifting state up', 'Memindah state bersama ke parent bersama terdekat agar dua komponen bersaudara tetap sinkron lewat props.'],
@@ -259,6 +290,17 @@ export const trackId = {
     ]
   },
   hooks: {
+    splits: ["1 · Hook useDebounced","2 · cartReducer Bertipe","3 · CartContext & Provider"],
+    predict: {
+      prompt: "Komponen `<Header />` dan `<Sidebar />` sama-sama memanggil `useDebounced(query, 300)` dari modul yang sama. Saat `<Header />` mengubah input-nya, apa yang terjadi pada state debounce milik `<Sidebar />`?",
+      options: [
+        "`<Sidebar />` ikut ter-update karena keduanya memanggil custom hook yang sama",
+        "`<Sidebar />` tidak terpengaruh karena tiap pemanggil komponen mendapat state hook terpisah",
+        "React melempar error karena satu custom hook dipanggil di dua komponen",
+      ],
+      answer: 1,
+      explain: "Custom hook hanya berbagi *logika* stateful, bukan state-nya. Setiap pemanggilan `useDebounced()` mendaftarkan slot `useState` dan `useEffect` sendiri di Fiber masing-masing komponen.",
+    },
     terms: [
       ['Custom hook (`useX`)', 'Fungsi TypeScript biasa berisi logika hook stateful agar komponen lain bisa memakainya ulang tanpa elemen pembungkus tambahan.'],
       ['`useReducer`', 'Mengumpulkan transisi state kompleks ke satu fungsi `switch (action.type)` di luar JSX komponen.'],
@@ -290,6 +332,16 @@ export const trackId = {
     ]
   },
   perf: {
+    predict: {
+      prompt: "Tanpa React Compiler, `<ProductRow>` dibungkus `memo`, lalu `<Catalog>` merender `<ProductRow key={r.id} row={r} onSelect={(id) => setSelected(id)} />`. Saat user mengetik di kotak cari, apakah baris yang tidak berubah melewati re-render?",
+      options: [
+        "Ya, karena `r` masih object yang sama dan `memo` mengabaikan prop fungsi",
+        "Tidak, karena `(id) => setSelected(id)` membuat referensi fungsi baru di setiap render `<Catalog>`",
+        "Hanya baris pertama yang re-render",
+      ],
+      answer: 1,
+      explain: "`memo` membandingkan setiap prop dengan `Object.is`. Arrow function inline selalu menghasilkan referensi baru di tiap render parent (`prevOnSelect !== nextOnSelect`), mematahkan `memo` kecuali distabilkan lewat `useCallback` (atau React Compiler).",
+    },
     terms: [
       ['`React.memo`', 'Melewati re-render child saat semua props cocok di permukaan lewat `Object.is`. Object atau fungsi inline baru bakal menggagalkannya kecuali distabilkan.'],
       ['`useCallback` & `useMemo`', 'Menahan referensi fungsi atau object antar render, cukup dipakai bila profiling membuktikan child atau kalkulasi berat memang butuh.'],
@@ -388,6 +440,16 @@ export const trackId = {
     ]
   },
   internals: {
+    predict: {
+      prompt: "Parent merender `{isAdmin ? <EditForm user={admin} /> : <EditForm user={guest} />}` tanpa prop `key`. Saat `isAdmin` berubah dari `true` ke `false`, apa yang terjadi pada teks draf di dalam `useState` milik `EditForm`?",
+      options: [
+        "Otomatis ter-reset kosong karena berada di cabang ternary berbeda",
+        "Tetap bertahan membawa draf lama milik admin karena tipe komponen yang sama berada di posisi tree yang sama",
+        "React memunculkan peringatan rekonsiliasi",
+      ],
+      answer: 1,
+      explain: "React mencocokkan berdasarkan posisi tree, tipe elemen, dan `key`—bukan cabang `?:` mana yang mengembalikan JSX. Posisi dan tipe `EditForm` yang sama membuat state Fiber lama tetap dipakai kecuali diberi `key={user.id}`.",
+    },
     terms: [
       ['Pohon Fiber (unit kerja)', 'Struktur pohon internal React penyimpan state dan hook agar proses render bisa dijeda, dilanjutkan, atau dibatalkan sesuai prioritas.'],
       ['Rekonsiliasi (render vs commit)', 'Render menghitung selisih UI di JavaScript. Commit menerapkan perubahan DOM minimal sekaligus agar layar tak tampil setengah jadi.'],
@@ -418,6 +480,7 @@ export const trackId = {
     ]
   },
   arch: {
+    splits: ["1 · Setup Server MSW","2 · Helper Query & Uji User"],
     terms: [
       ['Test berorientasi pengguna (`render` + `userEvent`)', 'Menguji komponen dari sisi pengguna lewat role dan label (`getByRole("button")`) ketimbang mengintip state internal komponen.'],
       ['Mocking API (`MSW`)', 'Mencegat `fetch` di batas jaringan supaya test menjalankan serialisasi, validasi, dan status error HTTP sungguhan.'],

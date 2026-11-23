@@ -7,6 +7,16 @@ export const track = {
     // ---------------- Beginner ----------------
     {
       id: 'components', title: 'Components, templates and bindings', level: 0, mins: 35,
+      predict: {
+        prompt: "In an Angular template, a developer writes `<button type=\"button\" (click)=\"() => toggle()\">Select</button>` instead of `(click)=\"toggle()\"`. What happens when the user clicks the button?",
+        options: [
+          "`toggle()` runs normally on every click",
+          "Nothing happens: Angular evaluates the expression to a new arrow function object without invoking it",
+          "Angular refuses to compile the template",
+        ],
+        answer: 1,
+        explain: "Unlike React `onClick={() => toggle()}`, Angular event bindings execute the template statement directly when the event fires. Wrapping it in `() =>` just creates and discards a function on each click.",
+      },
       why: "Every Angular screen is a tree of small UI components. Each component pairs a TypeScript class holding data and methods with an HTML template that renders and updates the page.",
       terms: [
         ['Component', 'A reusable UI unit pairing a TypeScript class (state and event handlers) with an HTML template.'],
@@ -90,6 +100,16 @@ export { bootstrapApplication };
     },
     {
       id: 'flow', title: 'Control flow, pipes and content slots', level: 0, mins: 35,
+      predict: {
+        prompt: "A list of inputs uses `@for (p of products; track $index)` and the user types a note into item `A` at index `0`. Then a new item `X` is prepended at index `0`. Where does the typed note appear?",
+        options: [
+          "It moves down with item `A` to index `1`",
+          "It stays stuck on index `0` inside the new item `X`'s row",
+          "Angular clears every input automatically on array prepend",
+        ],
+        answer: 1,
+        explain: "With `track $index`, Angular reuses DOM row `0` for whichever item now sits at index `0` (`X`), keeping the old `<input>` DOM value on the wrong row. Using `track p.id` moves the existing DOM row alongside `A`.",
+      },
       why: "Plain HTML can't loop over arrays, switch to a loading spinner, or format `240` as `$240.00`. Angular adds built-in blocks (`@if`, `@for`, `@switch`), formatting filters called pipes, and wrapper slots (`<ng-content />`) to keep templates readable.",
       terms: [
         ['Control flow', 'Template blocks (`@if`, `@for`, `@switch`) that conditionally show, repeat, or branch HTML markup.'],
@@ -383,6 +403,16 @@ export class ProductPage {
     },
     {
       id: 'di', title: 'Services and dependency injection', level: 1, mins: 35,
+      predict: {
+        prompt: "Two sibling `<app-editor-panel />` components both inject `CartStore` (`@Service()`) and `DraftBuffer` (listed in `EditorPanel`'s `providers: [DraftBuffer]`). Panel 1 calls `cart.add(\"Mug\")` and `localDraft.notes.set(\"VIP\")`. What does Panel 2 see?",
+        options: [
+          "Panel 2 sees both `\"Mug\"` and `\"VIP\"`",
+          "Panel 2 sees `\"Mug\"` in `cart`, but `\"\"` (empty) in its own `localDraft`",
+          "Panel 2 sees neither because sibling components never share services",
+        ],
+        answer: 1,
+        explain: "`CartStore` is a root singleton shared via the app `EnvironmentInjector`, so both panels see `\"Mug\"`. `DraftBuffer` is provided on `EditorPanel`'s `ElementInjector`, giving each panel its own separate instance.",
+      },
       why: "Components handle the UI, while shared state (like a cart or auth session) and API helpers belong in **services**. Angular's **Dependency Injection (DI)** hands out shared services without calling `new CartStore()` by hand, and lets tests swap in fakes.",
       terms: [
         ['Service (`@Service()`)', 'A plain TypeScript class that holds shared state or logic reused across components.'],
@@ -644,6 +674,16 @@ export class ProductForm {
     // ---------------- Advanced ----------------
     {
       id: 'rxjs', title: 'Async event streams: RxJS and Signals interop', level: 2, mins: 40, viz: 'ngrxjs',
+      predict: {
+        prompt: "A `40 ms` request runs on triggers `\"first\"` at `t = 0 ms` and `\"second\"` at `t = 10 ms`. What does `triggers$.pipe(switchMap(req))` emit vs `triggers$.pipe(exhaustMap(req))`?",
+        options: [
+          "Both emit `[\"first\", \"second\"]`",
+          "`switchMap` emits only `[\"second\"]` (cancels `\"first\"`), while `exhaustMap` emits only `[\"first\"]` (ignores `\"second\"`)",
+          "`switchMap` emits `[\"first\"]`, while `exhaustMap` emits `[\"second\"]`",
+        ],
+        answer: 1,
+        explain: "`switchMap` unsubscribes from the in-flight `\"first\"` observable when `\"second\"` arrives, so only `\"second\"` completes. `exhaustMap` drops `\"second\"` while `\"first\"` is still busy, so only `\"first\"` emits.",
+      },
       why: "Signals hold *current values right now* like quantities, totals, or open state. **RxJS** coordinates **events over time**, such as waiting 300 ms after typing stops, cancelling stale searches, or blocking double-clicks on Pay. Learning `Observable` streams also demystifies Angular's `HttpClient` and router events.",
       terms: [
         ['`Observable`', 'A lazy stream of zero, one, or many values over time. A **cold** Observable stays idle until `.subscribe()` or `firstValueFrom` runs.'],
@@ -739,6 +779,16 @@ export class SearchBar {
     },
     {
       id: 'http', title: 'HTTP, httpResource and talking to ASP.NET Core', level: 2, mins: 45,
+      predict: {
+        prompt: "Inside a click handler, you write `this.http.post(\"/api/products\", payload);` without calling `.subscribe()` or `await firstValueFrom(...)`. What shows up in the browser Network tab?",
+        options: [
+          "One `POST /api/products` request, with its response ignored",
+          "Zero network requests: `HttpClient` returns a cold `Observable` that never starts until subscribed",
+          "A synchronous TypeScript runtime error",
+        ],
+        answer: 1,
+        explain: "Angular's `HttpClient` produces cold Observables—calling `.post()` only builds a blueprint. Nothing leaves the browser until you subscribe or convert it with `await firstValueFrom(...)`.",
+      },
       splits: [['1 · ApiError mapper', '// api-error.ts'], ['2 · Interceptor', '// 2. Functional interceptor'], ['3 · Component + loaders', '@Component({']],
       why: "This lesson connects Angular to your ASP.NET Core backend and database. You'll use **`httpResource`** for reactive `GET` loading and **`HttpClient`** (with interceptors and built-in XSRF protection) for writes and structured `ProblemDetails` errors.",
       terms: [
@@ -879,6 +929,7 @@ export class ProductsPage {
     },
     {
       id: 'guards', title: 'Route guards, resolvers and @boundary recovery', level: 2, mins: 40,
+      splits: [["1 · AuthSession & Guards","// protected.routes.ts"],["2 · Resolver & @boundary","// Part 2: Route resolver"],["3 · Protected Routes","export const protectedRoutes"]],
       why: "Production apps keep unauthorized users off private pages, preload lightweight route data, and isolate broken widgets so one bad chart doesn't blank the screen. Route checks only steer browser UX, though: your ASP.NET Core API enforces real access control.",
       terms: [
         ['`CanActivateFn` / `CanMatchFn`', 'Functional route guards that return `true`, `false`, or a `RedirectCommand` before opening a route.'],
@@ -1060,6 +1111,16 @@ describe('ProductsPage', () => {
     // ---------------- Expert ----------------
     {
       id: 'cd', title: 'Change detection and rendering performance', level: 3, mins: 45, viz: 'ngcd',
+      predict: {
+        prompt: "A parent holds `items` and runs `items.push(newProduct)` in place, keeping the same array reference, and passes it to an `OnPush` child (`<app-catalog-view [items]=\"items\" />`). What happens?",
+        options: [
+          "The child updates immediately because `items.length` increased",
+          "The `OnPush` child skips updating because `Object.is(prevItems, nextItems)` is still `true`",
+          "Angular throws an immutability error on `.push()`",
+        ],
+        answer: 1,
+        explain: "`OnPush` checks input changes by reference identity (`Object.is`), not deep array contents. Creating a new array (`items.update(list => [...list, newProduct])`) gives a fresh reference so Angular refreshes the child.",
+      },
       why: "**Change detection** is how Angular compares app state to the template and updates the DOM. Seeing how Angular evolved from top-down Zone.js scans (`Eager`) to `OnPush` and **zoneless Signal updates** shows why modern apps stay fast and what bugs still waste work.",
       terms: [
         ['Change detection', 'Checking TypeScript state against templates and updating only the DOM nodes that changed.'],
@@ -1137,6 +1198,17 @@ export class CatalogView {
     },
     {
       id: 'ssr', title: 'Deferrable views (@defer), SSR and hybrid rendering', level: 3, mins: 45,
+      splits: [["1 · @defer & ProductScreen","// product-screen.ts"],["2 · ServerRoutes & Hydration","// 3. Per-route hybrid"]],
+      predict: {
+        prompt: "You put `<app-product-reviews />` inside `@defer (on viewport)` to lazy-load it, and in the same component class you also add `private readonly reviews = viewChild(ProductReviews);`. What happens to the JS bundle?",
+        options: [
+          "`ProductReviews` stays in a separate lazy chunk and `viewChild` resolves once loaded",
+          "`ProductReviews` is pulled back into the main bundle because referencing its class outside `@defer` creates an eager import",
+          "Angular fails the build with an error",
+        ],
+        answer: 1,
+        explain: "For `@defer` to emit a separate lazy chunk, the component must only be referenced inside the `@defer` template block. Referencing `ProductReviews` in TypeScript (`viewChild(ProductReviews)`) keeps it in the eager chunk.",
+      },
       why: "Fast first loads combine two tools: splitting secondary UI into on-demand **`@defer`** chunks, and choosing per route whether HTML renders in the browser (**CSR**), at build time (**Prerender / SSG**), or per request on Node (**SSR**). **Hydration** then activates the page without re-rendering from scratch.",
       terms: [
         ['CSR vs SSG vs SSR', '**CSR** builds HTML in the browser (`RenderMode.Client`); **SSG / Prerender** writes static HTML at build (`RenderMode.Prerender`); **SSR** renders fresh HTML on Node per request (`RenderMode.Server`).'],
