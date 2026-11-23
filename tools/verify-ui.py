@@ -24,7 +24,7 @@ SITE = "https://mumaralfajar.github.io"
 AXE_JS = ROOT / "node_modules" / "axe-core" / "axe.min.js"
 AXE_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]
 AXE_ROUTES = ["", "dashboard/", "break/", "track/sysdesign/", "lesson/angular/signals/", "lab/syscache/", "play/sql/",
-              "play/ts/", "play/css/", "play/dart/", "interview/", "interview/coding/", "interview/behavioral/", "interview/mock/", "exam/", "search/", "plan/go/types/"]
+              "play/ts/", "play/css/", "play/dart/", "interview/", "interview/coding/", "interview/behavioral/", "interview/mock/", "exam/", "review/", "notes/", "search/", "plan/go/types/"]
 EXPECTED_VIZ = 40
 EXPECTED_LESSONS = 135
 EXPECTED_TRACKS = 10
@@ -277,7 +277,7 @@ def static_checks(check):
             check((DIST / prefix / f"interview/{sub}index.html").is_file(), f"{label}: /interview/{sub} missing")
         check(count(f"{prefix}interview/problem/*/index.html") == EXPECTED_PROBLEMS, f"{label}: expected {EXPECTED_PROBLEMS} problem pages")
         check(count(f"{prefix}interview/design/*/index.html") == EXPECTED_DESIGN_CASES, f"{label}: expected {EXPECTED_DESIGN_CASES} design case pages")
-        for page in ["dashboard", "start", "search", "review", "exam", "projects", "teach", "break"]:
+        for page in ["dashboard", "start", "search", "review", "exam", "projects", "teach", "notes", "break"]:
             check((DIST / prefix / f"{page}/index.html").is_file(), f"{label}: /{page}/ missing")
     total_lessons = count("lesson/*/*/index.html") + count("id/lesson/*/*/index.html")
     total_plans = count("plan/*/*/index.html") + count("id/plan/*/*/index.html")
@@ -311,6 +311,7 @@ def static_checks(check):
     sw = (DIST / "sw.js").read_text(encoding="utf-8")
     check(re.search(r"const VERSION = 'stack-mastery-v\d+'", sw) is not None, "sw.js must use a versioned cache name")
     for url in ["/stack-mastery/", "/stack-mastery/id/", "/stack-mastery/dashboard/", "/stack-mastery/id/dashboard/",
+                "/stack-mastery/notes/", "/stack-mastery/id/notes/",
                 "/stack-mastery/manifest.webmanifest", "/stack-mastery/favicon.svg", "/stack-mastery/404.html"]:
         check(f"'{url}'" in sw, f"sw.js must precache {url}")
 
@@ -321,8 +322,8 @@ def static_checks(check):
         check(total < LANDING_JS_BUDGET, f"{rel} loads {total} raw JS bytes (budget < {LANDING_JS_BUDGET}): {files}")
         check(not any(CURRICULUM_CHUNK_RX.search("/" + f) or VIZ_CHUNK_RX.search("/" + f) for f in files),
               f"{rel} must not load curriculum or viz chunks: {sorted(files)}")
-    # Lesson and lab pages must not statically import the curriculum or any lab module.
-    for rel in ["lesson/go/concurrency/index.html", "lab/sqllock/index.html", "dashboard/index.html", "search/index.html"]:
+    # Lesson, lab, dashboard, notes, and search pages must not statically import the curriculum or any lab module.
+    for rel in ["lesson/go/concurrency/index.html", "lab/sqllock/index.html", "dashboard/index.html", "notes/index.html", "search/index.html"]:
         _, files, _ = page_js_bytes(rel)
         bad = [f for f in files if CURRICULUM_CHUNK_RX.search("/" + f) or VIZ_CHUNK_RX.search("/" + f)]
         check(not bad, f"{rel} statically imports heavy chunks: {bad}")
@@ -1024,6 +1025,187 @@ def run_suite():
             page.locator("#view .actions button", has_text="Start exam").click()
             check("No questions match these filters." in page.inner_text("#view"), "Empty Mock exam pool must render an empty-state notice")
 
+            # Phase 6 Pedagogy: Goal onboarding (/dashboard/ & /start/), Beginner placement (/track/go/),
+            # Adaptive SM-2/FSRS-lite SRS (/review/), Mock Exam SRS routing + history (/exam/),
+            # Teach-Back word count coaching & My Study Notes (/notes/ & Markdown export).
+            goto(page, base, "dashboard/")
+            page.locator("#view [data-goal='interview']").click()
+            check(page.locator("#view [data-goal='interview']").get_attribute("aria-pressed") == "true", "Selecting Interview Crunch goal must set aria-pressed=true")
+            check(page.locator("#view [data-track-grid] .track-card").count() == EXPECTED_TRACKS, "Goal selection must keep all 10 tracks visible")
+            check(page.locator("#view [data-track-grid] .track-card").first.get_attribute("data-track-card") == "cs", "Interview Crunch must prioritize CS Fundamentals first")
+            check(page.locator("#view .goal-badge", has_text="Recommended for your goal").count() == 3, "Interview Crunch must badge its 3 recommended tracks")
+            check(page.locator("#view [data-interview-cta] .goal-badge", has_text="Priority for Interview Crunch").count() == 1, "Interview Crunch must elevate Interview prep card with priority badge")
+            interview_before_tracks = page.evaluate("""() => {
+              const iv = document.querySelector('#view [data-interview-cta]');
+              const grid = document.querySelector('#view [data-track-grid]');
+              return Boolean(iv && grid && (iv.compareDocumentPosition(grid) & Node.DOCUMENT_POSITION_FOLLOWING));
+            }""")
+            check(interview_before_tracks, "Interview Crunch must elevate Interview prep section above Tracks grid")
+            page.reload(wait_until="domcontentloaded")
+            page.wait_for_function(PAGE_READY, timeout=10000)
+            check(page.locator("#view [data-goal='interview']").get_attribute("aria-pressed") == "true", "Selected goal must persist across reload")
+            goto(page, base, "start/")
+            check(page.locator("#view [data-goal='interview']").get_attribute("aria-pressed") == "true", "/start/ must reflect saved goal from /dashboard/")
+            page.locator("#view [data-goal='backend']").click()
+            check("Backend Engineer" in page.inner_text("#view [data-goal-summary]"), "Switching goal on /start/ must update summary")
+            goto(page, base, "dashboard/")
+            check(page.locator("#view [data-goal='backend']").get_attribute("aria-pressed") == "true", "Goal selected on /start/ must persist on /dashboard/")
+            check(page.locator("#view [data-track-grid] .track-card").first.get_attribute("data-track-card") == "csharp", "Backend Engineer goal must prioritize C# first")
+            page.locator("#view [data-goal-clear]").click()
+            check(page.locator("#view [data-goal-clear]").count() == 0, "Clear goal must remove active goal")
+
+            # Per-track Beginner placement ("Test out of Beginner") on /track/go/
+            goto(page, base, "track/go/")
+            check(page.locator("#view [data-placement-open]").count() == 1, "/track/go/ must render Test out of Beginner button")
+            page.locator("#view [data-placement-open]").click()
+            page.wait_for_selector("#placement-panel fieldset.placement-q", timeout=5000)
+            q_count = page.locator("#placement-panel fieldset.placement-q").count()
+            check(5 <= q_count <= 6, f"Beginner placement quiz must sample 5-6 questions, got {q_count}")
+            # Answer every question correctly using the embedded track placement JSON.
+            page.evaluate("""() => {
+              const data = JSON.parse(document.getElementById('track-placement-data').textContent);
+              const byQ = new Map();
+              for (const bl of data.beginnerLessons) for (const q of bl.quiz) byQ.set(q.q, q.a[q.c]);
+              const strip = (s) => s.replace(/`([^`]+)`/g, '$1').replace(/\\*\\*([^*]+)\\*\\*/g, '$1').trim();
+              const answerMap = new Map([...byQ.entries()].map(([k, v]) => [strip(k), strip(v)]));
+              for (const fs of document.querySelectorAll('#placement-panel fieldset.placement-q')) {
+                const legendText = fs.querySelector('legend span')?.textContent?.trim() || '';
+                const want = answerMap.get(legendText);
+                for (const lbl of fs.querySelectorAll('label.placement-opt')) {
+                  if (lbl.querySelector('span')?.textContent?.trim() === want) {
+                    lbl.querySelector('input[type=radio]').click();
+                    break;
+                  }
+                }
+              }
+            }""")
+            page.locator("#placement-panel [data-placement-submit]").click()
+            check("100%" in page.inner_text("#placement-panel .placement-summary"), "Submitting all right answers must show 100% placement score")
+            check(page.locator("#placement-panel .fb.good").count() == q_count, "Placement submit must grade each question with explanation feedback")
+            page.locator("#placement-panel [data-placement-apply]").click()
+            page.locator("dialog.sm-dialog[open] button[value='ok']").click()
+            page.wait_for_timeout(120)
+            check(page.inner_text("#view [data-level-pct='0']") == "67%", f"Testing out of Beginner must mark Learn+Check (67%), got {page.inner_text('#view [data-level-pct=\"0\"]')}")
+            go_beg_state = page.evaluate("""() => {
+              const s = JSON.parse(localStorage.getItem('stackmastery.v1') || '{}');
+              return ['go/types', 'go/collections', 'go/structs'].map(k => ({ k, r: !!s.lessons?.[k]?.read, q: !!s.lessons?.[k]?.quiz, t: !!s.lessons?.[k]?.teach }));
+            }""")
+            check(all(x["r"] and x["q"] and not x["t"] for x in go_beg_state), f"Placement pass must set read+quiz and keep teach=false: {go_beg_state}")
+            check(page.locator("#view a.row[data-k='go/types'] .dots i.on").count() == 2, "Track lesson dots must redraw immediately with 2 lit dots")
+
+            # Adaptive SM-2/FSRS-lite Spaced Repetition: legacy migration, >16d growth, 4 buttons, Space & 1-4 shortcuts, >20 pagination
+            page.evaluate("""() => {
+              const s = JSON.parse(localStorage.getItem('stackmastery.v1') || '{}');
+              s.lessons = {};
+              s.cards = { 'csharp/types#0': { box: 5, due: '2020-01-01' } };
+              localStorage.setItem('stackmastery.v1', JSON.stringify(s));
+            }""")
+            goto(page, base, "review/")
+            check(page.locator("#view .flash [data-reveal]").count() == 1, "/review/ must show Show answer button for due card")
+            page.keyboard.press("Space")
+            page.wait_for_timeout(80)
+            check(page.locator("#view .fc-grades button[data-grade]").count() == 4, "Space must reveal answer with 4 SM-2 grade buttons")
+            good_txt = page.inner_text("#view .fc-grades button[data-grade='good']")
+            check("40d" in good_txt, f"Legacy box=5 card must migrate and schedule past 16d (40d), got {good_txt!r}")
+            page.keyboard.press("3")
+            page.wait_for_timeout(100)
+            card_after = page.evaluate("() => JSON.parse(localStorage.getItem('stackmastery.v1') || '{}').cards?.['csharp/types#0']")
+            check(card_after and card_after.get("interval", 0) == 40 and card_after.get("reps") == 6, f"Key '3' (Good) must schedule adaptive card >16d, got {card_after}")
+            # Seed 22 due cards and verify 'Continue next 20 due' pagination
+            page.evaluate("""() => {
+              const s = JSON.parse(localStorage.getItem('stackmastery.v1') || '{}');
+              s.lessons = {};
+              const cards = {};
+              const keys = ['csharp/types','csharp/flow','csharp/classes','csharp/memory','csharp/interfaces','csharp/generics','csharp/errors','csharp/linq'];
+              let n = 0;
+              for (const k of keys) {
+                for (let i = 0; i < 3 && n < 22; i++, n++) {
+                  cards[k + '#' + i] = { interval: 1, ease: 2.5, reps: 0, lapses: 0, due: '2020-01-01' };
+                }
+              }
+              s.cards = cards;
+              localStorage.setItem('stackmastery.v1', JSON.stringify(s));
+            }""")
+            goto(page, base, "review/")
+            for _ in range(20):
+                page.keyboard.press("Space")
+                page.keyboard.press("3")
+            page.wait_for_timeout(100)
+            check(page.locator("#view [data-continue-due]").count() == 1, "After 20 cards with 2 left, 'Continue next 20 due' button must appear")
+            page.locator("#view [data-continue-due]").click()
+            page.wait_for_timeout(80)
+            check("1 / 2" in page.inner_text("#view .flash .eyebrow"), "Continue next 20 due must load remaining 2 due cards")
+
+            # Mock Exam: missed questions route to S.cards (due today) + examHistory persists & renders
+            page.evaluate("""() => {
+              const s = JSON.parse(localStorage.getItem('stackmastery.v1') || '{}');
+              s.lessons = {}; s.cards = {}; s.examHistory = [];
+              localStorage.setItem('stackmastery.v1', JSON.stringify(s));
+            }""")
+            goto(page, base, "exam/")
+            check("No mock exams completed yet." in page.inner_text("#view"), "Exam history must show empty note initially")
+            page.locator("#view .actions select").nth(0).select_option("go")
+            page.locator("#view .actions select").nth(1).select_option("0")
+            page.locator("#view .actions button", has_text="Start exam").click()
+            exam_qs = page.locator("#view .exam-q")
+            exam_total = exam_qs.count()
+            check(exam_total >= 5, f"Go Beginner mock exam must render questions, got {exam_total}")
+            # Click the first option on every question (shuffled options almost certainly include misses, and if all hit we still verify history; ensure at least 1 miss by checking class).
+            for qi in range(exam_total):
+                exam_qs.nth(qi).locator(".opt").first.click()
+            page.wait_for_timeout(100)
+            exam_state = page.evaluate("""() => {
+              const s = JSON.parse(localStorage.getItem('stackmastery.v1') || '{}');
+              const today = new Date().toLocaleDateString('sv');
+              return { history: s.examHistory || [], cards: s.cards || {}, today };
+            }""")
+            check(len(exam_state["history"]) == 1 and exam_state["history"][0]["track"] == "go" and exam_state["history"][0]["total"] == exam_total,
+                  f"Completed Mock exam must persist attempt in examHistory: {exam_state['history']}")
+            misses = exam_total - exam_state["history"][0]["score"]
+            if misses > 0:
+                check(len(exam_state["cards"]) == misses and all(c["due"] == exam_state["today"] and c["lapses"] >= 1 for c in exam_state["cards"].values()),
+                      f"Missed Mock exam questions must enter S.cards due today: {exam_state['cards']}")
+            check(page.locator("#view table.t tbody tr").count() == 1, "Exam history table must render the completed attempt")
+
+            # Teach-Back word count coaching + /notes/ empty state, search, track filter & Markdown export
+            page.evaluate("""() => {
+              const s = JSON.parse(localStorage.getItem('stackmastery.v1') || '{}');
+              s.lessons = {}; s.cards = {};
+              localStorage.setItem('stackmastery.v1', JSON.stringify(s));
+            }""")
+            goto(page, base, "notes/")
+            check("No study notes yet." in page.inner_text("#view"), "/notes/ must show empty state when no Teach-Back notes exist")
+            check(page.locator("#view [data-notes-export]").is_disabled(), "Export Markdown button must be disabled when no notes exist")
+            goto(page, base, "lesson/csharp/types/")
+            check("0 words" in page.inner_text("#view [data-teach-count]"), "Lesson Teach-Back must show initial 0-word hint")
+            page.locator("#view [data-teach-notes]").fill("Value types live inline.")
+            check("4 words" in page.inner_text("#view [data-teach-count]"), "Lesson Teach-Back must update word count live")
+            page.locator(".rubric input[type='checkbox']").first.click()
+            check(page.locator(".rubric input[type='checkbox']").first.is_checked(), "Short valid Teach-Back note must not be blocked from checking rubric")
+            page.locator("#view [data-teach-notes]").fill("Value types like int and struct copy their data directly while reference types like class store a pointer to the heap so mutations are shared.")
+            check("ready for rubric" in page.inner_text("#view [data-teach-count]"), "15+ word Teach-Back note must flip hint to ready for rubric")
+            page.evaluate("""() => {
+              const s = JSON.parse(localStorage.getItem('stackmastery.v1') || '{}');
+              s.lessons = s.lessons || {};
+              s.lessons['go/types'] = { notes: 'Go zero values make uninitialized structs predictable and safe.', rubric: [true, true, false, false, false] };
+              localStorage.setItem('stackmastery.v1', JSON.stringify(s));
+            }""")
+            goto(page, base, "notes/")
+            check(page.locator("#view article.note-card").count() == 2, "/notes/ must list both saved Teach-Back notes")
+            page.locator("#notes-track").select_option("go")
+            check(page.locator("#view article.note-card").count() == 1 and page.locator("#view article.note-card[data-note-key='go/types']").count() == 1, "/notes/ track filter must narrow to Go")
+            page.locator("#notes-track").select_option("")
+            page.locator("#notes-search").fill("pointer")
+            check(page.locator("#view article.note-card").count() == 1 and page.locator("#view article.note-card[data-note-key='csharp/types']").count() == 1, "/notes/ search must filter by note body")
+            with page.expect_download() as md_dl:
+                page.locator("#view [data-notes-export]").click()
+            md_text = Path(md_dl.value.path()).read_text(encoding="utf-8")
+            check("# Stack Mastery Study Guide" in md_text and "Value types like int" in md_text and "Go zero values" in md_text,
+                  "Exported Markdown Study Guide must contain heading and saved Teach-Back notes")
+            check(len(page.evaluate(WCAG_DOM_AUDIT)) == 0, f"/notes/ WCAG issues: {page.evaluate(WCAG_DOM_AUDIT)}")
+            # Clear Phase 6 test state so cross-tab tests below start cleanly from 0 mastered lessons.
+            page.evaluate("() => { localStorage.removeItem('stackmastery.v1'); }")
+
             goto(page, base, "interview/mock/")
             check(len(page.evaluate(WCAG_DOM_AUDIT)) == 0, f"Mock interview WCAG issues: {page.evaluate(WCAG_DOM_AUDIT)}")
             page.locator("#view .card", has_text="Coding round").get_by_role("button", name="Start").click()
@@ -1099,7 +1281,7 @@ def run_suite():
 
             # Legacy #/... bookmarks redirect to their static pages.
             for legacy, target in [("#/lesson/go/concurrency", "lesson/go/concurrency/"), ("#/play/sql/joins", "play/sql/?sample=joins"),
-                                   ("#/meadow", "break/"), ("#/interview/problem/two-sum", "interview/problem/two-sum/"),
+                                   ("#/meadow", "break/"), ("#/notes", "notes/"), ("#/interview/problem/two-sum", "interview/problem/two-sum/"),
                                    ("#/lab/syshash", "lab/syshash/"), ("#/dashboard", "dashboard/"), ("#/plan/go/types", "plan/go/types/")]:
                 page.goto(base + legacy, wait_until="domcontentloaded")
                 page.wait_for_url(base + target, timeout=10000)
@@ -1215,6 +1397,8 @@ def run_suite():
             check("Navbar flexbox" in css_chips and "Grid responsif" in css_chips and "Kartu Tailwind" in css_chips, f"Indonesian CSS playground chips must be translated, got: {css_chips}")
             goto(page_id, base, "id/play/dart/")
             check(page_id.locator("#view .chips button").count() >= 3, "Indonesian Dart playground must list lesson samples")
+            goto(page_id, base, "id/notes/")
+            check("Catatan belajarku" in page_id.inner_text("#view h1"), "Indonesian /id/notes/ must translate page heading")
             check(len(errs_id) == 0, f"ID pass runtime/console errors: {errs_id}")
             ctx_id.close()
 
@@ -1225,8 +1409,8 @@ def run_suite():
             for r in ["", "break/", "dashboard/", "track/angular/", "track/go/", "track/sysdesign/", "lesson/angular/signals/", "lesson/go/collections/",
                       "lesson/sysdesign/caching/", "lesson/aspnet/arch/", "lab/goslices/", "lab/gocontext/", "lab/syscache/", "lab/sysratelimit/",
                       "lab/sysdbscale/", "lab/syshash/", "lab/sysqueue/", "lab/sysresilience/", "play/sql/", "play/ts/", "play/css/", "play/dart/", "interview/coding/", "interview/design/",
-                      "interview/design/notification-system/", "interview/mock/", "projects/", "exam/", "start/", "teach/", "search/", "plan/go/types/",
-                      "id/", "id/lesson/go/concurrency/"]:
+                      "interview/design/notification-system/", "interview/mock/", "projects/", "exam/", "review/", "notes/", "start/", "teach/", "search/", "plan/go/types/",
+                      "id/", "id/notes/", "id/lesson/go/concurrency/"]:
                 goto(pm, base, r)
                 check(pm.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), f"360px mobile overflow on /{r}")
             for w in [320, 768]:

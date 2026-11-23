@@ -85,7 +85,6 @@ import { resolvedTheme, watchTheme } from '../lib/theme.ts';
       // Monaco's theme is global, so one subscription keeps every editor in step with the site theme.
       window.monaco.editor.setTheme(monacoTheme());
       watchTheme(() => window.monaco.editor.setTheme(monacoTheme()));
-      addEventListener('pageshow', e => { if (e.persisted) window.monaco.editor.setTheme(monacoTheme()); });
       ok(window.monaco);
     }, fail);
   })).catch(e => { monacoP = null; throw e; }));
@@ -249,7 +248,7 @@ PRAGMA foreign_keys = ON;`;
 
   function sql(el, sample, onCleanup) {
     const LEVELS = getLevels();
-    let db = null, cur = -1;
+    let db = null, cur = -1, disposed = false;
     const solved = new Set(store.get(SQL_KEY));
     const out = h('div', { class: 'out', 'aria-live': 'polite' }, h('p', { class: 'muted' }, 'Loading SQLite…'));
     const task = h('p', { class: 'prompt' }, 'Free play, or pick a challenge above.');
@@ -280,8 +279,8 @@ PRAGMA foreign_keys = ON;`;
     const prevInput = ta.oninput;
     ta.oninput = () => { prevInput && prevInput(); updateDialectTip(); };
     const checkAns = () => {
-      if (cur < 0) return out.replaceChildren(h('p', { class: 'muted' }, 'Pick a challenge first.'));
       if (!SQL) return;
+      if (cur < 0) return out.replaceChildren(h('p', { class: 'muted' }, 'Pick a challenge first.'));
       // Show the user's run in the live database, but always grade against a fresh copy of the seed,
       // so an earlier DELETE, UPDATE, or DROP TABLE in free play cannot break grading.
       const liveRes = run();
@@ -364,11 +363,18 @@ PRAGMA foreign_keys = ON;`;
     // If SQLite cannot load (offline, blocked), the editor stays and Retry loads it again.
     const loadSql = () => {
       out.replaceChildren(h('p', { class: 'muted' }, 'Loading SQLite…'));
-      getSQL().then(S => { SQL = S; reset(); out.replaceChildren(h('p', { class: 'muted' }, 'Ready. Run a query to see results here.')); })
-        .catch(e => out.replaceChildren(loadFailure(e.message, loadSql)));
+      getSQL().then(S => {
+        if (disposed) return;
+        SQL = S;
+        reset();
+        out.replaceChildren(h('p', { class: 'muted' }, 'Ready. Run a query to see results here.'));
+      }).catch(e => {
+        if (disposed) return;
+        out.replaceChildren(loadFailure(e.message, loadSql));
+      });
     };
     loadSql();
-    onCleanup?.(() => { if (db) { try { db.close(); } catch { /* ignore */ } db = null; } });
+    onCleanup?.(() => { disposed = true; if (db) { try { db.close(); } catch { /* ignore */ } db = null; } });
   }
 
   // ---------------- TypeScript ----------------

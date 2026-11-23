@@ -88,6 +88,10 @@ const lessonData = jsonForScript({
     'Predicted.',
     '✓ Learned (click to undo)',
     'Mark as learned',
+    '0 words — aim for a short explanation in your own words',
+    '{n} word — add a short example or trade-off if helpful',
+    '{n} words — add a short example or trade-off if helpful',
+    '{n} words — ready for rubric',
   ]),
 });
 ---
@@ -186,6 +190,7 @@ const lessonData = jsonForScript({
         placeholder={T('Write it the way you would say it out loud to a beginner…')}
         aria-label={T('Your explanation')}
         data-teach-notes></textarea>
+      <p class="muted teach-count" data-teach-count aria-live="polite">{T('0 words — aim for a short explanation in your own words')}</p>
       <p class="fb bad" role="alert" hidden data-teach-warn>{T('Write at least a brief explanation above before checking off the rubric.')}</p>
       <p class="muted">{T('Grade your explanation honestly. All five ticks complete the Teach step.')}</p>
       <div class="rubric">

@@ -2,7 +2,8 @@
 // "Start here" machine setup guide (fully static).
 import CodeTabs from '../components/CodeTabs.astro';
 import WorkspaceLayout from '../layouts/WorkspaceLayout.astro';
-import { pageStrings } from '../lib/ssr.ts';
+import { GOALS } from '../lib/goals.ts';
+import { jsonForScript, pageStrings, uiSubset } from '../lib/ssr.ts';
 import type { Lang } from '../lib/types.ts';
 
 interface Props {
@@ -95,6 +96,16 @@ git commit -m "First commit"`,
   ],
 ];
 const lede = T('Reading is not learning. Every lesson ends with something to build, and that needs a handful of free tools. This takes about twenty minutes, once.');
+const goalStrings = jsonForScript(
+  uiSubset(lang, [
+    ...GOALS.flatMap((g) => [g.label, g.tagline]),
+    'Pick a goal to prioritize matching tracks first. Every track stays available.',
+    'Recommended tracks:',
+    'Interview hub',
+    'Begin with {track} lesson one →',
+    'Begin with C# lesson one →',
+  ]),
+);
 ---
 <WorkspaceLayout lang={lang} path="/start/" title={`${T('Start here: set up your machine')} — Stack Mastery`} description={lede}>
   <div class="page">
@@ -103,6 +114,25 @@ const lede = T('Reading is not learning. Every lesson ends with something to bui
       <h1>{T('Start here: set up your machine')}</h1>
       <p class="lede">{lede}</p>
     </header>
+    <section class="sec" data-start-goal>
+      <h2>{T('Your learning goal')}</h2>
+      <div class="goal-picker">
+        <div class="goal-opts" role="group" aria-label={T('Choose your learning goal')}>
+          {GOALS.map((g) => (
+            <button type="button" class="goal-btn" data-goal={g.id} aria-pressed="false">
+              {T(g.label)}
+            </button>
+          ))}
+          <button type="button" class="goal-btn ghost" data-goal-clear hidden>
+            {T('Clear goal')}
+          </button>
+        </div>
+        <p class="muted goal-summary" data-goal-summary aria-live="polite">
+          {T('Pick a goal to prioritize matching tracks first. Every track stays available.')}
+        </p>
+        <div class="goal-tracks" data-goal-tracks hidden></div>
+      </div>
+    </section>
     {steps.map(([title, text, code]) => (
       <section class="sec">
         <h2>{T(title)}</h2>
@@ -120,6 +150,8 @@ const lede = T('Reading is not learning. Every lesson ends with something to bui
       </ol>
       <p class="muted">{T('Progress is stored in this browser only. Use “Export backup” in the sidebar now and then, and before switching browser or computer.')}</p>
     </section>
-    <div class="actions"><a class="btn" href={href('/lesson/csharp/types/')}>{T('Begin with C# lesson one →')}</a></div>
+    <div class="actions"><a class="btn" href={href('/lesson/csharp/types/')} data-start-cta>{T('Begin with C# lesson one →')}</a></div>
   </div>
+  <script type="application/json" id="start-goal-i18n" set:html={goalStrings} />
 </WorkspaceLayout>
+<script src="../scripts/start-goal.js"></script>

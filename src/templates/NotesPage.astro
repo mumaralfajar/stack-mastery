@@ -1,0 +1,36 @@
+---
+// My Study Notes: pre-rendered heading plus a compact localized lesson catalog; notes hydrate client-side.
+import { getAllTracks, loadSiteData } from '../data/site.ts';
+import { pageStrings } from '../lib/ssr.ts';
+import type { Lang } from '../lib/types.ts';
+import ViewPage from './ViewPage.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+await loadSiteData();
+const { lang } = Astro.props;
+const { T } = pageStrings(lang);
+const catalog = {
+  tracks: getAllTracks(lang).map((t) => ({
+    id: t.id,
+    name: t.name,
+    lessons: t.lessons.map((l) => ({ id: l.id, title: l.title, level: l.level })),
+  })),
+};
+const lede = T(
+  'Every Teach-Back explanation you write across lessons gathers here. Search, filter by track, or export your personal Markdown study guide.',
+);
+---
+<ViewPage
+  lang={lang}
+  path="/notes/"
+  title={`${T('My study notes')} — Stack Mastery`}
+  description={lede}
+  view="notes"
+  eyebrow={T('Become the teacher')}
+  heading={T('My study notes')}
+  lede={lede}
+  data={catalog}
+/>

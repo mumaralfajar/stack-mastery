@@ -36,11 +36,16 @@ const VIEWS = {
   },
   async review() {
     const [{ review }] = await Promise.all([import('./views/practice.js'), curriculum()]);
-    return () => review();
+    return (onCleanup) => review(onCleanup);
   },
   async exam() {
     const [{ exam }] = await Promise.all([import('./views/practice.js'), curriculum()]);
     return () => exam();
+  },
+  async notes() {
+    const [{ notes }] = await Promise.all([import('./views/notes.js'), idUi()]);
+    const catalog = readJson('view-data') || { tracks: [] };
+    return (onCleanup) => notes(catalog, onCleanup);
   },
   async play({ kind }) {
     const [play] = await Promise.all([
@@ -110,6 +115,9 @@ async function mount() {
     const active = document.activeElement;
     const shouldRedraw =
       view === 'dashboard' ||
+      (view === 'notes' &&
+        (kind === 'study' || kind === 'all') &&
+        !(root.contains(active) && active?.matches('input, textarea, select'))) ||
       (view === 'interview' &&
         (kind === 'interview' || kind === 'all') &&
         !root.querySelector('.play, .mock-stage :is(textarea, select)') &&

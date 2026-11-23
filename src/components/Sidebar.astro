@@ -74,7 +74,11 @@ const groups: { heading?: string; items: NavItem[] }[] = [
   },
   {
     heading: T('Become the teacher'),
-    items: [item('/teach/', T('Teaching toolkit'), a === 'teach'), item('/projects/', T('Capstone projects'), a === 'projects')],
+    items: [
+      item('/teach/', T('Teaching toolkit'), a === 'teach'),
+      item('/notes/', T('My study notes'), a === 'notes'),
+      item('/projects/', T('Capstone projects'), a === 'projects'),
+    ],
   },
 ];
 
