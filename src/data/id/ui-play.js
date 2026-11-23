@@ -2,6 +2,7 @@
 const dict = {
   'Could not load {src}. The playground needs an internet connection the first time.': 'Gagal memuat {src}. Playground butuh koneksi internet saat pertama dibuka.',
   'Code editor': 'Code editor',
+  'Code editor (press Escape then Tab to leave)': 'Code editor (tekan Escape lalu Tab untuk keluar)',
   'line': 'baris',
   '{n} type errors, though the code still ran because types are erased at build time:': 'Ada {n} type error, tapi kodenya tetap jalan karena type dihapus saat build:',
   '{n} type error, though the code still ran because types are erased at build time:': 'Ada {n} type error, tapi kodenya tetap jalan karena type dihapus saat build:',

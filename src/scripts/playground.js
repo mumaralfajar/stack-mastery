@@ -170,7 +170,7 @@ declare namespace JSX { interface IntrinsicElements { [tag: string]: ShimAttrs }
 
   const editor = (value, run, lang, fileExt) => {
     let tabEscape = false;
-    const ta = h('textarea', { class: 'editor', spellcheck: 'false', 'aria-label': 'Code editor (press Escape then Tab to leave)', onkeydown: e => {
+    const ta = h('textarea', { class: 'editor', spellcheck: 'false', 'aria-label': T('Code editor (press Escape then Tab to leave)'), onkeydown: e => {
       if (e.key === 'Escape') {
         tabEscape = true;
         return;
