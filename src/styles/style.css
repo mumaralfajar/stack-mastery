@@ -356,6 +356,7 @@ table.t tr.hl td { background: color-mix(in srgb, var(--tc) 14%, transparent); }
 .comp.flash-r { animation: rr .7s; }
 .comp.skip { border-style: dashed; }
 @keyframes rr { 0% { background: var(--tc); color: var(--bg); border-color: var(--tc); transform: scale(1.06); } }
+@keyframes rr-still { 0% { background: var(--tc); color: var(--bg); border-color: var(--tc); } }
 .journey { display: grid; gap: .35rem; }
 .jstep { display: grid; grid-template-columns: 7.5rem 1fr; gap: .8rem; padding: .5rem .7rem; border-radius: 8px; border: 1.5px solid transparent; opacity: .45; font-size: .9rem; }
 .jstep b { font-size: .76rem; text-transform: uppercase; letter-spacing: .06em; }
@@ -466,7 +467,6 @@ table.t tr.hl td { background: color-mix(in srgb, var(--tc) 14%, transparent); }
 .qa summary { color: var(--text); }
 
 @media (max-width: 860px) {
-  body.nav-open { overflow: hidden; }
   .kv { grid-template-columns: 1fr; gap: .1rem; } .kv dd { margin-bottom: .6rem; }
   .meter { grid-template-columns: 1fr 3.5rem; } .meter .bar { grid-column: 1 / -1; grid-row: 2; }
   .score-grid { grid-template-columns: 1fr; }
@@ -477,7 +477,7 @@ table.t tr.hl td { background: color-mix(in srgb, var(--tc) 14%, transparent); }
   .mob-only, .nav-toggle { display: inline-flex; }
   .icon-btn, .nav-toggle { min-width: 2.25rem; min-height: 2.25rem; padding: 0 .55rem; }
   .icon-btn svg, .nav-toggle svg { width: 1.05rem; height: 1.05rem; }
-  .nav-backdrop { display: block; position: fixed; inset: 0; z-index: 90; background: #00000066; opacity: 0; pointer-events: none; transition: opacity .22s ease; }
+  .nav-backdrop { display: block; position: fixed; inset: 0; z-index: 90; background: #00000066; opacity: 0; pointer-events: none; overflow: hidden; overscroll-behavior: contain; transition: opacity .22s ease; }
   #nav.open .nav-backdrop { opacity: 1; pointer-events: auto; }
   .nav-drawer {
     position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
@@ -509,10 +509,15 @@ table.t tr.hl td { background: color-mix(in srgb, var(--tc) 14%, transparent); }
   .code, pre { background: #f4f4f4 !important; color: #000 !important; } pre span { color: #000 !important; }
 }
 @media (prefers-reduced-motion: reduce) {
-  *, ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) {
-    transition: none !important;
-    animation: none !important;
-  }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+  .card { transition: border-color .15s; }
+  .card:hover { transform: none; }
+  .card-ico { transition: opacity .25s; }
+  .card:hover .card-ico { transform: rotate(-12deg); }
+  .ring-fg, .bar i { transition: none; }
+  .comp.flash-r { animation-name: rr-still; }
+  .mw { transition: border-color .2s, background-color .2s; }
+  .nav-drawer, #nav.open .nav-drawer { transition: visibility 0s; }
 }
 
 /* Flutter visualizations and the Dart playground */

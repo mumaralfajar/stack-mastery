@@ -314,7 +314,10 @@ export function exam() {
                     ? h('p', { class: 'muted' }, 'Missed questions were added to Flashcard review (due today).')
                     : null,
                 );
-                result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                result.scrollIntoView({
+                  behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+                  block: 'center',
+                });
               }
             },
           }),

@@ -169,9 +169,23 @@ declare namespace JSX { interface IntrinsicElements { [tag: string]: ShimAttrs }
   }
 
   const editor = (value, run, lang, fileExt) => {
-    const ta = h('textarea', { class: 'editor', spellcheck: 'false', 'aria-label': 'Code editor', onkeydown: e => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); run(); }
-      if (e.key === 'Tab') { e.preventDefault(); ta.setRangeText('  ', ta.selectionStart, ta.selectionEnd, 'end'); }
+    let tabEscape = false;
+    const ta = h('textarea', { class: 'editor', spellcheck: 'false', 'aria-label': 'Code editor (press Escape then Tab to leave)', onkeydown: e => {
+      if (e.key === 'Escape') {
+        tabEscape = true;
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { tabEscape = false; e.preventDefault(); run(); return; }
+      if (e.key === 'Tab') {
+        if (tabEscape) {
+          tabEscape = false;
+          return;
+        }
+        e.preventDefault();
+        ta.setRangeText('  ', ta.selectionStart, ta.selectionEnd, 'end');
+        return;
+      }
+      tabEscape = false;
     } });
     ta.value = value;
     if (lang) setTimeout(() => enhance(ta, lang, run, fileExt));   // after the caller has attached it

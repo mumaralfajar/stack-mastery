@@ -221,7 +221,8 @@ if (page && openBtn && panel && placementData?.beginnerLessons?.length) {
               h('button', { type: 'button', class: 'btn ghost', onclick: closeQuiz }, 'Close placement quiz'),
             ),
           );
-          summaryEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          const scrollBehavior = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+          summaryEl.scrollIntoView({ behavior: scrollBehavior, block: 'nearest' });
         },
       },
       h(
@@ -240,7 +241,10 @@ if (page && openBtn && panel && placementData?.beginnerLessons?.length) {
     panel.replaceChildren(form);
     panel.hidden = false;
     openBtn.setAttribute('aria-expanded', 'true');
-    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    panel.scrollIntoView({
+      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      block: 'nearest',
+    });
   };
 
   openBtn.addEventListener('click', () => {

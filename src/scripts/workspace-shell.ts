@@ -39,7 +39,6 @@ function setMenu(open: boolean, { restoreFocus = false } = {}): void {
   menuOpen = open;
   const isMobile = mobileQuery.matches;
   nav.classList.toggle('open', menuOpen);
-  document.body.classList.toggle('nav-open', menuOpen);
   const view = document.getElementById('view');
   if (view) view.inert = menuOpen && isMobile;
   const top = nav.querySelector<HTMLElement>('.nav-top');
