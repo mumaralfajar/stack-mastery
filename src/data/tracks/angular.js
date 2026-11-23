@@ -15,7 +15,7 @@ export const track = {
           "Angular refuses to compile the template",
         ],
         answer: 1,
-        explain: "Unlike React `onClick={() => toggle()}`, Angular event bindings execute the template statement directly when the event fires. Wrapping it in `() =>` just creates and discards a function on each click.",
+        explain: "Angular 21.2+ supports arrow functions in templates, so `(click)=\"() => toggle()\"` compiles cleanly, and unlike React `onClick={() => toggle()}`, Angular event bindings execute the template statement directly when the event fires. Wrapping it in `() =>` just creates and discards an uninvoked arrow function on each click.",
       },
       why: "Every Angular screen is a tree of small UI components. Each component pairs a TypeScript class holding data and methods with an HTML template that renders and updates the page.",
       terms: [
@@ -1112,9 +1112,9 @@ describe('ProductsPage', () => {
     {
       id: 'cd', title: 'Change detection and rendering performance', level: 3, mins: 45, viz: 'ngcd',
       predict: {
-        prompt: "A parent holds `items` and runs `items.push(newProduct)` in place, keeping the same array reference, and passes it to an `OnPush` child (`<app-catalog-view [items]=\"items\" />`). What happens?",
+        prompt: "A parent holds a signal `items` and runs `items().push(newProduct)` in place, keeping the same array reference, and passes it to an `OnPush` child (`<app-catalog-view [items]=\"items()\" />`). What happens?",
         options: [
-          "The child updates immediately because `items.length` increased",
+          "The child updates immediately because `items().length` increased",
           "The `OnPush` child skips updating because `Object.is(prevItems, nextItems)` is still `true`",
           "Angular throws an immutability error on `.push()`",
         ],

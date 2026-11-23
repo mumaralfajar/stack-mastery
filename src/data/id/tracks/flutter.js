@@ -200,11 +200,11 @@ export const trackId = {
       prompt: "Method async di `State` menjalankan `final data = await api.load(); setState(() => _data = data);` tanpa mengecek `if (!mounted) return;`, lalu user menekan Back sebelum `api.load()` selesai. Apa yang terjadi saat `Future` selesai?",
       options: [
         "Flutter diam-diam mengabaikan `setState` pada widget yang sudah di-dispose",
-        "Flutter melempar error (`setState() called after dispose()`)",
+        "Di mode debug, Flutter melempar error (`setState() called after dispose()`)",
         "Layar yang sudah ditutup otomatis terbuka lagi dengan data baru",
       ],
       answer: 1,
-      explain: "Keluar dari layar menghancurkan object `State`, tapi `Future` yang sedang berjalan tetap selesai belakangan. Selalu lindungi pemakaian `setState` dan `context` sesudah `await` dengan `if (!mounted) return;`.",
+      explain: "Keluar dari layar menghancurkan object `State`, tapi `Future` yang sedang berjalan tetap selesai belakangan—memicu assertion di mode debug dan membuang kerja di build rilis. Selalu lindungi pemakaian `setState` dan `context` sesudah `await` dengan `if (!mounted) return;`.",
     },
     terms: [
       ['Pemeriksaan `mounted`', 'Mencegah pemanggilan `setState()` sesudah widget meninggalkan layar saat `Future` baru selesai belakangan.'],
@@ -315,14 +315,14 @@ export const trackId = {
   },
   bloc: {
     predict: {
-      prompt: "Di dalam `CartBloc`, handler menjalankan `state.add(event.name); emit(state);` bukan `emit([...state, event.name])`. Apa yang terjadi pada `BlocBuilder`?",
+      prompt: "Misalkan `CartBloc` dengan list mutable sudah pernah memancarkan satu item, lalu pada event berikutnya handler menjalankan `state.add(event.name); emit(state);` bukan `emit([...state, event.name])`. Apa yang terjadi pada `BlocBuilder`?",
       options: [
         "`BlocBuilder` langsung rebuild menampilkan item baru",
         "Tidak ada yang rebuild karena `state == nextState` bernilai `true` (referensi sama), jadi Bloc melewati emisi tersebut",
         "Bloc melempar `ConcurrentModificationError`",
       ],
       answer: 1,
-      explain: "Bloc membandingkan state yang baru di-emit dengan state saat ini memakai `==`. Mengubah list yang sama di tempat membuat `identical(prev, next)` bernilai `true`, sehingga Bloc menahan pembaruan. Selalu emit list atau state immutable baru.",
+      explain: "Setelah emisi pertama (`_emitted`), `Bloc` membandingkan `state == _state` sebelum memberi tahu listener. Mengubah list growable di tempat membuat `identical(prev, next)` bernilai `true`, sehingga `Bloc` melewati emisi tersebut (sedangkan memanggil `.add` langsung pada `super(const [])` melempar `UnsupportedError`). Selalu emit list atau state immutable baru.",
     },
     splits: ['1 · ProductsState sealed', '2 · ProductsCubit', '3 · Event CartBloc', '4 · UI ProductsPage'],
     terms: [

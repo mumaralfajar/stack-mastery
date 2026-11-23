@@ -413,11 +413,11 @@ Future<void> main() async {
         prompt: "An async method in `State` runs `final data = await api.load(); setState(() => _data = data);` without checking `if (!mounted) return;`, and the user hits Back before `api.load()` finishes. What happens when the `Future` resolves?",
         options: [
           "Flutter silently ignores `setState` on disposed widgets",
-          "Flutter throws an error (`setState() called after dispose()`)",
+          "In debug mode, Flutter throws an error (`setState() called after dispose()`)",
           "The popped screen automatically reopens with the loaded data",
         ],
         answer: 1,
-        explain: "Leaving the screen disposes the `State` object, but the in-flight `Future` still completes later. Always guard `setState` and `context` usage after any `await` with `if (!mounted) return;`.",
+        explain: "Leaving the screen disposes the `State` object, but the in-flight `Future` still completes later—tripping a debug-mode assertion and wasting work in release builds. Always guard `setState` and `context` usage after any `await` with `if (!mounted) return;`.",
       },
       terms: [
         ['`mounted` check', 'Guards against calling `setState()` after a widget leaves the tree while an async `Future` was still running.'],
@@ -782,14 +782,14 @@ class _ProductListState extends State<ProductList> {
     {
       id: 'bloc', title: 'State management with Bloc and Cubit', level: 2, mins: 45,
       predict: {
-        prompt: "Inside `CartBloc`, a handler runs `state.add(event.name); emit(state);` instead of `emit([...state, event.name])`. What happens to `BlocBuilder`?",
+        prompt: "Suppose a mutable-list `CartBloc` has already emitted one item, and on the next event the handler runs `state.add(event.name); emit(state);` instead of `emit([...state, event.name])`. What happens to `BlocBuilder`?",
         options: [
           "`BlocBuilder` rebuilds with the new item immediately",
           "Nothing rebuilds because `state == nextState` is `true` (identical reference), so Bloc skips the emission",
           "Bloc throws a `ConcurrentModificationError`",
         ],
         answer: 1,
-        explain: "Bloc compares the newly emitted state against the current state with `==`. Mutating the existing list in place leaves `identical(prev, next)` as `true`, so Bloc suppresses the update. Always emit a new list or immutable state.",
+        explain: "After the first emission (`_emitted`), `Bloc` compares the newly emitted state against `state == _state` before notifying listeners. Mutating a growable list in place leaves `identical(prev, next)` as `true`, so `Bloc` skips the emission (whereas calling `.add` directly on `super(const [])` throws `UnsupportedError`). Always emit a new list or immutable state.",
       },
       splits: [['1 · Sealed ProductsState', "import 'package:flutter/foundation.dart';"], ['2 · ProductsCubit', '// ---- Cubit'], ['3 · CartBloc events', '// ---- Bloc'], ['4 · ProductsPage UI', 'class ProductsPage']],
       terms: [

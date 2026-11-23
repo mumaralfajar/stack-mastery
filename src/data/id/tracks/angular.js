@@ -12,7 +12,7 @@ export const trackId = {
           "Angular menolak mengompilasi template tersebut",
         ],
         answer: 1,
-        explain: "Berbeda dari `onClick={() => toggle()}` di React, event binding Angular langsung mengeksekusi pernyataan template saat event muncul. Membungkusnya dengan `() =>` hanya membuat lalu membuang fungsi di tiap klik.",
+        explain: "Angular 21.2+ mendukung arrow function di template, jadi `(click)=\"() => toggle()\"` tetap lolos kompilasi, namun berbeda dari `onClick={() => toggle()}` di React, event binding Angular langsung mengeksekusi pernyataan template saat event muncul. Membungkusnya dengan `() =>` hanya membuat lalu membuang arrow function yang tidak dipanggil di tiap klik.",
       },
       title: 'Component, template, dan binding',
       why: 'Setiap halaman Angular tersusun dari potongan UI kecil bernama component. Begitu paham cara class TypeScript menyimpan data lalu template HTML menampilkannya dan merespons aksi user, framework ini langsung masuk akal.',
@@ -547,9 +547,9 @@ export const trackId = {
     // ---------------- Expert ----------------
     cd: {
       predict: {
-        prompt: "Parent menyimpan `items` lalu menjalankan `items.push(newProduct)` langsung di tempat dengan referensi array yang sama, lalu mengirimnya ke child `OnPush` (`<app-catalog-view [items]=\"items\" />`). Apa yang terjadi?",
+        prompt: "Parent menyimpan signal `items` lalu menjalankan `items().push(newProduct)` langsung di tempat dengan referensi array yang sama, lalu mengirimnya ke child `OnPush` (`<app-catalog-view [items]=\"items()\" />`). Apa yang terjadi?",
         options: [
-          "Child langsung diperbarui karena `items.length` bertambah",
+          "Child langsung diperbarui karena `items().length` bertambah",
           "Child `OnPush` melewatkan update karena `Object.is(prevItems, nextItems)` masih bernilai `true`",
           "Angular melempar error immutability saat `.push()` dipanggil",
         ],
