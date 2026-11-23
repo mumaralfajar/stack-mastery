@@ -663,3 +663,31 @@
     display: none;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .br-hud,
+  .br-hint-pill {
+    transition: opacity .28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .br-stage[data-hud-hidden="true"] .br-hud,
+  .br-stage[data-hud-hidden="true"] .br-hint-pill {
+    transform: none;
+  }
+  .br-pill {
+    transition: border-color .15s, background-color .15s, color .15s;
+  }
+  .br-pill:hover,
+  .br-spell-card:hover,
+  .br-track-seed:hover {
+    transform: none;
+  }
+  .br-ring-fg {
+    transition: none;
+  }
+  .br-spell-card {
+    transition: border-color .16s;
+  }
+  .br-track-seed {
+    transition: border-color .15s, background-color .15s;
+  }
+}

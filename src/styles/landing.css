@@ -19,14 +19,6 @@ body:not(.is-landing) #nav .nav-top .brand {
   view-transition-name: sm-brand;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(*),
-  ::view-transition-old(*),
-  ::view-transition-new(*) {
-    animation: none !important;
-  }
-}
-
 .lp-root {
   --lp-display: "Bricolage Grotesque Variable", var(--sans);
   --lp-void: light-dark(#f2efe8, #070a10);
@@ -655,5 +647,23 @@ body:not(.is-landing) #nav .nav-top .brand {
   .lp-cta {
     font-size: .72rem;
     padding: .3rem .46rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-dock {
+    transition: border-radius .22s, background-color .22s, box-shadow .22s;
+  }
+  .lp-dock-toggle {
+    transition: border-color .15s, background-color .15s, color .15s;
+  }
+  .lp-dock-chev {
+    transition: none;
+  }
+  .lp-trow {
+    transition: border-color .16s;
+  }
+  .lp-trow:hover {
+    transform: none;
   }
 }

@@ -992,7 +992,7 @@ function mockView(iv) {
   diffSel.value = 1;
   const go = (type) => () => {
     stage.replaceChildren(...start[type]().flat(Infinity));
-    stage.scrollIntoView({ behavior: 'smooth' });
+    stage.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   };
   const card = (type, title, desc, extra) =>
     h(
