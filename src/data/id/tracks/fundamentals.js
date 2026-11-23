@@ -42,6 +42,12 @@ export const trackId = {
       ['Trade-off memori vs waktu', 'Membayar RAM ekstra `O(n)` untuk hash table atau tabel memo demi mengubah kerja `O(n²)` atau `O(2ⁿ)` menjadi waktu linear cepat.']
     ],
     title: 'Big-O: bagaimana kode berkembang',
+    predict: {
+      prompt: '`BinarySearch` menemukan sebuah nilai di antara 1.000.000 item terurut dalam sekitar 20 langkah. Kira-kira berapa langkah yang dibutuhkan setelah array membesar menjadi 2.000.000 item?',
+      options: ['Sekitar `40`: data dua kali lipat, kerja dua kali lipat', 'Sekitar `21`: menggandakan `n` hanya menambah satu langkah pembagian dua', 'Sekitar `400`: binary search bernilai `O(n²)` pada kasus terburuk'],
+      answer: 1,
+      explain: 'Binary search bernilai `O(log n)`: setiap perbandingan membelah dua rentang yang tersisa. `log₂(1,000,000)` sekitar `20` dan `log₂(2,000,000)` sekitar `21`, jadi menggandakan input hanya menambah satu langkah. Bandingkan dengan `HasDuplicateSlow` yang `O(n²)`: menggandakan `n` di sana membuat perbandingan kira-kira empat kali lipat.'
+    },
     why: "Interview hampir selalu menanyakan time dan space complexity jawabanmu. Di dunia kerja, Big-O membantumu menebak apakah kode yang lancar untuk 100 baris bakal bertahan saat datanya naik ke 10 juta baris.",
     points: [
       "Big-O melihat bagaimana **jumlah langkah tumbuh** saat ukuran input n membesar. Konstanta dan suku kecil dibuang, jadi 3n + 10 cukup ditulis O(n).",
@@ -166,12 +172,19 @@ export const trackId = {
     ]
   },
   trees: {
+    splits: ['1 · Insert & traversal BST', '2 · Membangun pohon & heap', '3 · Binary search pada kondisi', '4 · Class Node'],
     terms: [
       ['Invariant binary search (`lo <= hi`)', 'Memangkas separuh rentang terurut di tiap langkah dalam `O(log n)`, termasuk untuk soal "binary search jawaban kapasitas".'],
       ['Heap (`PriorityQueue`)', 'Tree semi-terurut yang mengambil nilai terkecil atau terbesar dalam `O(log n)`, inti Top-K, timer, dan Dijkstra.'],
       ['Penelusuran pohon (`DFS` pre/in/post vs `BFS`)', 'DFS menelusuri akar sampai ujung cabang lewat rekursi, sedangkan BFS menyapu level demi level memakai queue.']
     ],
     title: 'Tree, heap, dan binary search',
+    predict: {
+      prompt: 'Kode ini menyisipkan `8, 3, 10, 1, 6` dan `Height(root)` mencetak `3`. Apa yang dicetak `Height(root)` jika kamu menyisipkan `1, 3, 6, 8, 10` yang sudah terurut ke pohon kosong?',
+      options: ['`3`: nilai yang sama selalu membentuk pohon yang sama', '`5`: setiap nilai menjadi anak kanan, sehingga pohon berubah menjadi linked list', '`1`: input terurut menghasilkan pohon yang benar-benar datar'],
+      answer: 1,
+      explain: 'BST ini tidak pernah menyeimbangkan diri. Setiap nilai baru lebih besar dari semua nilai sebelumnya, jadi selalu masuk ke kanan dan pohon merosot menjadi rantai setinggi `5`. Pencarian pun menjadi `O(n)` alih-alih `O(log n)`. Pohon yang menyeimbangkan diri (red-black atau AVL) memutar node agar tingginya tetap logaritmik; `SortedDictionary` dibangun di atas red-black tree justru karena alasan ini.'
+    },
     why: "Tree muncul di seluruh stack: DOM, JSON, file system, component tree React, dan B-tree di balik index SQL. Heap menjawab pertanyaan 'apa berikutnya?' seperti top K dan penjadwalan, dan binary search berguna jauh melampaui mencari angka di array.",
     points: [
       "**Tree** adalah node bercabang tanpa cycle, dan **binary tree** maksimal punya dua child per node. Tree seimbang dengan n node dalamnya sekitar log₂ n level.",
@@ -198,12 +211,19 @@ export const trackId = {
     ]
   },
   graphs: {
+    splits: ['1 · Adjacency list & pemanggil', '2 · Jalur terpendek BFS', '3 · DFS', '4 · Urutan topologis'],
     terms: [
       ['Set `seen` (sudah dikunjungi)', 'Mencatat simpul *begitu masuk queue* supaya siklus tidak berputar tanpa henti atau mengunjungi simpul dua kali.'],
       ['Jalur terpendek BFS (tanpa bobot)', 'Menyapu lingkaran jarak `0, 1, 2...` berurutan, menjamin jalur pertama yang menyentuh tujuan adalah yang terpendek.'],
       ['Topological sort (`in-degree`)', 'Mengurutkan dependensi searah tanpa siklus (`DAG`, seperti build pipeline, migrasi, atau installer) agar prasyarat selalu jalan lebih dulu.']
     ],
     title: 'Graph: BFS, DFS, dan topological order',
+    predict: {
+      prompt: 'Dimulai dari `A`, dalam urutan apa `Dfs` menambahkan node ke `seen`?',
+      options: ['`A B C D E`', '`A B D E C`', '`A B D E C D E`'],
+      answer: 1,
+      explain: 'DFS menyusuri satu cabang sedalam mungkin sebelum mundur: `A`, `B`, `D`, `E`, lalu kembali ke `A` untuk mencoba `C`. Saat `C` melihat `D`, `visited.Add` mengembalikan false, jadi `D` tidak dikunjungi dua kali dan tidak ada cycle yang terlibat. `A B C D E` adalah urutan per level yang akan dihasilkan BFS dari `A`.'
+    },
     why: "Peta, jejaring sosial, build system, dan grid itu graph, sama halnya kodemu sendiri. DI container yang merangkai dependency constructor dan EF Core yang mengurutkan migration sama-sama menelusuri graph, jadi tantangannya adalah sadar bahwa soalnya berbentuk graph.",
     points: [
       "**Graph** adalah node (vertex) yang dihubungkan edge, bisa berarah atau berbobot. Tree dan linked list adalah kasus khususnya.",
@@ -232,6 +252,7 @@ export const trackId = {
     ]
   },
   backtracking: {
+    splits: ['1 · Pemanggil', '2 · Subset', '3 · Combination sum', '4 · Permutasi & Show'],
     terms: [
       ['Pohon keputusan', 'Memetakan kandidat parsial, yang tiap cabangnya mengambil satu pilihan sah (`sertakan`, `lewati`, atau angka berikutnya).'],
       ['Pilih → Telusuri → Batalkan pilihan', 'Masukkan kandidat ke `path`, lanjut rekursi ke bawah, lalu `pop()` (`undo`) supaya cabang lain mulai bersih.'],

@@ -10,6 +10,12 @@ export const trackId = {
       ['`decimal` vs `double`', '`decimal` (`0.1m`) memakai basis 10 untuk hitungan uang, sedangkan `double` memakai binary floating point dan bisa membulatkan `0.1 + 0.2`.']
     ],
     title: 'Program, variabel, dan type',
+    predict: {
+      prompt: 'Sebelum dijalankan, apa yang dicetak `Console.WriteLine(7 / 2)` dan `Console.WriteLine(7 / 2.0)`?',
+      options: ['`3.5` dan `3.5`', '`3` dan `3.5`', '`4` dan `3.5` (pembagian integer membulatkan ke atas)'],
+      answer: 1,
+      explain: 'Kalau kedua operand bertipe `int`, C# melakukan pembagian integer dan memotong ke arah nol, jadi `7 / 2` hasilnya `3` (dan `-7 / 2` menjadi `-3`, bukan `-4`). Cukup jadikan salah satu operand `double` (`2.0`) agar seluruh ekspresi naik ke floating point dan menghasilkan `3.5`.'
+    },
     why: "Setiap program C# memproses nilai bertipe lewat rangkaian statement. Begitu paham bahwa compiler mengecek type **sebelum** program jalan, error pemula tidak lagi terasa acak. Itu cuma peringatan awal soal type yang tidak cocok.",
     points: [
       "C# di-compile menjadi IL, lalu .NET runtime (CLR) mengubah IL itu jadi machine code lewat JIT saat jalan. `dotnet run` menjalankan keduanya.",
@@ -133,6 +139,7 @@ export const trackId = {
     ]
   },
   interfaces: {
+    splits: ['1 · Pemakaian', '2 · Interface & notifier', '3 · Base abstract & subclass'],
     terms: [
       ['Interface (`IPayment`)', 'Kontrak tentang *apa* kemampuan suatu tipe tanpa mengatur caranya, memudahkan unit test menukar layanan asli dengan tiruan.'],
       ['Polymorphism', 'Memanggil `.Charge(...)` lewat referensi `IPayment` agar tiap class konkret menjalankan kodenya sendiri.'],
@@ -192,6 +199,7 @@ export const trackId = {
     ]
   },
   errors: {
+    splits: ['1 · Kode pemanggil', '2 · ReadFirstLine & using', '3 · ParseAge & pembungkusan'],
     terms: [
       ['`using` / `IDisposable`', 'Menutup file, socket, dan koneksi database tepat saat blok selesai meski terjadi error di tengah method.'],
       ['Exception filter / catch order', 'Tangkap error spesifik (`FileNotFoundException`) di tempat yang bisa pulih daripada menelan semua `Exception` begitu saja.'],
@@ -231,6 +239,12 @@ export const trackId = {
     ],
     title: 'LINQ: mengolah data apa saja',
     viz: 'linq',
+    predict: {
+      prompt: '`cheapTech` didefinisikan lebih dulu. Lalu `products.Add(new("Cable", "Tech", 10))` dijalankan, dan baru setelah itu `foreach` menelusuri `cheapTech`. Apa yang dicetak?',
+      options: ['Hanya `Mouse`: query merekam isi list saat didefinisikan', '`Cable` lalu `Mouse`: query baru berjalan saat dienumerasi, jadi item baru ikut terlihat', '`InvalidOperationException`: koleksinya sudah diubah'],
+      answer: 1,
+      explain: '`Where`, `OrderBy`, dan `Select` memakai deferred execution: `cheapTech` hanya menyimpan resepnya, bukan hasilnya. Pipeline baru berjalan di dalam `foreach`, setelah `Cable` ditambahkan, dan `OrderBy(p => p.Price)` menaruh `Cable` (10) sebelum `Mouse` (25). Panggil `.ToList()` untuk mengambil snapshot. Yang memicu exception adalah mengubah list *selama* list itu sedang dienumerasi.'
+    },
     why: "LINQ adalah cara C# menyaring, mengubah, dan meringkas data baik di memori maupun di SQL lewat EF Core. Ini jembatan langsung antara track C# dan SQL.",
     points: [
       "LINQ menambah extension method ke `IEnumerable<T>` seperti `Where` (saring), `Select` (ubah bentuk), `OrderBy` (urutkan), dan `GroupBy` (kelompokkan).",
@@ -255,12 +269,19 @@ export const trackId = {
     ]
   },
   delegates: {
+    splits: ['1 · Lambda & closure', '2 · Event', '3 · Extension method & sumber event'],
     terms: [
       ['Delegate (`Func<>` / `Action<>`)', 'Referensi fungsi bertipe aman (`Func<int, bool>` menerima `int` lalu kembali `bool`, sedangkan `Action` tanpa nilai balik).'],
       ['Lambda (`x => x * 2`)', 'Fungsi anonim sebaris yang langsung diteruskan ke LINQ, middleware, atau event handler.'],
       ['Closure capture', 'Lambda yang menjaga akses langsung ke variabel luar. Hati-hati terhadap loop counter yang berubah atau object besar yang tertahan di memori.']
     ],
     title: 'Delegate, lambda, dan event',
+    predict: {
+      prompt: 'Kamu membuat `var actions = new List<Action>(); for (int i = 0; i < 3; i++) actions.Add(() => Console.Write(i));` lalu memanggil semua action-nya. Apa yang dicetak?',
+      options: ['`012`', '`333`', '`222`'],
+      answer: 1,
+      explain: 'Lambda menangkap *variabelnya*, bukan nilainya saat itu, persis seperti `bump` menangkap `count`. Loop `for` hanya mendeklarasikan satu `i` yang dipakai bersama oleh semua iterasi, jadi ketika action akhirnya dijalankan, `i` sudah bernilai `3`. Variabel `foreach` selalu baru di tiap iterasi (sejak C# 5), sehingga `foreach (var i in Enumerable.Range(0, 3))` mencetak `012`. Di dalam loop `for`, salin dulu dengan `int copy = i;`.'
+    },
     why: "Mengirim fungsi sebagai nilai menjadi tulang punggung LINQ, middleware, dan Minimal API. Begitu terbiasa membaca bentuk `Func<T, bool>`, kode framework langsung terasa ramah.",
     points: [
       "**Delegate** mendefinisikan wadah bertipe untuk sebuah method, seperti 'terima `int` dan kembalikan `bool`'.",
@@ -285,6 +306,7 @@ export const trackId = {
     ]
   },
   async: {
+    splits: ['1 · Berurutan vs WhenAll', '2 · Pembatalan & streaming', '3 · Helper async'],
     terms: [
       ['Non-blocking I/O (`await`)', 'Membebaskan thread agar ASP.NET Core bisa melayani ribuan request lain selama menunggu balasan SQL atau HTTP.'],
       ['`Task.WhenAll(...)`', 'Menjalankan beberapa tugas async yang tidak saling tergantung berbarengan agar tidak perlu menunggu satu per satu.'],
@@ -332,6 +354,12 @@ export const trackId = {
       ['Pattern matching', 'Percabangan deklaratif berbasis tipe dan bentuk data (`is Order { Total: > 100 } o`) yang keutuhannya dicek compiler.']
     ],
     title: 'Null safety, record, dan pattern',
+    predict: {
+      prompt: 'Dengan `public record Money(decimal Amount, string Currency);`, apa yang dicetak `price == new Money(10, "USD")`? Lalu apa hasilnya jika `Money` hanyalah `class` biasa dengan dua properti yang sama?',
+      options: ['`True` untuk record, `False` untuk class', '`False` untuk keduanya: itu dua object berbeda', '`True` untuk keduanya: compiler membandingkan properti'],
+      answer: 0,
+      explain: 'Sebuah `record` otomatis membuat `Equals`, `GetHashCode`, dan `==` yang membandingkan setiap properti, jadi dua nilai `Money` yang dibuat terpisah dengan `Amount` dan `Currency` sama dianggap setara. `class` biasa tetap memakai reference equality: `==` menanyakan apakah kedua variabel menunjuk object heap yang sama, dan jawabannya `False` untuk dua instance hasil `new`.'
+    },
     why: "C# modern membantu compiler mencegah beberapa jenis bug sebelum program dijalankan: null reference, kondisi data yang terlewat, dan mutasi tak sengaja. Kodenya jadi jauh lebih pendek namun tetap kokoh.",
     points: [
       "Project baru otomatis mengaktifkan **nullable reference type**. `string` menjanjikan nilai selalu ada, sementara `string?` memintamu mengecek null terlebih dahulu.",
@@ -387,12 +415,19 @@ export const trackId = {
     ]
   },
   concurrency: {
+    splits: ['1 · Counter atomik', '2 · Gerbang SemaphoreSlim', '3 · Channel berbatas'],
     terms: [
       ['Race condition', 'Dua thread membaca dan mengubah data bersama tanpa pengatur urutan sehingga hasil akhirnya mengandalkan keberuntungan waktu.'],
       ['`ConcurrentDictionary` vs `lock`', '`ConcurrentDictionary` mengamankan akses peta data per operasi, sementara `SemaphoreSlim(1, 1)` mengunci blok async (jangan taruh `await` di dalam `lock`).'],
       ['`Channel<T>`', 'Antrean async producer/consumer berkecepatan tinggi untuk menyalurkan pekerjaan latar belakang dari endpoint HTTP ke worker.']
     ],
     title: 'Concurrency dan thread safety',
+    predict: {
+      prompt: '`Parallel.For` menjalankan `unsafeCount++` dan `Interlocked.Increment(ref safeCount)` masing-masing 100.000 kali di beberapa thread. Output apa yang paling mungkin muncul?',
+      options: ['`100000 vs 100000`: `++` pada `int` adalah satu langkah atomik', 'Kira-kira `73412 vs 100000`: `unsafeCount` kehilangan sebagian update', 'Error compile: variabel lokal yang ditangkap tidak boleh diubah di dalam `Parallel.For`'],
+      answer: 1,
+      explain: '`unsafeCount++` sebenarnya tiga langkah: baca, tambah, tulis. Dua thread bisa membaca nilai yang sama lalu sama-sama menulis nilai itu ditambah satu, sehingga satu increment hilang. `Interlocked.Increment` mengerjakan baca-ubah-tulis sebagai satu instruksi CPU atomik, jadi `safeCount` selalu `100000`. Jumlah update yang hilang berubah di setiap run, dan justru itulah yang membuat race condition sulit direproduksi.'
+    },
     why: "Web API memproses banyak request sekaligus di saat bersamaan. Static field, koleksi singleton, atau cache memori disentuh serempak banyak thread hingga memicu bug langka yang susah dilacak.",
     points: [
       "Pada **race condition**, kebenaran hasil bergantung pada keberuntungan urutan thread. Operasi seperti `count++` memecah langkah baca, tambah, dan tulis sehingga tak aman.",

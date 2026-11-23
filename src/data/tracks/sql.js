@@ -68,6 +68,12 @@ OFFSET 3 ROWS FETCH NEXT 3 ROWS ONLY;
         ['`DECIMAL(p, s)` vs `FLOAT`', 'Base-10 fixed types like `DECIMAL(10,2)` avoid binary floating-point rounding drift on prices and money.'],
         ['Parameterized DML', 'Binding input via parameters (`@price`) in `INSERT`, `UPDATE`, and `DELETE` blocks SQL injection completely.']
       ],
+      predict: {
+        prompt: "Before the `INSERT`, the table has 6 customers: Ana and Dewi live in Jakarta and Eko has `city = NULL`. How many rows does `SELECT name FROM customers WHERE city <> 'Jakarta';` return?",
+        options: ['`4`: Budi, Citra, Eko and Fitri', '`3`: Eko is left out', '`0`: one NULL in the column makes every comparison unknown'],
+        answer: 1,
+        explain: "SQL uses three-valued logic. `NULL <> 'Jakarta'` is not true but *unknown*, and `WHERE` keeps only rows where the condition is true, so Eko disappears along with Ana and Dewi. Other rows are compared independently, so Budi, Citra and Fitri remain. To include unknown cities, say so explicitly: `WHERE city <> 'Jakarta' OR city IS NULL`."
+      },
       why: "Reads don't break data, while writes can wipe a table fast. Here are the habits that keep bad writes contained, plus how `NULL` breaks normal equality checks.",
       points: [
         "`INSERT INTO t (cols) VALUES (…)` adds rows. `UPDATE t SET … WHERE …` edits matching rows, and `DELETE FROM t WHERE …` removes them.",
@@ -237,11 +243,18 @@ ORDER BY revenue DESC;
     },
     {
       id: 'subqueries', title: 'Subqueries and CTEs', level: 1, mins: 30,
+      splits: [['1 · Scalar & EXISTS', '-- Products priced above the average'], ['2 · Chained CTEs', '-- CTEs: build the answer'], ['3 · Recursive CTE', '-- Recursive CTE']],
       terms: [
         ['CTE (`WITH ... AS`)', 'A named subquery at the top of a query so multi-step logic reads clearly from top to bottom.'],
         ['Correlated subquery / `EXISTS`', 'References the outer row inside a subquery. `EXISTS` stops as soon as it finds one match without multiplying rows.'],
         ['Scalar subquery', 'Returns one value (1 row, 1 column) for comparisons like `WHERE price > (SELECT AVG(price) FROM products)`.']
       ],
+      predict: {
+        prompt: "You find customers with no paid orders using `WHERE c.id NOT IN (SELECT o.customer_id FROM orders AS o WHERE o.status = 'paid')`. Then a bug inserts a paid order whose `customer_id` is NULL (assume the column allowed it). How many customers does the query return now?",
+        options: ['The same customers as before: `IN` ignores NULLs', 'None: `NOT IN` against a list that contains NULL is never true', 'Every customer: a NULL matches nothing, so they all pass'],
+        answer: 1,
+        explain: '`x NOT IN (a, b, NULL)` expands to `x <> a AND x <> b AND x <> NULL`. The last comparison is unknown, so the whole `AND` can never be true and every row is filtered out. `NOT EXISTS` with `o.customer_id = c.id` has no such trap: a NULL `customer_id` simply never matches any customer.'
+      },
       why: "Complex reporting questions build up in steps, like finding customers who beat the average spend and seeing what they bought. Subqueries and CTEs split that work into stages you can verify independently.",
       points: [
         "A **subquery** sits inside another query: inside `WHERE` (filtering against sets), `FROM` (derived tables), or `SELECT` (scalar values).",
@@ -310,6 +323,7 @@ SELECT REPLICATE('  ', depth) + name AS category, depth FROM tree ORDER BY depth
     },
     {
       id: 'design', title: 'Schema design: keys, constraints and normalization', level: 1, mins: 40,
+      splits: [['1 · Core tables', 'CREATE TABLE customers ('], ['2 · Junction table & indexes', '-- Junction table'], ['3 · JSON columns', '-- JSON: preferences']],
       terms: [
         ['Constraint (`CHECK`, `UNIQUE`, `NOT NULL`)', "Rules enforced by the database engine so invalid data can't slip in, even via ad-hoc scripts bypassing your API."],
         ['Normalization (1NF–3NF)', 'Keeping each fact in one place rather than duplicating names or addresses across orders so updates stay consistent.'],
@@ -397,6 +411,12 @@ SELECT productId, quantity FROM OPENJSON(@lines) WITH (productId INT, quantity I
         ['Clustered vs Covering index (`INCLUDE`)', 'Clustered indexes sort the table rows themselves. Adding `INCLUDE (col)` lets a non-clustered index answer queries without key lookups.'],
         ['Sargable predicate', 'Filters comparing bare indexed columns directly (`created_at >= ...`) allow seeks, while wrapping them (`YEAR(created_at)`) forces full scans.']
       ],
+      predict: {
+        prompt: 'Only `ix_orders_customer_date` on `(customer_id, order_date)` exists. Which filter can use an index **seek** on it?',
+        options: ["`WHERE order_date >= '2026-02-01'`", "`WHERE customer_id = 2 AND order_date >= '2026-02-01'`", 'Both, because the index contains both columns'],
+        answer: 1,
+        explain: 'A composite index is sorted by `customer_id` first, and by `order_date` only *within* each customer, like a phone book sorted by surname and then first name. Constraining the leading column lets SQL Server jump straight to customer 2 and range-scan its dates. A filter on `order_date` alone must scan the whole index (or table), because matching dates are scattered across every customer.'
+      },
       why: "The exact same query can finish in 5 ms or stall for 50 seconds depending on one missing index. Indexes are the first place to look whenever a page slows down as tables grow.",
       points: [
         "With no index, SQL scans every row in O(n) time. A B-tree index lets it walk a few sorted tree levels in O(log n) time (a **seek**).",
@@ -444,11 +464,18 @@ SELECT order_date, status FROM orders WHERE customer_id = 2;
     },
     {
       id: 'transactions', title: 'Transactions, ACID and isolation', level: 2, mins: 40,
+      splits: [['1 · All-or-nothing transfer', '-- All or nothing'], ['2 · Lost update vs atomic', '-- Lost update'], ['3 · Optimistic concurrency', '-- Optimistic concurrency']],
       terms: [
         ['ACID', 'Atomicity (all or nothing), Consistency (valid constraints), Isolation (concurrent safety), and Durability (survives crashes after `COMMIT`).'],
         ['Isolation level', 'Balances lock waiting against concurrency bugs across `Read Committed`, `Repeatable Read`, `Serializable`, and snapshot RCSI.'],
         ['Atomic conditional `UPDATE`', '`UPDATE Products SET Stock = Stock - @qty WHERE Id = @id AND Stock >= @qty` checks and lowers stock in one atomic step.']
       ],
+      predict: {
+        prompt: 'The Chair (`id = 7`) has `stock = 1`. Two buyers run `UPDATE products SET stock = stock - 1 WHERE id = 7 AND stock > 0;` at the same moment. What happens?',
+        options: ['Both succeed and `stock` ends up at `-1`', 'One gets `@@ROWCOUNT = 1`; the other waits for the lock, re-checks `stock > 0`, and gets `0`', 'Both read `1` and both write `0`: a lost update'],
+        answer: 1,
+        explain: 'A single `UPDATE` reads and writes the row atomically while holding an exclusive lock. The second statement blocks on that lock until the first commits, then evaluates `stock > 0` against the new value `0`, matches nothing, and reports `@@ROWCOUNT = 0`. The lost update only happens when the app reads with a `SELECT`, subtracts in code, and writes the result back.'
+      },
       why: "Bank transfers, stock updates, and checkout writes need to happen all at once or not at all, even under heavy traffic. Any code modifying database rows needs transactions.",
       points: [
         "A **transaction** wraps statements into one unit with `BEGIN TRANSACTION` … `COMMIT`, or `ROLLBACK` to undo everything.",
@@ -513,6 +540,12 @@ SELECT @@ROWCOUNT AS saved;   -- 1 here; 0 would mean someone changed the row af
         ['`ROW_NUMBER()` vs `DENSE_RANK()`', '`ROW_NUMBER` gives unique sequential numbers (1, 2, 3), while `DENSE_RANK` keeps ties equal without skipping numbers (1, 1, 2).'],
         ['Frame / Running total (`ORDER BY`)', 'Putting `ORDER BY` inside `OVER (...)` turns a group sum into a row-by-row running total.']
       ],
+      predict: {
+        prompt: 'Suppose the two most expensive Tech products had the same price. With `RANK() OVER (PARTITION BY category ORDER BY price DESC)`, which `price_rank` values would the first three Tech rows get?',
+        options: ['`1, 2, 3`', '`1, 1, 3`', '`1, 1, 2`'],
+        answer: 1,
+        explain: '`RANK()` gives tied rows the same rank and then skips, so the next row is `3`. `DENSE_RANK()` would give `1, 1, 2`, and `ROW_NUMBER()` gives `1, 2, 3` with an arbitrary order between the tied rows. That last point matters for top-1-per-group queries: add a tiebreaker column to the `ORDER BY` so `rn = 1` is deterministic.'
+      },
       why: "Leaderboards, running balances, month-over-month deltas, and top-N per group show up in almost every report. Window functions turn ugly self-joins into one clear expression.",
       points: [
         "Window functions calculate across related rows **without collapsing them**. Unlike `GROUP BY`, every row remains visible.",
@@ -565,6 +598,7 @@ SELECT id, customer_id, order_date FROM ranked WHERE rn = 1;
     // ---------------- Expert ----------------
     {
       id: 'plans', title: 'Execution plans and query tuning', level: 3, mins: 45,
+      splits: [['1 · Sargable filters', '-- Not sargable: the function'], ['2 · Measure with STATISTICS', '-- See what the engine does'], ['3 · Keyset pagination', '-- Keyset pagination']],
       terms: [
         ['Seek vs Scan & Key Lookup', 'Plan operators revealing if SQL used an index seek, scanned the table, or fell back to random key lookups per row.'],
         ['Logical reads (`STATISTICS IO`)', 'Exact count of 8 KB pages read, giving a far steadier benchmark than noisy wall-clock milliseconds when tuning queries.'],
@@ -624,6 +658,7 @@ ORDER BY order_date DESC, id DESC;
     },
     {
       id: 'locking', title: 'Locking, deadlocks and MVCC', level: 3, mins: 40, viz: 'sqllock',
+      splits: [['1 · Deadlock & lock order', '-- Classic deadlock'], ['2 · Row versions & upsert', '-- Let readers use row versions'], ['3 · MERGE variant', '-- The same with MERGE']],
       terms: [
         ['Shared (S) vs Exclusive (X) lock', 'Readers share S locks together, while writers take X locks that block other readers and writers under classic `Read Committed`.'],
         ['Deadlock (`Error 1205`)', 'Cycle where Tx A waits on Tx B while Tx B waits on Tx A. Acquiring resources in one fixed order prevents it.'],

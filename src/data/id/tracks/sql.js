@@ -44,6 +44,12 @@ export const trackId = {
       ['DML berparameter', 'Mengirim input user lewat parameter (`@price`) pada `INSERT`, `UPDATE`, dan `DELETE` menutup celah SQL injection.']
     ],
     title: 'Mengubah data, type, dan NULL',
+    predict: {
+      prompt: "Sebelum `INSERT`, tabel berisi 6 pelanggan: Ana dan Dewi tinggal di Jakarta, sedangkan Eko punya `city = NULL`. Berapa baris yang dikembalikan `SELECT name FROM customers WHERE city <> 'Jakarta';`?",
+      options: ['`4`: Budi, Citra, Eko, dan Fitri', '`3`: Eko tidak ikut', '`0`: satu NULL di kolom membuat semua perbandingan jadi unknown'],
+      answer: 1,
+      explain: "SQL memakai logika tiga nilai. `NULL <> 'Jakarta'` bukan true melainkan *unknown*, dan `WHERE` hanya menyimpan baris yang kondisinya true, jadi Eko ikut hilang bersama Ana dan Dewi. Baris lain dibandingkan sendiri-sendiri, sehingga Budi, Citra, dan Fitri tetap muncul. Kalau kota yang tidak diketahui ingin ikut, tulis secara eksplisit: `WHERE city <> 'Jakarta' OR city IS NULL`."
+    },
     why: "Membaca data aman dilakukan bebas, sedangkan menulis data bisa menghapus satu tabel sekaligus. Kebiasaan di materi ini melindungi datamu dari tulisan yang keliru serta menjelaskan perilaku unik `NULL`.",
     points: [
       "`INSERT INTO t (cols) VALUES (…)` menambah baris baru. `UPDATE t SET … WHERE …` mengubah baris cocok, dan `DELETE FROM t WHERE …` menghapusnya.",
@@ -142,12 +148,19 @@ export const trackId = {
     ]
   },
   subqueries: {
+    splits: ['1 · Skalar & EXISTS', '2 · CTE berantai', '3 · CTE rekursif'],
     terms: [
       ['CTE (`WITH ... AS`)', 'Subquery bernama di atas query utama agar logika bertahap enak dibaca dari atas ke bawah.'],
       ['Correlated subquery / `EXISTS`', 'Merujuk baris luar di dalam subquery. `EXISTS` berhenti begitu ketemu kecocokan pertama tanpa menggandakan baris.'],
       ['Scalar subquery', 'Mengembalikan tepat satu nilai (1 baris, 1 kolom) untuk perbandingan seperti `WHERE price > (SELECT AVG(price) FROM products)`.']
     ],
     title: 'Subquery dan CTE',
+    predict: {
+      prompt: "Kamu mencari pelanggan tanpa pesanan berstatus paid dengan `WHERE c.id NOT IN (SELECT o.customer_id FROM orders AS o WHERE o.status = 'paid')`. Lalu sebuah bug menyisipkan pesanan paid dengan `customer_id` bernilai NULL (anggap kolomnya mengizinkan). Berapa pelanggan yang dikembalikan query sekarang?",
+      options: ['Sama seperti sebelumnya: `IN` mengabaikan NULL', 'Tidak ada: `NOT IN` terhadap daftar yang berisi NULL tidak pernah true', 'Semua pelanggan: NULL tidak cocok dengan apa pun, jadi semuanya lolos'],
+      answer: 1,
+      explain: '`x NOT IN (a, b, NULL)` dijabarkan menjadi `x <> a AND x <> b AND x <> NULL`. Perbandingan terakhir bernilai unknown, jadi seluruh `AND` tidak pernah bisa true dan semua baris tersaring. `NOT EXISTS` dengan `o.customer_id = c.id` tidak punya jebakan ini: `customer_id` yang NULL tidak akan pernah cocok dengan pelanggan mana pun.'
+    },
     why: "Pertanyaan laporan sering bertingkat, seperti mencari pelanggan yang belanjanya di atas rata-rata lalu melihat barang pesanannya. Subquery dan CTE memecah proses rumit itu menjadi tahapan yang gampang dicek satu per satu.",
     points: [
       "**Subquery** adalah query di dalam query lain: di dalam `WHERE` (menyaring himpunan), `FROM` (tabel turunan), atau `SELECT` (nilai tunggal).",
@@ -173,6 +186,7 @@ export const trackId = {
     ]
   },
   design: {
+    splits: ['1 · Tabel inti', '2 · Junction table & index', '3 · Kolom JSON'],
     terms: [
       ['Constraint (`CHECK`, `UNIQUE`, `NOT NULL`)', 'Aturan di mesin database supaya data rusak tak bisa masuk, meski lewat skrip manual di luar API.'],
       ['Normalisasi (1NF–3NF)', 'Menyimpan tiap fakta di satu tempat saja, bukan menyalin nama atau alamat ke banyak order agar data tetap selaras saat diubah.'],
@@ -215,6 +229,12 @@ export const trackId = {
       ['Predikat sargable', 'Filter yang membandingkan kolom polos terindeks (`created_at >= ...`) mengizinkan seek, sedangkan membungkus kolom (`YEAR(created_at)`) memaksa full scan.']
     ],
     title: 'Index: cara database menemukan baris dengan cepat',
+    predict: {
+      prompt: 'Hanya ada `ix_orders_customer_date` pada `(customer_id, order_date)`. Filter mana yang bisa memakai index **seek** pada index itu?',
+      options: ["`WHERE order_date >= '2026-02-01'`", "`WHERE customer_id = 2 AND order_date >= '2026-02-01'`", 'Keduanya, karena index-nya memuat kedua kolom'],
+      answer: 1,
+      explain: 'Composite index diurutkan berdasarkan `customer_id` dulu, dan `order_date` hanya diurutkan *di dalam* tiap pelanggan, mirip buku telepon yang diurutkan per nama keluarga lalu nama depan. Membatasi kolom terdepan membuat SQL Server bisa langsung melompat ke pelanggan 2 lalu menelusuri rentang tanggalnya. Filter yang hanya memakai `order_date` harus memindai seluruh index (atau tabel), karena tanggal yang cocok tersebar di semua pelanggan.'
+    },
     why: "Query yang persis sama bisa kelar dalam 5 ms atau macet 50 detik hanya gara-gara satu index yang kurang. Index selalu menjadi tempat pertama yang diperiksa saat halaman melambat seiring membesarnya tabel.",
     points: [
       "Tanpa index, SQL memindai tiap baris dengan waktu O(n). Index B-tree melompati beberapa level pohon terurut dalam waktu O(log n) yang disebut **seek**.",
@@ -241,12 +261,19 @@ export const trackId = {
     ]
   },
   transactions: {
+    splits: ['1 · Transfer semua-atau-tidak', '2 · Lost update vs atomik', '3 · Optimistic concurrency'],
     terms: [
       ['ACID', 'Atomicity (berhasil semua atau batal), Consistency (constraint sah), Isolation (aman saat paralel), dan Durability (selamat dari crash setelah `COMMIT`).'],
       ['Isolation level', 'Menyeimbangkan antrean lock dan anomali paralel di antara `Read Committed`, `Repeatable Read`, `Serializable`, serta snapshot RCSI.'],
       ['`UPDATE` bersyarat atomik', '`UPDATE Products SET Stock = Stock - @qty WHERE Id = @id AND Stock >= @qty` mengecek dan menurunkan stok dalam satu langkah tak terpecah.']
     ],
     title: 'Transaction, ACID, dan isolation',
+    predict: {
+      prompt: 'Chair (`id = 7`) punya `stock = 1`. Dua pembeli menjalankan `UPDATE products SET stock = stock - 1 WHERE id = 7 AND stock > 0;` pada saat yang bersamaan. Apa yang terjadi?',
+      options: ['Keduanya berhasil dan `stock` berakhir di `-1`', 'Satu mendapat `@@ROWCOUNT = 1`; yang lain menunggu lock, mengecek ulang `stock > 0`, lalu mendapat `0`', 'Keduanya membaca `1` dan sama-sama menulis `0`: lost update'],
+      answer: 1,
+      explain: 'Satu perintah `UPDATE` membaca dan menulis baris secara atomik sambil memegang exclusive lock. Statement kedua tertahan oleh lock itu sampai yang pertama commit, lalu mengevaluasi `stock > 0` terhadap nilai baru `0`, tidak menemukan baris yang cocok, dan melaporkan `@@ROWCOUNT = 0`. Lost update hanya terjadi kalau aplikasi membaca lewat `SELECT`, mengurangi di kode, lalu menulis hasilnya kembali.'
+    },
     why: "Transfer bank, pengurangan stok barang, serta penulisan checkout wajib tuntas semua atau batal semua biarpun trafik sedang tinggi. Setiap kode yang memodifikasi tabel butuh pemahaman transaksi.",
     points: [
       "**Transaction** membungkus beberapa perintah menjadi satu kesatuan memakai `BEGIN TRANSACTION` … `COMMIT`, atau `ROLLBACK` untuk membatalkan semuanya.",
@@ -279,6 +306,12 @@ export const trackId = {
       ['Frame / Total berjalan (`ORDER BY`)', 'Menaruh `ORDER BY` di dalam `OVER (...)` mengubah jumlah grup biasa menjadi jumlah berjalan baris per baris.']
     ],
     title: 'Window function',
+    predict: {
+      prompt: 'Misalkan dua produk Tech termahal punya harga yang sama. Dengan `RANK() OVER (PARTITION BY category ORDER BY price DESC)`, nilai `price_rank` apa yang didapat tiga baris Tech teratas?',
+      options: ['`1, 2, 3`', '`1, 1, 3`', '`1, 1, 2`'],
+      answer: 1,
+      explain: '`RANK()` memberi peringkat yang sama untuk baris yang seri lalu melompati angka berikutnya, jadi baris selanjutnya mendapat `3`. `DENSE_RANK()` akan menghasilkan `1, 1, 2`, sedangkan `ROW_NUMBER()` menghasilkan `1, 2, 3` dengan urutan acak di antara baris yang seri. Poin terakhir ini penting untuk query top-1 per grup: tambahkan kolom pemecah seri di `ORDER BY` agar `rn = 1` selalu deterministik.'
+    },
     why: "Peringkat produk, saldo berjalan, selisih bulan lalu, dan top-N per kategori hadir di hampir semua laporan bisnis. Window function menggantikan self-join berbelit dengan satu ekspresi ringkas.",
     points: [
       "Window function menghitung lintas baris terkait **tanpa menggulungnya**. Berbeda dari `GROUP BY`, setiap baris asli tetap utuh.",
@@ -305,6 +338,7 @@ export const trackId = {
     ]
   },
   plans: {
+    splits: ['1 · Filter sargable', '2 · Mengukur dengan STATISTICS', '3 · Keyset pagination'],
     terms: [
       ['Seek vs Scan & Key Lookup', 'Operator plan yang membuka apakah SQL melompat lewat index seek, memindai tabel, atau bolak-balik mengambil kolom ke tabel utama.'],
       ['Logical reads (`STATISTICS IO`)', 'Jumlah persis halaman 8 KB yang dibaca, memberi tolok ukur tuning yang stabil ketimbang angka milidetik yang berubah-ubah.'],
@@ -337,6 +371,7 @@ export const trackId = {
     ]
   },
   locking: {
+    splits: ['1 · Deadlock & urutan lock', '2 · Row version & upsert', '3 · Versi MERGE'],
     terms: [
       ['Shared (S) vs Exclusive (X) lock', 'Pembaca saling berbagi S lock, sementara penulis mengambil X lock yang menahan pembaca maupun penulis lain di `Read Committed` klasik.'],
       ['Deadlock (`Error 1205`)', 'Siklus saat Tx A menunggu Tx B dan Tx B menunggu Tx A. Memakai urutan akses baku yang sama mencegahnya terulang.'],
