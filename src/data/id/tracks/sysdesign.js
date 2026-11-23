@@ -36,7 +36,7 @@ export const trackId = {
   },
 
   networking: {
-    splits: [['NGINX Edge Proxy', '# --- 1. NGINX'], ['Envoy Cluster + Outlier', '# --- 2. Envoy']],
+    splits: ['NGINX Edge Proxy', 'Envoy Cluster + Outlier'],
     terms: [
       ['Load balancer L4 vs L7', 'L4 merutekan paket TCP/UDP berdasar IP dan port secara cepat. L7 mengakhiri TLS lalu membaca header HTTP, path, dan frame gRPC untuk routing cerdas.'],
       ['Health check aktif vs pasif', 'Pemeriksaan aktif menembak `/readyz` berkala (tersedia di Envoy dan NGINX Plus). Pemeriksaan pasif (Outlier Detection) mengeluarkan backend setelah error 5xx atau timeout beruntun.'],
@@ -68,7 +68,7 @@ export const trackId = {
   },
 
   communication: {
-    splits: [['Idempotent REST POST', '# --- 1. Idempotent'], ['Server-Sent Events', '# --- 2. Server-Sent'], ['WebSocket Upgrade', '# --- 3. WebSocket']],
+    splits: ['Idempotent REST POST', 'Server-Sent Events', 'WebSocket Upgrade'],
     terms: [
       ['Idempotency key', 'ID buatan klien (header IETF `Idempotency-Key`) yang disimpan bersama respons sehingga retry `POST` memutar hasil pertama tanpa menjalankan efek samping dua kali.'],
       ['Paginasi Cursor vs Offset', 'Offset (`OFFSET 10000`) memindai lalu membuang baris, dan batas halaman bergeser ketika baris baru masuk. Cursor melompat langsung lewat `WHERE (created_at, id) < (@ts, @id)`.'],
@@ -99,7 +99,7 @@ export const trackId = {
   },
 
   caching: {
-    splits: [['Cache-Aside + LRU', '// --- 1. Cache-Aside'], ['HTTP RFC 9111 Freshness', '// --- 2. HTTP RFC 9111']],
+    splits: ['Cache-Aside + LRU', 'HTTP RFC 9111 Freshness'],
     terms: [
       ['Cache-Aside (Lazy Loading)', 'Aplikasi memeriksa cache dulu. Saat miss, ia membaca database, mengisi cache, lalu mengembalikan data sehingga hanya key populer yang memakai RAM.'],
       ['Write-Through vs Write-Behind', 'Write-Through memperbarui cache dan DB serempak untuk bacaan segar walau tulis lebih lambat. Write-Behind menampung tulis di cache dan mem-flush asinkron demi tulis cepat, berisiko hilang saat crash.'],
@@ -140,7 +140,7 @@ export const trackId = {
   },
 
   'cache-failures': {
-    splits: [['Singleflight Coalescer', '// --- 1. Singleflight'], ['Bloom Filter Guard', '// --- 2. Compact Bloom Filter'], ['TTL Jitter', '// --- 3. TTL Jitter']],
+    splits: ['Singleflight Coalescer', 'Bloom Filter Guard', 'TTL Jitter'],
     terms: [
       ['Cache stampede (dog-piling)', 'Banyak request serentak mengalami miss pada key populer yang baru kedaluwarsa, lalu mengirim query kembar untuk menghitung nilai yang sama.'],
       ['Cache penetration', 'Pencarian key yang kosong di cache maupun database (seperti ID tidak valid `-1` atau bot scan) menembus cache setiap saat dan membebani DB.'],
@@ -181,7 +181,7 @@ export const trackId = {
   },
 
   ratelimiting: {
-    splits: [['Token Bucket', '// --- 1. Token Bucket'], ['Sliding Window Counter', '// --- 2. Sliding Window Counter'], ['HTTP 429 & IETF Headers', '// --- 3. HTTP Middleware']],
+    splits: ['Token Bucket', 'Sliding Window Counter', 'HTTP 429 & IETF Headers'],
     terms: [
       ['Token Bucket', 'Mengisi ulang token pada laju `r` hingga kapasitas burst `b`. Membolehkan lonjakan singkat hingga `b` sembari menjaga laju rata-rata `r` di memori `O(1)`.'],
       ['Sliding Window Counter', 'Menggabungkan `prevCount * bobotTumpangTindih + currCount` dari dua bucket berdekatan. Memberi akurasi tinggi memakai memori `O(1)` per klien.'],
@@ -222,7 +222,7 @@ export const trackId = {
   },
 
   storage: {
-    splits: [['Mini LSM-Tree (MemTable + WAL)', '// --- 1. LSM MemTable'], ['Database Selection Matrix', '// --- 2. Database Matrix']],
+    splits: ['Mini LSM-Tree (MemTable + WAL)', 'Database Selection Matrix'],
     terms: [
       ['Mesin penyimpan B-Tree', 'Halaman berukuran tetap (misalnya 8 KB di Postgres dan SQL Server) yang diperbarui di tempat. Cepat untuk baca dan rentang, dengan page split pada tulis acak.'],
       ['LSM-Tree (Log-Structured Merge)', 'Menulis berurutan ke WAL serta MemTable terurut di RAM, lalu mem-flush SSTable imutabel ke disk. Cepat saat tulis, sementara bacaan memeriksa MemTable plus Bloom filter dan SSTable.'],
@@ -253,7 +253,7 @@ export const trackId = {
   },
 
   'search-geo': {
-    splits: [['Inverted Index + BM25', '// --- 1. Inverted Index'], ['Geohash Proximity Encoding', '// --- 2. Geohash']],
+    splits: ['Inverted Index + BM25', 'Geohash Proximity Encoding'],
     terms: [
       ['Inverted index', 'Memetakan token ter-normalisasi (`"coffee"`) ke daftar posting ID dokumen. Elasticsearch dan OpenSearch memakainya agar pencarian teks menghindari table scan.'],
       ['Okapi BM25', 'Rumus peringkat relevansi yang menggabungkan kejenuhan frekuensi kata (`k1`), kelangkaan kata di seluruh korpus (`IDF`), dan normalisasi panjang field (`b`).'],
@@ -284,7 +284,7 @@ export const trackId = {
   },
 
   'db-scaling': {
-    splits: [['PgBouncer Transaction Pool', '-- --- 1. PgBouncer Pool'], ['Declarative Partitioning', '-- --- 2. Range Partitioning'], ['Shard Key & Resharding', '-- --- 3. Composite Shard Schema']],
+    splits: ['PgBouncer Transaction Pool', 'Declarative Partitioning', 'Shard Key & Resharding'],
     terms: [
       ['PgBouncer Transaction Mode', 'Mengembalikan koneksi backend DB ke pool tiap selesai `COMMIT` atau `ROLLBACK`. Ribuan socket aplikasi yang menganggur bisa berbagi puluhan backend Postgres.'],
       ['Replication lag (`LSN`)', 'Jeda waktu antara commit di primer sampai replika baca memutar catatan WAL-nya. Membawa commit LSN memungkinkan bacaan penting menunggu atau dialihkan ke primer demi read-your-own-writes.'],
@@ -326,7 +326,7 @@ export const trackId = {
   },
 
   hashing: {
-    splits: [['Modulo Remapping Collapse', '// --- 1. Naive Modulo'], ['Hash Ring + Virtual Nodes', '// --- 2. Consistent Ring'], ['Bounded-Load Balancing', '// --- 3. Bounded-Load']],
+    splits: ['Modulo Remapping Collapse', 'Hash Ring + Virtual Nodes', 'Bounded-Load Balancing'],
     terms: [
       ['Cincin consistent hashing', 'Menaruh node dan key di satu ruang hash melingkar `[0, 2^32)` atau `2^64`. Setiap key jatuh ke node searah jarum jam berikutnya, jadi tambah atau hapus 1 node memindah ~`1/N` key.'],
       ['Virtual nodes (`vnodes`)', 'Beberapa titik cincin (`nodeA#0`, `nodeA#1`) per server. Memakai 100 hingga 200 vnodes menekan ketimpangan distribusi di bawah ±5% dan meratakan beban failover ke survivor.'],
@@ -368,7 +368,7 @@ export const trackId = {
   },
 
   messaging: {
-    splits: [['Transactional Outbox', '-- --- 1. Outbox Table'], ['Relay & SKIP LOCKED', '-- --- 2. Outbox Poller'], ['Idempotent Consumer & DLQ', '-- --- 3. Consumer Dedup & DLQ']],
+    splits: ['Transactional Outbox', 'Relay & SKIP LOCKED', 'Idempotent Consumer & DLQ'],
     terms: [
       ['Masalah Dual-write', 'Menulis ke PostgreSQL lalu mengirim ke Kafka atau RabbitMQ terpisah dalam satu request. Crash atau timeout di antara kedua panggilan membuat ledger dan event tidak sinkron.'],
       ['Transactional Outbox + CDC', 'Menyisipkan baris domain serta baris `outbox_events` dalam satu transaksi SQL. Worker `SKIP LOCKED` atau Debezium WAL CDC mengirim baris ke broker.'],
@@ -400,7 +400,7 @@ export const trackId = {
   },
 
   resilience: {
-    splits: [['Exponential Backoff + Full Jitter', '// --- 1. Full Jitter'], ['Circuit Breaker (Closed/Open/Half-Open)', '// --- 2. Circuit Breaker'], ['Semaphore Bulkhead + Timeout', '// --- 3. Bulkhead']],
+    splits: ['Exponential Backoff + Full Jitter', 'Circuit Breaker (Closed/Open/Half-Open)', 'Semaphore Bulkhead + Timeout'],
     terms: [
       ['Full Jitter backoff', 'Rumus AWS Builders Library `sleep = rand[0, min(cap, base * 2^attempt)]`. Mengacak waktu jeda retry agar layanan yang baru pulih tidak langsung dihantam gelombang serentak.'],
       ['Circuit Breaker', 'Mesin state (`Closed -> Open -> Half-Open`) yang gagal cepat saat error melewati ambang batas, melindungi server hilir dan melepas thread pemanggil.'],
@@ -442,7 +442,7 @@ export const trackId = {
   },
 
   consistency: {
-    splits: [['Quorum Overlap (W + R > N)', '// --- 1. Quorum Store'], ['Idempotency-Key Middleware', '// --- 2. Idempotency-Key Middleware Store'], ['Kleppmann Fencing Token', '// --- 3. Kleppmann Fencing Token Storage Guard']],
+    splits: ['Quorum Overlap (W + R > N)', 'Idempotency-Key Middleware', 'Kleppmann Fencing Token'],
     terms: [
       ['Quorum (`W + R > N`)', 'Dari `N` replika, tulis butuh ack `W` replika dan baca mengecek `R` replika hingga `W + R > N`. Irisan ini menjamin satu replika memegang `ver` terbaru.'],
       ['Header Idempotency-Key', 'Header draf IETF berisi ID buatan klien agar retry write mengembalikan hasil awal tersimpan (`409` atau `422` bila payload berbeda) tanpa menagih dua kali.'],
@@ -484,7 +484,7 @@ export const trackId = {
   },
 
   observability: {
-    splits: [['OpenTelemetry Collector', '# --- 1. OTel Collector'], ['SRE Burn-Rate Alert Rule', '# --- 2. SLO Burn-Rate Alert']],
+    splits: ['OpenTelemetry Collector', 'SRE Burn-Rate Alert Rule'],
     terms: [
       ['Tiga Pilar + Trace Context', 'Log JSON terstruktur (`trace_id`), metrik `RED` atau `USE`, dan trace terdistribusi yang dirangkai antar hop memakai `traceparent` W3C (`00-<trace-id>-<span-id>-<flags>`).'],
       ['Jebakan kardinalitas tinggi', 'Menaruh ID tak berbatas (`user_id`, `order_id`, URL utuh) sebagai label metrik Prometheus meledakkan memori TSDB. Simpan ID mentah di log dan span trace, pakai pola rute (`/orders/{id}`) di metrik.'],
@@ -516,7 +516,7 @@ export const trackId = {
   },
 
   'containers-k8s': {
-    splits: [['Deployment, Probes & preStop Drain', '# --- 1. Deployment + Zero-Downtime Rolling Drain'], ['Autoscaling (HPA) & Disruption Budget', '# --- 2. HPA v2']],
+    splits: ['Deployment, Probes & preStop Drain', 'Autoscaling (HPA) & Disruption Budget'],
     terms: [
       ['Probe (`startup`/`readiness`/`liveness`)', '`startupProbe` menjaga aplikasi lambat menyala, `readinessProbe` melepas pod hangat atau drain dari trafik, dan `livenessProbe` me-restart proses macet. Jangan ikat liveness ke cek DB luar.'],
       ['Balapan drain `preStop`', 'Kubernetes menghapus IP pod mati dari EndpointSlices secara asinkron sembari mengirim `SIGTERM`. Jeda 5 hingga 10 detik di `preStop` memberi waktu propagasi routing agar rilis bebas `502 Bad Gateway`.'],
@@ -548,7 +548,7 @@ export const trackId = {
   },
 
   toolbox: {
-    splits: [['Tool Decision Engine (Go)', '// --- 1. Workload Spec'], ['Minimal Stack Builder', '// --- 2. Stack Recommender']],
+    splits: ['Tool Decision Engine (Go)', 'Minimal Stack Builder'],
     terms: [
       ['Prinsip teknologi membosankan', 'Prinsip Dan McKinley: mulai dari database dan tools teruji yang sudah tim kuasai (sering cukup Postgres plus Redis) sampai batas skala terukur memaksa pindah.'],
       ['Pemisahan OLTP vs OLAP', 'Layani transaksi pelanggan pada OLTP berbasis baris (PostgreSQL, SQL Server). Alirkan event CDC ke OLAP kolumnar (ClickHouse, BigQuery, DuckDB) sebelum scan `GROUP BY` mengunci tabel checkout.'],
