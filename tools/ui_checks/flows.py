@@ -628,6 +628,13 @@ def run_english_pass(browser, base, check):
     page.wait_for_timeout(80)
     check(page.locator("dialog.sm-dialog[open]").count() == 0, "Escape must dismiss modal <dialog>")
 
+    # Verify keyboard skip link without inline JS
+    goto(page, base, "dashboard/")
+    page.keyboard.press("Tab")
+    check(page.evaluate("document.activeElement?.classList.contains('skip')"), "First Tab on workspace must focus .skip link")
+    page.keyboard.press("Enter")
+    check(page.evaluate("document.activeElement?.id === 'view'"), "Activating href='#view' skip link must move focus to #view[tabindex='-1']")
+
     # Cross-tab sync: progress saved in another tab updates this tab's theme and sidebar without a reload.
     goto(page, base, "dashboard/")
     other = ctx.new_page()

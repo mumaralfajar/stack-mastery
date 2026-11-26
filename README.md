@@ -222,7 +222,9 @@ Stack Mastery is a Progressive Web App (`public/manifest.webmanifest`, `public/s
 - The service worker (scope `/stack-mastery/`) precaches the landing pages, dashboards, icons, and the offline page on first visit, then caches every page and build asset you open. Pages use network-first with a cache fallback, so you always get the latest version when online and the last copy when offline.
 - Only same-origin requests under `/stack-mastery/` are handled. CDN runtimes for the editors and playgrounds (`cdnjs`, `esm.sh`, `jsDelivr`, DartPad) are never cached or intercepted.
 - Browsers that support installation show an **Install** option; the installed app opens at `/stack-mastery/`.
-- A new deployment bumps the cache version in `sw.js`, and old caches are deleted when the new worker activates.
+- Each build stamps `dist/sw.js` with a content hash (`stack-mastery-v2-<hash>`) and the current `_astro/` asset list; old caches and stale `_astro/` entries are pruned when the new worker activates.
+
+> Local-only authoring specs (`DESIGN.md` and `PRODUCT.md`) are intentionally excluded in `.gitignore` and kept out of the public repository.
 
 ## Project layout
 
@@ -248,7 +250,7 @@ Stack Mastery is a Progressive Web App (`public/manifest.webmanifest`, `public/s
 | `src/data/` | Typed manifest (`manifest.ts`, including each lesson's `quizIds`), chunked loaders (`index.ts`, `tracks-core.ts`, `tracks-ui.ts`, `interview-data.ts`), the build-time aggregators and indexes (`site.ts`, `search-index.ts`, `quiz-index.ts`), English tracks (`tracks/*.js`), `projects.js`, `interview.js`, `interview-cs.js` |
 | `src/data/id/` | Bahasa Indonesia loaders (`index.ts`, `core.ts`, `web.ts`, `ui.ts`), tracks (`tracks/*.js`), UI dictionaries (`ui-*.js`), `projects.js`, and `interview.js` |
 | `public/` | `manifest.webmanifest`, `sw.js`, `robots.txt`, favicons, and PNG/SVG app icons |
-| `tools/check-i18n.mjs`, `extract-text.mjs` | Translation parity check (lessons, UI strings in `.js`/`.ts`/`.astro`, `h()` labels, table headers, playground chips, manifest `quizIds`, lab registry) and text extractor |
+| `tools/sync-manifest.mjs`, `tools/check-i18n.mjs`, `extract-text.mjs` | Manifest generator (`bun run sync:manifest`), translation parity + unused UI key + sync check, and text extractor |
 | `tests/*.test.ts` | Bun unit tests covering SM-2 scheduling, routing/legacy hash migration, state normalization, progress selectors, i18n, and SSR escaping |
 | `tools/verify*.mjs`, `tools/verify-ui.py`, `tools/ui_checks/` | Language sample compilers/runners and the modular Playwright UI + axe-core WCAG 2.2 AA suite |
 
@@ -256,7 +258,7 @@ Stack Mastery is a Progressive Web App (`public/manifest.webmanifest`, `public/s
 
 All curriculum content is plain ES module data inside `src/data/` so no application logic needs edits.
 
-Add a lesson to `lessons` in a track file inside `src/data/tracks/` (and keep `src/data/manifest.ts` in sync, including `quizIds`, which must list each quiz item's `id` in order). The build creates its `/lesson/…/` and `/plan/…/` pages in both languages automatically:
+Add a lesson to `lessons` in a track file inside `src/data/tracks/`, then regenerate `src/data/manifest.ts` (and the summary totals above) with `bun run sync:manifest`. The build creates its `/lesson/…/` and `/plan/…/` pages in both languages automatically:
 
 ```js
 {

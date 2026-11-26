@@ -50,7 +50,7 @@ export function searchView(index: SearchEntry[]): HTMLDivElement {
             draw();
           },
         },
-        lbl,
+        T(lbl),
       );
       return (catBtns[k] = b);
     }),
