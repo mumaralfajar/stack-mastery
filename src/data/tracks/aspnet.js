@@ -50,9 +50,9 @@ app.Run();
         "Returning `200 OK` with an error message in the body instead of an accurate `4xx` or `5xx` code."
       ],
       quiz: [
-        { q: "Which status code family means 'the client sent something wrong'?", a: ["2xx", "3xx", "4xx", "5xx"], c: 2, why: "4xx codes like 400, 401, and 404 point to a client request mistake." },
-        { q: "HTTP being stateless means…", a: ["The server can't store any data", "Each request carries everything needed to process it", "Responses have no body", "Cookies are not allowed"], c: 1, why: "The protocol keeps no memory between requests. Cookies send state again with each request." },
-        { q: "A network error happens and the client automatically retries the same request. Which method is safe without extra design?", a: ["`POST /orders`", "`PUT /orders/7`", "`POST /payments`", "None of them"], c: 1, why: "`PUT` overwrites the resource with identical content, while repeating a `POST` can double an order or charge." }
+        { id: 'status-code-family-means', q: "Which status code family means 'the client sent something wrong'?", a: ["2xx", "3xx", "4xx", "5xx"], c: 2, why: "4xx codes like 400, 401, and 404 point to a client request mistake." },
+        { id: 'http-stateless-means', q: "HTTP being stateless means…", a: ["The server can't store any data", "Each request carries everything needed to process it", "Responses have no body", "Cookies are not allowed"], c: 1, why: "The protocol keeps no memory between requests. Cookies send state again with each request." },
+        { id: 'network-error-happens-client', q: "A network error happens and the client automatically retries the same request. Which method is safe without extra design?", a: ["`POST /orders`", "`PUT /orders/7`", "`POST /payments`", "None of them"], c: 1, why: "`PUT` overwrites the resource with identical content, while repeating a `POST` can double an order or charge." }
       ]
     },
     {
@@ -120,9 +120,9 @@ public class Greeter : IGreeter
         "Assuming `appsettings.Development.json` is used in production."
       ],
       quiz: [
-        { q: "Where must `builder.Services.AddScoped<…>()` be called?", a: ["After `app.Run()`", "Before `builder.Build()`", "Inside an endpoint handler", "Anywhere, as long as it's in `Program.cs`"], c: 1, why: "The service collection locks as soon as the app builds." },
-        { q: "The same key exists in `appsettings.json` and an environment variable. Which wins by default?", a: ["`appsettings.json`", "The environment variable", "Neither: the app refuses to start", "Whichever changed most recently"], c: 1, why: "Later configuration sources override earlier ones, and environment variables load after the JSON files." },
-        { q: "What is Kestrel?", a: ["A database driver", "The cross-platform web server built into ASP.NET Core", "A reverse proxy you have to install separately", "The background job scheduler"], c: 1, why: "Kestrel listens for HTTP connections and passes requests to your pipeline. A reverse proxy like nginx or IIS can sit in front, though it's optional." }
+        { id: 'builder-services-addscoped-calle', q: "Where must `builder.Services.AddScoped<…>()` be called?", a: ["After `app.Run()`", "Before `builder.Build()`", "Inside an endpoint handler", "Anywhere, as long as it's in `Program.cs`"], c: 1, why: "The service collection locks as soon as the app builds." },
+        { id: 'same-key-exists-appsettings', q: "The same key exists in `appsettings.json` and an environment variable. Which wins by default?", a: ["`appsettings.json`", "The environment variable", "Neither: the app refuses to start", "Whichever changed most recently"], c: 1, why: "Later configuration sources override earlier ones, and environment variables load after the JSON files." },
+        { id: 'what-is-kestrel', q: "What is Kestrel?", a: ["A database driver", "The cross-platform web server built into ASP.NET Core", "A reverse proxy you have to install separately", "The background job scheduler"], c: 1, why: "Kestrel listens for HTTP connections and passes requests to your pipeline. A reverse proxy like nginx or IIS can sit in front, though it's optional." }
       ]
     },
     {
@@ -200,9 +200,9 @@ public record CreateProduct(string Name, decimal Price);
         "Putting verbs in URLs like `/api/createProduct`. Let the HTTP method carry the verb."
       ],
       quiz: [
-        { q: "A `POST` successfully creates a resource. Best status code?", a: ["200", "201", "204", "202"], c: 1, why: "201 Created, ideally with a `Location` header pointing at the new resource. 202 means 'accepted, not done yet'." },
-        { q: "With `app.MapGet(\"/items/{id:int}\", (int id) => …)`, a request to `/items/abc` returns…", a: ["500", "404", "200 with id = 0", "400"], c: 1, why: "The `:int` constraint doesn't match, so no route is found. That's why constraints aren't a validation tool." },
-        { q: "Where does a complex-type parameter like `CreateProduct input` bind from by default in a POST?", a: ["Query string", "Route", "JSON body", "Form fields"], c: 2, why: "Complex types bind from the JSON body, while simple types bind from the route or query string." }
+        { id: 'post-successfully-creates-resour', q: "A `POST` successfully creates a resource. Best status code?", a: ["200", "201", "204", "202"], c: 1, why: "201 Created, ideally with a `Location` header pointing at the new resource. 202 means 'accepted, not done yet'." },
+        { id: 'app-mapget-items-id', q: "With `app.MapGet(\"/items/{id:int}\", (int id) => …)`, a request to `/items/abc` returns…", a: ["500", "404", "200 with id = 0", "400"], c: 1, why: "The `:int` constraint doesn't match, so no route is found. That's why constraints aren't a validation tool." },
+        { id: 'complex-type-parameter-like', q: "Where does a complex-type parameter like `CreateProduct input` bind from by default in a POST?", a: ["Query string", "Route", "JSON body", "Form fields"], c: 2, why: "Complex types bind from the JSON body, while simple types bind from the route or query string." }
       ]
     },
     // ---------------- Intermediate ----------------
@@ -272,9 +272,9 @@ app.Run();
         "Forgetting that code after `await next()` runs on the way back out."
       ],
       quiz: [
-        { q: "Middleware A is registered before B. On the response path, which runs its 'after' code first?", a: ["A", "B", "Both at once", "Whichever finishes its 'before' code first"], c: 1, why: "The pipeline unwinds in reverse: B finishes, then A." },
-        { q: "What does 'short-circuiting' mean?", a: ["The app crashes", "A middleware writes a response without calling `next`", "Two middleware run in parallel", "The request skips routing but still reaches the endpoint"], c: 1, why: "Later middleware and the endpoint never run, as with a 401 or a cached response." },
-        { q: "Why should exception-handling middleware be registered first?", a: ["It is the fastest", "So it wraps, and can catch exceptions from, everything after it", "It needs to read the request body first", "Only for readability"], c: 1, why: "A middleware can only catch exceptions thrown by components it calls through `next`." }
+        { id: 'middleware-registered-response-p', q: "Middleware A is registered before B. On the response path, which runs its 'after' code first?", a: ["A", "B", "Both at once", "Whichever finishes its 'before' code first"], c: 1, why: "The pipeline unwinds in reverse: B finishes, then A." },
+        { id: 'short-circuiting-mean', q: "What does 'short-circuiting' mean?", a: ["The app crashes", "A middleware writes a response without calling `next`", "Two middleware run in parallel", "The request skips routing but still reaches the endpoint"], c: 1, why: "Later middleware and the endpoint never run, as with a 401 or a cached response." },
+        { id: 'exception-handling-middleware-re', q: "Why should exception-handling middleware be registered first?", a: ["It is the fastest", "So it wraps, and can catch exceptions from, everything after it", "It needs to read the request body first", "Only for readability"], c: 1, why: "A middleware can only catch exceptions thrown by components it calls through `next`." }
       ]
     },
     {
@@ -355,9 +355,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         "Pulling services from `IServiceProvider` inside methods instead of declaring constructor dependencies (the service locator anti-pattern)."
       ],
       quiz: [
-        { q: "Within a single HTTP request, a scoped service is injected into two different classes. How many instances exist?", a: ["One", "Two", "One per thread", "Two, then merged at the end of the request"], c: 0, why: "Scoped creates one instance per scope, and every request gets one scope." },
-        { q: "Which lifetime does `AddDbContext` use by default?", a: ["Singleton", "Scoped", "Transient", "Pooled singleton"], c: 1, why: "A `DbContext` tracks one request's unit of work and isn't thread-safe." },
-        { q: "What is a captive dependency?", a: ["A circular reference between two services", "A shorter-lived service held by a longer-lived one", "A service registered twice", "A service that is never disposed"], c: 1, why: "Think of a singleton keeping a scoped `DbContext`: it never disposes, and concurrent requests share it." }
+        { id: 'within-single-http-request', q: "Within a single HTTP request, a scoped service is injected into two different classes. How many instances exist?", a: ["One", "Two", "One per thread", "Two, then merged at the end of the request"], c: 0, why: "Scoped creates one instance per scope, and every request gets one scope." },
+        { id: 'lifetime-adddbcontext-use-defaul', q: "Which lifetime does `AddDbContext` use by default?", a: ["Singleton", "Scoped", "Transient", "Pooled singleton"], c: 1, why: "A `DbContext` tracks one request's unit of work and isn't thread-safe." },
+        { id: 'captive-dependency', q: "What is a captive dependency?", a: ["A circular reference between two services", "A shorter-lived service held by a longer-lived one", "A service registered twice", "A service that is never disposed"], c: 1, why: "Think of a singleton keeping a scoped `DbContext`: it never disposes, and concurrent requests share it." }
       ]
     },
     {
@@ -459,9 +459,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         "Concatenating SQL strings inside `FromSqlRaw(\"… '\" + name + \"'\")`."
       ],
       quiz: [
-        { q: "When does `db.Products.Where(p => p.Price < 100)` hit the database?", a: ["Immediately", "When enumerated, e.g. by `ToListAsync()`", "When the app starts", "When `SaveChanges` is called"], c: 1, why: "`IQueryable` stays deferred until enumerated, just like LINQ to Objects." },
-        { q: "What does a migration contain?", a: ["A database backup", "Code describing a schema change, with `Up` and `Down` steps", "Seed data only", "The compiled SQL for every query"], c: 1, why: "Migrations are versioned, reviewable schema scripts." },
-        { q: "You loaded an entity and changed a property. What writes it to the database?", a: ["Nothing: it's saved automatically when the property changes", "`db.SaveChangesAsync()`", "`db.Update()` is always required first", "Disposing the context"], c: 1, why: "Change tracking catches the edit, and `SaveChanges` sends the `UPDATE`. Call `Update()` only on untracked entities." }
+        { id: 'db-products-price-100', q: "When does `db.Products.Where(p => p.Price < 100)` hit the database?", a: ["Immediately", "When enumerated, e.g. by `ToListAsync()`", "When the app starts", "When `SaveChanges` is called"], c: 1, why: "`IQueryable` stays deferred until enumerated, just like LINQ to Objects." },
+        { id: 'migration-contain', q: "What does a migration contain?", a: ["A database backup", "Code describing a schema change, with `Up` and `Down` steps", "Seed data only", "The compiled SQL for every query"], c: 1, why: "Migrations are versioned, reviewable schema scripts." },
+        { id: 'loaded-entity-changed-property', q: "You loaded an entity and changed a property. What writes it to the database?", a: ["Nothing: it's saved automatically when the property changes", "`db.SaveChangesAsync()`", "`db.Update()` is always required first", "Disposing the context"], c: 1, why: "Change tracking catches the edit, and `SaveChanges` sends the `UPDATE`. Call `Update()` only on untracked entities." }
       ]
     },
     {
@@ -558,9 +558,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         "Returning mismatched JSON error formats across endpoints."
       ],
       quiz: [
-        { q: "A client sends a negative price. Correct response?", a: ["500", "200 with an error message", "400 with validation details", "422 with no body"], c: 2, why: "Invalid client input belongs in 4xx, and a 400 with field errors helps callers fix it." },
-        { q: "What problem do request DTOs prevent?", a: ["Slow queries", "Over-posting: clients setting properties they shouldn't control", "Duplicate rows", "CORS errors"], c: 1, why: "Only fields defined on the DTO bind from the HTTP body." },
-        { q: "Two requests create a product called 'Lamp' at the same moment. What actually stops a duplicate?", a: ["Checking `AnyAsync` before inserting", "A `UNIQUE` index, with the duplicate-key error turned into a 409", "A `lock` around the endpoint", "Validation attributes"], c: 1, why: "Both `AnyAsync` checks can pass before either insert runs, and a `lock` fails across servers. Only a database index sees every write." }
+        { id: 'client-sends-negative-price', q: "A client sends a negative price. Correct response?", a: ["500", "200 with an error message", "400 with validation details", "422 with no body"], c: 2, why: "Invalid client input belongs in 4xx, and a 400 with field errors helps callers fix it." },
+        { id: 'problem-request-dtos-prevent', q: "What problem do request DTOs prevent?", a: ["Slow queries", "Over-posting: clients setting properties they shouldn't control", "Duplicate rows", "CORS errors"], c: 1, why: "Only fields defined on the DTO bind from the HTTP body." },
+        { id: 'two-requests-create-product', q: "Two requests create a product called 'Lamp' at the same moment. What actually stops a duplicate?", a: ["Checking `AnyAsync` before inserting", "A `UNIQUE` index, with the duplicate-key error turned into a 409", "A `lock` around the endpoint", "Validation attributes"], c: 1, why: "Both `AnyAsync` checks can pass before either insert runs, and a `lock` fails across servers. Only a database index sees every write." }
       ]
     },
     // ---------------- Advanced ----------------
@@ -664,9 +664,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         "Treating CORS like server security. It only guides browsers, while `curl` and other servers ignore it completely."
       ],
       quiz: [
-        { q: "A signed-in user without the Admin role calls an admin-only endpoint. Status?", a: ["401", "403", "404", "400"], c: 1, why: "401 means unauthenticated, and 403 means signed in without permission." },
-        { q: "What does the signature of a JWT guarantee?", a: ["The payload is secret", "The token was issued by the holder of the key and hasn't been modified", "The token hasn't expired", "The user is who they say they are, forever"], c: 1, why: "Signing gives integrity and authenticity, not secrecy. Expiry is a separate claim verified on the server." },
-        { q: "Which check stops user A from reading user B's order at `/api/orders/17`?", a: ["`RequireAuthorization()` alone", "A query that only finds orders belonging to the caller", "HTTPS", "CORS"], c: 1, why: "Login proves identity only. Check record ownership on every private resource." }
+        { id: 'signed-user-without-admin', q: "A signed-in user without the Admin role calls an admin-only endpoint. Status?", a: ["401", "403", "404", "400"], c: 1, why: "401 means unauthenticated, and 403 means signed in without permission." },
+        { id: 'signature-jwt-guarantee', q: "What does the signature of a JWT guarantee?", a: ["The payload is secret", "The token was issued by the holder of the key and hasn't been modified", "The token hasn't expired", "The user is who they say they are, forever"], c: 1, why: "Signing gives integrity and authenticity, not secrecy. Expiry is a separate claim verified on the server." },
+        { id: 'check-stops-user-reading', q: "Which check stops user A from reading user B's order at `/api/orders/17`?", a: ["`RequireAuthorization()` alone", "A query that only finds orders belonging to the caller", "HTTPS", "CORS"], c: 1, why: "Login proves identity only. Check record ownership on every private resource." }
       ]
     },
     {
@@ -741,9 +741,9 @@ public class Mailer(IOptions<SmtpOptions> options, ILogger<Mailer> log)
         "Expecting `IOptions<T>` to reflect config edits at runtime. It reads once, so inject `IOptionsMonitor<T>` for live reloads."
       ],
       quiz: [
-        { q: "What does `ValidateOnStart()` change?", a: ["Nothing", "Invalid options fail at application startup instead of first use", "Options reload automatically", "Validation is skipped in production"], c: 1, why: "Failing at startup catches config typos at deploy time instead of on a live user request." },
-        { q: "Which options interface reflects configuration changes without restarting?", a: ["`IOptions<T>`", "`IOptionsMonitor<T>`", "`IConfigurationRoot`", "`IOptionsFactory<T>`"], c: 1, why: "`IOptionsMonitor` watches for config updates, while `IOptions` computes once." },
-        { q: "Where should a production database password live?", a: ["`appsettings.json`, committed to git", "An environment variable or a secret vault", "`appsettings.Production.json`, committed to git", "A constant in the code"], c: 1, why: "Keep secrets out of source control and inject them at deploy time." }
+        { id: 'validateonstart-change', q: "What does `ValidateOnStart()` change?", a: ["Nothing", "Invalid options fail at application startup instead of first use", "Options reload automatically", "Validation is skipped in production"], c: 1, why: "Failing at startup catches config typos at deploy time instead of on a live user request." },
+        { id: 'options-interface-reflects-confi', q: "Which options interface reflects configuration changes without restarting?", a: ["`IOptions<T>`", "`IOptionsMonitor<T>`", "`IConfigurationRoot`", "`IOptionsFactory<T>`"], c: 1, why: "`IOptionsMonitor` watches for config updates, while `IOptions` computes once." },
+        { id: 'production-database-password-liv', q: "Where should a production database password live?", a: ["`appsettings.json`, committed to git", "An environment variable or a secret vault", "`appsettings.Production.json`, committed to git", "A constant in the code"], c: 1, why: "Keep secrets out of source control and inject them at deploy time." }
       ]
     },
     {
@@ -819,9 +819,9 @@ public class PriceCalculator
         "Trusting EF's in-memory provider to mimic SQL Server when it ignores constraints, transactions, and real SQL."
       ],
       quiz: [
-        { q: "What does `WebApplicationFactory<Program>` give you?", a: ["A mock of the database", "Your real app hosted in memory, with an `HttpClient` to call it", "A deployment to a test server", "A recorded copy of production traffic"], c: 1, why: "It boots your actual pipeline inside the test runner, testing routing, DI, and middleware together." },
-        { q: "The three parts of a well-structured test are…", a: ["Setup, Run, Teardown", "Arrange, Act, Assert", "Given, When, Verify", "Mock, Call, Check"], c: 1, why: "Arrange inputs, act once, and assert the outcome." },
-        { q: "Why prefer real SQL Server over the EF in-memory provider in integration tests?", a: ["It's faster", "The in-memory provider doesn't enforce constraints or run real SQL", "It needs no setup", "xUnit can't use the in-memory provider"], c: 1, why: "Query translation, constraint, and transaction bugs only appear against a real database engine." }
+        { id: 'webapplicationfactory-program-gi', q: "What does `WebApplicationFactory<Program>` give you?", a: ["A mock of the database", "Your real app hosted in memory, with an `HttpClient` to call it", "A deployment to a test server", "A recorded copy of production traffic"], c: 1, why: "It boots your actual pipeline inside the test runner, testing routing, DI, and middleware together." },
+        { id: 'three-parts-well-structured', q: "The three parts of a well-structured test are…", a: ["Setup, Run, Teardown", "Arrange, Act, Assert", "Given, When, Verify", "Mock, Call, Check"], c: 1, why: "Arrange inputs, act once, and assert the outcome." },
+        { id: 'prefer-real-sql-server', q: "Why prefer real SQL Server over the EF in-memory provider in integration tests?", a: ["It's faster", "The in-memory provider doesn't enforce constraints or run real SQL", "It needs no setup", "xUnit can't use the in-memory provider"], c: 1, why: "Query translation, constraint, and transaction bugs only appear against a real database engine." }
       ]
     },
     {
@@ -944,9 +944,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         "Using `ExecuteUpdateAsync` where business rules or concurrency checks should apply."
       ],
       quiz: [
-        { q: "You list 100 orders and read `order.Customer.Name` in a loop with lazy loading. How many queries?", a: ["1", "2", "Up to 101", "100"], c: 2, why: "One for the orders plus one per order for its customer: the N+1 pattern." },
-        { q: "What does `AsNoTracking()` do?", a: ["Turns off SQL logging", "Skips change tracking for the returned entities, saving time and memory", "Stops EF from caching the query plan", "Reads uncommitted data"], c: 1, why: "Read-only results don't need snapshots in the change tracker." },
-        { q: "A user loaded a product 5 minutes ago and now saves an edit. Which version must the `UPDATE` compare against to catch changes made in between?", a: ["The version EF just loaded in this request", "The version the client received 5 minutes ago and sent back", "No version: `[Timestamp]` handles it automatically", "The newest version in the table"], c: 1, why: "The freshly loaded version already includes everyone else's changes, so comparing against it detects nothing." }
+        { id: 'list-100-orders-read', q: "You list 100 orders and read `order.Customer.Name` in a loop with lazy loading. How many queries?", a: ["1", "2", "Up to 101", "100"], c: 2, why: "One for the orders plus one per order for its customer: the N+1 pattern." },
+        { id: 'what-does-asnotracking-do', q: "What does `AsNoTracking()` do?", a: ["Turns off SQL logging", "Skips change tracking for the returned entities, saving time and memory", "Stops EF from caching the query plan", "Reads uncommitted data"], c: 1, why: "Read-only results don't need snapshots in the change tracker." },
+        { id: 'user-loaded-product-minutes', q: "A user loaded a product 5 minutes ago and now saves an edit. Which version must the `UPDATE` compare against to catch changes made in between?", a: ["The version EF just loaded in this request", "The version the client received 5 minutes ago and sent back", "No version: `[Timestamp]` handles it automatically", "The newest version in the table"], c: 1, why: "The freshly loaded version already includes everyone else's changes, so comparing against it detects nothing." }
       ]
     },
     // ---------------- Expert ----------------
@@ -1059,10 +1059,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         "Reporting average latency, which hides the slow tail that users actually feel."
       ],
       quiz: [
-        { q: "Latency is rising, CPU is at 15%, and the code contains `.Result` calls. Likely cause?", a: ["A CPU-bound loop", "Thread-pool starvation from blocking on async work", "The garbage collector", "Slow JSON serialization"], c: 1, why: "Blocked threads wait instead of working, and queued requests can't get a thread." },
-        { q: "Which status code should a rate limiter return?", a: ["401", "403", "429", "503"], c: 2, why: "429 Too Many Requests, ideally with a `Retry-After` header. 503 means the whole service is down." },
-        { q: "With `AddTokenBucketLimiter(\"api\", …)` and no partition, one client sends 10,000 requests. What happens to everyone else?", a: ["Nothing, each client has its own bucket", "They get 429 too: they all share the one bucket", "The server crashes", "Only that client's IP is blocked automatically"], c: 1, why: "An unpartitioned limiter uses one shared bucket. Partition by user or IP to isolate clients." },
-        { q: "Why must an app running on several servers use a distributed cache for shared data?", a: ["It's always faster", "In-memory caches are per instance, so the instances would disagree", "ASP.NET Core requires it", "Memory caches can't expire entries"], c: 1, why: "Each server holds its own RAM, so a shared cache keeps them in sync." }
+        { id: 'latency-rising-cpu-15', q: "Latency is rising, CPU is at 15%, and the code contains `.Result` calls. Likely cause?", a: ["A CPU-bound loop", "Thread-pool starvation from blocking on async work", "The garbage collector", "Slow JSON serialization"], c: 1, why: "Blocked threads wait instead of working, and queued requests can't get a thread." },
+        { id: 'status-code-rate-limiter', q: "Which status code should a rate limiter return?", a: ["401", "403", "429", "503"], c: 2, why: "429 Too Many Requests, ideally with a `Retry-After` header. 503 means the whole service is down." },
+        { id: 'addtokenbucketlimiter-api-partit', q: "With `AddTokenBucketLimiter(\"api\", …)` and no partition, one client sends 10,000 requests. What happens to everyone else?", a: ["Nothing, each client has its own bucket", "They get 429 too: they all share the one bucket", "The server crashes", "Only that client's IP is blocked automatically"], c: 1, why: "An unpartitioned limiter uses one shared bucket. Partition by user or IP to isolate clients." },
+        { id: 'app-running-several-servers', q: "Why must an app running on several servers use a distributed cache for shared data?", a: ["It's always faster", "In-memory caches are per instance, so the instances would disagree", "ASP.NET Core requires it", "Memory caches can't expire entries"], c: 1, why: "Each server holds its own RAM, so a shared cache keeps them in sync." }
       ]
     },
     {
@@ -1225,10 +1225,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         "Breaking a tangled monolith into microservices. You end up with a tangled distributed system."
       ],
       quiz: [
-        { q: "What does the outbox pattern guarantee?", a: ["Messages are sent instantly", "The message is saved in the same transaction as the data change, so neither happens without the other", "No message is ever delivered twice", "The database is never locked"], c: 1, why: "One atomic write followed by at-least-once delivery from a worker. Receivers must still handle duplicates." },
-        { q: "Why does the `BackgroundService` create a scope to use `DbContext`?", a: ["For performance", "Hosted services are singletons and `DbContext` is scoped", "Scopes are required for logging", "To open a database transaction"], c: 1, why: "Injecting a scoped service into a singleton causes a captive dependency, so spin up a scope per unit of work." },
-        { q: "An exception escapes `ExecuteAsync` in a .NET 10 `BackgroundService`. By default…", a: ["It's logged and the service restarts", "It's ignored", "The whole application stops", "Only that request fails"], c: 2, why: "Since .NET 8 the host's default is to stop when a background service fails, so catch and log inside the loop." },
-        { q: "When is CQRS worth its cost?", a: ["Always", "When read and write models differ a lot in shape or load", "Whenever you use EF Core", "Only with microservices"], c: 1, why: "It brings extra models and mapping, so it pays off only when reads and writes truly diverge." }
+        { id: 'outbox-pattern-guarantee', q: "What does the outbox pattern guarantee?", a: ["Messages are sent instantly", "The message is saved in the same transaction as the data change, so neither happens without the other", "No message is ever delivered twice", "The database is never locked"], c: 1, why: "One atomic write followed by at-least-once delivery from a worker. Receivers must still handle duplicates." },
+        { id: 'backgroundservice-create-scope-u', q: "Why does the `BackgroundService` create a scope to use `DbContext`?", a: ["For performance", "Hosted services are singletons and `DbContext` is scoped", "Scopes are required for logging", "To open a database transaction"], c: 1, why: "Injecting a scoped service into a singleton causes a captive dependency, so spin up a scope per unit of work." },
+        { id: 'exception-escapes-executeasync-n', q: "An exception escapes `ExecuteAsync` in a .NET 10 `BackgroundService`. By default…", a: ["It's logged and the service restarts", "It's ignored", "The whole application stops", "Only that request fails"], c: 2, why: "Since .NET 8 the host's default is to stop when a background service fails, so catch and log inside the loop." },
+        { id: 'cqrs-worth-cost', q: "When is CQRS worth its cost?", a: ["Always", "When read and write models differ a lot in shape or load", "Whenever you use EF Core", "Only with microservices"], c: 1, why: "It brings extra models and mapping, so it pays off only when reads and writes truly diverge." }
       ]
     },
     {
@@ -1334,9 +1334,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         "Forwarding port 80 in Docker when ASP.NET Core containers listen on 8080."
       ],
       quiz: [
-        { q: "The database is down for 20 seconds. What should the liveness probe report?", a: ["Unhealthy, so the app restarts", "Healthy: the process itself is fine", "Unhealthy, but only after 10 seconds", "Degraded"], c: 1, why: "Restarting the app won't fix SQL Server, so readiness should fail while liveness stays green." },
-        { q: "What does a circuit breaker do after repeated failures?", a: ["Retries faster", "Fails calls immediately for a while instead of contacting the failing dependency", "Restarts the server", "Switches to a backup server automatically"], c: 1, why: "It gives the dependency time to recover and protects your own threads and latency." },
-        { q: "Which operation is safe to retry automatically without extra design?", a: ["`POST /payments`", "`GET /products/5`", "`POST /orders`", "Sending an email"], c: 1, why: "`GET` is idempotent, while the others need an idempotency key first." }
+        { id: 'database-down-20-seconds', q: "The database is down for 20 seconds. What should the liveness probe report?", a: ["Unhealthy, so the app restarts", "Healthy: the process itself is fine", "Unhealthy, but only after 10 seconds", "Degraded"], c: 1, why: "Restarting the app won't fix SQL Server, so readiness should fail while liveness stays green." },
+        { id: 'circuit-breaker-repeated-failure', q: "What does a circuit breaker do after repeated failures?", a: ["Retries faster", "Fails calls immediately for a while instead of contacting the failing dependency", "Restarts the server", "Switches to a backup server automatically"], c: 1, why: "It gives the dependency time to recover and protects your own threads and latency." },
+        { id: 'operation-safe-retry-automatical', q: "Which operation is safe to retry automatically without extra design?", a: ["`POST /payments`", "`GET /products/5`", "`POST /orders`", "Sending an email"], c: 1, why: "`GET` is idempotent, while the others need an idempotency key first." }
       ]
     }
   ]

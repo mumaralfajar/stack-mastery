@@ -1,7 +1,7 @@
 // Client-rendered workspace views (dashboard, flashcard review, mock exam, playgrounds, interview prep, break room).
 // The page is pre-rendered with its heading; this island imports only the one view module (and the data it needs)
 // named by #view-root[data-view], then replaces the placeholder with the live view.
-import { getLang } from '../lib/i18n.ts';
+import { getLang, registerUiDict } from '../lib/i18n.ts';
 import { h } from '../lib/dom.ts';
 import { subscribeState } from '../lib/state.ts';
 
@@ -17,10 +17,14 @@ const readJson = (id) => {
   }
 };
 const idUi = () => (isId ? import('../data/id/index.ts').then((m) => m.loadIdUi()) : Promise.resolve());
-const curriculum = () =>
-  import('../data/index.ts')
-    .then((m) => m.loadCurriculum())
-    .then(() => (isId ? import('../data/id/index.ts').then((m) => m.loadIdCurriculum()) : undefined));
+const loadQuizIndex = async () => {
+  const viewData = readJson('view-data') || {};
+  registerUiDict(viewData.i18n || {});
+  if (!viewData.indexUrl) return { tracks: [] };
+  const res = await fetch(viewData.indexUrl);
+  if (!res.ok) throw new Error(`quiz index HTTP ${res.status}`);
+  return res.json();
+};
 const interviewData = () =>
   Promise.all([
     import('../data/interview-data.ts').then((m) => m.loadInterviewData()),
@@ -35,12 +39,12 @@ const VIEWS = {
     return () => dashboard(catalog);
   },
   async review() {
-    const [{ review }] = await Promise.all([import('./views/practice.js'), curriculum()]);
-    return (onCleanup) => review(onCleanup);
+    const [{ review }, quizIndex] = await Promise.all([import('./views/practice.js'), loadQuizIndex()]);
+    return (onCleanup) => review(quizIndex, onCleanup);
   },
   async exam() {
-    const [{ exam }] = await Promise.all([import('./views/practice.js'), curriculum()]);
-    return () => exam();
+    const [{ exam }, quizIndex] = await Promise.all([import('./views/practice.js'), loadQuizIndex()]);
+    return () => exam(quizIndex);
   },
   async notes() {
     const [{ notes }] = await Promise.all([import('./views/notes.js'), idUi()]);

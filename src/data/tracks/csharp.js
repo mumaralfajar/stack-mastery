@@ -53,9 +53,9 @@ Console.WriteLine(7 / 2.0);                                       // 3.5
         "Comparing output with a tutorial and seeing `59,97` instead of `59.97`. That's regional number formatting, not a bug."
       ],
       quiz: [
-        { q: "What does `var total = 5;` mean in C#?", a: ["`total` is `dynamic`, so it can hold any type later", "`total` is an `int`, inferred by the compiler", "`total` is an `object` until it is first used", "`total` is a `long`, because `var` picks the largest integer type"], c: 1, why: "`var` is compile-time type inference, so the variable stays an `int` forever." },
-        { q: "What does `double d = 9 / 2; Console.WriteLine(d);` print?", a: ["4.5", "4", "5", "It does not compile"], c: 1, why: "`9 / 2` runs integer division before assignment, turning `4` into `4.0`, which prints `4`." },
-        { q: "Which type should hold a price?", a: ["`float`", "`double`", "`decimal`", "`string`, to avoid rounding"], c: 2, why: "`decimal` uses base-10 arithmetic so values like 0.10 stay exact, unlike binary floats or unmathable strings." }
+        { id: 'var-total-mean', q: "What does `var total = 5;` mean in C#?", a: ["`total` is `dynamic`, so it can hold any type later", "`total` is an `int`, inferred by the compiler", "`total` is an `object` until it is first used", "`total` is a `long`, because `var` picks the largest integer type"], c: 1, why: "`var` is compile-time type inference, so the variable stays an `int` forever." },
+        { id: 'double-console-writeline-print', q: "What does `double d = 9 / 2; Console.WriteLine(d);` print?", a: ["4.5", "4", "5", "It does not compile"], c: 1, why: "`9 / 2` runs integer division before assignment, turning `4` into `4.0`, which prints `4`." },
+        { id: 'type-hold-price', q: "Which type should hold a price?", a: ["`float`", "`double`", "`decimal`", "`string`, to avoid rounding"], c: 2, why: "`decimal` uses base-10 arithmetic so values like 0.10 stay exact, unlike binary floats or unmathable strings." }
       ]
     },
     {
@@ -105,9 +105,9 @@ else Console.WriteLine("Needs review");
         "Expecting a method to change your `int` argument. It changes its own copy unless the parameter is `ref` or `out`."
       ],
       quiz: [
-        { q: "Which loop is the best fit for visiting every item of a `List<string>` in order?", a: ["`for (int i = 0; i <= list.Count; i++)`", "`foreach`", "`while (list.Any())`", "`do … while`"], c: 1, why: "`foreach` expresses 'every element' directly and cannot go out of bounds. The `for` loop shown reads one item past the end." },
-        { q: "A method `void Reset(int n) { n = 0; }` is called as `Reset(count)`. What is `count` afterwards?", a: ["0", "Unchanged", "It depends on whether `count` was declared with `var`", "A compile error"], c: 1, why: "`int` is passed by value: the method zeroes its own copy." },
-        { q: "What does `_` mean in a `switch` expression arm?", a: ["A variable you can read inside the arm", "It matches only `null`", "The default arm that matches anything left", "It repeats the previous arm's result"], c: 2, why: "`_` is the discard pattern. It matches any value not matched by an earlier arm." }
+        { id: 'loop-fit-visiting-every', q: "Which loop is the best fit for visiting every item of a `List<string>` in order?", a: ["`for (int i = 0; i <= list.Count; i++)`", "`foreach`", "`while (list.Any())`", "`do … while`"], c: 1, why: "`foreach` expresses 'every element' directly and cannot go out of bounds. The `for` loop shown reads one item past the end." },
+        { id: 'method-void-reset-int', q: "A method `void Reset(int n) { n = 0; }` is called as `Reset(count)`. What is `count` afterwards?", a: ["0", "Unchanged", "It depends on whether `count` was declared with `var`", "A compile error"], c: 1, why: "`int` is passed by value: the method zeroes its own copy." },
+        { id: 'mean-switch-expression-arm', q: "What does `_` mean in a `switch` expression arm?", a: ["A variable you can read inside the arm", "It matches only `null`", "The default arm that matches anything left", "It repeats the previous arm's result"], c: 2, why: "`_` is the discard pattern. It matches any value not matched by an earlier arm." }
       ]
     },
     {
@@ -160,9 +160,9 @@ public class BankAccount
         "Thinking properties are just fields. A property is a pair of methods and can validate or compute."
       ],
       quiz: [
-        { q: "What does `public decimal Balance { get; private set; }` allow?", a: ["Anyone can read and write", "Anyone can read, while only code inside the class can write", "Only derived classes can write", "It can be written once, in the constructor only"], c: 1, why: "The getter is public and the setter is private, letting the class guard changes (`{ get; }` alone sets once in the constructor)." },
-        { q: "What is the job of a constructor?", a: ["To free the object's memory later", "To put a new object into a valid starting state", "To run every time a property is read", "To copy an existing object"], c: 1, why: "Constructors run once at creation and establish the object's rules from the start." },
-        { q: "A `static` method…", a: ["belongs to each object separately", "belongs to the class and needs no instance", "can only be called once", "runs automatically at startup"], c: 1, why: "Static members are called on the type itself, for example `Math.Max(1, 2)`." }
+        { id: 'public-decimal-balance-get', q: "What does `public decimal Balance { get; private set; }` allow?", a: ["Anyone can read and write", "Anyone can read, while only code inside the class can write", "Only derived classes can write", "It can be written once, in the constructor only"], c: 1, why: "The getter is public and the setter is private, letting the class guard changes (`{ get; }` alone sets once in the constructor)." },
+        { id: 'job-constructor', q: "What is the job of a constructor?", a: ["To free the object's memory later", "To put a new object into a valid starting state", "To run every time a property is read", "To copy an existing object"], c: 1, why: "Constructors run once at creation and establish the object's rules from the start." },
+        { id: 'static-method', q: "A `static` method…", a: ["belongs to each object separately", "belongs to the class and needs no instance", "can only be called once", "runs automatically at startup"], c: 1, why: "Static members are called on the type itself, for example `Math.Max(1, 2)`." }
       ]
     },
     // ---------------- Intermediate ----------------
@@ -218,9 +218,9 @@ class Person { public string Name { get; set; } = ""; }
         "Expecting `Replace(p1)` to swap the caller's variable. Without `ref`, only the parameter's local reference changes."
       ],
       quiz: [
-        { q: "After `var x = new List<int>{1}; var y = x; y.Add(2);` how many items does `x` have?", a: ["1, because `y` is a copy", "2", "0", "It does not compile"], c: 1, why: "`List<T>` is a reference type, so `x` and `y` point to the exact same list." },
-        { q: "Which of these is a value type?", a: ["`string`", "`int[]`", "`DateTime`", "`List<int>`"], c: 2, why: "`DateTime` is a struct, while `string`, `List<T>`, and even `int[]` arrays are reference types." },
-        { q: "Why does `string` feel like a value type?", a: ["It is stored on the stack", "It is immutable and `==` compares characters", "It is a struct", "The compiler copies it on every assignment"], c: 1, why: "Strings live on the heap, yet immutability plus value-based `==` makes them act like values." }
+        { id: 'var-new-list-int', q: "After `var x = new List<int>{1}; var y = x; y.Add(2);` how many items does `x` have?", a: ["1, because `y` is a copy", "2", "0", "It does not compile"], c: 1, why: "`List<T>` is a reference type, so `x` and `y` point to the exact same list." },
+        { id: 'value-type', q: "Which of these is a value type?", a: ["`string`", "`int[]`", "`DateTime`", "`List<int>`"], c: 2, why: "`DateTime` is a struct, while `string`, `List<T>`, and even `int[]` arrays are reference types." },
+        { id: 'string-feel-like-value', q: "Why does `string` feel like a value type?", a: ["It is stored on the stack", "It is immutable and `==` compares characters", "It is a struct", "The compiler copies it on every assignment"], c: 1, why: "Strings live on the heap, yet immutability plus value-based `==` makes them act like values." }
       ]
     },
     {
@@ -300,9 +300,9 @@ public class Cat : Animal
         "Using inheritance just to reuse code between unrelated things. 'Is-a' must be true everywhere the base type is used."
       ],
       quiz: [
-        { q: "How many interfaces can one C# class implement?", a: ["One", "Up to two", "Any number", "None, if it already has a base class"], c: 2, why: "A class has at most one base class, but can implement any number of interfaces." },
-        { q: "What must a base method be marked with for `override` to work?", a: ["`static`", "`virtual` or `abstract`", "`sealed`", "`public` is enough"], c: 1, why: "Only virtual, abstract or already-overridden members can be overridden. Being public is not enough." },
-        { q: "The main benefit of `OrderService(INotifier notifier)` over `new EmailNotifier()` inside the class is…", a: ["It makes calls faster", "The dependency can be swapped or faked without changing `OrderService`", "`OrderService` no longer needs a constructor", "It stops `OrderService` from being inherited"], c: 1, why: "Depending on an abstraction decouples the class from a concrete implementation. That is the basis of DI and testing." }
+        { id: 'many-interfaces-one-class', q: "How many interfaces can one C# class implement?", a: ["One", "Up to two", "Any number", "None, if it already has a base class"], c: 2, why: "A class has at most one base class, but can implement any number of interfaces." },
+        { id: 'base-method-marked-override', q: "What must a base method be marked with for `override` to work?", a: ["`static`", "`virtual` or `abstract`", "`sealed`", "`public` is enough"], c: 1, why: "Only virtual, abstract or already-overridden members can be overridden. Being public is not enough." },
+        { id: 'benefit-orderservice-inotifier-n', q: "The main benefit of `OrderService(INotifier notifier)` over `new EmailNotifier()` inside the class is…", a: ["It makes calls faster", "The dependency can be swapped or faked without changing `OrderService`", "`OrderService` no longer needs a constructor", "It stops `OrderService` from being inherited"], c: 1, why: "Depending on an abstraction decouples the class from a concrete implementation. That is the basis of DI and testing." }
       ]
     },
     {
@@ -356,9 +356,9 @@ Console.WriteLine(Max(new[] { "kiwi", "fig" }));  // kiwi
         "Modifying a list during `foreach` throws `InvalidOperationException`. Iterate over a copy (`list.ToList()`) or queue edits until the loop finishes."
       ],
       quiz: [
-        { q: "You need to check thousands of times whether an ID has been seen. Best choice?", a: ["`List<int>` with `Contains`", "`int[]` searched with a loop", "`HashSet<int>`", "`Queue<int>`"], c: 2, why: "`HashSet.Contains` runs in O(1) average time, while scanning lists or arrays takes O(n)." },
-        { q: "What does `where T : new()` require?", a: ["T is a value type", "T has a public parameterless constructor", "T was created with `new` before being passed in", "T implements `ICloneable`"], c: 1, why: "The `new()` constraint lets generic methods instantiate `new T()`." },
-        { q: "Best way to read a dictionary key that may be missing?", a: ["`dict[key]` inside a try/catch", "`dict.TryGetValue(key, out var v)`", "`dict.ContainsKey(key)`, then `dict[key]`", "`dict.Keys.First(k => k == key)`"], c: 1, why: "`TryGetValue` performs a single lookup. Checking `ContainsKey` first searches twice, and try/catch hides control flow." }
+        { id: 'need-check-thousands-times', q: "You need to check thousands of times whether an ID has been seen. Best choice?", a: ["`List<int>` with `Contains`", "`int[]` searched with a loop", "`HashSet<int>`", "`Queue<int>`"], c: 2, why: "`HashSet.Contains` runs in O(1) average time, while scanning lists or arrays takes O(n)." },
+        { id: 'new-require', q: "What does `where T : new()` require?", a: ["T is a value type", "T has a public parameterless constructor", "T was created with `new` before being passed in", "T implements `ICloneable`"], c: 1, why: "The `new()` constraint lets generic methods instantiate `new T()`." },
+        { id: 'way-read-dictionary-key', q: "Best way to read a dictionary key that may be missing?", a: ["`dict[key]` inside a try/catch", "`dict.TryGetValue(key, out var v)`", "`dict.ContainsKey(key)`, then `dict[key]`", "`dict.Keys.First(k => k == key)`"], c: 1, why: "`TryGetValue` performs a single lookup. Checking `ContainsKey` first searches twice, and try/catch hides control flow." }
       ]
     },
     {
@@ -435,10 +435,10 @@ static int ParseAge(string text)
         "Throwing exceptions for expected outcomes like invalid form text or missing records."
       ],
       quiz: [
-        { q: "Inside a `catch`, how does `throw;` differ from `throw ex;`?", a: ["They are the same", "`throw;` rethrows and keeps the original stack trace", "`throw;` swallows the exception", "`throw;` throws a new `Exception` with no message"], c: 1, why: "`throw ex;` resets the stack trace to the catch block, whereas `throw;` preserves the real origin." },
-        { q: "When does a `finally` block run?", a: ["Only when an exception was thrown", "Only when no exception was thrown", "Always: on success, on an exception, and after `return`", "Only if there is no `catch` block"], c: 2, why: "That guarantee is what makes `finally`, and `using`, safe for cleanup." },
-        { q: "A user types `12a` into an age field. Better way to handle it?", a: ["`int.Parse` inside a try/catch", "`int.TryParse`, then show a validation message if it returns `false`", "Let the exception reach the global error handler", "`Convert.ToInt32` inside an empty catch"], c: 1, why: "Bad input is expected, not exceptional. `TryParse` reports it without the cost and noise of an exception." },
-        { q: "What does `using var conn = new SqlConnection(cs);` guarantee?", a: ["The connection stays open until the program exits", "`Dispose()` is called when the scope ends, even on an exception", "The connection opens automatically", "The connection is shared by every thread"], c: 1, why: "`using` compiles to try/finally with `Dispose()` in the `finally` block." }
+        { id: 'inside-catch-throw-differ', q: "Inside a `catch`, how does `throw;` differ from `throw ex;`?", a: ["They are the same", "`throw;` rethrows and keeps the original stack trace", "`throw;` swallows the exception", "`throw;` throws a new `Exception` with no message"], c: 1, why: "`throw ex;` resets the stack trace to the catch block, whereas `throw;` preserves the real origin." },
+        { id: 'finally-block-run', q: "When does a `finally` block run?", a: ["Only when an exception was thrown", "Only when no exception was thrown", "Always: on success, on an exception, and after `return`", "Only if there is no `catch` block"], c: 2, why: "That guarantee is what makes `finally`, and `using`, safe for cleanup." },
+        { id: 'user-types-12a-age', q: "A user types `12a` into an age field. Better way to handle it?", a: ["`int.Parse` inside a try/catch", "`int.TryParse`, then show a validation message if it returns `false`", "Let the exception reach the global error handler", "`Convert.ToInt32` inside an empty catch"], c: 1, why: "Bad input is expected, not exceptional. `TryParse` reports it without the cost and noise of an exception." },
+        { id: 'using-var-conn-new', q: "What does `using var conn = new SqlConnection(cs);` guarantee?", a: ["The connection stays open until the program exits", "`Dispose()` is called when the scope ends, even on an exception", "The connection opens automatically", "The connection is shared by every thread"], c: 1, why: "`using` compiles to try/finally with `Dispose()` in the `finally` block." }
       ]
     },
     {
@@ -496,9 +496,9 @@ record Product(string Name, string Category, decimal Price);
         "Calling `ToList()` in the middle of an EF Core query and quietly pulling the whole table into memory."
       ],
       quiz: [
-        { q: "When does `var q = items.Where(x => x > 5);` filter the items?", a: ["Immediately, when the line runs", "When `q` is enumerated", "When the method returns", "The first time `q` is assigned to another variable"], c: 1, why: "LINQ queries evaluate lazily when you enumerate them." },
-        { q: "Which call throws if the sequence is empty?", a: ["`FirstOrDefault()`", "`Any()`", "`First()`", "`Where()`"], c: 2, why: "`First()` requires at least one element." },
-        { q: "Best way to ask 'is there at least one match?'", a: ["`Count() > 0`", "`Any()`", "`ToList().Count > 0`", "`FirstOrDefault() != null`"], c: 1, why: "`Any()` stops at the first match. `FirstOrDefault() != null` is wrong for value types, where the default is `0`, not `null`." }
+        { id: 'var-items-filter-items', q: "When does `var q = items.Where(x => x > 5);` filter the items?", a: ["Immediately, when the line runs", "When `q` is enumerated", "When the method returns", "The first time `q` is assigned to another variable"], c: 1, why: "LINQ queries evaluate lazily when you enumerate them." },
+        { id: 'call-throws-sequence-empty', q: "Which call throws if the sequence is empty?", a: ["`FirstOrDefault()`", "`Any()`", "`First()`", "`Where()`"], c: 2, why: "`First()` requires at least one element." },
+        { id: 'way-ask-there-least', q: "Best way to ask 'is there at least one match?'", a: ["`Count() > 0`", "`Any()`", "`ToList().Count > 0`", "`FirstOrDefault() != null`"], c: 1, why: "`Any()` stops at the first match. `FirstOrDefault() != null` is wrong for value types, where the default is `0`, not `null`." }
       ]
     },
     // ---------------- Advanced ----------------
@@ -576,9 +576,9 @@ public class Thermostat
         "Declaring custom delegate types where `Func` or `Action` would do."
       ],
       quiz: [
-        { q: "Which type describes a method taking a `string` and returning an `int`?", a: ["`Action<string, int>`", "`Func<string, int>`", "`Func<int, string>`", "`Predicate<string>`"], c: 1, why: "In `Func`, the last type argument is the return type." },
-        { q: "`int n = 1; Func<int> f = () => n; n = 5;` What does `f()` return?", a: ["1", "5", "0", "It throws"], c: 1, why: "The closure captured the variable `n`, not its value at the time the lambda was created." },
-        { q: "What can code outside a class do with its public `event`?", a: ["Invoke it", "Replace all subscribers with `=`", "Subscribe and unsubscribe only", "Read its subscriber list"], c: 2, why: "Events restrict outsiders to `+=` and `-=`. Only the owning class can raise the event." }
+        { id: 'type-describes-method-taking', q: "Which type describes a method taking a `string` and returning an `int`?", a: ["`Action<string, int>`", "`Func<string, int>`", "`Func<int, string>`", "`Predicate<string>`"], c: 1, why: "In `Func`, the last type argument is the return type." },
+        { id: 'int-func-int-return', q: "`int n = 1; Func<int> f = () => n; n = 5;` What does `f()` return?", a: ["1", "5", "0", "It throws"], c: 1, why: "The closure captured the variable `n`, not its value at the time the lambda was created." },
+        { id: 'code-outside-class-public', q: "What can code outside a class do with its public `event`?", a: ["Invoke it", "Replace all subscribers with `=`", "Subscribe and unsubscribe only", "Read its subscriber list"], c: 2, why: "Events restrict outsiders to `+=` and `-=`. Only the owning class can raise the event." }
       ]
     },
     {
@@ -665,10 +665,10 @@ static async IAsyncEnumerable<string> LoadPagesAsync(int count, [EnumeratorCance
         "Calling `ToListAsync()` on huge exports just to loop once instead of streaming rows via `AsAsyncEnumerable()`."
       ],
       quiz: [
-        { q: "What happens to the current thread at `await http.GetAsync(url)` while the network call is in flight?", a: ["It sleeps until the response arrives", "It is released to do other work", "It polls the network in a loop", "It hands the request to a new thread it creates"], c: 1, why: "`await` returns the thread to the pool and resumes the method via a continuation once data arrives." },
-        { q: "Three independent 1-second I/O calls. Fastest correct approach?", a: ["Await each in turn", "Start all three, then `await Task.WhenAll`", "Wrap each in `Task.Run` and read `.Result`", "`Parallel.For` with `.Wait()` on each"], c: 1, why: "Starting the tasks before awaiting lets the waits overlap: about 1 second in total instead of 3, without blocking any thread." },
-        { q: "Why avoid `.Result` in ASP.NET Core?", a: ["It returns a different value from `await`", "It blocks a thread-pool thread for the whole wait, and under load the pool runs out", "It always deadlocks", "It is not allowed inside controllers"], c: 1, why: "ASP.NET Core has no synchronization context, so the classic deadlock doesn't happen there. But every blocked thread is one that can't serve another request." },
-        { q: "A method returns `IAsyncEnumerable<Order>`. How do you consume it?", a: ["`foreach (var o in GetOrders())`", "`await foreach (var o in GetOrders())`", "`GetOrders().Result`", "`await Task.WhenAll(GetOrders())`"], c: 1, why: "`await foreach` awaits each next item, so the loop can start before the last item exists. A plain `foreach` doesn't compile against an async stream." }
+        { id: 'happens-current-thread-await', q: "What happens to the current thread at `await http.GetAsync(url)` while the network call is in flight?", a: ["It sleeps until the response arrives", "It is released to do other work", "It polls the network in a loop", "It hands the request to a new thread it creates"], c: 1, why: "`await` returns the thread to the pool and resumes the method via a continuation once data arrives." },
+        { id: 'three-independent-second-calls', q: "Three independent 1-second I/O calls. Fastest correct approach?", a: ["Await each in turn", "Start all three, then `await Task.WhenAll`", "Wrap each in `Task.Run` and read `.Result`", "`Parallel.For` with `.Wait()` on each"], c: 1, why: "Starting the tasks before awaiting lets the waits overlap: about 1 second in total instead of 3, without blocking any thread." },
+        { id: 'avoid-result-asp-net', q: "Why avoid `.Result` in ASP.NET Core?", a: ["It returns a different value from `await`", "It blocks a thread-pool thread for the whole wait, and under load the pool runs out", "It always deadlocks", "It is not allowed inside controllers"], c: 1, why: "ASP.NET Core has no synchronization context, so the classic deadlock doesn't happen there. But every blocked thread is one that can't serve another request." },
+        { id: 'method-returns-iasyncenumerable', q: "A method returns `IAsyncEnumerable<Order>`. How do you consume it?", a: ["`foreach (var o in GetOrders())`", "`await foreach (var o in GetOrders())`", "`GetOrders().Result`", "`await Task.WhenAll(GetOrders())`"], c: 1, why: "`await foreach` awaits each next item, so the loop can start before the last item exists. A plain `foreach` doesn't compile against an async stream." }
       ]
     },
     {
@@ -730,9 +730,9 @@ public record Transfer(string Iban) : Payment;
         "Giving a record `{ get; set; }` properties and changing it while it is a dictionary key or in a `HashSet`. Its hash changes and lookups stop finding it."
       ],
       quiz: [
-        { q: "What does `a?.B ?? c` evaluate to when `a` is null?", a: ["It throws a `NullReferenceException`", "`null`", "`c`", "`default(B)`"], c: 2, why: "`a?.B` gives null, and `??` supplies the fallback `c`." },
-        { q: "Two records with identical property values compared with `==` are…", a: ["never equal unless they are the same instance", "equal", "equal only if one was created with `with`", "a compile error"], c: 1, why: "Records implement value-based equality." },
-        { q: "What does `string? name` tell the compiler?", a: ["`name` is optional and can be left out of a call", "`name` might be null, so warn me before I use it unchecked", "`name` is a nullable value type", "`name` will be checked for null at run time automatically"], c: 1, why: "Nullable annotations are compile-time only. They change the warnings you get, not what happens at run time." }
+        { id: 'evaluate-null', q: "What does `a?.B ?? c` evaluate to when `a` is null?", a: ["It throws a `NullReferenceException`", "`null`", "`c`", "`default(B)`"], c: 2, why: "`a?.B` gives null, and `??` supplies the fallback `c`." },
+        { id: 'two-records-identical-property', q: "Two records with identical property values compared with `==` are…", a: ["never equal unless they are the same instance", "equal", "equal only if one was created with `with`", "a compile error"], c: 1, why: "Records implement value-based equality." },
+        { id: 'string-name-tell-compiler', q: "What does `string? name` tell the compiler?", a: ["`name` is optional and can be left out of a call", "`name` might be null, so warn me before I use it unchecked", "`name` is a nullable value type", "`name` will be checked for null at run time automatically"], c: 1, why: "Nullable annotations are compile-time only. They change the warnings you get, not what happens at run time." }
       ]
     },
     // ---------------- Expert ----------------
@@ -787,9 +787,9 @@ finally { ArrayPool<byte>.Shared.Return(buffer); }
         "Trusting a `Stopwatch` loop as a benchmark."
       ],
       quiz: [
-        { q: "Why is a Gen 0 collection usually cheap?", a: ["It runs on a background thread, so it costs nothing", "Most new objects are already dead, so little needs to be traced or copied", "It only looks at objects larger than 85 KB", "It skips objects referenced from the stack"], c: 1, why: "Young objects tend to die young, so Gen 0 has few survivors to deal with." },
-        { q: "Why can a `Span<T>` not be a field of a class?", a: ["It is too large for a class", "It is a `ref struct` that may point at stack memory, so it must not escape to the heap", "Spans are always read-only", "Classes cannot hold structs"], c: 1, why: "A span can point into a stack frame that disappears when the method returns, so the compiler stops it from reaching the heap." },
-        { q: "First step before optimising memory use?", a: ["Rewrite hot types as structs", "Call `GC.Collect()` after big operations", "Measure with a profiler or benchmark", "Replace LINQ with loops everywhere"], c: 2, why: "Without measuring you don't know where allocations happen or whether they matter." }
+        { id: 'gen-collection-cheap', q: "Why is a Gen 0 collection usually cheap?", a: ["It runs on a background thread, so it costs nothing", "Most new objects are already dead, so little needs to be traced or copied", "It only looks at objects larger than 85 KB", "It skips objects referenced from the stack"], c: 1, why: "Young objects tend to die young, so Gen 0 has few survivors to deal with." },
+        { id: 'span-field-class', q: "Why can a `Span<T>` not be a field of a class?", a: ["It is too large for a class", "It is a `ref struct` that may point at stack memory, so it must not escape to the heap", "Spans are always read-only", "Classes cannot hold structs"], c: 1, why: "A span can point into a stack frame that disappears when the method returns, so the compiler stops it from reaching the heap." },
+        { id: 'first-step-optimising-memory', q: "First step before optimising memory use?", a: ["Rewrite hot types as structs", "Call `GC.Collect()` after big operations", "Measure with a profiler or benchmark", "Replace LINQ with loops everywhere"], c: 2, why: "Without measuring you don't know where allocations happen or whether they matter." }
       ]
     },
     {
@@ -865,9 +865,9 @@ await consumer;
         "Trying to `await` inside a `lock` (it won't compile), or locking on `this` or a string, which other code can lock on too."
       ],
       quiz: [
-        { q: "Why is `count++` unsafe across threads?", a: ["`++` is slow on shared memory", "It is three steps (read, add, write) that can interleave", "`int` is a reference type", "The JIT moves it to the end of the method"], c: 1, why: "Two threads can read the same old value and both write old + 1, losing an update." },
-        { q: "Which primitive gives mutual exclusion across an `await`?", a: ["`lock`", "`SemaphoreSlim`", "`volatile`", "`Interlocked.Increment`"], c: 1, why: "`SemaphoreSlim.WaitAsync` works with `await`, whereas `lock` rejects `await` inside its body." },
-        { q: "Best strategy for thread safety overall?", a: ["Wrap every method in `lock`", "Avoid shared mutable state where possible", "Use `ConcurrentDictionary` for everything", "Mark shared fields `volatile`"], c: 1, why: "State that is not shared, or cannot change, cannot race." }
+        { id: 'count-unsafe-across-threads', q: "Why is `count++` unsafe across threads?", a: ["`++` is slow on shared memory", "It is three steps (read, add, write) that can interleave", "`int` is a reference type", "The JIT moves it to the end of the method"], c: 1, why: "Two threads can read the same old value and both write old + 1, losing an update." },
+        { id: 'primitive-gives-mutual-exclusion', q: "Which primitive gives mutual exclusion across an `await`?", a: ["`lock`", "`SemaphoreSlim`", "`volatile`", "`Interlocked.Increment`"], c: 1, why: "`SemaphoreSlim.WaitAsync` works with `await`, whereas `lock` rejects `await` inside its body." },
+        { id: 'strategy-thread-safety-overall', q: "Best strategy for thread safety overall?", a: ["Wrap every method in `lock`", "Avoid shared mutable state where possible", "Use `ConcurrentDictionary` for everything", "Mark shared fields `volatile`"], c: 1, why: "State that is not shared, or cannot change, cannot race." }
       ]
     },
     {
@@ -928,9 +928,9 @@ public static partial class Patterns
         "Reaching for reflection when a generic or an interface would do. A renamed property then breaks at run time instead of at build time."
       ],
       quiz: [
-        { q: "Why is `List<Dog>` not assignable to `List<Animal>`?", a: ["`List<T>` is sealed", "Someone could then `Add(new Cat())` to a list of dogs", "`Dog` would need to be a struct", "It is assignable with an implicit cast"], c: 1, why: "`List<T>` both produces and consumes `T`, so it must be invariant to stay type-safe." },
-        { q: "How does EF Core translate `p => p.Price > 10` to SQL?", a: ["It runs the lambda on every row in memory", "It receives an expression tree and translates its structure", "It decompiles the lambda's IL", "It matches the lambda's source text"], c: 1, why: "`IQueryable` methods take `Expression<Func<…>>`, which is data describing the code." },
-        { q: "Main advantage of source generators over reflection?", a: ["They let code change at run time", "The work moves to compile time: faster startup, and it works with Native AOT", "They remove the need for a compiler", "They make code dynamically typed"], c: 1, why: "Generated code is ordinary compiled code with no run-time discovery cost." }
+        { id: 'list-dog-assignable-list', q: "Why is `List<Dog>` not assignable to `List<Animal>`?", a: ["`List<T>` is sealed", "Someone could then `Add(new Cat())` to a list of dogs", "`Dog` would need to be a struct", "It is assignable with an implicit cast"], c: 1, why: "`List<T>` both produces and consumes `T`, so it must be invariant to stay type-safe." },
+        { id: 'ef-core-translate-price', q: "How does EF Core translate `p => p.Price > 10` to SQL?", a: ["It runs the lambda on every row in memory", "It receives an expression tree and translates its structure", "It decompiles the lambda's IL", "It matches the lambda's source text"], c: 1, why: "`IQueryable` methods take `Expression<Func<…>>`, which is data describing the code." },
+        { id: 'advantage-source-generators-refl', q: "Main advantage of source generators over reflection?", a: ["They let code change at run time", "The work moves to compile time: faster startup, and it works with Native AOT", "They remove the need for a compiler", "They make code dynamically typed"], c: 1, why: "Generated code is ordinary compiled code with no run-time discovery cost." }
       ]
     }
   ]

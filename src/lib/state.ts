@@ -1,5 +1,5 @@
 // Pure study progress state store, interview readiness, theme management, and reactive subscriptions.
-import { INTERVIEW_TOTALS } from '../data/manifest.ts';
+import { INTERVIEW_TOTALS, LESSON_INDEX } from '../data/manifest.ts';
 import { getAllTracks, getTrack } from './i18n.ts';
 import { normalizeCard } from './srs.ts';
 import { INTERVIEW_KEY, STORAGE_KEY, STUDY_KEY, getRaw, onStorageSync, readJson, writeJson } from './storage.ts';
@@ -22,6 +22,13 @@ export type StateChangeKind = 'study' | 'interview' | 'pomodoro' | 'all';
 export type StateListener = (kind: StateChangeKind, external: boolean) => void;
 
 const VALID_GOALS = new Set<string>(['cs-student', 'backend', 'frontend', 'fullstack', 'interview']);
+const QUIZ_IDS_BY_LESSON = new Map<string, readonly string[]>(
+  LESSON_INDEX.map((e) => [`${e.trackId}/${e.id}`, e.quizIds]),
+);
+
+export function cardKey(lessonKey: string, quizId: string): string {
+  return `${lessonKey}#${quizId}`;
+}
 
 const fresh = (): StudyProgress => ({
   lessons: {},
@@ -33,21 +40,89 @@ const fresh = (): StudyProgress => ({
   examHistory: [],
 });
 
-function sanitizeCards(raw: unknown): Record<string, SrsCard> {
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return Boolean(v) && typeof v === 'object' && !Array.isArray(v);
+}
+
+function sanitizeCards(raw: unknown): { cards: Record<string, SrsCard>; migrated: boolean } {
+  if (!isPlainObject(raw)) return { cards: {}, migrated: false };
   const out: Record<string, SrsCard> = {};
-  for (const [id, v] of Object.entries(raw as Record<string, unknown>)) {
-    if (!v || typeof v !== 'object' || Array.isArray(v)) continue;
-    const card = v as SrsCard;
+  let migrated = false;
+  // Pass 1: keep non-legacy keys first so they always take precedence over legacy `#index` keys.
+  for (const [id, v] of Object.entries(raw)) {
+    if (!isPlainObject(v)) continue;
+    const card = v as unknown as SrsCard;
     if (typeof card.due !== 'string' || !card.due) continue;
+    if (/^[^#]+#\d+$/.test(id)) continue;
     out[id] = normalizeCard(card, card.due);
+  }
+  // Pass 2: migrate legacy `${lessonKey}#${index}` keys to `${lessonKey}#${quizId}`.
+  for (const [id, v] of Object.entries(raw)) {
+    const m = /^([^#]+)#(\d+)$/.exec(id);
+    if (!m || !isPlainObject(v)) continue;
+    const card = v as unknown as SrsCard;
+    if (typeof card.due !== 'string' || !card.due) continue;
+    const [, lessonKey, idxStr] = m;
+    const quizId = QUIZ_IDS_BY_LESSON.get(lessonKey)?.[Number(idxStr)];
+    const targetId = quizId ? cardKey(lessonKey, quizId) : id;
+    if (quizId) migrated = true;
+    if (!Object.hasOwn(out, targetId)) {
+      out[targetId] = normalizeCard(card, card.due);
+    }
+  }
+  return { cards: out, migrated };
+}
+
+function sanitizeLessons(raw: unknown): { lessons: Record<string, LessonProgress>; migrated: boolean } {
+  if (!isPlainObject(raw)) return { lessons: {}, migrated: false };
+  const out: Record<string, LessonProgress> = {};
+  let migrated = false;
+  for (const [lessonKey, v] of Object.entries(raw)) {
+    if (!isPlainObject(v)) continue;
+    const entry: LessonProgress = {};
+    if (typeof v.read === 'boolean') entry.read = v.read;
+    if (typeof v.quiz === 'boolean') entry.quiz = v.quiz;
+    if (typeof v.teach === 'boolean') entry.teach = v.teach;
+    if (typeof v.pred === 'boolean') entry.pred = v.pred;
+    if (typeof v.notes === 'string') entry.notes = v.notes;
+    if (Array.isArray(v.rubric)) entry.rubric = v.rubric.slice(0, 10).map(Boolean);
+    if (isPlainObject(v.q)) {
+      const qMap: Record<string, boolean> = {};
+      const quizIds = QUIZ_IDS_BY_LESSON.get(lessonKey);
+      for (const [qk, qv] of Object.entries(v.q)) {
+        if (qv !== true) continue;
+        if (/^\d+$/.test(qk)) {
+          const mapped = quizIds?.[Number(qk)];
+          if (mapped) {
+            qMap[mapped] = true;
+            migrated = true;
+          } else {
+            qMap[qk] = true;
+          }
+        } else {
+          qMap[qk] = true;
+        }
+      }
+      if (Object.keys(qMap).length) entry.q = qMap;
+    }
+    if (Object.keys(entry).length) out[lessonKey] = entry;
+  }
+  return { lessons: out, migrated };
+}
+
+function sanitizeProjects(raw: unknown): Record<number, boolean[]> {
+  if (!isPlainObject(raw)) return {};
+  const out: Record<number, boolean[]> = {};
+  for (const [k, v] of Object.entries(raw)) {
+    if (!/^\d+$/.test(k) || !Array.isArray(v)) continue;
+    out[Number(k)] = v.slice(0, 30).map(Boolean);
   }
   return out;
 }
 
 function sanitizeOnboarding(raw: unknown): StudyOnboarding {
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
-  const g = (raw as { goal?: unknown }).goal;
+  if (!isPlainObject(raw)) return {};
+  const g = raw.goal;
   return typeof g === 'string' && VALID_GOALS.has(g) ? { goal: g as LearnerGoal } : {};
 }
 
@@ -67,24 +142,36 @@ function sanitizeExamHistory(raw: unknown): ExamAttempt[] {
     .slice(0, 20);
 }
 
-function normalizeStudy(raw: Partial<StudyProgress>): StudyProgress {
+function normalizeStudyWithMeta(raw: Partial<StudyProgress>): { state: StudyProgress; migrated: boolean } {
   const base = fresh();
-  const merged = Object.assign(base, raw);
-  merged.lessons = merged.lessons && typeof merged.lessons === 'object' && !Array.isArray(merged.lessons) ? merged.lessons : {};
-  merged.cards = sanitizeCards(merged.cards);
-  merged.projects =
-    merged.projects && typeof merged.projects === 'object' && !Array.isArray(merged.projects) ? merged.projects : {};
+  const merged = Object.assign(base, isPlainObject(raw) ? raw : {});
+  const lessonsRes = sanitizeLessons(merged.lessons);
+  const cardsRes = sanitizeCards(merged.cards);
+  merged.lessons = lessonsRes.lessons;
+  merged.cards = cardsRes.cards;
+  merged.projects = sanitizeProjects(merged.projects);
   merged.streak =
-    merged.streak && typeof merged.streak === 'object'
-      ? { last: typeof merged.streak.last === 'string' ? merged.streak.last : '', count: Number(merged.streak.count) || 0 }
+    isPlainObject(merged.streak)
+      ? {
+          last: typeof merged.streak.last === 'string' ? merged.streak.last : '',
+          count: Number.isFinite(Number(merged.streak.count)) ? Math.max(0, Math.floor(Number(merged.streak.count))) : 0,
+        }
       : { last: '', count: 0 };
   merged.theme = merged.theme === 'light' || merged.theme === 'dark' ? merged.theme : '';
   merged.onboarding = sanitizeOnboarding(merged.onboarding);
   merged.examHistory = sanitizeExamHistory(merged.examHistory);
-  return merged;
+  return { state: merged, migrated: lessonsRes.migrated || cardsRes.migrated };
 }
 
-export const S: StudyProgress = normalizeStudy(readJson<StudyProgress>(STORAGE_KEY, fresh));
+function normalizeStudy(raw: Partial<StudyProgress>): StudyProgress {
+  return normalizeStudyWithMeta(raw).state;
+}
+
+const initial = normalizeStudyWithMeta(readJson<StudyProgress>(STORAGE_KEY, fresh));
+export const S: StudyProgress = initial.state;
+if (initial.migrated && getRaw(STORAGE_KEY)) {
+  writeJson(STORAGE_KEY, S);
+}
 
 const listeners = new Set<StateListener>();
 
@@ -175,7 +262,7 @@ export interface CardEntry {
 }
 
 export function allCards(): CardEntry[] {
-  return allLessons().flatMap((e) => e.l.quiz.map((q, i) => ({ id: `${e.k}#${i}`, q, t: e.t, l: e.l })));
+  return allLessons().flatMap((e) => e.l.quiz.map((q) => ({ id: cardKey(e.k, q.id), q, t: e.t, l: e.l })));
 }
 
 // A card is in review once its lesson is marked learned, or as soon as its question was missed in the lesson.

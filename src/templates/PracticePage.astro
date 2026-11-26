@@ -1,6 +1,6 @@
 ---
-// Flashcard review and mock exam shells (client views that need every lesson's quiz questions).
-import { pageStrings } from '../lib/ssr.ts';
+// Flashcard review and mock exam shells (client views that fetch the lightweight /quiz-index.json payload).
+import { pageStrings, uiSubset } from '../lib/ssr.ts';
 import type { Lang } from '../lib/types.ts';
 import ViewPage from './ViewPage.astro';
 
@@ -10,7 +10,49 @@ interface Props {
 }
 
 const { lang, kind } = Astro.props;
-const { T } = pageStrings(lang);
+const { T, href } = pageStrings(lang);
+const PRACTICE_UI_KEYS = [
+  'Correct.',
+  'Not quite.',
+  'Not quite. Think about why, then try another.',
+  'Filter by track',
+  'Filter by level',
+  'All tracks',
+  'All levels',
+  'Spaced repetition',
+  'Flashcard review',
+  'Questions from learned lessons, missed quizzes, and mock exams adapt to your memory with spaced repetition. Rate each recall Again, Hard, Good, or Easy.',
+  'Nothing due.',
+  "You're caught up. Come back tomorrow, or try a mock exam.",
+  'Mark a lesson as learned and its questions will appear here.',
+  'Session complete: {got} of {n} recalled.',
+  '{n} more due cards remaining.',
+  'Missed cards return tomorrow.',
+  'Continue next 20 due',
+  'Back to dashboard',
+  'Again ({d}d)',
+  'Hard ({d}d)',
+  'Good ({d}d)',
+  'Easy ({d}d)',
+  'Show answer',
+  'Shortcuts: Space to reveal, 1–4 to grade.',
+  'Prove it',
+  'Mock exam',
+  'Ten random questions, one attempt each. Use it to find the lessons you cannot yet teach.',
+  'No mock exams completed yet.',
+  'Exam history',
+  'Date',
+  'Track',
+  'Score',
+  'No questions match these filters.',
+  'Pick another track or level, or choose All levels.',
+  'Question',
+  'Score:',
+  'Revisit: ',
+  'Clean sweep. Raise the level.',
+  'Missed questions were added to Flashcard review (due today).',
+  'Start exam',
+];
 const meta =
   kind === 'review'
     ? {
@@ -25,6 +67,10 @@ const meta =
         heading: T('Mock exam'),
         lede: T('Ten random questions, one attempt each. Use it to find the lessons you cannot yet teach.'),
       };
+const viewData = {
+  indexUrl: href('/quiz-index.json'),
+  i18n: uiSubset(lang, PRACTICE_UI_KEYS),
+};
 ---
 <ViewPage
   lang={lang}
@@ -35,4 +81,5 @@ const meta =
   eyebrow={meta.eyebrow}
   heading={meta.heading}
   lede={meta.lede}
+  data={viewData}
 />

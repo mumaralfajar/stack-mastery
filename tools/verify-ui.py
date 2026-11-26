@@ -263,7 +263,8 @@ def png_size(path):
 def static_checks(check):
     count = lambda pattern: len(list(DIST.glob(pattern)))
     for rel in ["index.html", "id/index.html", "404.html", "robots.txt", "sitemap-index.xml", "manifest.webmanifest", "sw.js",
-                "favicon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/icon.svg", "search-index.json", "id/search-index.json"]:
+                "favicon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/icon.svg",
+                "search-index.json", "id/search-index.json", "quiz-index.json", "id/quiz-index.json"]:
         check((DIST / rel).is_file(), f"dist/{rel} must exist")
     for prefix, label in [("", "EN"), ("id/", "ID")]:
         check(count(f"{prefix}lesson/*/*/index.html") == EXPECTED_LESSONS, f"{label}: expected {EXPECTED_LESSONS} lesson pages, found {count(f'{prefix}lesson/*/*/index.html')}")
@@ -1025,8 +1026,18 @@ def run_suite():
             page.locator("#view .actions button", has_text="Start exam").click()
             check("No questions match these filters." in page.inner_text("#view"), "Empty Mock exam pool must render an empty-state notice")
 
+            # Quiz-index isolation: /review/, /exam/, /id/review/, /id/exam/ must fetch quiz-index.json and zero curriculum JS chunks.
+            q_reqs = watch_requests(page)
+            for qpath in ["review/", "exam/", "id/review/", "id/exam/"]:
+                start_idx = len(q_reqs)
+                goto(page, base, qpath)
+                seen_q = q_reqs[start_idx:]
+                heavy_q = [u for u in seen_q if CURRICULUM_CHUNK_RX.search(u.split("?")[0])]
+                check(not heavy_q and any(u.endswith("/quiz-index.json") for u in seen_q),
+                      f"/{qpath} must fetch quiz-index.json without curriculum chunks, got reqs={seen_q}")
+
             # Phase 6 Pedagogy: Goal onboarding (/dashboard/ & /start/), Beginner placement (/track/go/),
-            # Adaptive SM-2/FSRS-lite SRS (/review/), Mock Exam SRS routing + history (/exam/),
+            # Adaptive SM-2 SRS (/review/), Mock Exam SRS routing + history (/exam/),
             # Teach-Back word count coaching & My Study Notes (/notes/ & Markdown export).
             goto(page, base, "dashboard/")
             page.locator("#view [data-goal='interview']").click()
@@ -1093,7 +1104,7 @@ def run_suite():
             check(all(x["r"] and x["q"] and not x["t"] for x in go_beg_state), f"Placement pass must set read+quiz and keep teach=false: {go_beg_state}")
             check(page.locator("#view a.row[data-k='go/types'] .dots i.on").count() == 2, "Track lesson dots must redraw immediately with 2 lit dots")
 
-            # Adaptive SM-2/FSRS-lite Spaced Repetition: legacy migration, >16d growth, 4 buttons, Space & 1-4 shortcuts, >20 pagination
+            # Adaptive SM-2 Spaced Repetition: legacy #index -> #slug migration, >16d growth, 4 buttons, Space & 1-4 shortcuts, >20 pagination
             page.evaluate("""() => {
               const s = JSON.parse(localStorage.getItem('stackmastery.v1') || '{}');
               s.lessons = {};
@@ -1109,8 +1120,11 @@ def run_suite():
             check("40d" in good_txt, f"Legacy box=5 card must migrate and schedule past 16d (40d), got {good_txt!r}")
             page.keyboard.press("3")
             page.wait_for_timeout(100)
-            card_after = page.evaluate("() => JSON.parse(localStorage.getItem('stackmastery.v1') || '{}').cards?.['csharp/types#0']")
-            check(card_after and card_after.get("interval", 0) == 40 and card_after.get("reps") == 6, f"Key '3' (Good) must schedule adaptive card >16d, got {card_after}")
+            cards_after = page.evaluate("() => JSON.parse(localStorage.getItem('stackmastery.v1') || '{}').cards || {}")
+            migrated_keys = [k for k in cards_after if k.startswith('csharp/types#') and k != 'csharp/types#0']
+            card_after = cards_after.get(migrated_keys[0]) if migrated_keys else None
+            check('csharp/types#0' not in cards_after and len(migrated_keys) == 1 and card_after and card_after.get("interval", 0) == 40 and card_after.get("reps") == 6,
+                  f"Key '3' (Good) must migrate legacy #0 key to stable quizId and schedule >16d, got {cards_after}")
             # Seed 22 due cards and verify 'Continue next 20 due' pagination
             page.evaluate("""() => {
               const s = JSON.parse(localStorage.getItem('stackmastery.v1') || '{}');

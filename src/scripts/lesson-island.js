@@ -6,7 +6,7 @@ import { md } from '../lib/dom.ts';
 import { getLang, registerUiDict, t as T } from '../lib/i18n.ts';
 import { quizItem } from '../lib/icons.ts';
 import { recordCardMiss } from '../lib/srs.ts';
-import { S, day, notifyStateChange, peek, save, st, touch } from '../lib/state.ts';
+import { cardKey, S, day, notifyStateChange, peek, save, st, touch } from '../lib/state.ts';
 import { loadViz } from './viz/registry.ts';
 
 const root = document.querySelector('[data-lesson-root]');
@@ -61,21 +61,22 @@ if (root && data) {
   // Check (persist per-question completion across reloads); a first miss schedules the card for review.
   const s0 = peek(k);
   const qSaved = { ...(s0.q || {}) };
-  const results = data.quiz.map((_, i) => !!qSaved[i]);
+  const results = data.quiz.map((q) => !!qSaved[q.id]);
   const quizHost = root.querySelector('[data-quiz]');
   quizHost?.replaceChildren(
     ...data.quiz.map((q, i) =>
       quizItem(q, {
-        solved: !!qSaved[i],
+        solved: !!qSaved[q.id],
         onResult: () => {
           results[i] = true;
-          qSaved[i] = true;
+          qSaved[q.id] = true;
           st(k).q = qSaved;
           save();
           if (results.every(Boolean)) set('quiz', true);
         },
         onMiss: () => {
-          S.cards[`${k}#${i}`] = recordCardMiss(S.cards[`${k}#${i}`], day());
+          const cid = cardKey(k, q.id);
+          S.cards[cid] = recordCardMiss(S.cards[cid], day());
           save();
           notifyStateChange('study');
         },

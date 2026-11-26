@@ -162,8 +162,8 @@ function mergeLesson(en: Lesson, tr?: LessonTranslation): Lesson {
     splits: en.splits && tr.splits ? en.splits.map((s, i) => [tr.splits?.[i] || s[0], s[1]]) : en.splits,
     predict: en.predict && tr.predict ? { ...en.predict, ...tr.predict } : en.predict,
     quiz: tr.quiz
-      ? en.quiz.map((q, i) => {
-          const tq = tr.quiz?.[i];
+      ? en.quiz.map((q) => {
+          const tq = tr.quiz?.[q.id];
           return tq ? { ...q, q: tq[0], a: tq[1], why: tq[2] } : q;
         })
       : en.quiz,

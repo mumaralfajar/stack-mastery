@@ -29,11 +29,11 @@ export const trackId = {
       "Terlanjur meng-commit password atau connection string. Menghapusnya di commit berikutnya tidak menghilangkan dari history, jadi anggap sudah bocor: ganti password atau cabut key-nya, baru hapus.",
       "Menjalankan `git init` polos lalu branch-nya ternyata bernama `master`, bikin tutorial yang memakai `main` macet. Pakai `git init -b main`, atau ubah namanya lewat `git branch -m main`."
     ],
-    quiz: [
-      ["Apa yang dilakukan `git add`?", ["Membuat commit", "Memasukkan perubahan ke staging untuk commit berikutnya", "Meng-upload ke remote", "Mulai melacak seluruh repository"], "Perintah ini memindahkan perubahan ke staging area, lalu `git commit` yang mencatatnya."],
-      ["Kenapa bekerja di feature branch, bukan langsung di `main`?", ["Commit di branch tidak mungkin conflict", "Pekerjaan yang belum selesai tetap terisolasi, dan `main` tetap jalan serta bisa di-review", "Branch otomatis di-backup ke GitHub", "Hanya branch yang bisa di-push"], "Branch mengisolasi pekerjaan sampai selesai direview dan siap di-merge. Branch tetap bisa conflict, dan belum ada yang naik sebelum kamu push."],
-      ["Kamu push commit berisi API key, lalu menghapus key itu di commit berikutnya. Lalu apa?", ["Tidak perlu apa-apa, sudah hilang", "Cabut atau ganti key-nya karena masih ada di history", "Jalankan `git revert` pada commit pertama", "Jadikan repository-nya private lagi"], "Setiap clone menyimpan commit lama itu. Begitu secret sudah ter-push, anggap sudah ada yang menyalinnya."]
-    ]
+    quiz: {
+      'git-add': ["Apa yang dilakukan `git add`?", ["Membuat commit", "Memasukkan perubahan ke staging untuk commit berikutnya", "Meng-upload ke remote", "Mulai melacak seluruh repository"], "Perintah ini memindahkan perubahan ke staging area, lalu `git commit` yang mencatatnya."],
+      'work-feature-branch': ["Kenapa bekerja di feature branch, bukan langsung di `main`?", ["Commit di branch tidak mungkin conflict", "Pekerjaan yang belum selesai tetap terisolasi, dan `main` tetap jalan serta bisa di-review", "Branch otomatis di-backup ke GitHub", "Hanya branch yang bisa di-push"], "Branch mengisolasi pekerjaan sampai selesai direview dan siap di-merge. Branch tetap bisa conflict, dan belum ada yang naik sebelum kamu push."],
+      'pushed-commit-containing-api': ["Kamu push commit berisi API key, lalu menghapus key itu di commit berikutnya. Lalu apa?", ["Tidak perlu apa-apa, sudah hilang", "Cabut atau ganti key-nya karena masih ada di history", "Jalankan `git revert` pada commit pertama", "Jadikan repository-nya private lagi"], "Setiap clone menyimpan commit lama itu. Begitu secret sudah ter-push, anggap sudah ada yang menyalinnya."]
+    }
   },
   bigo: {
     terms: [
@@ -65,11 +65,11 @@ export const trackId = {
       "Lupa biaya tersembunyi seperti sorting, concatenation `string` di dalam loop, dan `Insert(0, x)` pada list.",
       "Menyebutkan time complexity tapi lupa space-nya."
     ],
-    quiz: [
-      ["Berapa complexity dari loop atas n item yang setiap kali memanggil `list.Contains(x)` pada list berisi n item?", ["O(n)", "O(n log n)", "O(n²)", "O(1), karena `Contains` itu bawaan"], "`Contains` pada list itu sendiri O(n), dan ia dijalankan n kali. Fungsi bawaan bukan berarti gratis."],
-      ["Binary search pada 1.000.000 item yang sudah terurut butuh sekitar berapa langkah?", ["20", "1.000", "500.000", "1.000.000"], "log₂(1.000.000) ≈ 20 karena setiap langkah membuang separuh sisanya."],
-      ["5n² + 3n + 100 disederhanakan menjadi…", ["O(n)", "O(5n²)", "O(n²)", "O(n² + n)"], "Buang konstanta dan suku kecil. Suku n² yang paling menentukan saat n membesar."]
-    ]
+    quiz: {
+      'complexity-loop-items-calls': ["Berapa complexity dari loop atas n item yang setiap kali memanggil `list.Contains(x)` pada list berisi n item?", ["O(n)", "O(n log n)", "O(n²)", "O(1), karena `Contains` itu bawaan"], "`Contains` pada list itu sendiri O(n), dan ia dijalankan n kali. Fungsi bawaan bukan berarti gratis."],
+      'binary-search-000-000': ["Binary search pada 1.000.000 item yang sudah terurut butuh sekitar berapa langkah?", ["20", "1.000", "500.000", "1.000.000"], "log₂(1.000.000) ≈ 20 karena setiap langkah membuang separuh sisanya."],
+      '5n-3n-100-simplifies': ["5n² + 3n + 100 disederhanakan menjadi…", ["O(n)", "O(5n²)", "O(n²)", "O(n² + n)"], "Buang konstanta dan suku kecil. Suku n² yang paling menentukan saat n membesar."]
+    }
   },
   numbers: {
     terms: [
@@ -102,11 +102,11 @@ export const trackId = {
       "Memotong string berdasarkan jumlah `char` yang kaku karena bisa membelah emoji jadi dua.",
       "Mendeklarasikan kolom nama dengan `VARCHAR` lalu kaget muncul '?' untuk huruf di luar code page."
     ],
-    quiz: [
-      ["Kenapa `0.1 + 0.2 == 0.3` bernilai false untuk `double` di C#?", ["Compiler membulatkan sisi kanannya", "0,1 dan 0,2 tidak punya bentuk biner yang persis, jadi jumlahnya sedikit meleset", "`==` membandingkan reference untuk double", "Double hanya menyimpan dua angka di belakang koma"], "Floating point biner menyimpan pecahan terdekat, membuat jumlahnya 0.30000000000000004. Pakai `decimal` untuk nominal eksak."],
-      ["Type mana yang cocok untuk saldo rekening di SQL Server?", ["`FLOAT`", "`REAL`", "`DECIMAL(19,4)`", "`NVARCHAR(20)`"], "`DECIMAL` eksak di basis 10. `FLOAT` dan `REAL` memakai biner, sedangkan teks tidak bisa dijumlahkan sebagai angka."],
-      ["`\"👍\".Length` bernilai 2 di C#. Kenapa?", ["String C# memakai UTF-16, dan emoji ini butuh dua unit 16 bit", "Windows menyimpan setiap emoji sebagai dua karakter", "`Length` menghitung byte dalam UTF-8", "Itu bug di .NET"], "Karakter di luar 65.536 code point pertama butuh surrogate pair di UTF-16. Pakai `EnumerateRunes()` untuk menghitung code point."]
-    ]
+    quiz: {
+      'false-double': ["Kenapa `0.1 + 0.2 == 0.3` bernilai false untuk `double` di C#?", ["Compiler membulatkan sisi kanannya", "0,1 dan 0,2 tidak punya bentuk biner yang persis, jadi jumlahnya sedikit meleset", "`==` membandingkan reference untuk double", "Double hanya menyimpan dua angka di belakang koma"], "Floating point biner menyimpan pecahan terdekat, membuat jumlahnya 0.30000000000000004. Pakai `decimal` untuk nominal eksak."],
+      'type-fits-account-balance': ["Type mana yang cocok untuk saldo rekening di SQL Server?", ["`FLOAT`", "`REAL`", "`DECIMAL(19,4)`", "`NVARCHAR(20)`"], "`DECIMAL` eksak di basis 10. `FLOAT` dan `REAL` memakai biner, sedangkan teks tidak bisa dijumlahkan sebagai angka."],
+      'length-is-2-in': ["`\"👍\".Length` bernilai 2 di C#. Kenapa?", ["String C# memakai UTF-16, dan emoji ini butuh dua unit 16 bit", "Windows menyimpan setiap emoji sebagai dua karakter", "`Length` menghitung byte dalam UTF-8", "Itu bug di .NET"], "Karakter di luar 65.536 code point pertama butuh surrogate pair di UTF-16. Pakai `EnumerateRunes()` untuk menghitung code point."]
+    }
   },
   structures: {
     terms: [
@@ -134,11 +134,11 @@ export const trackId = {
       "Memilih linked list demi 'insert cepat', padahal mencari posisinya tetap O(n).",
       "Kehilangan sisa linked list karena menimpa `Next` sebelum menyimpannya. Gambar dulu kotak dan panahnya."
     ],
-    quiz: [
-      ["Structure mana yang memberi lookup O(1) rata-rata berdasarkan key?", ["`List<T>` yang dijaga terurut", "`LinkedList<T>`", "Hash table", "`Queue<T>`"], "Hash dari key langsung menunjuk bucket-nya. List terurut memberi O(log n) lewat binary search."],
-      ["Structure mana yang cocok untuk 'batalkan aksi terakhir'?", ["Queue", "Stack", "Dictionary", "List terurut"], "Undo itu masuk terakhir, keluar pertama."],
-      ["Berapa biaya `list.Insert(0, x)` pada List berisi n item?", ["O(1)", "O(log n)", "O(n)", "Amortized O(1), seperti `Add`"], "Setiap elemen yang sudah ada harus digeser satu posisi. Hanya append di ujung yang amortized O(1)."]
-    ]
+    quiz: {
+      'structure-gives-average-lookup': ["Structure mana yang memberi lookup O(1) rata-rata berdasarkan key?", ["`List<T>` yang dijaga terurut", "`LinkedList<T>`", "Hash table", "`Queue<T>`"], "Hash dari key langsung menunjuk bucket-nya. List terurut memberi O(log n) lewat binary search."],
+      'structure-fits-undo-recent': ["Structure mana yang cocok untuk 'batalkan aksi terakhir'?", ["Queue", "Stack", "Dictionary", "List terurut"], "Undo itu masuk terakhir, keluar pertama."],
+      'cost-list-insert-list': ["Berapa biaya `list.Insert(0, x)` pada List berisi n item?", ["O(1)", "O(log n)", "O(n)", "Amortized O(1), seperti `Add`"], "Setiap elemen yang sudah ada harus digeser satu posisi. Hanya append di ujung yang amortized O(1)."]
+    }
   },
   sorting: {
     terms: [
@@ -165,11 +165,11 @@ export const trackId = {
       "Mengurutkan berdasarkan satu key lalu key lain dengan `Array.Sort` dan berharap urutan sebelumnya bertahan. Pakai `OrderBy(...).ThenBy(...)`.",
       "Menulis sort sendiri di proyek produksi ketimbang memakai library."
     ],
-    quiz: [
-      ["Dua hal apa yang wajib dimiliki setiap function recursive?", ["Loop dan counter", "Base case dan langkah menuju base case itu", "Memo dan return value", "Dua pemanggilan recursive"], "Tanpa base case ia berputar terus, dan tanpa langkah mendekat ia tak akan pernah sampai ke base case."],
-      ["Berapa time complexity merge sort?", ["O(n)", "O(n log n)", "O(n²) di worst case", "O(log n)"], "Ada log n level pemecahan dengan kerja merge O(n) di tiap level apa pun input-nya. Yang punya worst case O(n²) itu quick sort."],
-      ["Kamu mengurutkan order berdasarkan tanggal, lalu mengurutkan hasilnya berdasarkan customer dengan `Array.Sort`. Apakah order tiap customer masih terurut tanggalnya?", ["Ya, selalu", "Tidak dijamin: `Array.Sort` tidak stable", "Hanya untuk array kecil", "Ya, kalau tanggalnya unik"], "Sort yang tidak stable bisa mengacak urutan key yang sama. `OrderBy(o => o.Customer).ThenBy(o => o.Date)` lebih jelas maksudnya."]
-    ]
+    quiz: {
+      'two-things-every-recursive': ["Dua hal apa yang wajib dimiliki setiap function recursive?", ["Loop dan counter", "Base case dan langkah menuju base case itu", "Memo dan return value", "Dua pemanggilan recursive"], "Tanpa base case ia berputar terus, dan tanpa langkah mendekat ia tak akan pernah sampai ke base case."],
+      'time-complexity-merge-sort': ["Berapa time complexity merge sort?", ["O(n)", "O(n log n)", "O(n²) di worst case", "O(log n)"], "Ada log n level pemecahan dengan kerja merge O(n) di tiap level apa pun input-nya. Yang punya worst case O(n²) itu quick sort."],
+      'sort-orders-date-then': ["Kamu mengurutkan order berdasarkan tanggal, lalu mengurutkan hasilnya berdasarkan customer dengan `Array.Sort`. Apakah order tiap customer masih terurut tanggalnya?", ["Ya, selalu", "Tidak dijamin: `Array.Sort` tidak stable", "Hanya untuk array kecil", "Ya, kalau tanggalnya unik"], "Sort yang tidak stable bisa mengacak urutan key yang sama. `OrderBy(o => o.Customer).ThenBy(o => o.Date)` lebih jelas maksudnya."]
+    }
   },
   trees: {
     splits: ['1 · Insert & traversal BST', '2 · Membangun pohon & heap', '3 · Binary search pada kondisi', '4 · Class Node'],
@@ -204,11 +204,11 @@ export const trackId = {
       "Berharap `PriorityQueue` mengembalikan item berprioritas sama sesuai urutan masuk. Itu tidak dijamin.",
       "Loop binary search yang macet selamanya. Saat memakai `lo < hi`, selalu pindah `lo` ke `mid + 1` atau `hi` ke `mid`, jangan pernah `lo = mid`."
     ],
-    quiz: [
-      ["Traversal mana yang membaca isi binary search tree dari nilai terkecil ke terbesar?", ["Pre-order", "In-order", "Post-order", "Level-order"], "Subtree kiri (lebih kecil), node, lalu subtree kanan (lebih besar)."],
-      ["Apa yang dijamin oleh min-heap?", ["Setiap level terurut dari kiri ke kanan", "Elemen terkecil ada di root", "Mencari nilai apa pun itu O(log n)", "Prioritas yang sama keluar sesuai urutan masuk"], "Heap hanya menjaga urutan parent-child sehingga minimum langsung ketemu di root. Mencari nilai acak lain tetap O(n)."],
-      ["Memasukkan 1, 2, 3, 4, 5 berurutan ke BST biasa menghasilkan…", ["Tree yang seimbang", "Rantai child kanan dengan search O(n)", "Tree dengan tinggi 3", "Min-heap"], "Setiap nilai lebih besar dari sebelumnya, jadi tree-nya memanjang seperti linked list."]
-    ]
+    quiz: {
+      'traversal-visits-binary-search': ["Traversal mana yang membaca isi binary search tree dari nilai terkecil ke terbesar?", ["Pre-order", "In-order", "Post-order", "Level-order"], "Subtree kiri (lebih kecil), node, lalu subtree kanan (lebih besar)."],
+      'min-heap-guarantee': ["Apa yang dijamin oleh min-heap?", ["Setiap level terurut dari kiri ke kanan", "Elemen terkecil ada di root", "Mencari nilai apa pun itu O(log n)", "Prioritas yang sama keluar sesuai urutan masuk"], "Heap hanya menjaga urutan parent-child sehingga minimum langsung ketemu di root. Mencari nilai acak lain tetap O(n)."],
+      'inserting-order-plain-bst': ["Memasukkan 1, 2, 3, 4, 5 berurutan ke BST biasa menghasilkan…", ["Tree yang seimbang", "Rantai child kanan dengan search O(n)", "Tree dengan tinggi 3", "Min-heap"], "Setiap nilai lebih besar dari sebelumnya, jadi tree-nya memanjang seperti linked list."]
+    }
   },
   graphs: {
     splits: ['1 · Adjacency list & pemanggil', '2 · Jalur terpendek BFS', '3 · DFS', '4 · Urutan topologis'],
@@ -244,12 +244,12 @@ export const trackId = {
       "DFS rekursif di grid besar. Sejuta sel bisa membuat call stack penuh, jadi pakai stack eksplisit atau BFS.",
       "Tidak sadar soalnya berbentuk graph: 'word ladder', 'course prerequisites', dan 'rotting oranges' tidak pernah menyebut kata graph."
     ],
-    quiz: [
-      ["Algoritma mana yang menemukan shortest path kalau setiap edge biayanya sama?", ["DFS", "BFS", "Topological sort", "Wajib Dijkstra"], "BFS mencapai node urut sesuai jarak dari titik awal. Dijkstra baru perlu kalau biaya edge berbeda."],
-      ["Berapa time complexity BFS atau DFS dengan adjacency list?", ["O(V)", "O(V + E)", "O(V²)", "O(E log V)"], "Tiap vertex dikunjungi sekali dan tiap edge dicek sekali. O(E log V) itu Dijkstra dengan heap."],
-      ["Topological order hanya ada kalau graph directed-nya…", ["terhubung", "tidak punya cycle", "berupa tree", "hanya punya satu node awal"], "Cycle artinya ada node yang harus datang sebelum dirinya sendiri. Punya beberapa node awal tidak masalah."],
-      ["Di graph directed, DFS mencapai node D untuk kedua kalinya. Apa artinya?", ["Ada cycle", "Belum tentu: cek apakah D masih di jalur aktif saat ini", "Graph-nya undirected", "Visited set-nya rusak"], "Hanya bertemu node yang masih di jalur aktif berarti cycle. Bertemu node yang sudah selesai cuma berarti dua jalur bertemu."]
-    ]
+    quiz: {
+      'algorithm-finds-shortest-path': ["Algoritma mana yang menemukan shortest path kalau setiap edge biayanya sama?", ["DFS", "BFS", "Topological sort", "Wajib Dijkstra"], "BFS mencapai node urut sesuai jarak dari titik awal. Dijkstra baru perlu kalau biaya edge berbeda."],
+      'time-complexity-bfs-dfs': ["Berapa time complexity BFS atau DFS dengan adjacency list?", ["O(V)", "O(V + E)", "O(V²)", "O(E log V)"], "Tiap vertex dikunjungi sekali dan tiap edge dicek sekali. O(E log V) itu Dijkstra dengan heap."],
+      'topological-order-exists-only': ["Topological order hanya ada kalau graph directed-nya…", ["terhubung", "tidak punya cycle", "berupa tree", "hanya punya satu node awal"], "Cycle artinya ada node yang harus datang sebelum dirinya sendiri. Punya beberapa node awal tidak masalah."],
+      'directed-graph-dfs-reaches': ["Di graph directed, DFS mencapai node D untuk kedua kalinya. Apa artinya?", ["Ada cycle", "Belum tentu: cek apakah D masih di jalur aktif saat ini", "Graph-nya undirected", "Visited set-nya rusak"], "Hanya bertemu node yang masih di jalur aktif berarti cycle. Bertemu node yang sudah selesai cuma berarti dua jalur bertemu."]
+    }
   },
   backtracking: {
     splits: ['1 · Pemanggil', '2 · Subset', '3 · Combination sum', '4 · Permutasi & Show'],
@@ -278,11 +278,11 @@ export const trackId = {
       "Mengirim `i + 1` saat item boleh diulang, atau `i` saat tidak boleh. Start index menentukan apakah pengulangan diizinkan.",
       "Menghasilkan semua kemungkinan lalu memfilter di akhir, padahal cek di tengah jalan sudah bisa membuang hampir seluruh cabang."
     ],
-    quiz: [
-      ["Kenapa item terakhir dihapus dari `path` setelah pemanggilan rekursif?", ["Untuk menghemat memory", "Supaya pilihan berikutnya mulai dari state yang sama dengan pilihan ini", "Karena list C# tidak bisa menampung duplikat", "Supaya rekursinya berhenti"], "Membatalkan pilihan mengembalikan kondisi ke awal cabang, jadi tiap cabang saudara mulai dari titik persis sama."],
-      ["Kandidatnya sudah terurut, dan kandidat berikutnya sudah lebih besar dari sisa jumlahnya. Apa yang harus dilakukan loop-nya?", ["Lewati dan coba kandidat berikutnya", "Break: semua kandidat setelahnya juga lebih besar", "Tetap tambahkan dan cek di akhir", "Mulai lagi dari kandidat pertama"], "Itulah pruning. Karena sudah terurut, loop bisa langsung berhenti tanpa mengecek sisa kandidat."],
-      ["Berapa banyak subset dari sebuah himpunan berisi 20 item berbeda?", ["400", "20!", "2²⁰, sekitar satu juta", "190"], "Tiap item punya dua opsi, masuk atau tidak, jadi ada 2ⁿ subset. 2²⁰ adalah 1.048.576 dan masih aman dihasilkan, sedangkan 2⁴⁰ tidak."]
-    ]
+    quiz: {
+      'remove-last-item-path': ["Kenapa item terakhir dihapus dari `path` setelah pemanggilan rekursif?", ["Untuk menghemat memory", "Supaya pilihan berikutnya mulai dari state yang sama dengan pilihan ini", "Karena list C# tidak bisa menampung duplikat", "Supaya rekursinya berhenti"], "Membatalkan pilihan mengembalikan kondisi ke awal cabang, jadi tiap cabang saudara mulai dari titik persis sama."],
+      'candidates-sorted-next-one': ["Kandidatnya sudah terurut, dan kandidat berikutnya sudah lebih besar dari sisa jumlahnya. Apa yang harus dilakukan loop-nya?", ["Lewati dan coba kandidat berikutnya", "Break: semua kandidat setelahnya juga lebih besar", "Tetap tambahkan dan cek di akhir", "Mulai lagi dari kandidat pertama"], "Itulah pruning. Karena sudah terurut, loop bisa langsung berhenti tanpa mengecek sisa kandidat."],
+      'many-subsets-set-20': ["Berapa banyak subset dari sebuah himpunan berisi 20 item berbeda?", ["400", "20!", "2²⁰, sekitar satu juta", "190"], "Tiap item punya dua opsi, masuk atau tidak, jadi ada 2ⁿ subset. 2²⁰ adalah 1.048.576 dan masih aman dihasilkan, sedangkan 2⁴⁰ tidak."]
+    }
   },
   dp: {
     terms: [
@@ -315,11 +315,11 @@ export const trackId = {
       "Menghafalkan kode jawaban daripada prosedur lima langkahnya.",
       "Rekursi top-down yang terlalu dalam untuk input ratusan ribu sampai stack overflow. Pindah ke bottom-up."
     ],
-    quiz: [
-      ["Dua sifat apa yang membuat sebuah masalah cocok untuk dynamic programming?", ["Input terurut dan nilai yang unik", "Overlapping subproblem dan optimal substructure", "Solusi recursive dan input kecil", "Solusi greedy yang gagal"], "Subproblem yang berulang membuat cache berguna, dan optimal substructure membuat penggabungan hasilnya sah."],
-      ["Apa langkah pertama dalam merancang solusi DP?", ["Optimasi space", "Definisikan dengan tepat apa arti state-nya", "Tulis nested loop-nya", "Tulis dictionary memo-nya"], "Tanpa definisi state yang jelas, recurrence tidak bisa ditulis atau dicek."],
-      ["Kapan algoritma greedy aman dipakai?", ["Kapan pun ia lebih cepat dari DP", "Kalau kamu bisa menjelaskan bahwa pilihan terbaik saat ini tidak pernah menghalangi jawaban terbaik ujungnya", "Kapan pun inputnya terurut", "Tidak pernah di interview"], "Greedy butuh bukti kenapa ia tetap optimal. Tanpa alasan kuat, satu counter-example mengembalikanmu ke DP."]
-    ]
+    quiz: {
+      'two-properties-make-problem': ["Dua sifat apa yang membuat sebuah masalah cocok untuk dynamic programming?", ["Input terurut dan nilai yang unik", "Overlapping subproblem dan optimal substructure", "Solusi recursive dan input kecil", "Solusi greedy yang gagal"], "Subproblem yang berulang membuat cache berguna, dan optimal substructure membuat penggabungan hasilnya sah."],
+      'first-step-designing-dp': ["Apa langkah pertama dalam merancang solusi DP?", ["Optimasi space", "Definisikan dengan tepat apa arti state-nya", "Tulis nested loop-nya", "Tulis dictionary memo-nya"], "Tanpa definisi state yang jelas, recurrence tidak bisa ditulis atau dicek."],
+      'greedy-algorithm-safe-use': ["Kapan algoritma greedy aman dipakai?", ["Kapan pun ia lebih cepat dari DP", "Kalau kamu bisa menjelaskan bahwa pilihan terbaik saat ini tidak pernah menghalangi jawaban terbaik ujungnya", "Kapan pun inputnya terurut", "Tidak pernah di interview"], "Greedy butuh bukti kenapa ia tetap optimal. Tanpa alasan kuat, satu counter-example mengembalikanmu ke DP."]
+    }
   },
   concurrency: {
     terms: [
@@ -347,11 +347,11 @@ export const trackId = {
       "Mengecek kondisi, melakukan `await`, lalu menganggap kondisinya masih berlaku. Cek lagi sesudah `await`, atau kunci dua-duanya dengan async lock.",
       "Memblokir kode async memakai `.Result` sambil memegang lock atau di UI thread: cara klasik memicu deadlock."
     ],
-    quiz: [
-      ["Dua thread masing-masing menjalankan `count++` 1.000 kali pada `int` bersama yang dimulai dari 0. Berapa nilai akhirnya?", ["Selalu 2.000", "Berapa pun sampai 2.000: penambahan bisa hilang", "Selalu 1.000", "Program error dan crash"], "`count++` terdiri dari baca, tambah, dan tulis. Dua thread bisa membaca angka sama lalu menulis hasil yang sama."],
-      ["Kenapa kode JavaScript yang synchronous tidak pernah disela callback lain?", ["Browser me-lock setiap variabel", "Event loop menjalankan satu callback pada satu waktu, di satu thread", "`await` menyalin semua variabel", "JavaScript tidak punya concurrency sama sekali"], "Callback lain menunggu sampai callback yang aktif selesai atau menemui `await`. State bisa berubah melewati `await`, bukan di tengah blok sinkron."],
-      ["Di C#, kamu perlu melindungi bagian kode yang berisi `await`. Apa yang dipakai?", ["`lock (gate) { … }`", "`SemaphoreSlim` dengan `await WaitAsync()` dan `Release()`", "`Thread.Sleep` sebelum bagian itu", "`volatile` pada field-nya"], "`lock` tidak bisa menampung `await`. Pakai `SemaphoreSlim(1, 1)` sebagai async lock dan lepaskan di blok `finally`."]
-    ]
+    quiz: {
+      'two-threads-each-run': ["Dua thread masing-masing menjalankan `count++` 1.000 kali pada `int` bersama yang dimulai dari 0. Berapa nilai akhirnya?", ["Selalu 2.000", "Berapa pun sampai 2.000: penambahan bisa hilang", "Selalu 1.000", "Program error dan crash"], "`count++` terdiri dari baca, tambah, dan tulis. Dua thread bisa membaca angka sama lalu menulis hasil yang sama."],
+      'synchronous-javascript-code-neve': ["Kenapa kode JavaScript yang synchronous tidak pernah disela callback lain?", ["Browser me-lock setiap variabel", "Event loop menjalankan satu callback pada satu waktu, di satu thread", "`await` menyalin semua variabel", "JavaScript tidak punya concurrency sama sekali"], "Callback lain menunggu sampai callback yang aktif selesai atau menemui `await`. State bisa berubah melewati `await`, bukan di tengah blok sinkron."],
+      'need-protect-section-contains': ["Di C#, kamu perlu melindungi bagian kode yang berisi `await`. Apa yang dipakai?", ["`lock (gate) { … }`", "`SemaphoreSlim` dengan `await WaitAsync()` dan `Release()`", "`Thread.Sleep` sebelum bagian itu", "`volatile` pada field-nya"], "`lock` tidak bisa menampung `await`. Pakai `SemaphoreSlim(1, 1)` sebagai async lock dan lepaskan di blok `finally`."]
+    }
   }
 }
 };

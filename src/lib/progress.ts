@@ -33,8 +33,8 @@ export function dueCountIndex(): number {
   for (const e of LESSON_INDEX) {
     const k = indexKey(e);
     const read = !!peek(k).read;
-    for (let i = 0; i < e.quizCount; i++) {
-      const card = S.cards[`${k}#${i}`];
+    for (const qid of e.quizIds) {
+      const card = S.cards[`${k}#${qid}`];
       if (card ? card.due <= today : read) n++;
     }
   }

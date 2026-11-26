@@ -39,23 +39,23 @@ export const trackId = {
         'Menandai field yang dipakai template sebagai `private`. Compiler template Angular mengecek ketat dan butuh `protected` atau `readonly` publik.',
         'Di tutorial Angular versi lama ada pembungkus `NgModule` selain `imports: [...]` di `@Component`. Angular modern tidak membutuhkannya lagi.'
       ],
-      quiz: [
-        [
+      quiz: {
+        'add-so-parent-component': [
           'Apa yang perlu ditambahkan supaya template parent mengenali tag `<app-product-card />`?',
           ['File konfigurasi `NgModule`', '`ProductCard` di array `@Component({ imports: [...] })` milik parent', 'Tag `<link>` HTML di `index.html`', 'Menurunkan `ProductCard` dengan `extends`'],
           'Tiap component mendaftarkan sendiri component lain yang dipakainya lewat array `imports`.'
         ],
-        [
+        'happens-write-click-toggle': [
           'Apa yang terjadi jika kamu menulis `(click)="() => toggle()"` di template Angular?',
           ['`toggle()` jalan saat diklik', 'Tidak terjadi apa-apa karena klik hanya mengevaluasi fungsi panah tanpa menjalankan `toggle()`', 'Angular gagal compile', '`toggle()` jalan sekali saat halaman dibuka'],
           'Event binding mengeksekusi ekspresi langsung saat event terjadi, jadi panggil method-nya lewat `(click)="toggle()"`.'
         ],
-        [
+        'prefer-disabled-isoutofstock-htm': [
           'Mengapa lebih baik memakai `[disabled]="isOutOfStock"` ketimbang `disabled="{{ isOutOfStock }}"`?',
           ['Property binding mengirim boolean `true`/`false` asli ke elemen DOM', 'Kurung siku memberi style tombol otomatis', 'HTML tidak mendukung atribut di tombol', 'Hanya lebih cepat di ponsel'],
           'Di atribut HTML, bahkan `disabled="false"` tetap mematikan tombol karena atributnya ada. `[disabled]` mengisi properti boolean DOM dengan benar.'
         ]
-      ]
+      }
     },
     flow: {
       predict: {
@@ -92,23 +92,23 @@ export const trackId = {
         'Mencoba memanggil class `@Pipe` langsung di kode TypeScript biasa daripada mengekstrak fungsi bersama seperti `truncateText()`.',
         'Di tutorial Angular lama kamu mungkin masih melihat `*ngIf` dan `*ngFor`. Blok bawaan `@if` dan `@for` tidak perlu di-import dan lebih cepat.'
       ],
-      quiz: [
-        [
+      quiz: {
+        'require-track-expression-like': [
           'Mengapa `@for` mewajibkan ekspresi `track` seperti `track p.id`?',
           ['Untuk mengurutkan item sesuai abjad', 'Agar Angular mengenali tiap item saat array berubah dan memakai ulang elemen DOM-nya', 'Untuk mengubah key menjadi huruf besar', 'Untuk menyembunyikan item kosong'],
           'ID yang stabil membantu Angular melacak elemen mana yang bergeser atau tetap sama sehingga baris lain tidak dibangun ulang.'
         ],
-        [
+        'adding-default-never-end': [
           'Apa jaminan dari menulis `@default never;` di akhir `@switch`?',
           ['Tidak ada yang dirender bila tidak cocok', 'Build error di compile time tiap kali cabang union type lupa ditangani', 'Error runtime di browser', 'Pencocokan huruf kecil otomatis'],
           'Trik ini memakai pengecekan tipe `never` milik TypeScript agar semua kemungkinan nilai union pasti punya `@case` masing-masing.'
         ],
-        [
+        'share-formatting-logic-template': [
           'Bagaimana cara terbaik berbagi logika pemformatan antara pipe template dan kode TypeScript biasa?',
           ['Salin tempel kodenya ke dua file', 'Ekstrak ke fungsi TypeScript biasa seperti truncateText lalu panggil dari pipe dan tempat lain', 'Bungkus seluruh aplikasi dengan CurrencyPipe', 'Menaruh `@for` di dalam pipe'],
           'Pipe hanyalah pembungkus tipis di atas fungsi biasa, jadi mengekstrak fungsinya menjaga template dan TypeScript tetap sinkron.'
         ]
-      ]
+      }
     },
     signals: {
       title: 'State reaktif: signal, computed, linkedSignal, dan effect',
@@ -140,23 +140,23 @@ export const trackId = {
         'Membaca signal di dalam `computed` atau `effect` setelah baris `await`. Pelacakan signal berhenti saat eksekusi masuk ke kode asinkron.',
         'Lupa tanda kurung waktu membaca signal di template (`{{ total }}` akan mencetak objek signal-nya, bukan memanggil `{{ total() }}`).'
       ],
-      quiz: [
-        [
+      quiz: {
+        'inside-computed-qty-coupon': [
           'Di `computed(() => qty() > 0 && coupon() ? 15 : 0)`, nilai `qty()` sedang `0`. Apa yang terjadi saat `coupon` berubah?',
           ['`computed` error', 'Hasil tetap diambil dari cache tanpa dihitung ulang, karena kondisi kiri langsung berhenti sebelum membaca `coupon()`', 'Dihitung ulang seperti biasa', 'Mengosongkan `qty()`'],
           'Dependensi dicatat tiap kali fungsi berjalan; saat `qty() > 0` salah, `coupon()` tidak sempat dipanggil.'
         ],
-        [
+        'primitive-gives-state-resets': [
           'Primitif mana yang memberi state otomatis reset saat filter berubah, namun tetap boleh diubah manual dengan `.set()`?',
           ['`computed()`', '`linkedSignal()`', '`effect()`', '`untracked()`'],
           '`linkedSignal()` membuat state writable yang otomatis menghitung nilai default baru saat sumbernya berubah.'
         ],
-        [
+        'effect-right-tool': [
           'Kapan `effect()` tepat digunakan?',
           ['Menyinkronkan API luar seperti `localStorage`, canvas, atau analytics saat signal berubah', 'Menyaring array dari kotak cari', 'Membuat konstanta class', 'Memanggil `.set()` di signal lain tiap kali ada perubahan'],
           'Pakai `computed()` atau `linkedSignal()` untuk state turunan antar-signal, dan sisihkan `effect()` untuk efek ke luar beserta cleanup-nya.'
         ]
-      ]
+      }
     },
     // ---------------- Intermediate ----------------
     inputs: {
@@ -185,23 +185,23 @@ export const trackId = {
         'Memanggil `.set()` di signal `input()`. Input tidak bisa ditimpa langsung, jadi beralihlah ke `model()` atau `linkedSignal()` kalau child perlu menulis nilai lokal.',
         'Di kode Angular lama masih sering ditemui `@HostBinding`, `@HostListener`, `ngOnChanges`, dan `ngAfterViewInit`. Kode modern menggantinya dengan `host:`, `computed()`, dan `viewChild()`.'
       ],
-      quiz: [
-        [
+      quiz: {
+        'function-creates-two-way': [
           'Fungsi mana yang membuat signal two-way (`[(value)]`) antara parent dan child?',
           ['`input()`', '`output()`', '`model()`', '`computed()`'],
           '`model()` mengembalikan signal writable yang membuka jalur input `[value]` sekaligus output `(valueChange)`.'
         ],
-        [
+        'input-false-transform-booleanatt': [
           'Mengapa `input(false, { transform: booleanAttribute })` membuat parent bisa menulis `<app-qty-picker disabled />`?',
           ['HTML mengirim atribut tanpa nilai sebagai string kosong `""`, lalu `booleanAttribute` mengubahnya menjadi `true`', 'Otomatis mematikan parent component', 'Melewati pemeriksaan TypeScript', 'Mengubah CSS menjadi `Signal`'],
           'Tanpa transform, atribut HTML kosong tiba sebagai `""`. `booleanAttribute` mengonversi keberadaannya menjadi `true`.'
         ],
-        [
+        'attributes-css-classes-component': [
           'Di mana atribut atau class CSS untuk tag luar `<app-qty-picker>` milik component sebaiknya dipasang?',
           ['Di `constructor` memakai `document.querySelector`', 'Di blok `host: { ... }` pada `@Component(...)`', 'Di `index.html`', 'Di `main.ts`'],
           '`host` menempelkan class, atribut, dan DOM listener ke elemen host milik component itu.'
         ]
-      ]
+      }
     },
     di: {
       predict: {
@@ -239,23 +239,23 @@ export const trackId = {
         'Membuka field `signal` writable ke publik di service, bukan memakai `.asReadonly()`, membiarkan component mana saja menimpa state bersama.',
         'Perhatikan proyeksi `<ng-content />`: `providers` membagikan service ke child yang diselipkan lewat slot, sedangkan `viewProviders` menyembunyikannya dari mereka.'
       ],
-      quiz: [
-        [
+      quiz: {
+        'calling-inject-cartstore-valid': [
           'Di mana pemanggilan `inject(CartStore)` sah dilakukan?',
           ['Di dalam handler `(click)`', 'Di inisialisasi field class, constructor, factory, atau functional route guard', 'Di dalam callback `async` sesudah `await`', 'Di sembarang helper statis'],
           '`inject()` membutuhkan injection context Angular yang aktif saat setup class atau pemanggilan guard/HTTP fungsional.'
         ],
-        [
+        'two-sibling-app-editor': [
           'Dua tag `<app-editor-panel />` bersebelahan masing-masing memasang `DraftBuffer` di `@Component({ providers: [DraftBuffer] })`. Berapa jumlah instance `DraftBuffer`?',
           ['Satu singleton bersama', 'Dua instance terpisah, tiap instance dihancurkan saat panelnya hilang dari layar', 'Nol kecuali ditulis di `main.ts`', 'Compile error'],
           'Mendaftar di `@Component` menempelkan satu instance baru ke `ElementInjector` masing-masing elemen.'
         ],
-        [
+        'use-new-injectiontoken-apisettin': [
           'Mengapa memakai `new InjectionToken<ApiSettings>(...)` ketimbang menulis `inject(ApiSettings)` langsung?',
           ['Interface mempercepat pencarian runtime', 'TypeScript menghapus interface saat kompilasi, jadi Angular butuh objek token di runtime', '`@Service()` melarang interface', 'Token mengenkripsi string setting'],
           'Tipe `interface` TypeScript lenyap di hasil kompilasi JS. `InjectionToken` memberi Angular kunci runtime yang nyata.'
         ]
-      ]
+      }
     },
     routing: {
       title: 'Routing, URL input, dan lazy loading',
@@ -283,23 +283,23 @@ export const trackId = {
         'Lupa memasang `withComponentInputBinding()` di `provideRouter(...)`, sehingga signal `input()` param route bernilai `undefined`.',
         'Menaruh static import `ProductDetail` di atas `app.routes.ts`. Import biasa itu membatalkan pemisahan lazy chunk.'
       ],
-      quiz: [
-        [
+      quiz: {
+        'withcomponentinputbinding-inside': [
           'Apa yang dilakukan `withComponentInputBinding()` di dalam `provideRouter`?',
           ['Mengenkripsi parameter URL', 'Mengikat path param URL, query param, dan resolved data langsung ke signal `input()` component', 'Memuat ulang file CSS tiap navigasi', 'Mengunduh semua lazy route di awal'],
           'Nilai route mengalir langsung ke signal `input()` yang cocok tanpa membaca `ActivatedRoute` manual.'
         ],
-        [
+        'use-loadcomponent-import-admin': [
           'Mengapa memakai `loadComponent: () => import(\'./admin\').then(m => m.Admin)` untuk halaman sekunder?',
           ['Menjalankan halaman di background worker', 'Compiler memisahkan `Admin` ke file JS terpisah yang baru dimuat saat dibuka', 'Mengaktifkan SSR otomatis', 'Membagikan satu instance `Admin` di semua tempat'],
           'Dynamic `import()` memecah route ke chunk tersendiri sehingga user hanya mengunduh halaman yang mereka buka.'
         ],
-        [
+        'catch-all-path-route': [
           'Di mana rute cadangan `{ path: \'**\', ... }` harus diletakkan?',
           ['Pertama di dalam `routes`', 'Terakhir di dalam `routes`, karena pencarian berhenti di rute pertama yang cocok', 'Hanya di dalam `children`', 'Sebelum `redirectTo`'],
           'Route dicocokkan dari atas ke bawah, jadi apa pun di bawah `**` tidak akan pernah tercapai.'
         ]
-      ]
+      }
     },
     forms: {
       title: 'Signal Forms, validasi, dan error yang aksesibel',
@@ -328,23 +328,23 @@ export const trackId = {
         'Menaruh atribut HTML `[disabled]`, `[value]`, `min`, atau `max` pada `<input [formField]="...">`. Semua aturan harus berada di skema `form()`.',
         'Mengembalikan `null` ketimbang `undefined` saat pengecekan `validate()` lolos. Di aplikasi lama ada juga **Reactive Forms** (`FormGroup`, `Validators`) yang melakukan validasi berbasis model memakai RxJS bukan Signals.'
       ],
-      quiz: [
-        [
+      quiz: {
+        'check-whether-productform-name': [
           'Bagaimana cara mengecek apakah `productForm.name` sudah pernah disentuh pengguna?',
           ['`productForm.name.touched()`', '`productForm.name().touched()`', '`productForm().name.touched`', '`productForm.name.get(\'touched\')`'],
           'Memanggil `productForm.name()` menghasilkan `FieldState` yang menyediakan signal `.touched()` dan `.errors()`.'
         ],
-        [
+        'minimum-number-rule-live': [
           'Di mana aturan angka minimum sebaiknya disimpan untuk `<input type="number" [formField]="productForm.price">`?',
           ['Langsung sebagai atribut HTML `min="1"` pada input', 'Di dalam skema `form()` lewat `min(s.price, 1)`', 'Di dalam handler blur', 'Di dalam `index.html`'],
           '`[formField]` mengatur atribut DOM dari skema sehingga logika validasi dan tampilan selalu sejalan.'
         ],
-        [
+        'submit-productform-async-running': [
           'Apa yang dikerjakan `submit(this.productForm, async () => ...)` sebelum menjalankan callback?',
           ['Mengosongkan semua input', 'Menandai seluruh field `touched` agar pesan error tampil, dan melewati callback kecuali form valid', 'Memanggil `fetch()` otomatis', 'Menghapus atribut ARIA'],
           'User yang langsung mengklik Save segera melihat kolom mana yang masih salah, dan form yang tidak valid tidak pernah menjalankan fungsi simpan.'
         ]
-      ]
+      }
     },
     // ---------------- Advanced ----------------
     rxjs: {
@@ -384,23 +384,23 @@ export const trackId = {
         'Lupa memasang `{ initialValue }` di `toSignal(obs$)`, membuat tipe awal signal menjadi `T | undefined` sebelum event pertama keluar.',
         'Menaruh `.subscribe()` bersarang di dalam `.subscribe()` lain bukan merangkainya rata lewat operator seperti `switchMap` atau `exhaustMap`.'
       ],
-      quiz: [
-        [
+      quiz: {
+        'operator-cancels-earlier-search': [
           'Operator mana yang membatalkan request HTTP pencarian lama begitu user mengetik huruf baru?',
           ['`mergeMap`', '`concatMap`', '`switchMap`', '`exhaustMap`'],
           '`switchMap` berhenti mendengarkan inner observable sebelumnya (sekaligus membatalkan request HTTP-nya) tiap ada nilai baru.'
         ],
-        [
+        'user-double-clicks-place': [
           'User mengklik ganda tombol "Place order". Operator mana yang mengabaikan klik tambahan sampai request pertama selesai?',
           ['`switchMap`', '`exhaustMap`', '`mergeMap`', '`debounceTime`'],
           '`exhaustMap` membuang pemicu baru dari hulu selagi inner observable masih bekerja.'
         ],
-        [
+        'takeuntildestroyed-handle': [
           'Apa yang ditangani `takeUntilDestroyed()` untukmu?',
           ['Mengulang panggilan jaringan tiga kali', 'Otomatis unsubscribe saat component atau service dihancurkan', 'Mengubah signal menjadi JSON', 'Mengurutkan array kiriman'],
           'Operator ini mengaitkan masa hidup langganan ke `DestroyRef` milik Angular.'
         ]
-      ]
+      }
     },
     http: {
       predict: {
@@ -439,23 +439,23 @@ export const trackId = {
         'Mencoba mengubah `req.headers` langsung di interceptor ketimbang mengembalikan `req.clone(...)`.',
         'Membuka CORS hanya untuk port Vite `:5173` di `AddCors()` ASP.NET Core padahal Angular dev server jalan di `:4200`.'
       ],
-      quiz: [
-        [
+      quiz: {
+        'happens-call-userresource-value': [
           'Apa yang terjadi jika kamu memanggil `userResource.value()` ketika request HTTP-nya gagal?',
           ['Menghasilkan `undefined`', 'Memicu error karena status resource bernilai `\'error\'`', 'Mengulang satu kali', 'Mencetak peringatan teks'],
           'Cek `hasValue()` atau `error()` lebih dulu sebelum memanggil `.value()`.'
         ],
-        [
+        'http-delete-api-products': [
           'Mengapa `this.http.delete(\'/api/products/1\')` tidak mengirim apa pun jika nilai kembaliannya diabaikan?',
           ['Browser memblokir request `DELETE`', '`HttpClient` menghasilkan cold `Observable` yang baru mengirim saat di-subscribe atau ditunggu dengan `firstValueFrom`', 'Interceptor membatalkan call yang tak disimpan', 'CORS menolak respons kosong'],
           'Cold observable menunggu ada yang subscribe sebelum berjalan.'
         ],
-        [
+        'authorization-header-request-id': [
           'Di mana header Authorization atau `X-Request-Id` sebaiknya ditambahkan ke semua panggilan API?',
           ['Di dalam tiap template component', 'Di `HttpInterceptorFn` fungsional yang didaftarkan lewat `provideHttpClient(withInterceptors([...]))`', 'Di dalam `index.html`', 'Di dalam `router.navigate`'],
           'Interceptor fungsional memusatkan header global dan penanganan error di satu tempat.'
         ]
-      ]
+      }
     },
     guards: {
       splits: ["1 · AuthSession & Guard","2 · Resolver & @boundary","3 · Rute Terlindungi"],
@@ -483,23 +483,23 @@ export const trackId = {
         'Menganggap `guardB` di `canActivate: [guardA, guardB]` menunggu `guardA` selesai dulu. Guard asinkron jalan berbarengan.',
         'Menjalankan query lambat tanpa cache di `ResolveFn` tanpa indikator loading, membuat perpindahan halaman terasa nge-freeze.'
       ],
-      quiz: [
-        [
+      quiz: {
+        'asp-net-core-verify': [
           'Mengapa ASP.NET Core wajib memeriksa izin akses walaupun Angular sudah menjaga `/admin` lewat `canActivate`?',
           ['Guard Angular tidak jalan di iOS', 'Kode browser jalan di perangkat user dan bisa dilewati, sehingga cuma backend yang menjaga keamanan asli', 'Guard cuma jalan saat `ng build`', 'Token kedaluwarsa di `<router-outlet>`'],
           'Guard memandu alur navigasi bagi user biasa; pengecekan di server menghentikan penyalahgunaan API langsung.'
         ],
-        [
+        'canmatch-returning-false-differ': [
           'Apa beda `canMatch` bernilai `false` dengan `canActivate` bernilai `false`?',
           ['`canMatch` langsung melempar halaman 404', '`canMatch` melewati definisi route tersebut agar router mengecek route selanjutnya di path yang sama', '`canMatch` mematikan lazy chunk', 'Tidak ada bedanya'],
           '`canMatch` membuat dua route bisa berbagi path `/home`, misalnya dashboard admin dan dashboard pelanggan.'
         ],
-        [
+        'inside-boundary-error-block': [
           'Di dalam blok `@boundary { ... } @error { ... }`, apa fungsi memanggil `$reset()`?',
           ['Me-reload seluruh tab browser', 'Menghapus error yang tertangkap dan merender ulang blok `@boundary`', 'Me-reset semua service singleton', 'Memanggil `Router.navigate([\'/\'])`'],
           '`$reset()` membersihkan status error boundary sesudah state pemicunya diperbaiki.'
         ]
-      ]
+      }
     },
     testing: {
       title: 'Testing zoneless: component, routing, dan HTTP',
@@ -526,23 +526,23 @@ export const trackId = {
         'Lupa menulis `afterEach(() => http.verify())`, sehingga request duplikat atau request tak terduga lolos tanpa ketahuan.',
         'Membuat mock `Router` manual ketimbang menguji rute dan guard sungguhan dengan `RouterTestingHarness`.'
       ],
-      quiz: [
-        [
+      quiz: {
+        'zoneless-angular-v22-tests': [
           'Di tes Angular v22 zoneless, bagaimana cara menunggu pembaruan signal dan event DOM selesai dirender?',
           ['Memanggil `fixture.detectChanges()` di dalam loop', 'Menunggu `await fixture.whenStable()`', 'Memanggil `tick(100)` di dalam `fakeAsync`', 'Kembali memakai `Eager`'],
           '`whenStable()` menunggu penjadwal zoneless Angular dan microtask selesai.'
         ],
-        [
+        'httpresource-inside-new-test': [
           'Mengapa `httpResource` di component tes yang baru dibuat perlu `TestBed.tick()` + `http.expectOne().flush()` sebelum `await fixture.whenStable()`?',
           ['`whenStable()` menunggu semua request `httpResource` aktif selesai dulu', '`TestBed.tick()` mengompilasi template HTML', 'Vitest memblokir HTTP sampai di-tick dua kali', 'Signal mengabaikan `beforeEach`'],
           'Mengirim respons tiruan melepaskan task yang sedang ditunggu oleh `httpResource`.'
         ],
-        [
+        'httptesting-verify-check-inside': [
           'Apa yang diperiksa `httpTesting.verify()` di dalam `afterEach`?',
           ['Kesesuaian DTO C#', 'Bahwa tidak ada request HTTP tak terduga atau belum dibalas yang tertinggal', 'Bahwa animasi CSS selesai', 'Bahwa CORS mati'],
           'Ia mendeteksi panggilan API ganda atau request yang lupa dibalas oleh tesmu.'
         ]
-      ]
+      }
     },
     // ---------------- Expert ----------------
     cd: {
@@ -581,23 +581,23 @@ export const trackId = {
         'Mengubah component lambat ke `ChangeDetectionStrategy.Eager` daripada memperbaiki mutasi state pemicunya.',
         'Memanggil `getBoundingClientRect()` di dalam `effect()` sebelum DOM selesai dirender, bukan di `afterRenderEffect()`.'
       ],
-      quiz: [
-        [
+      quiz: {
+        'changedetectionstrategy-default': [
           'Strategi `ChangeDetectionStrategy` apa yang menjadi default di Angular 22?',
           ['`ChangeDetectionStrategy.Eager`', '`ChangeDetectionStrategy.OnPush`', '`ChangeDetectionStrategy.Manual`', 'Zone polling'],
           'Angular 22 menjadikan `OnPush` sebagai standar dan mengganti nama `Default` lama menjadi `Eager`.'
         ],
-        [
+        'zoneless-app-shared-cartcount': [
           'Di aplikasi zoneless, signal `cartCount` bersama yang hanya dibaca `CartBadge` dan `Card B` berubah. View mana yang diperbarui?',
           ['Semua component dimulai dari `App`', 'Hanya `CartBadge` dan `Card B`', 'Hanya `App` dan `ProductList`', 'Tidak ada tanpa `markForCheck()`'],
           'Signal hanya memberi tahu view template yang membacanya saat render, melewati parent maupun sibling.'
         ],
-        [
+        'compute-filtered-list-computed': [
           'Mengapa menghitung daftar tersaring dengan `computed()` lebih baik daripada memanggil `items().filter(...)` di `@for`?',
           ['Template melarang `.filter()`', 'Ekspresi template berjalan ulang di tiap check dan selalu menghasilkan array referensi baru', '`computed()` mengirim data ke server', 'Loop hanya menerima string'],
           '`computed()` menyimpan hasil di cache sampai `items()` atau `query()` berubah.'
         ]
-      ]
+      }
     },
     ssr: {
       splits: ["1 · @defer & ProductScreen","2 · ServerRoutes & Hydration"],
@@ -636,23 +636,23 @@ export const trackId = {
         'Memanggil `window.localStorage` atau `document.title` di constructor component, yang membuat SSR gagal di Node.',
         'Membiarkan endpoint API pribadi masuk ke HTTP transfer cache SSR tanpa filter rute privat.'
       ],
-      quiz: [
-        [
+      quiz: {
+        'stops-component-inside-defer': [
           'Apa yang menghalangi component di dalam `@defer` terpisah ke chunk JS lazy-nya sendiri?',
           ['Menambah `@placeholder`', 'Menggunakan class component itu di bagian lain file yang sama di luar `@defer` (misalnya `viewChild`)', 'Menambah `prefetch on idle`', 'Menambah style component'],
           'Referensi langsung di ruang lingkup TypeScript atau template yang sama memaksa bundler menahannya di bundle utama.'
         ],
-        [
+        'rendermode-fits-signed-account': [
           'Mode `RenderMode` mana yang pas untuk dashboard pengaturan akun ber-login yang tidak diindeks mesin pencari?',
           ['`RenderMode.Prerender`', '`RenderMode.Client`', '`RenderMode.Server` dengan cache publik', 'File teks mentah'],
           'Dashboard pribadi tidak mendapat manfaat dari SSR maupun SSG dan menghemat beban server lewat rendering di browser.'
         ],
-        [
+        'browser-only-dom-code': [
           'Di mana kode DOM khusus browser (membaca posisi scroll atau `localStorage`) harus dijalankan di component SSR?',
           ['Di dalam `constructor`', 'Di dalam `afterNextRender()` atau `afterRenderEffect()`', 'Di dalam konfigurasi `ServerRoute`', 'Di dalam `@Pipe`'],
           '`afterNextRender()` tidak berjalan di Node dan cuma dieksekusi satu kali di browser.'
         ]
-      ]
+      }
     },
     arch: {
       title: 'Arsitektur, aksesibilitas, dan Angular Aria',
@@ -680,23 +680,23 @@ export const trackId = {
         'Menyalin field DTO C# ke interface TypeScript satu per satu bukan men-generate-nya dari `/openapi/v1.json`.',
         'Menyalakan class `.active` terpisah dari `[aria-selected=\'true\']`, memicu tampilan visual dan status pembaca layar jadi beda.'
       ],
-      quiz: [
-        [
+      quiz: {
+        'angular-aria-provide-plain': [
           'Apa yang disediakan `@angular/aria` yang tidak bisa dikerjakan CSS biasa?',
           ['Mengompilasi utilitas Tailwind', 'Mengelola peran WAI-ARIA, atribut `aria-*`, roving focus, dan tombol panah keyboard sementara gaya tetap di tanganmu', 'Membuat model C#', 'Menjalankan server SSR'],
           'Directive headless menghubungkan logika keyboard dan pembaca layar sembari menjaga HTML serta CSS sepenuhnya dalam kendalimu.'
         ],
-        [
+        'css-highlight-active-ngtab': [
           'Bagaimana CSS seharusnya menyoroti `ngTab` aktif di Angular Aria?',
           ['Memakai `.ng-tab-active`', 'Memakai `.tab-btn[aria-selected=\'true\']`', 'Memakai `::ng-deep`', 'Hanya dari JavaScript'],
           'Angular Aria memasang `aria-selected` otomatis, mengunci tampilan aktif ke status aksesibilitasnya.'
         ],
-        [
+        'active-search-filters-pagination': [
           'Di mana filter pencarian aktif dan nomor halaman pagination sebaiknya disimpan?',
           ['Hanya di field service privat', 'Di parameter query URL lewat withComponentInputBinding()', 'Di sessionStorage', 'Di dalam ProductRow'],
           'Parameter URL bertahan saat refresh serta tombol Back/Forward dan membuat link-nya bisa dibagikan.'
         ]
-      ]
+      }
     }
   }
 };

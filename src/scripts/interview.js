@@ -8,12 +8,67 @@ import { INTERVIEW_KEY, onStorageSync, readJson, writeJson } from '../lib/storag
 import { editor, loadTS, typeNote } from './playground.js';
 
 const fresh = () => ({ solved: {}, code: {}, design: {}, stories: [], rapid: {}, mocks: [], plan: {} });
-const D = readJson(INTERVIEW_KEY, fresh);
+const isObj = (v) => Boolean(v) && typeof v === 'object' && !Array.isArray(v);
+
+function normalizeInterview(raw) {
+  const r = isObj(raw) ? raw : {};
+  const solved = {};
+  if (isObj(r.solved)) {
+    for (const [k, v] of Object.entries(r.solved)) if (v === true) solved[k] = true;
+  }
+  const code = {};
+  if (isObj(r.code)) {
+    for (const [k, v] of Object.entries(r.code)) if (typeof v === 'string') code[k] = v;
+  }
+  const design = {};
+  if (isObj(r.design)) {
+    for (const [k, v] of Object.entries(r.design)) if (v === true) design[k] = true;
+  }
+  const rapid = {};
+  if (isObj(r.rapid)) {
+    for (const [k, v] of Object.entries(r.rapid)) if (v === 1 || v === 2) rapid[k] = v;
+  }
+  const plan = {};
+  if (isObj(r.plan)) {
+    for (const [k, v] of Object.entries(r.plan)) {
+      if (/^\d+$/.test(k) && Array.isArray(v)) plan[Number(k)] = v.slice(0, 30).map(Boolean);
+    }
+  }
+  const stories = Array.isArray(r.stories)
+    ? r.stories
+        .filter((s) => isObj(s) && typeof s.title === 'string')
+        .map((s) => ({
+          title: s.title,
+          s: typeof s.s === 'string' ? s.s : '',
+          t: typeof s.t === 'string' ? s.t : '',
+          a: typeof s.a === 'string' ? s.a : '',
+          r: typeof s.r === 'string' ? s.r : '',
+          ref: typeof s.ref === 'string' ? s.ref : '',
+          tags: Array.isArray(s.tags) ? s.tags.filter((x) => typeof x === 'string') : [],
+        }))
+    : [];
+  const mocks = Array.isArray(r.mocks)
+    ? r.mocks
+        .filter((m) => isObj(m) && typeof m.date === 'string' && typeof m.type === 'string' && typeof m.title === 'string')
+        .map((m) => ({
+          date: m.date,
+          type: m.type,
+          title: m.title,
+          scores: Array.isArray(m.scores) ? m.scores.filter((n) => typeof n === 'number' && Number.isFinite(n)) : [],
+          avg: typeof m.avg === 'number' && Number.isFinite(m.avg) ? m.avg : 0,
+          notes: typeof m.notes === 'string' ? m.notes : '',
+        }))
+        .slice(0, 50)
+    : [];
+  return { solved, code, design, stories, rapid, mocks, plan };
+}
+
+const D = normalizeInterview(readJson(INTERVIEW_KEY, fresh));
 
 function reloadD(raw) {
   let next;
   try {
-    next = Object.assign(fresh(), JSON.parse(raw || '{}'));
+    next = normalizeInterview(JSON.parse(raw || '{}'));
   } catch {
     return false;
   }
@@ -23,7 +78,7 @@ function reloadD(raw) {
 }
 
 function syncFromStorage() {
-  const freshData = readJson(INTERVIEW_KEY, fresh);
+  const freshData = normalizeInterview(readJson(INTERVIEW_KEY, fresh));
   for (const k of Object.keys(D)) delete D[k];
   Object.assign(D, freshData);
 }

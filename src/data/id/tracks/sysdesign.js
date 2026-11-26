@@ -28,11 +28,11 @@ export const trackId = {
       "Hanya melaporkan latency rata-rata (`mean`), yang menyembunyikan lonjakan `p99` yang dirasakan pengguna aktif.",
       "Menambah core CPU ke layanan yang terhambat I/O saat bottleneck sebenarnya ada pada antrean connection pool atau round-trip lintas region."
     ],
-    quiz: [
-      ["Pada 1.000 RPS, perlambatan DB menaikkan rata-rata waktu respons dari 20 ms menjadi 400 ms. Apa yang terjadi pada jumlah request aktif (`L = λW`)?", ["Tetap 20 karena RPS sama", "Turun dari 20 ke 1", "Melonjak dari 20 menjadi 400, berisiko menghabiskan thread atau koneksi", "Turun setengah menjadi 10"], "Menurut Hukum Little (`L = λW`), `1.000 * 0,4 s` menghasilkan `400` request aktif bersamaan, naik dari `20`."],
-      ["Sekitar berapa RPS rata-rata untuk 8,6 juta event per hari?", ["10 RPS", "100 RPS", "1.000 RPS", "8.600 RPS"], "Membagi `8.640.000` dengan `86.400` detik menghasilkan `100 RPS` rata-rata (sekitar 12 RPS per 1 juta event harian)."],
-      ["Mengapa memanggil 10 microservice terpisah secara paralel memperbesar tail latency?", ["Serialisasi menggandakan ukuran payload", "Parent request menunggu respons paling lambat dari 10 panggilan itu", "HTTP/1.1 menjatuhkan setiap paket kesepuluh", "Cache DNS kedaluwarsa tiap hop"], "Jika setiap layanan punya ekor lambat 1%, memanggil 10 secara paralel membuat ~`1 - 0,99^10 ≈ 9,6%` kunjungan terkena panggilan lambat."]
-    ]
+    quiz: {
+      '000-rps-db-slowdown': ["Pada 1.000 RPS, perlambatan DB menaikkan rata-rata waktu respons dari 20 ms menjadi 400 ms. Apa yang terjadi pada jumlah request aktif (`L = λW`)?", ["Tetap 20 karena RPS sama", "Turun dari 20 ke 1", "Melonjak dari 20 menjadi 400, berisiko menghabiskan thread atau koneksi", "Turun setengah menjadi 10"], "Menurut Hukum Little (`L = λW`), `1.000 * 0,4 s` menghasilkan `400` request aktif bersamaan, naik dari `20`."],
+      'many-requests-per-second': ["Sekitar berapa RPS rata-rata untuk 8,6 juta event per hari?", ["10 RPS", "100 RPS", "1.000 RPS", "8.600 RPS"], "Membagi `8.640.000` dengan `86.400` detik menghasilkan `100 RPS` rata-rata (sekitar 12 RPS per 1 juta event harian)."],
+      'calling-10-independent-microserv': ["Mengapa memanggil 10 microservice terpisah secara paralel memperbesar tail latency?", ["Serialisasi menggandakan ukuran payload", "Parent request menunggu respons paling lambat dari 10 panggilan itu", "HTTP/1.1 menjatuhkan setiap paket kesepuluh", "Cache DNS kedaluwarsa tiap hop"], "Jika setiap layanan punya ekor lambat 1%, memanggil 10 secara paralel membuat ~`1 - 0,99^10 ≈ 9,6%` kunjungan terkena panggilan lambat."]
+    }
   },
 
   networking: {
@@ -60,11 +60,11 @@ export const trackId = {
       "Memakai Round Robin ketika waktu respons terbentang dari 2 ms sampai 4 detik, menumpuk request berat di satu server.",
       "Menaruh L7 proxy ber-default `proxy_buffering on` di depan stream SSE sehingga event tertahan di memori hingga buffer penuh."
     ],
-    quiz: [
-      ["Mengapa `max_ejection_percent: 50` di Envoy melindungi cluster selama gangguan singkat jaringan?", ["Ia mengompres 50% body JSON", "Mencegah Outlier Detection mengeluarkan semua host backend serentak saat lonjakan error singkat", "Membatasi CPU hingga 50%", "Memaksa turun ke HTTP/3"], "Membatasi persentase ejeksi mempertahankan separuh kapasitas online ketika seluruh pod mencatat error bersamaan."],
-      ["Setelan bawaan NGINX mana yang menghambat Server-Sent Events (SSE)?", ["Kompresi gzip dimatikan", "`proxy_buffering on`, yang mengumpulkan chunk respons sebelum dikirim ke klien", "Routing Least Connections", "TLS 1.3 resumption"], "Klien SSE menunggu event terkirim seketika. Memasang `proxy_buffering off` menghentikan NGINX menahan chunk kecil di RAM."],
-      ["Mengapa HTTP/3 (QUIC) mengungguli HTTP/2 pada jaringan seluler dengan packet loss?", ["Tanpa overhead enkripsi", "Stream berbasis UDP membatasi kehilangan paket pada stream terkait saja tanpa menahan stream lain", "Window kongesti TCP lebih besar", "Lookup DNS stateless"], "Pada HTTP/2 di atas TCP, satu paket hilang menahan semua stream sampai terkirim ulang. QUIC membatasi tunggu pada satu stream saja."]
-    ]
+    quiz: {
+      'envoy-max-ejection-percent': ["Mengapa `max_ejection_percent: 50` di Envoy melindungi cluster selama gangguan singkat jaringan?", ["Ia mengompres 50% body JSON", "Mencegah Outlier Detection mengeluarkan semua host backend serentak saat lonjakan error singkat", "Membatasi CPU hingga 50%", "Memaksa turun ke HTTP/3"], "Membatasi persentase ejeksi mempertahankan separuh kapasitas online ketika seluruh pod mencatat error bersamaan."],
+      'default-nginx-setting-stalls': ["Setelan bawaan NGINX mana yang menghambat Server-Sent Events (SSE)?", ["Kompresi gzip dimatikan", "`proxy_buffering on`, yang mengumpulkan chunk respons sebelum dikirim ke klien", "Routing Least Connections", "TLS 1.3 resumption"], "Klien SSE menunggu event terkirim seketika. Memasang `proxy_buffering off` menghentikan NGINX menahan chunk kecil di RAM."],
+      'http-quic-beat-http': ["Mengapa HTTP/3 (QUIC) mengungguli HTTP/2 pada jaringan seluler dengan packet loss?", ["Tanpa overhead enkripsi", "Stream berbasis UDP membatasi kehilangan paket pada stream terkait saja tanpa menahan stream lain", "Window kongesti TCP lebih besar", "Lookup DNS stateless"], "Pada HTTP/2 di atas TCP, satu paket hilang menahan semua stream sampai terkirim ulang. QUIC membatasi tunggu pada satu stream saja."]
+    }
   },
 
   communication: {
@@ -91,11 +91,11 @@ export const trackId = {
       "Memakai paginasi `OFFSET` pada linimasa aktif (`OFFSET 50000`), membuang I/O DB dan memunculkan baris kembar saat entri baru masuk.",
       "Memilih WebSockets untuk papan skor satu arah ketika SSE di atas HTTP/2 bekerja dengan jauh lebih sedikit masalah proxy."
     ],
-    quiz: [
-      ["Kamu hanya perlu mengalirkan harga saham real-time dari server ke browser dengan reconnect otomatis saat sinyal putus. Protokol mana paling pas?", ["WebSockets", "Server-Sent Events (SSE)", "Short polling tiap 50 ms", "SMTP"], "SSE berjalan di atas HTTP standar, menyambung otomatis, dan melanjut dari `Last-Event-ID` tanpa overhead handshake dua arah."],
-      ["Mengapa server menolak retry `POST` dengan `Idempotency-Key` yang sudah ada bila isi body berbeda dari panggilan pertama?", ["HTTP/2 melarang kunci duplikat", "Memakai satu kunci untuk payload berbeda menandakan bug klien yang berisiko mengembalikan hasil cache keliru", "Redis menghapus hash saat beda", "Parser JSON melarang retry POST"], "Membandingkan hash payload mengikat satu kunci ke satu operasi logis dan menolak ketidakcocokan lewat HTTP 422."],
-      ["Mengapa paginasi cursor mengungguli `OFFSET 20000` pada tabel besar?", ["Offset menghapus baris lama", "Cursor melompat langsung memakai predikat berindeks (`WHERE (ts, id) < ...`) dalam O(log n) tanpa memindai baris terbuang", "Cursor mengompres JSON", "Offset mengunci seluruh tabel"], "`OFFSET 20000` memaksa DB membaca lalu membuang 20.000 baris, sedangkan keyset cursor langsung melompat ke key berikutnya."]
-    ]
+    quiz: {
+      'only-need-stream-real': ["Kamu hanya perlu mengalirkan harga saham real-time dari server ke browser dengan reconnect otomatis saat sinyal putus. Protokol mana paling pas?", ["WebSockets", "Server-Sent Events (SSE)", "Short polling tiap 50 ms", "SMTP"], "SSE berjalan di atas HTTP standar, menyambung otomatis, dan melanjut dari `Last-Event-ID` tanpa overhead handshake dua arah."],
+      'reject-retried-post-carrying': ["Mengapa server menolak retry `POST` dengan `Idempotency-Key` yang sudah ada bila isi body berbeda dari panggilan pertama?", ["HTTP/2 melarang kunci duplikat", "Memakai satu kunci untuk payload berbeda menandakan bug klien yang berisiko mengembalikan hasil cache keliru", "Redis menghapus hash saat beda", "Parser JSON melarang retry POST"], "Membandingkan hash payload mengikat satu kunci ke satu operasi logis dan menolak ketidakcocokan lewat HTTP 422."],
+      'cursor-pagination-beat-offset': ["Mengapa paginasi cursor mengungguli `OFFSET 20000` pada tabel besar?", ["Offset menghapus baris lama", "Cursor melompat langsung memakai predikat berindeks (`WHERE (ts, id) < ...`) dalam O(log n) tanpa memindai baris terbuang", "Cursor mengompres JSON", "Offset mengunci seluruh tabel"], "`OFFSET 20000` memaksa DB membaca lalu membuang 20.000 baris, sedangkan keyset cursor langsung melompat ke key berikutnya."]
+    }
   },
 
   caching: {
@@ -132,11 +132,11 @@ export const trackId = {
       "Membiarkan `maxmemory-policy` Redis pada `noeviction` di cluster cache sehingga penulisan gagal begitu RAM penuh.",
       "Hanya bergantung pada penghapusan manual tanpa TTL, menyisakan entri basi selamanya setelah satu delete gagal."
     ],
-    quiz: [
-      ["Mengapa `allkeys-lfu` bisa mengungguli `allkeys-lru` saat laporan malam memindai 50.000 item lama?", ["LFU mengompres kunci otomatis", "LFU mencatat frekuensi akses sehingga scan sekali jalan tidak menggusur key panas yang sering dipakai", "LRU memblokir bacaan saat eviksi", "LFU menjamin konsistensi kuat"], "Pemindaian batch memenuhi ujung baru daftar LRU, sedangkan LFU menjaga item yang sering diakses tetap bertahan."],
-      ["Direktif RFC 9111 `Cache-Control` mana yang membolehkan CDN menyajikan data baru kedaluwarsa sambil memperbaruinya di latar belakang?", ["`no-store`", "`must-revalidate`", "`stale-while-revalidate`", "`private`"], "`stale-while-revalidate=N` menyembunyikan latency validasi origin dari pengunjung selama jendela tenggang."],
-      ["Kapan Write-Behind caching menjadi pilihan berisiko?", ["Penghitung tayang dan analitik", "Thumbnail statis permanen", "Saldo rekening atau stok barang di mana hilangnya buffer cache saat crash menghilangkan update ter-commit", "Catatan DNS"], "Write-Behind mengakui penulisan sebelum menyalin ke disk persisten, sehingga crash cache menghapus perubahan yang masih tertampung."]
-    ]
+    quiz: {
+      'allkeys-lfu-beat-allkeys': ["Mengapa `allkeys-lfu` bisa mengungguli `allkeys-lru` saat laporan malam memindai 50.000 item lama?", ["LFU mengompres kunci otomatis", "LFU mencatat frekuensi akses sehingga scan sekali jalan tidak menggusur key panas yang sering dipakai", "LRU memblokir bacaan saat eviksi", "LFU menjamin konsistensi kuat"], "Pemindaian batch memenuhi ujung baru daftar LRU, sedangkan LFU menjaga item yang sering diakses tetap bertahan."],
+      'rfc-9111-cache-control': ["Direktif RFC 9111 `Cache-Control` mana yang membolehkan CDN menyajikan data baru kedaluwarsa sambil memperbaruinya di latar belakang?", ["`no-store`", "`must-revalidate`", "`stale-while-revalidate`", "`private`"], "`stale-while-revalidate=N` menyembunyikan latency validasi origin dari pengunjung selama jendela tenggang."],
+      'write-behind-caching-risky': ["Kapan Write-Behind caching menjadi pilihan berisiko?", ["Penghitung tayang dan analitik", "Thumbnail statis permanen", "Saldo rekening atau stok barang di mana hilangnya buffer cache saat crash menghilangkan update ter-commit", "Catatan DNS"], "Write-Behind mengakui penulisan sebelum menyalin ke disk persisten, sehingga crash cache menghapus perubahan yang masih tertampung."]
+    }
   },
 
   'cache-failures': {
@@ -173,11 +173,11 @@ export const trackId = {
       "Menyimpan negative cache tanpa batas jumlah key atau TTL pendek, membuat ID acak mengusir cache yang valid.",
       "Memakai singleflight tanpa timeout sehingga satu panggilan DB macet menahan seluruh pemanggil yang menunggu."
     ],
-    quiz: [
-      ["Apa jaminan 100% pasti dari Bloom filter standar?", ["Key pasti ada di dalam DB", "Bila filter mengembalikan `false`, key tersebut dipastikan TIDAK ada", "Nol false positive", "Hapus key O(1)"], "Bloom filter tidak pernah menghasilkan false negative. Bila satu bit hash bernilai 0, key tersebut belum pernah dimasukkan."],
-      ["Teknik apa yang menghentikan satu SKU flash-sale memenuhi satu shard Redis meski hit rate sudah 99,9%?", ["Snapshot RDB Redis lebih lama", "Beralih ke batas Fixed Window", "Cache mikro L1 di RAM lokal (TTL 1s) atau salting kunci baca (`sku:42#0..N`)", "Mematikan eviksi"], "Satu hot key menghantam satu shard Redis setiap bacaan. Menyerap bacaan di L1 app RAM atau salting antar shard menyingkirkan bottleneck tersebut."],
-      ["Mengapa menambah jitter acak 10% hingga 20% pada TTL cache saat warm-up massal?", ["Mencegah satu kelompok key kedaluwarsa bersamaan (cache avalanche)", "Menghemat RAM per key di Redis", "Memaksakan urutan LRU", "Melewati Origin Shield CDN"], "Jitter menyebar waktu kedaluwarsa sepanjang beberapa menit agar pembaruan latar stabil tanpa lonjakan serentak."]
-    ]
+    quiz: {
+      'standard-bloom-filter-guarantee': ["Apa jaminan 100% pasti dari Bloom filter standar?", ["Key pasti ada di dalam DB", "Bila filter mengembalikan `false`, key tersebut dipastikan TIDAK ada", "Nol false positive", "Hapus key O(1)"], "Bloom filter tidak pernah menghasilkan false negative. Bila satu bit hash bernilai 0, key tersebut belum pernah dimasukkan."],
+      'technique-stops-one-flash': ["Teknik apa yang menghentikan satu SKU flash-sale memenuhi satu shard Redis meski hit rate sudah 99,9%?", ["Snapshot RDB Redis lebih lama", "Beralih ke batas Fixed Window", "Cache mikro L1 di RAM lokal (TTL 1s) atau salting kunci baca (`sku:42#0..N`)", "Mematikan eviksi"], "Satu hot key menghantam satu shard Redis setiap bacaan. Menyerap bacaan di L1 app RAM atau salting antar shard menyingkirkan bottleneck tersebut."],
+      'add-10-20-random': ["Mengapa menambah jitter acak 10% hingga 20% pada TTL cache saat warm-up massal?", ["Mencegah satu kelompok key kedaluwarsa bersamaan (cache avalanche)", "Menghemat RAM per key di Redis", "Memaksakan urutan LRU", "Melewati Origin Shield CDN"], "Jitter menyebar waktu kedaluwarsa sepanjang beberapa menit agar pembaruan latar stabil tanpa lonjakan serentak."]
+    }
   },
 
   ratelimiting: {
@@ -214,11 +214,11 @@ export const trackId = {
       "Mengembalikan `429` tanpa `Cache-Control: no-store`, atau lupa bahwa respons cache dengan `Age > 0` membawa angka `RateLimit` usang.",
       "Membatasi hanya lewat IP di balik NAT kantor atau proxy CGNAT seluler, ikut memblokir ribuan pengguna lain yang tidak bersalah."
     ],
-    quiz: [
-      ["Pendekatan rate limiting mana yang mencegah klien mengirim dua kali kuota melintasi `:59` dan `:01` sekaligus mempertahankan memori `O(1)` per pengguna?", ["Fixed Window Counter", "Sliding Window Counter", "Log Redis tanpa eviksi", "Caching ETag HTTP"], "Sliding Window Counter membobot hitungan jendela lalu menurut fraksi tumpang tindihnya hanya dengan dua angka per klien."],
-      ["Menurut draf header RateLimit IETF dan RFC 9111, bagaimana klien menyikapi header `RateLimit` pada respons dari cache perantara (`Age > 0`)?", ["Menggandakan sisa kuota", "Mengabaikan header `RateLimit` pada respons cache", "Memaksa retry dengan `Retry-After: 0`", "Menyimpannya di localStorage selamanya"], "Header cached mencatat kondisi origin saat disimpan, bukan sisa kuota aktif, jadi klien mengabaikannya ketika `Age > 0`."],
-      ["Apa beda rate limiting (`429`) dan load shedding (`503`)?", ["429 menegakkan kuota per klien, sedangkan 503 membuang kelebihan trafik total demi menjaga kesehatan server", "429 khusus TCP, 503 khusus UDP", "503 hanya berjalan di CDN", "429 otomatis di-retry browser"], "Rate limiting mengisolasi penyewa yang berisik. Load shedding menjaga kesehatan server secara menyeluruh saat kapasitas total penuh."]
-    ]
+    quiz: {
+      'rate-limiting-approach-prevents': ["Pendekatan rate limiting mana yang mencegah klien mengirim dua kali kuota melintasi `:59` dan `:01` sekaligus mempertahankan memori `O(1)` per pengguna?", ["Fixed Window Counter", "Sliding Window Counter", "Log Redis tanpa eviksi", "Caching ETag HTTP"], "Sliding Window Counter membobot hitungan jendela lalu menurut fraksi tumpang tindihnya hanya dengan dua angka per klien."],
+      'according-ietf-ratelimit-headers': ["Menurut draf header RateLimit IETF dan RFC 9111, bagaimana klien menyikapi header `RateLimit` pada respons dari cache perantara (`Age > 0`)?", ["Menggandakan sisa kuota", "Mengabaikan header `RateLimit` pada respons cache", "Memaksa retry dengan `Retry-After: 0`", "Menyimpannya di localStorage selamanya"], "Header cached mencatat kondisi origin saat disimpan, bukan sisa kuota aktif, jadi klien mengabaikannya ketika `Age > 0`."],
+      'distinguishes-rate-limiting-429': ["Apa beda rate limiting (`429`) dan load shedding (`503`)?", ["429 menegakkan kuota per klien, sedangkan 503 membuang kelebihan trafik total demi menjaga kesehatan server", "429 khusus TCP, 503 khusus UDP", "503 hanya berjalan di CDN", "429 otomatis di-retry browser"], "Rate limiting mengisolasi penyewa yang berisik. Load shedding menjaga kesehatan server secara menyeluruh saat kapasitas total penuh."]
+    }
   },
 
   storage: {
@@ -245,11 +245,11 @@ export const trackId = {
       "Membiarkan kompaksi LSM latar menghabiskan IOPS NVMe pada trafik jam kerja hingga tail latency baca melonjak.",
       "Memilih NoSQL terdistribusi di hari pertama padahal join ACID dan 5.000 RPS berjalan lancar di satu node PostgreSQL atau SQL Server."
     ],
-    quiz: [
-      ["Mengapa LSM-Tree menahan beban tulis berkelanjutan jauh lebih besar dibanding B-Tree tradisional?", ["Ia meninggalkan WAL dan mengorbankan durabilitas", "Tulis masuk berurutan ke WAL dan MemTable, menghindari pemecahan halaman 8 KB acak di tempat", "Semua tabel disimpan di CSS", "Ia tidak pernah mengurutkan key"], "Append WAL berurutan plus flush MemTable menghindari I/O read-modify-write acak pada halaman B-Tree."],
-      ["Bagaimana LSM-Tree menghapus baris pada SSTable imutabel?", ["Menimpa byte di tempat dengan angka nol", "Menambahkan penanda tombstone agar versi lama dibuang saat kompaksi", "Membangun ulang database secara sinkron", "Memakai trigger SQL"], "SSTable tidak berubah di disk. Operasi hapus menambah tombstone yang menutupi entri lama sampai kompaksi berjalan."],
-      ["Di mana PDF KYC 2 MB unggahan pengguna harus disimpan dalam sistem pesanan atau pinjaman?", ["Di dalam kolom PostgreSQL BYTEA atau SQL Server VARBINARY(MAX)", "Di-encode Base64 di string Redis", "Di object storage S3 atau MinIO dengan presigned URL berbatas waktu dan metadata SQL", "Di dalam cookie browser"], "Object storage menangani biner besar dengan biaya murah lewat unggah langsung, menjaga backup SQL dan buffer pool RAM tetap ramping."]
-    ]
+    quiz: {
+      'lsm-tree-handle-heavier': ["Mengapa LSM-Tree menahan beban tulis berkelanjutan jauh lebih besar dibanding B-Tree tradisional?", ["Ia meninggalkan WAL dan mengorbankan durabilitas", "Tulis masuk berurutan ke WAL dan MemTable, menghindari pemecahan halaman 8 KB acak di tempat", "Semua tabel disimpan di CSS", "Ia tidak pernah mengurutkan key"], "Append WAL berurutan plus flush MemTable menghindari I/O read-modify-write acak pada halaman B-Tree."],
+      'lsm-tree-delete-record': ["Bagaimana LSM-Tree menghapus baris pada SSTable imutabel?", ["Menimpa byte di tempat dengan angka nol", "Menambahkan penanda tombstone agar versi lama dibuang saat kompaksi", "Membangun ulang database secara sinkron", "Memakai trigger SQL"], "SSTable tidak berubah di disk. Operasi hapus menambah tombstone yang menutupi entri lama sampai kompaksi berjalan."],
+      'mb-user-uploaded-kyc': ["Di mana PDF KYC 2 MB unggahan pengguna harus disimpan dalam sistem pesanan atau pinjaman?", ["Di dalam kolom PostgreSQL BYTEA atau SQL Server VARBINARY(MAX)", "Di-encode Base64 di string Redis", "Di object storage S3 atau MinIO dengan presigned URL berbatas waktu dan metadata SQL", "Di dalam cookie browser"], "Object storage menangani biner besar dengan biaya murah lewat unggah langsung, menjaga backup SQL dan buffer pool RAM tetap ramping."]
+    }
   },
 
   'search-geo': {
@@ -276,11 +276,11 @@ export const trackId = {
       "Memakai `WHERE geohash LIKE prefix%` tanpa mengecek 8 sel sekitar, melewatkan titik dekat yang terpisah garis grid.",
       "Mengunci resolusi spasial kelewat rapat saat jumlah driver berfluktuasi. Uber H3 memudahkan penggabungan ke induk lewat `cellToParent` saat area sepi."
     ],
-    quiz: [
-      ["Di BM25, mengapa kecocokan di judul 2 kata mendapat skor lebih tinggi dibanding kecocokan di deskripsi 200 kata?", ["Normalisasi panjang field (`b`) memberi nilai lebih tinggi pada field singkat", "Inverted index melewati dokumen panjang", "BM25 mengurutkan sesuai abjad", "IDF menghapus kata yang sering muncul"], "Normalisasi panjang mencegah deskripsi panjang yang ramai mengungguli judul singkat."],
-      ["Mengapa kueri Geohash memeriksa sel target sekaligus 8 sel tetangganya?", ["Agar terurut sesuai abjad", "Koordinat berdekatan di seberang garis batas grid dapat memiliki nol karakter awalan Geohash yang sama", "Geohash hanya mengkodekan garis lintang", "SQL LIKE mewajibkan 9 pola"], "Dua titik berjarak 10 meter melintasi garis ekuator atau meridian utama mempunyai awalan yang sama sekali berbeda."],
-      ["Keunggulan geometri apa yang membuat Uber memilih bentuk heksagon untuk H3 dibanding persegi atau segitiga?", ["Heksagon butuh bit separuh lebih sedikit", "Keenam tetangga berjarak sama persis dari pusat sel tanpa distorsi diagonal", "Persegi tidak bisa menutupi permukaan bola", "PostGIS hanya mendukung heksagon"], "Grid persegi memiliki tetangga tepi dekat (`1×`) dan sudut jauh (`√2×`), sedangkan heksagon menyamakan jarak setiap langkah."]
-    ]
+    quiz: {
+      'bm25-match-inside-word': ["Di BM25, mengapa kecocokan di judul 2 kata mendapat skor lebih tinggi dibanding kecocokan di deskripsi 200 kata?", ["Normalisasi panjang field (`b`) memberi nilai lebih tinggi pada field singkat", "Inverted index melewati dokumen panjang", "BM25 mengurutkan sesuai abjad", "IDF menghapus kata yang sering muncul"], "Normalisasi panjang mencegah deskripsi panjang yang ramai mengungguli judul singkat."],
+      'geohash-queries-check-target': ["Mengapa kueri Geohash memeriksa sel target sekaligus 8 sel tetangganya?", ["Agar terurut sesuai abjad", "Koordinat berdekatan di seberang garis batas grid dapat memiliki nol karakter awalan Geohash yang sama", "Geohash hanya mengkodekan garis lintang", "SQL LIKE mewajibkan 9 pola"], "Dua titik berjarak 10 meter melintasi garis ekuator atau meridian utama mempunyai awalan yang sama sekali berbeda."],
+      'geometric-advantage-made-uber': ["Keunggulan geometri apa yang membuat Uber memilih bentuk heksagon untuk H3 dibanding persegi atau segitiga?", ["Heksagon butuh bit separuh lebih sedikit", "Keenam tetangga berjarak sama persis dari pusat sel tanpa distorsi diagonal", "Persegi tidak bisa menutupi permukaan bola", "PostGIS hanya mendukung heksagon"], "Grid persegi memiliki tetangga tepi dekat (`1×`) dan sudut jauh (`√2×`), sedangkan heksagon menyamakan jarak setiap langkah."]
+    }
   },
 
   'db-scaling': {
@@ -318,11 +318,11 @@ export const trackId = {
       "Men-shard berdasar `created_at` atau `order_id`, mengirim 100% insert baru ke satu shard paling kanan.",
       "Menjalankan `DELETE FROM events WHERE created_at < ...` atas jutaan baris, memicu pembengkakan vacuum dan risiko XID wraparound ketika membuang partisi selesai dalam milidetik."
     ],
-    quiz: [
-      ["Mengapa `PARTITION BY RANGE (created_at)` mewajibkan `created_at` ada di setiap `PRIMARY KEY` dan `UNIQUE` PostgreSQL?", ["Agar pengurutan string lebih cepat", "PostgreSQL menegakkan keunikan per indeks partisi kecuali kolom pemecah masuk di dalam unique key", "B-Tree hanya mengindeks timestamp", "Syarat wajib PgBouncer"], "Tanpa mengecek seluruh partisi anak tiap insert, keunikan lokal baru berlaku global saat kolom partisi masuk di dalam key."],
-      ["Bagaimana bacaan setelah menulis menghindari data usang dari replika asinkron?", ["Matikan WAL di primer", "Arahkan bacaan pengguna itu ke primer atau tunggu `pg_last_wal_replay_lsn() >= commit_lsn`", "Pasang `LIMIT 1`", "Jalankan `VACUUM FULL`"], "Mengecek commit LSN primer atau pinning singkat ke primer memberi read-your-own-writes monoton tanpa menghalangi pembaca lain."],
-      ["Pilihan mana yang menciptakan write hotspot di database ter-shard?", ["Memakai UUIDv7 dalam hash sharding `(tenant_id, id)`", "Melakukan range-sharding tabel append-only berdasar `created_at`", "Membagi awal menjadi 256 virtual shard", "Menyandingkan `orders` dan `order_items` pada `tenant_id`"], "Seluruh timestamp kini mendarat di satu shard rentang paling kanan selagi shard lama menganggur."]
-    ]
+    quiz: {
+      'partition-range-created-require': ["Mengapa `PARTITION BY RANGE (created_at)` mewajibkan `created_at` ada di setiap `PRIMARY KEY` dan `UNIQUE` PostgreSQL?", ["Agar pengurutan string lebih cepat", "PostgreSQL menegakkan keunikan per indeks partisi kecuali kolom pemecah masuk di dalam unique key", "B-Tree hanya mengindeks timestamp", "Syarat wajib PgBouncer"], "Tanpa mengecek seluruh partisi anak tiap insert, keunikan lokal baru berlaku global saat kolom partisi masuk di dalam key."],
+      'post-write-read-avoid': ["Bagaimana bacaan setelah menulis menghindari data usang dari replika asinkron?", ["Matikan WAL di primer", "Arahkan bacaan pengguna itu ke primer atau tunggu `pg_last_wal_replay_lsn() >= commit_lsn`", "Pasang `LIMIT 1`", "Jalankan `VACUUM FULL`"], "Mengecek commit LSN primer atau pinning singkat ke primer memberi read-your-own-writes monoton tanpa menghalangi pembaca lain."],
+      'choice-creates-write-hotspot': ["Pilihan mana yang menciptakan write hotspot di database ter-shard?", ["Memakai UUIDv7 dalam hash sharding `(tenant_id, id)`", "Melakukan range-sharding tabel append-only berdasar `created_at`", "Membagi awal menjadi 256 virtual shard", "Menyandingkan `orders` dan `order_items` pada `tenant_id`"], "Seluruh timestamp kini mendarat di satu shard rentang paling kanan selagi shard lama menganggur."]
+    }
   },
 
   hashing: {
@@ -360,11 +360,11 @@ export const trackId = {
       "Memilih `1` atau `2` vnode pada cluster kecil hingga satu host memegang 60% key sementara host lain kosong.",
       "Mengira consistent hashing sendirian mengatasi hot key. Satu key viral tetap mengarah ke satu replika kecuali dipasangi cache L1 atau bounded load."
     ],
-    quiz: [
-      ["Mengapa DynamoDB, Cassandra, dan proxy Redis memberi 100 hingga 200 virtual nodes per mesin fisik?", ["Untuk melipatgandakan kapasitas RAM", "Mengurangi ketimpangan partisi dan menyebar beban failover ke seluruh mesin yang bertahan", "Menghindari hashing key", "Menjamin linearizability kuat"], "Banyaknya vnode menyamakan ukuran busur acak dan mencegah tetangga searah jarum jam memikul 100% beban node mati."],
-      ["Apa yang diubah `bounded loads` (faktor kapasitas `c ≈ 1.25`) saat terjadi lonjakan hot key?", ["Mematikan virtual nodes", "Melimpahkan kelebihan request di atas `cap` ke server fisik berbeda berikutnya searah jarum jam", "Menghapus cold key selamanya", "Memaksa retry TCP"], "Bounded-load hashing membatasi tiap host di dekat `1.25×` rata-rata sambil menjaga lokalitas saat beban normal."],
-      ["Dalam cincin consistent hash 10 node ber-vnode seimbang, sekitar berapa persen key pindah bila 1 node baru bergabung?", ["~90%", "~50%", "~9–10% (`1 / 11`)", "0%"], "Hanya key di dalam segmen yang diambil alih node ke-11 yang berpindah (`1 / (N + 1)`)."]
-    ]
+    quiz: {
+      'dynamodb-cassandra-redis-proxies': ["Mengapa DynamoDB, Cassandra, dan proxy Redis memberi 100 hingga 200 virtual nodes per mesin fisik?", ["Untuk melipatgandakan kapasitas RAM", "Mengurangi ketimpangan partisi dan menyebar beban failover ke seluruh mesin yang bertahan", "Menghindari hashing key", "Menjamin linearizability kuat"], "Banyaknya vnode menyamakan ukuran busur acak dan mencegah tetangga searah jarum jam memikul 100% beban node mati."],
+      'bounded-loads-capacity-factor': ["Apa yang diubah `bounded loads` (faktor kapasitas `c ≈ 1.25`) saat terjadi lonjakan hot key?", ["Mematikan virtual nodes", "Melimpahkan kelebihan request di atas `cap` ke server fisik berbeda berikutnya searah jarum jam", "Menghapus cold key selamanya", "Memaksa retry TCP"], "Bounded-load hashing membatasi tiap host di dekat `1.25×` rata-rata sambil menjaga lokalitas saat beban normal."],
+      '10-node-consistent-hash': ["Dalam cincin consistent hash 10 node ber-vnode seimbang, sekitar berapa persen key pindah bila 1 node baru bergabung?", ["~90%", "~50%", "~9–10% (`1 / 11`)", "0%"], "Hanya key di dalam segmen yang diambil alih node ke-11 yang berpindah (`1 / (N + 1)`)."]
+    }
   },
 
   messaging: {
@@ -392,11 +392,11 @@ export const trackId = {
       "Mengira konsumen at-least-once aman tanpa deduplikasi. Retry dan rebalance tetap mengirim ulang batch kecuali efek samping di-commit atomik bersama `processed_events`.",
       "Mengulang pesan rusak terus-menerus di kepala partisi terurut padahal memindahkannya ke DLQ langsung melancarkan event sehat."
     ],
-    quiz: [
-      ["Mengapa `FOR UPDATE SKIP LOCKED` penting saat banyak worker relai membaca `outbox_events`?", ["Ia menghapus duplikat otomatis", "Tiap worker relai mengklaim baris tak terkunci secara terpisah tanpa menunggu transaksi worker lain", "Ia melewati WAL PostgreSQL", "Ia mengubah Kafka jadi RabbitMQ"], "`SKIP LOCKED` membagikan batch terpisah ke worker relai paralel tanpa antre row lock."],
-      ["Apa keunggulan Debezium CDC dibanding SQL polling pada `outbox_events` di 20.000 event/detik?", ["Menghapus perlunya transaksi DB primer", "Mengalirkan perubahan langsung dari Write-Ahead Log Postgres tanpa beban polling `SELECT ... UPDATE` berulang", "Menjamin nol bacaan duplikat tanpa dedup", "Menggantikan semua endpoint HTTP"], "CDC berbasis WAL menghindari query polling di halaman indeks saat QPS tulis tinggi sembari menjaga latency sub-detik."],
-      ["Saat konsumen menerima `event_id` yang sudah ada di dalam `processed_events`, apa langkahnya?", ["Crash dan kirim pager alert", "Lewati efek samping bisnis lalu kirim ACK (commit offset)", "Masukkan baris kedua ke `dead_letter_events`", "Restart Kafka"], "Event sudah ter-commit sebelumnya, jadi melewati kerja dan meng-commit offset menjaga pengiriman at-least-once tetap idempoten."]
-    ]
+    quiz: {
+      'update-skip-locked-matter': ["Mengapa `FOR UPDATE SKIP LOCKED` penting saat banyak worker relai membaca `outbox_events`?", ["Ia menghapus duplikat otomatis", "Tiap worker relai mengklaim baris tak terkunci secara terpisah tanpa menunggu transaksi worker lain", "Ia melewati WAL PostgreSQL", "Ia mengubah Kafka jadi RabbitMQ"], "`SKIP LOCKED` membagikan batch terpisah ke worker relai paralel tanpa antre row lock."],
+      'advantage-debezium-cdc-offer': ["Apa keunggulan Debezium CDC dibanding SQL polling pada `outbox_events` di 20.000 event/detik?", ["Menghapus perlunya transaksi DB primer", "Mengalirkan perubahan langsung dari Write-Ahead Log Postgres tanpa beban polling `SELECT ... UPDATE` berulang", "Menjamin nol bacaan duplikat tanpa dedup", "Menggantikan semua endpoint HTTP"], "CDC berbasis WAL menghindari query polling di halaman indeks saat QPS tulis tinggi sembari menjaga latency sub-detik."],
+      'consumer-receives-event-id': ["Saat konsumen menerima `event_id` yang sudah ada di dalam `processed_events`, apa langkahnya?", ["Crash dan kirim pager alert", "Lewati efek samping bisnis lalu kirim ACK (commit offset)", "Masukkan baris kedua ke `dead_letter_events`", "Restart Kafka"], "Event sudah ter-commit sebelumnya, jadi melewati kerja dan meng-commit offset menjaga pengiriman at-least-once tetap idempoten."]
+    }
   },
 
   resilience: {
@@ -434,11 +434,11 @@ export const trackId = {
       "Mengulang error validasi HTTP `400 Bad Request` atau `401 Unauthorized`. Retry backoff hanya berguna bagi gangguan jaringan sementara, `429`, atau `503`.",
       "Memakai satu `http.Client` global tanpa timeout untuk jalur checkout penting sekaligus pengiriman webhook yang lambat."
     ],
-    quiz: [
-      ["Mengapa AWS Builders Library menyarankan Full Jitter dibanding exponential backoff deterministik?", ["Ia menggandakan throughput maksimum", "Ia menyebar waktu tunggu retry merata di `[0, cap]`, memutus lonjakan gelombang serempak", "Menghapus kebutuhan timeout", "Mengubah 503 menjadi 200"], "Tanpa faktor acak, klien yang gagal bersamaan akan bangun bersamaan dalam gelombang serentak."],
-      ["Di Circuit Breaker 3-state (`Closed`, `Open`, `Half-Open`), apa yang berlangsung saat `Half-Open`?", ["Semua request melewati timeout", "Permintaan uji terbatas dijalankan untuk mengetes apakah dependensi pulih sebelum pindah ke `Closed`", "Semua error diabaikan permanen", "Metrik dibuang ke disk"], "Half-Open melepas trafik uji kecil. Sukses menutup breaker lagi, sementara gagal langsung mengulang timer cooldown."],
-      ["Pola apa yang menghentikan endpoint webhook pihak ketiga lambat menghabiskan seluruh thread API untuk `/login`?", ["Write-Back Cache", "Bulkhead (pool worker atau semafor konkurensi terpisah per dependensi)", "Geohashing", "Consistent Hashing"], "Memisahkan anggaran konkurensi per dependensi mencegah satu upstream macet menghabiskan jalur request sehat."]
-    ]
+    quiz: {
+      'aws-builders-library-recommend': ["Mengapa AWS Builders Library menyarankan Full Jitter dibanding exponential backoff deterministik?", ["Ia menggandakan throughput maksimum", "Ia menyebar waktu tunggu retry merata di `[0, cap]`, memutus lonjakan gelombang serempak", "Menghapus kebutuhan timeout", "Mengubah 503 menjadi 200"], "Tanpa faktor acak, klien yang gagal bersamaan akan bangun bersamaan dalam gelombang serentak."],
+      'state-circuit-breaker-closed': ["Di Circuit Breaker 3-state (`Closed`, `Open`, `Half-Open`), apa yang berlangsung saat `Half-Open`?", ["Semua request melewati timeout", "Permintaan uji terbatas dijalankan untuk mengetes apakah dependensi pulih sebelum pindah ke `Closed`", "Semua error diabaikan permanen", "Metrik dibuang ke disk"], "Half-Open melepas trafik uji kecil. Sukses menutup breaker lagi, sementara gagal langsung mengulang timer cooldown."],
+      'pattern-stops-slow-third': ["Pola apa yang menghentikan endpoint webhook pihak ketiga lambat menghabiskan seluruh thread API untuk `/login`?", ["Write-Back Cache", "Bulkhead (pool worker atau semafor konkurensi terpisah per dependensi)", "Geohashing", "Consistent Hashing"], "Memisahkan anggaran konkurensi per dependensi mencegah satu upstream macet menghabiskan jalur request sehat."]
+    }
   },
 
   consistency: {
@@ -476,11 +476,11 @@ export const trackId = {
       "Mengabaikan perubahan isi pada retry `Idempotency-Key`. Membalas konfirmasi `$50` lama saat payload diganti menjadi `$500` menyebabkan bug penagihan tersembunyi.",
       "Membangun Saga tanpa aksi rollback idempoten (`Refund` wajib sanggup menangani retry ganda tanpa refund dua kali)."
     ],
-    quiz: [
-      ["Di cluster `N = 5` replika di mana tulis mensyaratkan `W = 3` ack, berapa minimum `R` yang menjamin minimal satu replika mutakhir ikut dalam tiap bacaan?", ["R = 1", "R = 2", "R = 3 (`3 + 3 = 6 > 5`)", "R = 5"], "Irisan quorum butuh `W + R > N`. Dengan `N=5` dan `W=3`, minimum `R` adalah `3`."],
-      ["Status HTTP apa yang dikirim API `POST /payments` saat klien memakai ulang `Idempotency-Key` lama untuk payload berbeda?", ["200 OK", "422 Unprocessable Content (atau 400/409 konflik payload)", "304 Not Modified", "503 Service Unavailable"], "Memakai ulang kunci dengan parameter berubah menyalahi aturan idempotensi, sehingga API Stripe/IETF membalas `422` atau `409`."],
-      ["Mengapa storage sendiri wajib memeriksa fencing token monoton?", ["Untuk mengompres JSON", "Karena pemegang lock bisa terjeda saat GC atau jeda jaringan di antara cek masa lock dan tulis storage", "Melewati TLS", "Karena Raft tanpa leader"], "Pengecekan lease di sisi klien punya celah balap sebelum tulis disk, sedangkan cek `token > lastToken` di storage menutup akses penulis usang secara atomik."]
-    ]
+    quiz: {
+      'replica-cluster-writes-require': ["Di cluster `N = 5` replika di mana tulis mensyaratkan `W = 3` ack, berapa minimum `R` yang menjamin minimal satu replika mutakhir ikut dalam tiap bacaan?", ["R = 1", "R = 2", "R = 3 (`3 + 3 = 6 > 5`)", "R = 5"], "Irisan quorum butuh `W + R > N`. Dengan `N=5` dan `W=3`, minimum `R` adalah `3`."],
+      'http-status-idempotent-post': ["Status HTTP apa yang dikirim API `POST /payments` saat klien memakai ulang `Idempotency-Key` lama untuk payload berbeda?", ["200 OK", "422 Unprocessable Content (atau 400/409 konflik payload)", "304 Not Modified", "503 Service Unavailable"], "Memakai ulang kunci dengan parameter berubah menyalahi aturan idempotensi, sehingga API Stripe/IETF membalas `422` atau `409`."],
+      'storage-itself-check-monotonic': ["Mengapa storage sendiri wajib memeriksa fencing token monoton?", ["Untuk mengompres JSON", "Karena pemegang lock bisa terjeda saat GC atau jeda jaringan di antara cek masa lock dan tulis storage", "Melewati TLS", "Karena Raft tanpa leader"], "Pengecekan lease di sisi klien punya celah balap sebelum tulis disk, sedangkan cek `token > lastToken` di storage menutup akses penulis usang secara atomik."]
+    }
   },
 
   observability: {
@@ -508,11 +508,11 @@ export const trackId = {
       "Merata-ratakan nilai `p99` per instance di Grafana sehingga ekor akurasinya hilang. Agregasikan dulu counter bucket histogram mentah (`sum by (le)` lalu `histogram_quantile`).",
       "Menulis log teks polos tanpa W3C `trace_id`, memaksa engineer mencari kecocokan timestamp manual lintas 12 layanan."
     ],
-    quiz: [
-      ["Mengapa Google SRE memadukan jendela `1h` dan jendela pendek `5m` pada alert fast-burn?", ["Untuk menggandakan beban CPU", "Supaya gangguan yang sudah pulih menutup alert dalam ~5 menit, menghindari pager berbunyi satu jam penuh", "Karena Prometheus tidak menghitung laju 1h", "Untuk menghapus metrik 500"], "Tanpa jendela pendek, laju bergulir `1h` tetap di atas ambang lama setelah perbaikan tayang."],
-      ["Di mana atribut ber-kardinalitas tinggi seperti `order_id` dan `customer_id` sebaiknya disimpan?", ["Label metrik Prometheus", "Field log terstruktur dan atribut span trace OpenTelemetry", "Kode status HTTP", "Catatan DNS TXT"], "Prometheus mengindeks tiap kombinasi label unik di RAM, sedangkan indeks log dan span trace dirancang menampung kardinalitas tinggi."],
-      ["Header HTTP standar apa yang menyambungkan trace terdistribusi lintas proxy serta layanan Go, C#, atau Node?", ["`X-Custom-Debug`", "`traceparent` (W3C Trace Context)", "`Keep-Alive`", "`ETag`"], "W3C Trace Context (`traceparent`) bekerja lintas Envoy, NGINX, SDK OpenTelemetry, dan gateway cloud."]
-    ]
+    quiz: {
+      'google-sre-combine-1h': ["Mengapa Google SRE memadukan jendela `1h` dan jendela pendek `5m` pada alert fast-burn?", ["Untuk menggandakan beban CPU", "Supaya gangguan yang sudah pulih menutup alert dalam ~5 menit, menghindari pager berbunyi satu jam penuh", "Karena Prometheus tidak menghitung laju 1h", "Untuk menghapus metrik 500"], "Tanpa jendela pendek, laju bergulir `1h` tetap di atas ambang lama setelah perbaikan tayang."],
+      'high-cardinality-attributes-like': ["Di mana atribut ber-kardinalitas tinggi seperti `order_id` dan `customer_id` sebaiknya disimpan?", ["Label metrik Prometheus", "Field log terstruktur dan atribut span trace OpenTelemetry", "Kode status HTTP", "Catatan DNS TXT"], "Prometheus mengindeks tiap kombinasi label unik di RAM, sedangkan indeks log dan span trace dirancang menampung kardinalitas tinggi."],
+      'standard-http-header-links': ["Header HTTP standar apa yang menyambungkan trace terdistribusi lintas proxy serta layanan Go, C#, atau Node?", ["`X-Custom-Debug`", "`traceparent` (W3C Trace Context)", "`Keep-Alive`", "`ETag`"], "W3C Trace Context (`traceparent`) bekerja lintas Envoy, NGINX, SDK OpenTelemetry, dan gateway cloud."]
+    }
   },
 
   'containers-k8s': {
@@ -540,11 +540,11 @@ export const trackId = {
       "Melewatkan jeda `preStop` atau menutup socket langsung pada `SIGTERM` sebelum EndpointSlice selesai disebar, menimbulkan error `502` di tiap rilis.",
       "Menyetel `replicas: 1` bersama PDB `minAvailable: 1` (atau `maxUnavailable: 0`), menghalangi proses upgrade node Kubernetes selamanya."
     ],
-    quiz: [
-      ["Mengapa `livenessProbe` harus menghindari menembak database eksternal atau API pihak ketiga?", ["HTTP GET tidak didukung Kubernetes", "Jika DB melambat sebentar, Kubernetes me-restart semua pod API sehat dalam loop crash walau prosesnya tidak deadlock", "ReadinessProbe sudah me-restart pod mati", "Liveness memperlambat GC Go"], "Liveness hanya memeriksa apakah proses mengalami deadlock. Gangguan layanan hilir ditangani readiness probe atau circuit breaker."],
-      ["Mengapa menambah `preStop: sleep 10` sebelum container memproses `SIGTERM` selama rolling deploy?", ["Memanaskan cache CPU", "Karena propagasi EndpointSlice dan kube-proxy antar node berlangsung asinkron sehingga paket tetap datang setelah terminasi mulai", "Membersihkan garbage collector Go", "Melewati cek Readiness"], "Jeda drain singkat menampung trafik berjalan sembari load balancer menghapus IP pod yang dimatikan."],
-      ["Apa yang terjadi saat upgrade node jika Deployment 1 replika memakai `PodDisruptionBudget` bernilai `minAvailable: 1`?", ["Kubernetes menggandakan otomatis", "Drain node terhenti karena mengeluarkan satu-satunya pod melanggar PDB", "HPA menimpa PDB", "Pod berubah menjadi DaemonSet"], "Jalankan minimal 2 replika sebelum memasang `minAvailable: 1` atau `maxUnavailable: 1`, kalau tidak drain node macet."]
-    ]
+    quiz: {
+      'livenessprobe-avoid-querying-ext': ["Mengapa `livenessProbe` harus menghindari menembak database eksternal atau API pihak ketiga?", ["HTTP GET tidak didukung Kubernetes", "Jika DB melambat sebentar, Kubernetes me-restart semua pod API sehat dalam loop crash walau prosesnya tidak deadlock", "ReadinessProbe sudah me-restart pod mati", "Liveness memperlambat GC Go"], "Liveness hanya memeriksa apakah proses mengalami deadlock. Gangguan layanan hilir ditangani readiness probe atau circuit breaker."],
+      'add-prestop-sleep-10': ["Mengapa menambah `preStop: sleep 10` sebelum container memproses `SIGTERM` selama rolling deploy?", ["Memanaskan cache CPU", "Karena propagasi EndpointSlice dan kube-proxy antar node berlangsung asinkron sehingga paket tetap datang setelah terminasi mulai", "Membersihkan garbage collector Go", "Melewati cek Readiness"], "Jeda drain singkat menampung trafik berjalan sembari load balancer menghapus IP pod yang dimatikan."],
+      'happens-during-node-upgrade': ["Apa yang terjadi saat upgrade node jika Deployment 1 replika memakai `PodDisruptionBudget` bernilai `minAvailable: 1`?", ["Kubernetes menggandakan otomatis", "Drain node terhenti karena mengeluarkan satu-satunya pod melanggar PDB", "HPA menimpa PDB", "Pod berubah menjadi DaemonSet"], "Jalankan minimal 2 replika sebelum memasang `minAvailable: 1` atau `maxUnavailable: 1`, kalau tidak drain node macet."]
+    }
   },
 
   toolbox: {
@@ -572,11 +572,11 @@ export const trackId = {
       "Memilih NoSQL sekadar menghindari skema untuk sistem tagihan atau buku besar relasional yang butuh transaksi multi-baris ACID.",
       "Menganggap pilihan tools bersifat tetap, lalu lupa mengukur ulang bottleneck nyata tiap trafik naik 2× hingga 5×."
     ],
-    quiz: [
-      ["Mengapa laporan BI berat (`GROUP BY` 12 bulan faktur) harus dijauhkan dari PostgreSQL primer yang melayani checkout?", ["PostgreSQL tidak punya `GROUP BY`", "Scan analitik panjang menggusur halaman OLTP panas dari buffer RAM dan berebut CPU serta I/O dengan transaksi checkout", "JSON tak bisa menyimpan tanggal", "CDN memblokir query analitik"], "Memindah scan OLAP ke replika atau DB kolumnar (ClickHouse atau BigQuery) melindungi tail latency checkout."],
-      ["Kapan Temporal (atau workflow engine persisten) mengungguli antrean mentah RabbitMQ atau SQS?", ["Untuk resize thumbnail satu langkah", "Ketika saga bisnis berlangsung berjam-jam atau berhari-hari memakai timer, kompensasi, dan replay state deterministik", "Untuk cache gambar di edge CDN", "Untuk menghapus handshake TCP"], "Antrean pas bagi tugas asinkron tunggal, sementara saga panjang ber-timer dan rollback rapuh tanpa workflow engine."],
-      ["Arsitektur database apa yang cocok untuk dompet finansial ACID bertrafik puncak `3.000 QPS` dengan tim kecil?", ["Cluster Cassandra 64-shard", "PostgreSQL primer + replika sync/async + PgBouncer + rate limit Redis", "Ledger utama Elasticsearch", "Map di memori saja"], "PostgreSQL menangani transaksi ACID pada 3.000 QPS dengan beban operasional jauh lebih ringan dibanding sharding NoSQL."]
-    ]
+    quiz: {
+      'keep-heavy-bi-reporting': ["Mengapa laporan BI berat (`GROUP BY` 12 bulan faktur) harus dijauhkan dari PostgreSQL primer yang melayani checkout?", ["PostgreSQL tidak punya `GROUP BY`", "Scan analitik panjang menggusur halaman OLTP panas dari buffer RAM dan berebut CPU serta I/O dengan transaksi checkout", "JSON tak bisa menyimpan tanggal", "CDN memblokir query analitik"], "Memindah scan OLAP ke replika atau DB kolumnar (ClickHouse atau BigQuery) melindungi tail latency checkout."],
+      'temporal-durable-workflow-engine': ["Kapan Temporal (atau workflow engine persisten) mengungguli antrean mentah RabbitMQ atau SQS?", ["Untuk resize thumbnail satu langkah", "Ketika saga bisnis berlangsung berjam-jam atau berhari-hari memakai timer, kompensasi, dan replay state deterministik", "Untuk cache gambar di edge CDN", "Untuk menghapus handshake TCP"], "Antrean pas bagi tugas asinkron tunggal, sementara saga panjang ber-timer dan rollback rapuh tanpa workflow engine."],
+      'database-architecture-matches-ac': ["Arsitektur database apa yang cocok untuk dompet finansial ACID bertrafik puncak `3.000 QPS` dengan tim kecil?", ["Cluster Cassandra 64-shard", "PostgreSQL primer + replika sync/async + PgBouncer + rate limit Redis", "Ledger utama Elasticsearch", "Map di memori saja"], "PostgreSQL menangani transaksi ACID pada 3.000 QPS dengan beban operasional jauh lebih ringan dibanding sharding NoSQL."]
+    }
   }
 }
 };

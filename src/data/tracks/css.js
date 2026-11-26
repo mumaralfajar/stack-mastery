@@ -68,9 +68,9 @@ export const track = {
         "A `<button>` inside a form without `type=\"button\"`: its default type is `submit`, so clicking it submits the form."
       ],
       quiz: [
-        { q: "Which element should trigger an action such as 'Add to cart'?", a: ["`<div onclick>`", "`<button type=\"button\">`", "`<a href=\"#\">`", "`<span role=\"button\">`"], c: 1, why: "A button is focusable, works with Enter and Space, and is announced correctly. A link is for navigation, and a `span` with a role still needs `tabindex` and key handling written by hand." },
-        { q: "What is the `alt` attribute for?", a: ["A tooltip shown on hover", "A text alternative describing the image, for people and tools that can't see it", "The caption shown below the image", "Keywords for search engines"], c: 1, why: "Screen readers read it, and it shows when the image fails to load." },
-        { q: "How is a `<label>` connected to its input?", a: ["By being placed next to it", "`for` on the label matching the input's `id` (or by wrapping the input)", "By sharing a `class`", "With `aria-label` on the label"], c: 1, why: "The connection gives the input an accessible name and makes clicking the label focus the input." }
+        { id: 'element-trigger-action-such', q: "Which element should trigger an action such as 'Add to cart'?", a: ["`<div onclick>`", "`<button type=\"button\">`", "`<a href=\"#\">`", "`<span role=\"button\">`"], c: 1, why: "A button is focusable, works with Enter and Space, and is announced correctly. A link is for navigation, and a `span` with a role still needs `tabindex` and key handling written by hand." },
+        { id: 'alt-attribute', q: "What is the `alt` attribute for?", a: ["A tooltip shown on hover", "A text alternative describing the image, for people and tools that can't see it", "The caption shown below the image", "Keywords for search engines"], c: 1, why: "Screen readers read it, and it shows when the image fails to load." },
+        { id: 'label-connected-input', q: "How is a `<label>` connected to its input?", a: ["By being placed next to it", "`for` on the label matching the input's `id` (or by wrapping the input)", "By sharing a `class`", "With `aria-label` on the label"], c: 1, why: "The connection gives the input an accessible name and makes clicking the label focus the input." }
       ]
     },
     {
@@ -136,10 +136,10 @@ body { font-family: system-ui, sans-serif; color: #1b2030; }
         "Assuming every property inherits. `border` and `margin` on a parent don't pass to children."
       ],
       quiz: [
-        { q: "Which selector has the highest specificity?", a: ["`.card .title`", "`#main`", "`div p span a`", "`.a.b.c`"], c: 1, why: "One id (1,0,0) outranks any number of classes or elements." },
-        { q: "Two rules with identical specificity set `color`. Which wins?", a: ["The first in the file", "The one declared later", "The one with more declarations", "The one in the bigger file"], c: 1, why: "With equal importance, layer and specificity, source order decides: last wins." },
-        { q: "Which property is inherited by default?", a: ["`margin`", "`border`", "`color`", "`width`"], c: 2, why: "Text properties such as `color` and `font` inherit automatically, while box properties don't." },
-        { q: "What is the specificity of `:where(#main .card) a`?", a: ["(1,1,1)", "(0,0,1)", "(0,1,1)", "(1,0,1)"], c: 1, why: "Everything inside `:where()` counts as zero, so only the `a` is left." }
+        { id: 'selector-highest-specificity', q: "Which selector has the highest specificity?", a: ["`.card .title`", "`#main`", "`div p span a`", "`.a.b.c`"], c: 1, why: "One id (1,0,0) outranks any number of classes or elements." },
+        { id: 'two-rules-identical-specificity', q: "Two rules with identical specificity set `color`. Which wins?", a: ["The first in the file", "The one declared later", "The one with more declarations", "The one in the bigger file"], c: 1, why: "With equal importance, layer and specificity, source order decides: last wins." },
+        { id: 'property-inherited-default', q: "Which property is inherited by default?", a: ["`margin`", "`border`", "`color`", "`width`"], c: 2, why: "Text properties such as `color` and `font` inherit automatically, while box properties don't." },
+        { id: 'specificity-card', q: "What is the specificity of `:where(#main .card) a`?", a: ["(1,1,1)", "(0,0,1)", "(0,1,1)", "(1,0,1)"], c: 1, why: "Everything inside `:where()` counts as zero, so only the `a` is left." }
       ]
     },
     {
@@ -195,9 +195,9 @@ p  { margin-top: 32px; }
         "Being surprised by collapsed margins and adding more margin to compensate. In a flex or grid container, use `gap` instead."
       ],
       quiz: [
-        { q: "With `box-sizing: content-box`, `width: 200px; padding: 20px; border: 5px solid` renders how wide?", a: ["200px", "225px", "250px", "240px"], c: 2, why: "200 + 20×2 + 5×2 = 250px. Padding and border are added outside the content width." },
-        { q: "Which sits between the content and the border?", a: ["Margin", "Padding", "Outline", "Gap"], c: 1, why: "Padding lives inside the border while margin sits outside. Outlines draw over edges without adding layout size." },
-        { q: "Two stacked paragraphs have `margin-bottom: 20px` and `margin-top: 30px`. The gap is…", a: ["50px", "30px", "20px", "25px"], c: 1, why: "Neighbouring vertical margins collapse to the larger of the two." }
+        { id: 'box-sizing-content-box', q: "With `box-sizing: content-box`, `width: 200px; padding: 20px; border: 5px solid` renders how wide?", a: ["200px", "225px", "250px", "240px"], c: 2, why: "200 + 20×2 + 5×2 = 250px. Padding and border are added outside the content width." },
+        { id: 'sits-content-border', q: "Which sits between the content and the border?", a: ["Margin", "Padding", "Outline", "Gap"], c: 1, why: "Padding lives inside the border while margin sits outside. Outlines draw over edges without adding layout size." },
+        { id: 'two-stacked-paragraphs-margin', q: "Two stacked paragraphs have `margin-bottom: 20px` and `margin-top: 30px`. The gap is…", a: ["50px", "30px", "20px", "25px"], c: 1, why: "Neighbouring vertical margins collapse to the larger of the two." }
       ]
     },
     {
@@ -251,9 +251,9 @@ p  { max-width: 65ch; margin-block: 0 1rem; }
         "Light grey text on white that fails contrast."
       ],
       quiz: [
-        { q: "The root font size is 16px. How big is `1.5rem`?", a: ["15px", "16px", "24px", "1.5px"], c: 2, why: "`rem` multiplies the root font size: 1.5 × 16 = 24px." },
-        { q: "What does `clamp(1rem, 3vw, 2rem)` do?", a: ["Always uses 3vw", "Uses 3vw, but never below 1rem or above 2rem", "Uses the smallest of the three values", "Uses 3vw only on screens narrower than 2rem"], c: 1, why: "`clamp` keeps a fluid preferred value between a minimum and a maximum." },
-        { q: "Minimum contrast ratio for normal body text under WCAG AA?", a: ["2:1", "3:1", "4.5:1", "7:1"], c: 2, why: "AA requires 4.5:1 for body text and 3:1 for large headings, whereas 7:1 targets stricter AAA." }
+        { id: 'root-font-size-16px', q: "The root font size is 16px. How big is `1.5rem`?", a: ["15px", "16px", "24px", "1.5px"], c: 2, why: "`rem` multiplies the root font size: 1.5 × 16 = 24px." },
+        { id: 'clamp-1rem-3vw-2rem', q: "What does `clamp(1rem, 3vw, 2rem)` do?", a: ["Always uses 3vw", "Uses 3vw, but never below 1rem or above 2rem", "Uses the smallest of the three values", "Uses 3vw only on screens narrower than 2rem"], c: 1, why: "`clamp` keeps a fluid preferred value between a minimum and a maximum." },
+        { id: 'minimum-contrast-ratio-normal', q: "Minimum contrast ratio for normal body text under WCAG AA?", a: ["2:1", "3:1", "4.5:1", "7:1"], c: 2, why: "AA requires 4.5:1 for body text and 3:1 for large headings, whereas 7:1 targets stricter AAA." }
       ]
     },
     // ---------------- Intermediate ----------------
@@ -320,9 +320,9 @@ p  { max-width: 65ch; margin-block: 0 1rem; }
         "Using flexbox for a true two-dimensional grid and fighting it with fixed widths."
       ],
       quiz: [
-        { q: "With `flex-direction: row`, which property centres items vertically?", a: ["`justify-content`", "`align-items`", "`text-align`", "`vertical-align`"], c: 1, why: "In a row, the cross axis is vertical, and `align-items` controls the cross axis." },
-        { q: "What does `flex: 1` on every child do?", a: ["Sets each child's width to 1fr", "Gives each child an equal share of the free space", "Makes each child 100% wide", "Stops the children from shrinking"], c: 1, why: "It sets grow to 1 with a zero basis, so the free space is divided equally." },
-        { q: "In a flex row, how do you push only the last item to the far right?", a: ["`float: right` on that item", "`margin-left: auto` on that item", "`justify-content: flex-end` on the container", "`position: absolute` on that item"], c: 1, why: "An auto margin absorbs all the free space on that side. `justify-content: flex-end` would move every item to the right." }
+        { id: 'flex-direction-row-property', q: "With `flex-direction: row`, which property centres items vertically?", a: ["`justify-content`", "`align-items`", "`text-align`", "`vertical-align`"], c: 1, why: "In a row, the cross axis is vertical, and `align-items` controls the cross axis." },
+        { id: 'flex-every-child', q: "What does `flex: 1` on every child do?", a: ["Sets each child's width to 1fr", "Gives each child an equal share of the free space", "Makes each child 100% wide", "Stops the children from shrinking"], c: 1, why: "It sets grow to 1 with a zero basis, so the free space is divided equally." },
+        { id: 'flex-row-push-only', q: "In a flex row, how do you push only the last item to the far right?", a: ["`float: right` on that item", "`margin-left: auto` on that item", "`justify-content: flex-end` on the container", "`position: absolute` on that item"], c: 1, why: "An auto margin absorbs all the free space on that side. `justify-content: flex-end` would move every item to the right." }
       ]
     },
     {
@@ -389,9 +389,9 @@ p  { max-width: 65ch; margin-block: 0 1rem; }
         "`1fr` tracks blowing past boundaries on wide tables or long URLs. Switch to `minmax(0, 1fr)`."
       ],
       quiz: [
-        { q: "What does `grid-template-columns: 1fr 3fr` create?", a: ["Two equal columns", "Two columns sharing the free space 1:3", "Four columns", "One column of three rows"], c: 1, why: "`fr` units divide leftover track space proportionally." },
-        { q: "Which declaration gives a responsive grid without media queries?", a: ["`repeat(3, 1fr)`", "`repeat(auto-fit, minmax(min(200px, 100%), 1fr))`", "`200px 200px 200px`", "`grid-auto-flow: column`"], c: 1, why: "The browser packs as many 200px+ columns as fit and stretches them, while `min()` shrinks safely on small screens." },
-        { q: "How do you make a grid item span the full width?", a: ["`width: 100vw`", "`grid-column: 1 / -1`", "`grid-column: span all`", "`justify-self: stretch`"], c: 1, why: "Spanning line 1 to line -1 covers every column track (`span all` is invalid CSS)." }
+        { id: 'grid-template-columns-1fr', q: "What does `grid-template-columns: 1fr 3fr` create?", a: ["Two equal columns", "Two columns sharing the free space 1:3", "Four columns", "One column of three rows"], c: 1, why: "`fr` units divide leftover track space proportionally." },
+        { id: 'declaration-gives-responsive-gri', q: "Which declaration gives a responsive grid without media queries?", a: ["`repeat(3, 1fr)`", "`repeat(auto-fit, minmax(min(200px, 100%), 1fr))`", "`200px 200px 200px`", "`grid-auto-flow: column`"], c: 1, why: "The browser packs as many 200px+ columns as fit and stretches them, while `min()` shrinks safely on small screens." },
+        { id: 'make-grid-item-span', q: "How do you make a grid item span the full width?", a: ["`width: 100vw`", "`grid-column: 1 / -1`", "`grid-column: span all`", "`justify-self: stretch`"], c: 1, why: "Spanning line 1 to line -1 covers every column track (`span all` is invalid CSS)." }
       ]
     },
     {
@@ -450,9 +450,9 @@ img, video { max-width: 100%; height: auto; }
         "Adding motion everywhere and then trying to remove it for reduced-motion users with `!important`. Add it only where it's wanted instead."
       ],
       quiz: [
-        { q: "In a mobile-first stylesheet, the base styles target…", a: ["Desktop screens", "Small screens, with `min-width` queries adding layout for larger ones", "Tablets, with queries both ways", "Print"], c: 1, why: "You start with the simplest stacked styles and layer enhancements upward." },
-        { q: "What is a container query based on?", a: ["The viewport width", "The size of the element's container", "The device pixel ratio", "The user's font size"], c: 1, why: "Components respond to the space they're placed in, wherever that is." },
-        { q: "Which rule keeps images from overflowing their parent?", a: ["`width: 100vw`", "`max-width: 100%; height: auto`", "`overflow: hidden` on the image", "`object-fit: contain`"], c: 1, why: "The image may shrink to fit but never exceeds its container, and keeps its proportions." }
+        { id: 'mobile-first-stylesheet-base', q: "In a mobile-first stylesheet, the base styles target…", a: ["Desktop screens", "Small screens, with `min-width` queries adding layout for larger ones", "Tablets, with queries both ways", "Print"], c: 1, why: "You start with the simplest stacked styles and layer enhancements upward." },
+        { id: 'container-query-based', q: "What is a container query based on?", a: ["The viewport width", "The size of the element's container", "The device pixel ratio", "The user's font size"], c: 1, why: "Components respond to the space they're placed in, wherever that is." },
+        { id: 'rule-keeps-images-overflowing', q: "Which rule keeps images from overflowing their parent?", a: ["`width: 100vw`", "`max-width: 100%; height: auto`", "`overflow: hidden` on the image", "`object-fit: contain`"], c: 1, why: "The image may shrink to fit but never exceeds its container, and keeps its proportions." }
       ]
     },
     // ---------------- Advanced ----------------
@@ -513,10 +513,10 @@ img, video { max-width: 100%; height: auto; }
         "A `position: fixed` element that stops being fixed because an ancestor gained a `transform`, for example from an animation library."
       ],
       quiz: [
-        { q: "An absolutely positioned element is placed relative to…", a: ["The viewport, always", "Its nearest positioned ancestor", "Its parent element, always", "The `<body>`, always"], c: 1, why: "It uses the closest ancestor whose position isn't `static`, and falls back to the initial containing block." },
-        { q: "Which of these creates a new stacking context?", a: ["`color: red`", "`transform: translateX(0)`", "`margin: 0`", "`display: block`"], c: 1, why: "Transforms, opacity below 1, filters and `isolation: isolate` all create stacking contexts." },
-        { q: "Why might `z-index` have no effect on an element?", a: ["The number is larger than the browser allows", "The element isn't positioned, and isn't a flex or grid item", "Its parent has `overflow: hidden`", "Negative values are ignored"], c: 1, why: "`z-index` is ignored on static elements that aren't flex or grid items." },
-        { q: "A `position: fixed` element suddenly scrolls with the page. Most likely cause?", a: ["A missing `z-index`", "An ancestor now has a `transform`, so `fixed` is relative to it", "The page uses flexbox", "The viewport meta tag is missing"], c: 1, why: "A transformed (or filtered) ancestor becomes the containing block for fixed descendants." }
+        { id: 'absolutely-positioned-element-pl', q: "An absolutely positioned element is placed relative to…", a: ["The viewport, always", "Its nearest positioned ancestor", "Its parent element, always", "The `<body>`, always"], c: 1, why: "It uses the closest ancestor whose position isn't `static`, and falls back to the initial containing block." },
+        { id: 'creates-new-stacking-context', q: "Which of these creates a new stacking context?", a: ["`color: red`", "`transform: translateX(0)`", "`margin: 0`", "`display: block`"], c: 1, why: "Transforms, opacity below 1, filters and `isolation: isolate` all create stacking contexts." },
+        { id: 'index-effect-element', q: "Why might `z-index` have no effect on an element?", a: ["The number is larger than the browser allows", "The element isn't positioned, and isn't a flex or grid item", "Its parent has `overflow: hidden`", "Negative values are ignored"], c: 1, why: "`z-index` is ignored on static elements that aren't flex or grid items." },
+        { id: 'position-fixed-element-suddenly', q: "A `position: fixed` element suddenly scrolls with the page. Most likely cause?", a: ["A missing `z-index`", "An ancestor now has a `transform`, so `fixed` is relative to it", "The page uses flexbox", "The viewport meta tag is missing"], c: 1, why: "A transformed (or filtered) ancestor becomes the containing block for fixed descendants." }
       ]
     },
     {
@@ -598,10 +598,10 @@ body { background: var(--bg); color: var(--text); }
         "Animating `width`, `height` or `top`, which forces layout on every frame."
       ],
       quiz: [
-        { q: "How do custom properties differ from Sass variables?", a: ["They're faster to type", "They exist in the browser, cascade and inherit, and can change per element or media query", "They can only hold colours", "They need a build step"], c: 1, why: "Sass variables vanish at build time, while CSS custom properties stay live inside the browser." },
-        { q: "What does `.card:has(img)` select?", a: ["Images inside cards", "Cards that contain an image", "Cards without images", "The first image in each card"], c: 1, why: "`:has()` selects an element based on its descendants." },
-        { q: "The system is dark, the user picks light, and the page stays dark. Most likely cause?", a: ["The browser cached the old CSS", "The `prefers-color-scheme: dark` rule doesn't exclude `[data-theme=\"light\"]`", "`color-scheme` is missing", "Custom properties can't be changed after load"], c: 1, why: "The media query still applies the dark tokens. Guard it with `:root:not([data-theme=\"light\"])`." },
-        { q: "Which properties are cheapest to animate?", a: ["`width` and `height`", "`transform` and `opacity`", "`margin` and `padding`", "`top` and `left`"], c: 1, why: "The compositor can handle them without layout or paint." }
+        { id: 'custom-properties-differ-sass', q: "How do custom properties differ from Sass variables?", a: ["They're faster to type", "They exist in the browser, cascade and inherit, and can change per element or media query", "They can only hold colours", "They need a build step"], c: 1, why: "Sass variables vanish at build time, while CSS custom properties stay live inside the browser." },
+        { id: 'card-img-select', q: "What does `.card:has(img)` select?", a: ["Images inside cards", "Cards that contain an image", "Cards without images", "The first image in each card"], c: 1, why: "`:has()` selects an element based on its descendants." },
+        { id: 'system-dark-user-picks', q: "The system is dark, the user picks light, and the page stays dark. Most likely cause?", a: ["The browser cached the old CSS", "The `prefers-color-scheme: dark` rule doesn't exclude `[data-theme=\"light\"]`", "`color-scheme` is missing", "Custom properties can't be changed after load"], c: 1, why: "The media query still applies the dark tokens. Guard it with `:root:not([data-theme=\"light\"])`." },
+        { id: 'properties-cheapest-animate', q: "Which properties are cheapest to animate?", a: ["`width` and `height`", "`transform` and `opacity`", "`margin` and `padding`", "`top` and `left`"], c: 1, why: "The compositor can handle them without layout or paint." }
       ]
     },
     {
@@ -662,9 +662,9 @@ body { background: var(--bg); color: var(--text); }
         "Adding custom CSS outside `@layer` in Tailwind v4, which accidentally overrides utility classes everywhere."
       ],
       quiz: [
-        { q: "What does `md:grid-cols-2` mean?", a: ["Two columns only on medium screens", "Two columns from the `md` breakpoint upward", "Two columns below `md`", "Medium-sized columns"], c: 1, why: "Breakpoint prefixes use mobile-first `min-width` queries, matching from `md` upward." },
-        { q: "Why does Tailwind's CSS stay small in production?", a: ["It ships a fixed, pre-minified stylesheet", "Only the classes found in your source files are generated", "It removes unused classes in the browser at run time", "It uses inline styles"], c: 1, why: "Tailwind scans your files and builds only the utility classes you used." },
-        { q: "Why does `className={'bg-' + color + '-500'}` often not work?", a: ["React forbids string concatenation in `className`", "Tailwind can't see the full class name in the source, so it never generates it", "Colours need hex values", "Template strings are slow"], c: 1, why: "Static build scanning needs whole literal strings, so map variant values to complete utility classes." }
+        { id: 'md-grid-cols-mean', q: "What does `md:grid-cols-2` mean?", a: ["Two columns only on medium screens", "Two columns from the `md` breakpoint upward", "Two columns below `md`", "Medium-sized columns"], c: 1, why: "Breakpoint prefixes use mobile-first `min-width` queries, matching from `md` upward." },
+        { id: 'tailwind-css-stay-small', q: "Why does Tailwind's CSS stay small in production?", a: ["It ships a fixed, pre-minified stylesheet", "Only the classes found in your source files are generated", "It removes unused classes in the browser at run time", "It uses inline styles"], c: 1, why: "Tailwind scans your files and builds only the utility classes you used." },
+        { id: 'classname-bg-color-500', q: "Why does `className={'bg-' + color + '-500'}` often not work?", a: ["React forbids string concatenation in `className`", "Tailwind can't see the full class name in the source, so it never generates it", "Colours need hex values", "Template strings are slow"], c: 1, why: "Static build scanning needs whole literal strings, so map variant values to complete utility classes." }
       ]
     },
     {
@@ -756,10 +756,10 @@ export function Button({ intent = "primary", size = "md", type = "button", class
         "Forgetting a default `type=\"button\"` on reusable buttons, causing surprise submits inside forms."
       ],
       quiz: [
-        { q: "What does defining `--color-brand-500` inside `@theme` do?", a: ["Nothing until you write CSS that uses it", "Generates utilities such as `bg-brand-500` and `text-brand-500`", "Replaces every built-in colour", "Creates a React component"], c: 1, why: "Theme variables are design tokens deciding which utility classes Tailwind emits." },
-        { q: "What problem does `tailwind-merge` solve?", a: ["Bundle size", "Conflicting utilities such as `px-2 px-4`: it keeps the last one", "Missing dark mode", "Slow builds"], c: 1, why: "It deduplicates conflicting classes so a caller's `className` overrides defaults predictably." },
-        { q: "A reusable `<Button>` is placed inside a `<form>`. Clicking it submits the form. Why?", a: ["React submits forms on every click", "Its `type` defaults to `submit` unless set", "`tailwind-merge` removed the type", "The form has no `action`"], c: 1, why: "Native `<button>` elements default to `submit`, so reusable components should set `type=\"button\"`." },
-        { q: "Preferred way to reuse a set of utilities across a React app?", a: ["Copy and paste", "`@apply` in a global stylesheet", "Extract a component", "Inline `style` objects"], c: 2, why: "Components bundle markup, accessibility behavior, and classes into one reusable unit." }
+        { id: 'defining-color-brand-500', q: "What does defining `--color-brand-500` inside `@theme` do?", a: ["Nothing until you write CSS that uses it", "Generates utilities such as `bg-brand-500` and `text-brand-500`", "Replaces every built-in colour", "Creates a React component"], c: 1, why: "Theme variables are design tokens deciding which utility classes Tailwind emits." },
+        { id: 'problem-tailwind-merge-solve', q: "What problem does `tailwind-merge` solve?", a: ["Bundle size", "Conflicting utilities such as `px-2 px-4`: it keeps the last one", "Missing dark mode", "Slow builds"], c: 1, why: "It deduplicates conflicting classes so a caller's `className` overrides defaults predictably." },
+        { id: 'reusable-button-placed-inside', q: "A reusable `<Button>` is placed inside a `<form>`. Clicking it submits the form. Why?", a: ["React submits forms on every click", "Its `type` defaults to `submit` unless set", "`tailwind-merge` removed the type", "The form has no `action`"], c: 1, why: "Native `<button>` elements default to `submit`, so reusable components should set `type=\"button\"`." },
+        { id: 'preferred-way-reuse-set', q: "Preferred way to reuse a set of utilities across a React app?", a: ["Copy and paste", "`@apply` in a global stylesheet", "Extract a component", "Inline `style` objects"], c: 2, why: "Components bundle markup, accessibility behavior, and classes into one reusable unit." }
       ]
     },
     // ---------------- Expert ----------------
@@ -840,10 +840,10 @@ export function Button({ intent = "primary", size = "md", type = "button", class
         "Writing unlayered custom CSS in Tailwind v4 and overriding utility classes by accident."
       ],
       quiz: [
-        { q: "With `@layer components, utilities;` which rule wins: `#app .btn` in `components` or `.hidden` in `utilities`?", a: ["`#app .btn`: higher specificity", "`.hidden`: the later layer wins regardless of specificity", "Whichever is later in the file", "Neither"], c: 1, why: "Layer order is compared before specificity." },
-        { q: "`.hidden { display: none }` is in `@layer utilities`, while `.card { display: block }` sits outside layers. On `<div class=\"card hidden\">`, which wins?", a: ["`.hidden`: utilities is the last layer", "`.card`: unlayered styles beat every layer", "Whichever comes later in the file", "Neither applies"], c: 1, why: "Normal declarations outside any layer outrank all layered ones. That's why plain CSS can override Tailwind v4 utilities." },
-        { q: "What do CSS Modules provide?", a: ["Runtime theming", "Locally scoped class names generated at build time", "A utility class library", "Native `@scope` support in older browsers"], c: 1, why: "Each file's class names are made unique, so styles can't collide across components." },
-        { q: "Why should a reusable component avoid setting its own outer margin?", a: ["Margins are slow to render", "Spacing depends on context, so the parent layout should own it", "Margins don't work inside grid", "It breaks dark mode"], c: 1, why: "A component with built-in margin fits only the context it was first designed for." }
+        { id: 'layer-components-utilities-rule', q: "With `@layer components, utilities;` which rule wins: `#app .btn` in `components` or `.hidden` in `utilities`?", a: ["`#app .btn`: higher specificity", "`.hidden`: the later layer wins regardless of specificity", "Whichever is later in the file", "Neither"], c: 1, why: "Layer order is compared before specificity." },
+        { id: 'hidden-display-none-layer', q: "`.hidden { display: none }` is in `@layer utilities`, while `.card { display: block }` sits outside layers. On `<div class=\"card hidden\">`, which wins?", a: ["`.hidden`: utilities is the last layer", "`.card`: unlayered styles beat every layer", "Whichever comes later in the file", "Neither applies"], c: 1, why: "Normal declarations outside any layer outrank all layered ones. That's why plain CSS can override Tailwind v4 utilities." },
+        { id: 'css-modules-provide', q: "What do CSS Modules provide?", a: ["Runtime theming", "Locally scoped class names generated at build time", "A utility class library", "Native `@scope` support in older browsers"], c: 1, why: "Each file's class names are made unique, so styles can't collide across components." },
+        { id: 'reusable-component-avoid-setting', q: "Why should a reusable component avoid setting its own outer margin?", a: ["Margins are slow to render", "Spacing depends on context, so the parent layout should own it", "Margins don't work inside grid", "It breaks dark mode"], c: 1, why: "A component with built-in margin fits only the context it was first designed for." }
       ]
     },
     {
@@ -912,9 +912,9 @@ export function Button({ intent = "primary", size = "md", type = "button", class
         "`transition: none !important` for reduced motion, which breaks code waiting for `transitionend`."
       ],
       quiz: [
-        { q: "Which change can be handled by the compositor alone?", a: ["`width`", "`margin-top`", "`transform`", "`font-size`"], c: 2, why: "Transforms and opacity don't require layout or paint when the element is on its own layer." },
-        { q: "What most directly reduces layout shift from images?", a: ["Lazy loading", "Reserving space with dimensions or `aspect-ratio`", "Smaller files", "Serving them from a CDN"], c: 1, why: "If the browser knows the size before the image loads, nothing moves when it arrives." },
-        { q: "How should content be hidden visually but kept for screen readers?", a: ["`display: none`", "`visibility: hidden`", "A visually-hidden (`.sr-only`) pattern", "`aria-hidden=\"true\"`"], c: 2, why: "`display: none`, `visibility: hidden`, and `aria-hidden` all strip content out of the accessibility tree." }
+        { id: 'change-handled-compositor-alone', q: "Which change can be handled by the compositor alone?", a: ["`width`", "`margin-top`", "`transform`", "`font-size`"], c: 2, why: "Transforms and opacity don't require layout or paint when the element is on its own layer." },
+        { id: 'directly-reduces-layout-shift', q: "What most directly reduces layout shift from images?", a: ["Lazy loading", "Reserving space with dimensions or `aspect-ratio`", "Smaller files", "Serving them from a CDN"], c: 1, why: "If the browser knows the size before the image loads, nothing moves when it arrives." },
+        { id: 'content-hidden-visually-kept', q: "How should content be hidden visually but kept for screen readers?", a: ["`display: none`", "`visibility: hidden`", "A visually-hidden (`.sr-only`) pattern", "`aria-hidden=\"true\"`"], c: 2, why: "`display: none`, `visibility: hidden`, and `aria-hidden` all strip content out of the accessibility tree." }
       ]
     }
   ]

@@ -79,7 +79,7 @@ Every lesson follows three steps and counts as mastered only when all three are 
 | **TypeScript playground** | Monaco editor featuring live type checking and React 19 previews. |
 | **Dart + Flutter playground** | Embedded DartPad preloaded with runnable lesson samples. |
 | **CSS + Tailwind playground** | Resizable live preview for testing responsive breakpoints. |
-| **Flashcard review** | 424 quiz questions scheduled with adaptive SM-2/FSRS-lite spaced repetition (`Again`, `Hard`, `Good`, `Easy` with interval previews, `Space` and `1`–`4` shortcuts, and batch pagination beyond 20 due cards). |
+| **Flashcard review** | 424 quiz questions scheduled with adaptive SM-2 spaced repetition (`Again`, `Hard`, `Good`, `Easy` with interval previews, `Space` and `1`–`4` shortcuts, and batch pagination beyond 20 due cards). |
 | **Mock exam** | Ten random questions filtered by track and level, routing missed questions straight into today's flashcard review and keeping a 20-attempt exam history. |
 | **My study notes** | Gather every Teach-Back explanation at `/notes/`, search or filter by track, and export a structured Markdown study guide. |
 | **Goal onboarding & placement** | Choose a learning goal on `/dashboard/` or `/start/` to prioritize matching tracks, or take a track's **Test out of Beginner** placement quiz (score ≥ 80% to mark Beginner Learn & Check complete while keeping Teach-Back genuine). |
@@ -245,7 +245,7 @@ Stack Mastery is a Progressive Web App (`public/manifest.webmanifest`, `public/s
 | `src/scripts/interview.js` | Interview hub, code judge, estimator, story bank, and mocks |
 | `src/scripts/playground.js` | SQL, TypeScript, CSS, and DartPad playgrounds |
 | `src/scripts/viz/` | 40 interactive labs; `registry.ts` maps each lab to its module so `loadViz(id)` imports only that one (`viz.js`, `vizcss.js`, `vizmore.js`, `vizangular.js`, `vizflutter.js`, `vizplus.js`, `vizgo.js`, `vizsys.js`) |
-| `src/data/` | Typed manifest (`manifest.ts`, including each lesson's `quizCount`), chunked loaders (`index.ts`, `tracks-core.ts`, `tracks-ui.ts`, `interview-data.ts`, `track-loaders.ts`), the build-time aggregator and search index (`site.ts`, `search-index.ts`), English tracks (`tracks/*.js`), `projects.js`, `interview.js`, `interview-cs.js` |
+| `src/data/` | Typed manifest (`manifest.ts`, including each lesson's `quizIds`), chunked loaders (`index.ts`, `tracks-core.ts`, `tracks-ui.ts`, `interview-data.ts`, `track-loaders.ts`), the build-time aggregators and indexes (`site.ts`, `search-index.ts`, `quiz-index.ts`), English tracks (`tracks/*.js`), `projects.js`, `interview.js`, `interview-cs.js` |
 | `src/data/id/` | Bahasa Indonesia loaders (`index.ts`, `core.ts`, `web.ts`, `ui.ts`), tracks (`tracks/*.js`), UI dictionaries (`ui-*.js`), `projects.js`, and `interview.js` |
 | `public/` | `manifest.webmanifest`, `sw.js`, `robots.txt`, favicons, and PNG/SVG app icons |
 | `tools/check-i18n.mjs`, `extract-text.mjs` | Translation parity check (lessons, UI strings in `.js`/`.ts`/`.astro`, `h()` labels, table headers, playground chips, manifest `quizCount`, lab registry) and text extractor |
@@ -255,7 +255,7 @@ Stack Mastery is a Progressive Web App (`public/manifest.webmanifest`, `public/s
 
 All curriculum content is plain ES module data inside `src/data/` so no application logic needs edits.
 
-Add a lesson to `lessons` in a track file inside `src/data/tracks/` (and keep `src/data/manifest.ts` in sync, including `quizCount`, which must equal the number of quiz questions). The build creates its `/lesson/…/` and `/plan/…/` pages in both languages automatically:
+Add a lesson to `lessons` in a track file inside `src/data/tracks/` (and keep `src/data/manifest.ts` in sync, including `quizIds`, which must list each quiz item's `id` in order). The build creates its `/lesson/…/` and `/plan/…/` pages in both languages automatically:
 
 ```js
 {
@@ -273,7 +273,7 @@ Add a lesson to `lessons` in a track file inside `src/data/tracks/` (and keep `s
   analogy: "An analogy for learners.",
   pitfalls: ["A common mistake."],
   quiz: [
-    { q: "Question?", a: ["Wrong", "Right", "Wrong"], c: 1, why: "Why it is right." }
+    { id: 'my-question', q: "Question?", a: ["Wrong", "Right", "Wrong"], c: 1, why: "Why it is right." }
   ]
 }
 ```
@@ -294,7 +294,7 @@ Every stack track includes real compiler and runtime verification scripts inside
 | --- | --- | --- |
 | **Lint** | `bun run lint` | Biome correctness and suspicious-code rules across `src/` and `tools/` |
 | **Type check** | `bun run typecheck` | `astro check` diagnostics for Astro components and scripts |
-| **i18n parity** | `bun run check:i18n` | Structural, key, and code-span parity across EN and ID, untranslated `h()` labels and `.astro` template strings, table headers, playground chips, manifest `quizCount`, and the lab registry |
+| **i18n parity** | `bun run check:i18n` | Structural, key, and code-span parity across EN and ID, untranslated `h()` labels and `.astro` template strings, table headers, playground chips, manifest `quizIds`, and the lab registry |
 | **UI & WCAG** | `bun run verify:ui` | On `dist/`: every static route and SEO tag, the landing JS budget (< 45 KB), single-lab chunk loading, legacy `#/…` redirects, PWA manifest and offline reload, EN/ID desktop/mobile layout, dialogs, all 40 labs, playgrounds (SRI hashes checked against the served bytes, live Monaco and DartPad theme sync, `</style>` injection, Retry fallbacks, external sandbox links, observer and Blob cleanup), interview prep, cross-tab sync, and axe-core WCAG 2.2 AA (0 critical or serious) |
 | **C# & CS** | `bun run verify:cs` | Runs all 96 C# problem tests, 12 pattern templates, and lesson samples (.NET 10) |
 | **ASP.NET Core** | `bun run verify:aspnet` | Builds, boots, and tests all ASP.NET Core 10 samples + xUnit suite |

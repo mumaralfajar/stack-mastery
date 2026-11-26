@@ -66,9 +66,9 @@ void main() {
         "Expecting `7 / 2` to equal `3` like in C#. In Dart, `/` always returns a `double`."
       ],
       quiz: [
-        { q: "What is the type of `x` in `var x = 5;`?", a: ["`dynamic`", "`int`, inferred and fixed", "`num`", "`Object?`"], c: 1, why: "Dart infers `int` from the initial value, and the variable can't hold another type later." },
-        { q: "What does `name ?? 'Guest'` evaluate to when `name` is null?", a: ["null", "`'Guest'`", "It throws", "`name`"], c: 1, why: "`??` returns the right side when the left side is null." },
-        { q: "Which declaration is a compile-time constant?", a: ["`final a = DateTime.now();`", "`var a = 3;`", "`const a = 3;`", "`late int a;`"], c: 2, why: "`const` values must be known at compile time and are canonicalized." }
+        { id: 'type-var', q: "What is the type of `x` in `var x = 5;`?", a: ["`dynamic`", "`int`, inferred and fixed", "`num`", "`Object?`"], c: 1, why: "Dart infers `int` from the initial value, and the variable can't hold another type later." },
+        { id: 'name-guest-evaluate-name', q: "What does `name ?? 'Guest'` evaluate to when `name` is null?", a: ["null", "`'Guest'`", "It throws", "`name`"], c: 1, why: "`??` returns the right side when the left side is null." },
+        { id: 'declaration-compile-time-constan', q: "Which declaration is a compile-time constant?", a: ["`final a = DateTime.now();`", "`var a = 3;`", "`const a = 3;`", "`late int a;`"], c: 2, why: "`const` values must be known at compile time and are canonicalized." }
       ]
     },
     {
@@ -148,9 +148,9 @@ void main() {
         "Forgetting that `where` and `map` are lazy: looping over the result twice runs the work twice unless you call `toList()` once."
       ],
       quiz: [
-        { q: "How do you make a member private in Dart?", a: ["The `private` keyword", "Start its name with an underscore", "Put it in a `#region`", "Mark it `@hidden`"], c: 1, why: "Privacy is scoped per library and marked by a leading underscore." },
-        { q: "Two instances of a class with identical fields, created with `new`-style calls (not `const`), are compared with `==`. By default the result is…", a: ["true", "false, unless they are the same instance", "a compile error", "true if the class has a `toString`"], c: 1, why: "Default equality checks identity. Override `==` and `hashCode` for value equality (identical `const` expressions reuse one instance, so they compare equal without an override)." },
-        { q: "What does `[for (final n in [1, 2, 3]) if (n.isOdd) n * 10]` produce?", a: ["`[10, 20, 30]`", "`[10, 30]`", "`[1, 3]`", "A syntax error"], c: 1, why: "Collection `for` and `if` collect and transform only the odd items." }
+        { id: 'make-member-private-dart', q: "How do you make a member private in Dart?", a: ["The `private` keyword", "Start its name with an underscore", "Put it in a `#region`", "Mark it `@hidden`"], c: 1, why: "Privacy is scoped per library and marked by a leading underscore." },
+        { id: 'two-instances-class-identical', q: "Two instances of a class with identical fields, created with `new`-style calls (not `const`), are compared with `==`. By default the result is…", a: ["true", "false, unless they are the same instance", "a compile error", "true if the class has a `toString`"], c: 1, why: "Default equality checks identity. Override `==` and `hashCode` for value equality (identical `const` expressions reuse one instance, so they compare equal without an override)." },
+        { id: 'final-isodd-10-produce', q: "What does `[for (final n in [1, 2, 3]) if (n.isOdd) n * 10]` produce?", a: ["`[10, 20, 30]`", "`[10, 30]`", "`[1, 3]`", "A syntax error"], c: 1, why: "Collection `for` and `if` collect and transform only the odd items." }
       ]
     },
     {
@@ -220,9 +220,9 @@ class ProductTile extends StatelessWidget {
         "Extracting UI into helper *methods* instead of widgets: helper methods can't be `const` and always rebuild with the parent."
       ],
       quiz: [
-        { q: "What does a `StatelessWidget`'s `build` method return?", a: ["A `RenderObject` that paints itself", "A widget (a description of UI)", "A `State` object", "An `Element`"], c: 1, why: "`build` returns a widget tree describing this part of the UI, and Flutter manages the elements and render objects." },
-        { q: "Why add `const` to a widget constructor call?", a: ["It makes the widget immutable", "The instance is canonical, so Flutter can skip rebuilding it", "It's required for widgets with no fields", "It keeps the widget's State across hot reload"], c: 1, why: "Identical `const` instances refer to the same object, letting Flutter skip diffs on that subtree." },
-        { q: "What is `BuildContext`?", a: ["The app's global state", "A handle to the widget's position in the tree", "The device screen", "A network client"], c: 1, why: "It lets a widget look up ancestors like the theme, media query, and navigator." }
+        { id: 'statelesswidget-build-method-ret', q: "What does a `StatelessWidget`'s `build` method return?", a: ["A `RenderObject` that paints itself", "A widget (a description of UI)", "A `State` object", "An `Element`"], c: 1, why: "`build` returns a widget tree describing this part of the UI, and Flutter manages the elements and render objects." },
+        { id: 'add-const-widget-constructor', q: "Why add `const` to a widget constructor call?", a: ["It makes the widget immutable", "The instance is canonical, so Flutter can skip rebuilding it", "It's required for widgets with no fields", "It keeps the widget's State across hot reload"], c: 1, why: "Identical `const` instances refer to the same object, letting Flutter skip diffs on that subtree." },
+        { id: 'what-is-buildcontext', q: "What is `BuildContext`?", a: ["The app's global state", "A handle to the widget's position in the tree", "The device screen", "A network client"], c: 1, why: "It lets a widget look up ancestors like the theme, media query, and navigator." }
       ]
     },
     {
@@ -315,9 +315,9 @@ class ResponsiveGrid extends StatelessWidget {
         "Adding an `IconButton` without a `tooltip`: screen readers announce only 'button', and hover or long-press shows no hint."
       ],
       quiz: [
-        { q: "In a `Row`, which property aligns children vertically?", a: ["`mainAxisAlignment`", "`crossAxisAlignment`", "`textAlign`", "`alignment`"], c: 1, why: "A `Row`'s main axis is horizontal, so `crossAxisAlignment` controls vertical alignment." },
-        { q: "What does `Expanded` do inside a `Row`?", a: ["Makes the child scroll", "Makes the child fill the remaining main-axis space", "Adds padding", "Centers the child"], c: 1, why: "It passes a tight constraint equal to the remaining width." },
-        { q: "Which statement describes Flutter layout?", a: ["Children choose their own position", "Constraints go down, sizes go up, the parent sets the position", "Sizes go down, constraints go up", "Everything is absolutely positioned"], c: 1, why: "Constraints travel down and sizes travel back up in one pass; the parent places each child." }
+        { id: 'row-property-aligns-children', q: "In a `Row`, which property aligns children vertically?", a: ["`mainAxisAlignment`", "`crossAxisAlignment`", "`textAlign`", "`alignment`"], c: 1, why: "A `Row`'s main axis is horizontal, so `crossAxisAlignment` controls vertical alignment." },
+        { id: 'expanded-inside-row', q: "What does `Expanded` do inside a `Row`?", a: ["Makes the child scroll", "Makes the child fill the remaining main-axis space", "Adds padding", "Centers the child"], c: 1, why: "It passes a tight constraint equal to the remaining width." },
+        { id: 'statement-describes-flutter-layo', q: "Which statement describes Flutter layout?", a: ["Children choose their own position", "Constraints go down, sizes go up, the parent sets the position", "Sizes go down, constraints go up", "Everything is absolutely positioned"], c: 1, why: "Constraints travel down and sizes travel back up in one pass; the parent places each child." }
       ]
     },
 
@@ -402,9 +402,9 @@ Future<void> main() async {
         "Assuming `.timeout()` aborts the remote request. It only stops your `await`; the request keeps running in the background."
       ],
       quiz: [
-        { q: "A `Future` completes ___; a `Stream` can emit ___.", a: ["many times; once", "once; many values over time", "once; one value, but later than a future", "once per listener; once per listener"], c: 1, why: "A `Future` resolves once, whereas a `Stream` delivers zero or more values over time." },
-        { q: "In what order do `scheduleMicrotask` and `Timer.run` callbacks execute after the current synchronous code?", a: ["Timer first", "Microtask first", "Whichever was scheduled first", "In parallel"], c: 1, why: "Dart drains the microtask queue completely before pulling the next timer or I/O event." },
-        { q: "Two independent 300 ms calls. Fastest correct approach?", a: ["`await` each in turn", "`await Future.wait([a(), b()])`", "Call them without `await` and hope they finish", "`await` each one inside a `for` loop"], c: 1, why: "Both futures start before awaiting so waits overlap; omitting `await` altogether hides results and errors." }
+        { id: 'future-completes-stream-emit', q: "A `Future` completes ___; a `Stream` can emit ___.", a: ["many times; once", "once; many values over time", "once; one value, but later than a future", "once per listener; once per listener"], c: 1, why: "A `Future` resolves once, whereas a `Stream` delivers zero or more values over time." },
+        { id: 'order-schedulemicrotask-timer-ru', q: "In what order do `scheduleMicrotask` and `Timer.run` callbacks execute after the current synchronous code?", a: ["Timer first", "Microtask first", "Whichever was scheduled first", "In parallel"], c: 1, why: "Dart drains the microtask queue completely before pulling the next timer or I/O event." },
+        { id: 'two-independent-300-ms', q: "Two independent 300 ms calls. Fastest correct approach?", a: ["`await` each in turn", "`await Future.wait([a(), b()])`", "Call them without `await` and hope they finish", "`await` each one inside a `for` loop"], c: 1, why: "Both futures start before awaiting so waits overlap; omitting `await` altogether hides results and errors." }
       ]
     },
     {
@@ -503,9 +503,9 @@ class Quantity extends StatelessWidget {
         "Calling `setState` after a widget leaves the screen (after an `await`). Check `mounted` first."
       ],
       quiz: [
-        { q: "What does calling `setState` cause?", a: ["The whole app restarts", "`build` runs again for that widget and its subtree", "Only the changed `Text` is redrawn by hand", "`initState` runs again"], c: 1, why: "The element is marked dirty and rebuilt on the next frame; Flutter then updates only what differs." },
-        { q: "Where should a `TextEditingController` be disposed?", a: ["In `build`", "In `dispose` of the State", "Never", "In `initState`"], c: 1, why: "`dispose` runs once when `State` is permanently unmounted, so release resources there." },
-        { q: "Why give list items a `ValueKey`?", a: ["For styling", "So Flutter matches each State to the right item when the list is reordered", "To make them `const`", "It is required by `ListView`"], c: 1, why: "Without keys, state is matched by position and sticks to the wrong item after a reorder." }
+        { id: 'calling-setstate-cause', q: "What does calling `setState` cause?", a: ["The whole app restarts", "`build` runs again for that widget and its subtree", "Only the changed `Text` is redrawn by hand", "`initState` runs again"], c: 1, why: "The element is marked dirty and rebuilt on the next frame; Flutter then updates only what differs." },
+        { id: 'texteditingcontroller-disposed', q: "Where should a `TextEditingController` be disposed?", a: ["In `build`", "In `dispose` of the State", "Never", "In `initState`"], c: 1, why: "`dispose` runs once when `State` is permanently unmounted, so release resources there." },
+        { id: 'give-list-items-valuekey', q: "Why give list items a `ValueKey`?", a: ["For styling", "So Flutter matches each State to the right item when the list is reordered", "To make them `const`", "It is required by `ListView`"], c: 1, why: "Without keys, state is matched by position and sticks to the wrong item after a reorder." }
       ]
     },
     {
@@ -642,10 +642,10 @@ class _NewProductPageState extends State<NewProductPage> {
         "Validating only on the device or using different limits than the backend. Enforce the same rules on the server."
       ],
       quiz: [
-        { q: "What does a `validator` return when the input is valid?", a: ["`true`", "An empty string", "`null`", "The value"], c: 2, why: "A non-null string displays as the error; null means the field passed." },
-        { q: "What is the difference between `context.go` and `context.push` in go_router?", a: ["None", "`go` replaces the stack to match the location; `push` adds a screen on top", "`push` is for the web only", "`go` cannot take parameters"], c: 1, why: "`go` swaps the stack declaratively for a URL, whereas `push` pushes one route on top." },
-        { q: "Why prefer a path parameter such as `/products/42` over passing a `Product` object?", a: ["It is faster", "The location can be restored from a link or a restart", "Objects cannot be passed", "It avoids rebuilds"], c: 1, why: "A URL can be serialized; an in-memory object disappears if the app opens from a link." },
-        { q: "`/products/:id` is a top-level route, a sibling of `/`. After `context.go('/products/42')`, what is under the product page?", a: ["The home page", "Nothing: it's alone on the stack, so there's no back button", "Whatever page was open before", "A copy of the product page"], c: 1, why: "`go` builds the stack from the route tree, so nest the route under `/` to keep Home underneath." }
+        { id: 'validator-return-input-valid', q: "What does a `validator` return when the input is valid?", a: ["`true`", "An empty string", "`null`", "The value"], c: 2, why: "A non-null string displays as the error; null means the field passed." },
+        { id: 'difference-context-go-context', q: "What is the difference between `context.go` and `context.push` in go_router?", a: ["None", "`go` replaces the stack to match the location; `push` adds a screen on top", "`push` is for the web only", "`go` cannot take parameters"], c: 1, why: "`go` swaps the stack declaratively for a URL, whereas `push` pushes one route on top." },
+        { id: 'prefer-path-parameter-such', q: "Why prefer a path parameter such as `/products/42` over passing a `Product` object?", a: ["It is faster", "The location can be restored from a link or a restart", "Objects cannot be passed", "It avoids rebuilds"], c: 1, why: "A URL can be serialized; an in-memory object disappears if the app opens from a link." },
+        { id: 'products-id-top-level', q: "`/products/:id` is a top-level route, a sibling of `/`. After `context.go('/products/42')`, what is under the product page?", a: ["The home page", "Nothing: it's alone on the stack, so there's no back button", "Whatever page was open before", "A copy of the product page"], c: 1, why: "`go` builds the stack from the route tree, so nest the route under `/` to keep Home underneath." }
       ]
     },
     {
@@ -772,9 +772,9 @@ class _ProductListState extends State<ProductList> {
         "Calling `http://10.0.2.2:5000` from an Android emulator and hitting a cleartext block before the call leaves the device."
       ],
       quiz: [
-        { q: "Why inject `http.Client` into the API class?", a: ["One client per class is faster", "Tests can pass a fake client and no real network is needed", "The `http` package requires it", "It makes the client a singleton"], c: 1, why: "Injected dependencies can be swapped with fakes in tests." },
-        { q: "JSON contains `\"price\": 25`. Safest way to read it as a double?", a: ["`json['price'] as double`", "`(json['price'] as num).toDouble()`", "`double(json['price'])`", "`json.price`"], c: 1, why: "`25` decodes as an `int`; `num` accepts both and `toDouble` converts." },
-        { q: "Where should the `Future` used by a `FutureBuilder` be created?", a: ["Inside `build`", "Once, in the State (a field or `initState`)", "In `dispose`", "In `main`"], c: 1, why: "`build` can run many times; creating the future there restarts the request each time." }
+        { id: 'inject-http-client-api', q: "Why inject `http.Client` into the API class?", a: ["One client per class is faster", "Tests can pass a fake client and no real network is needed", "The `http` package requires it", "It makes the client a singleton"], c: 1, why: "Injected dependencies can be swapped with fakes in tests." },
+        { id: 'json-contains-price-25', q: "JSON contains `\"price\": 25`. Safest way to read it as a double?", a: ["`json['price'] as double`", "`(json['price'] as num).toDouble()`", "`double(json['price'])`", "`json.price`"], c: 1, why: "`25` decodes as an `int`; `num` accepts both and `toDouble` converts." },
+        { id: 'future-used-futurebuilder-create', q: "Where should the `Future` used by a `FutureBuilder` be created?", a: ["Inside `build`", "Once, in the State (a field or `initState`)", "In `dispose`", "In `main`"], c: 1, why: "`build` can run many times; creating the future there restarts the request each time." }
       ]
     },
 
@@ -935,10 +935,10 @@ class ProductsPage extends StatelessWidget {
         "Displaying raw `'$e'` exception text in the UI. Keep raw exceptions in logs and store user-friendly messages in state."
       ],
       quiz: [
-        { q: "What is the difference between a Cubit and a Bloc?", a: ["A Cubit can't be unit tested", "A Cubit exposes methods; a Bloc receives events and maps them to states", "A Bloc can only hold one state type", "A Cubit rebuilds the whole screen on every change"], c: 1, why: "Both emit states; a Bloc adds an event layer that makes every change traceable and transformable." },
-        { q: "A cubit runs `state.items.add(x); emit(state);`. Why does the UI not update?", a: ["`emit` is async", "The emitted state is the same object as before, so it is considered unchanged", "Lists cannot be state", "The cubit is closed"], c: 1, why: "Bloc skips states equal to the current one; mutate nothing and emit a new object." },
-        { q: "Where should a snackbar be shown in response to a state change?", a: ["`BlocBuilder`", "`BlocListener`", "`initState`", "Inside the cubit"], c: 1, why: "A listener runs once per state change and is designed for side effects." },
-        { q: "A user opens a screen and leaves before the data arrives. The app logs 'Cannot emit new states after calling close'. Fix?", a: ["Never close the cubit", "Check `isClosed` after the `await`, before calling `emit`", "Wrap `emit` in `Future.delayed`", "Use a Bloc instead of a Cubit"], c: 1, why: "`BlocProvider` closes the cubit when the screen goes away; the late response must then be ignored." }
+        { id: 'difference-cubit-bloc', q: "What is the difference between a Cubit and a Bloc?", a: ["A Cubit can't be unit tested", "A Cubit exposes methods; a Bloc receives events and maps them to states", "A Bloc can only hold one state type", "A Cubit rebuilds the whole screen on every change"], c: 1, why: "Both emit states; a Bloc adds an event layer that makes every change traceable and transformable." },
+        { id: 'cubit-runs-state-items', q: "A cubit runs `state.items.add(x); emit(state);`. Why does the UI not update?", a: ["`emit` is async", "The emitted state is the same object as before, so it is considered unchanged", "Lists cannot be state", "The cubit is closed"], c: 1, why: "Bloc skips states equal to the current one; mutate nothing and emit a new object." },
+        { id: 'snackbar-shown-response-state', q: "Where should a snackbar be shown in response to a state change?", a: ["`BlocBuilder`", "`BlocListener`", "`initState`", "Inside the cubit"], c: 1, why: "A listener runs once per state change and is designed for side effects." },
+        { id: 'user-opens-screen-leaves', q: "A user opens a screen and leaves before the data arrives. The app logs 'Cannot emit new states after calling close'. Fix?", a: ["Never close the cubit", "Check `isClosed` after the `await`, before calling `emit`", "Wrap `emit` in `Future.delayed`", "Use a Bloc instead of a Cubit"], c: 1, why: "`BlocProvider` closes the cubit when the screen goes away; the late response must then be ignored." }
       ]
     },
     {
@@ -1038,9 +1038,9 @@ void main() {
         "Expecting extension methods to dispatch at run time: Dart picks them from the static type, so they don't work on `dynamic` values."
       ],
       quiz: [
-        { q: "What does marking a class `sealed` enable?", a: ["Faster instantiation", "Exhaustive `switch` over its direct subtypes", "Private fields", "Multiple inheritance"], c: 1, why: "All direct subtypes must be in the same library, so the compiler knows the complete set." },
-        { q: "What is `(int, String)` in Dart?", a: ["A function type", "A record type: an immutable pair with value equality", "A list", "A syntax error"], c: 1, why: "Records are anonymous, immutable, structurally typed aggregates." },
-        { q: "In `Success(:final value) => ...`, what does `:final value` do?", a: ["Declares a constant", "Matches the `value` getter and binds it to a new variable `value`", "Calls a constructor", "Checks for null"], c: 1, why: "It is shorthand for `value: final value` in an object pattern." }
+        { id: 'marking-class-sealed-enable', q: "What does marking a class `sealed` enable?", a: ["Faster instantiation", "Exhaustive `switch` over its direct subtypes", "Private fields", "Multiple inheritance"], c: 1, why: "All direct subtypes must be in the same library, so the compiler knows the complete set." },
+        { id: 'int-string-dart', q: "What is `(int, String)` in Dart?", a: ["A function type", "A record type: an immutable pair with value equality", "A list", "A syntax error"], c: 1, why: "Records are anonymous, immutable, structurally typed aggregates." },
+        { id: 'success-final-value-final', q: "In `Success(:final value) => ...`, what does `:final value` do?", a: ["Declares a constant", "Matches the `value` getter and binds it to a new variable `value`", "Calls a constructor", "Checks for null"], c: 1, why: "It is shorthand for `value: final value` in an object pattern." }
       ]
     },
     {
@@ -1126,9 +1126,9 @@ void main() {
         "Querying widgets by internal types or deep nesting, so minor UI refactors break tests. Query by visible text or semantics instead."
       ],
       quiz: [
-        { q: "What does `await tester.pump()` do?", a: ["Starts the app", "Advances the test clock by one frame so pending rebuilds happen", "Takes a screenshot", "Waits for the network"], c: 1, why: "Test time moves only when you pump frames." },
-        { q: "How do you test what a cubit emits?", a: ["Read private fields", "Assert on its `stream` of states, for example with `emitsInOrder`", "Use a widget test only", "It cannot be tested"], c: 1, why: "A cubit's public output is its state stream, which can be asserted directly." },
-        { q: "Which test type needs a device or emulator?", a: ["Unit test", "Widget test", "Integration test", "Golden test"], c: 2, why: "Integration tests run the real app; unit and widget tests run in the Dart VM test environment." }
+        { id: 'await-tester-pump', q: "What does `await tester.pump()` do?", a: ["Starts the app", "Advances the test clock by one frame so pending rebuilds happen", "Takes a screenshot", "Waits for the network"], c: 1, why: "Test time moves only when you pump frames." },
+        { id: 'test-cubit-emits', q: "How do you test what a cubit emits?", a: ["Read private fields", "Assert on its `stream` of states, for example with `emitsInOrder`", "Use a widget test only", "It cannot be tested"], c: 1, why: "A cubit's public output is its state stream, which can be asserted directly." },
+        { id: 'test-type-needs-device', q: "Which test type needs a device or emulator?", a: ["Unit test", "Widget test", "Integration test", "Golden test"], c: 2, why: "Integration tests run the real app; unit and widget tests run in the Dart VM test environment." }
       ]
     },
     {
@@ -1239,9 +1239,9 @@ String platformName() => kIsWeb
         "Prompting for every device permission at startup instead of asking in context and handling denial."
       ],
       quiz: [
-        { q: "Where should an auth token be stored on the device?", a: ["`shared_preferences`", "Secure storage backed by Keychain / Keystore", "A global variable", "A text file in documents"], c: 1, why: "Preferences are unencrypted; the platform keystores are designed for secrets." },
-        { q: "What should decide between a bottom navigation bar and a navigation rail?", a: ["The operating system", "The available width", "The Flutter version", "The device brand"], c: 1, why: "Layout should respond to space; the same device can be narrow or wide." },
-        { q: "What does a `MethodChannel` call return?", a: ["A value, synchronously", "A `Future` that may complete with an error", "A `Stream` always", "Nothing"], c: 1, why: "Messages cross to native code asynchronously and the native side can fail or be missing." }
+        { id: 'auth-token-stored-device', q: "Where should an auth token be stored on the device?", a: ["`shared_preferences`", "Secure storage backed by Keychain / Keystore", "A global variable", "A text file in documents"], c: 1, why: "Preferences are unencrypted; the platform keystores are designed for secrets." },
+        { id: 'decide-bottom-navigation-bar', q: "What should decide between a bottom navigation bar and a navigation rail?", a: ["The operating system", "The available width", "The Flutter version", "The device brand"], c: 1, why: "Layout should respond to space; the same device can be narrow or wide." },
+        { id: 'methodchannel-call-return', q: "What does a `MethodChannel` call return?", a: ["A value, synchronously", "A `Future` that may complete with an error", "A `Stream` always", "Nothing"], c: 1, why: "Messages cross to native code asynchronously and the native side can fail or be missing." }
       ]
     },
 
@@ -1363,9 +1363,9 @@ class Feed extends StatelessWidget {
         "Using `Isolate.run` in an app targeting web, where it throws. Use `compute` or branch on `kIsWeb`."
       ],
       quiz: [
-        { q: "Which tree holds a `StatefulWidget`'s `State` across rebuilds?", a: ["The widget tree", "The element tree", "The render tree", "None (State is global)"], c: 1, why: "Elements outlive individual rebuilds and own `State`, whereas widgets are recreated often." },
-        { q: "When does an element reuse its State for a new widget?", a: ["Always", "When the new widget has the same runtime type and key", "Never", "Only for `const` widgets"], c: 1, why: "Matching type and key means update in place; otherwise the old subtree is unmounted." },
-        { q: "Why use `compute` for a large JSON parse?", a: ["It parses on the GPU", "It runs on another isolate, so the UI isolate keeps rendering frames", "It caches the parsed result for next time", "It streams the JSON instead of parsing it"], c: 1, why: "Isolates don't share memory or a thread, so the UI stays responsive while the work runs (except on the web, where `compute` runs on the main thread)." }
+        { id: 'tree-holds-statefulwidget-state', q: "Which tree holds a `StatefulWidget`'s `State` across rebuilds?", a: ["The widget tree", "The element tree", "The render tree", "None (State is global)"], c: 1, why: "Elements outlive individual rebuilds and own `State`, whereas widgets are recreated often." },
+        { id: 'element-reuse-state-new', q: "When does an element reuse its State for a new widget?", a: ["Always", "When the new widget has the same runtime type and key", "Never", "Only for `const` widgets"], c: 1, why: "Matching type and key means update in place; otherwise the old subtree is unmounted." },
+        { id: 'use-compute-large-json', q: "Why use `compute` for a large JSON parse?", a: ["It parses on the GPU", "It runs on another isolate, so the UI isolate keeps rendering frames", "It caches the parsed result for next time", "It streams the JSON instead of parsing it"], c: 1, why: "Isolates don't share memory or a thread, so the UI stays responsive while the work runs (except on the web, where `compute` runs on the main thread)." }
       ]
     },
     {
@@ -1475,9 +1475,9 @@ void main() {
         "Misplacing debug symbol files for obfuscated builds, leaving production crash logs unreadable."
       ],
       quiz: [
-        { q: "In a layered Flutter app, what may the domain layer import?", a: ["Flutter widgets", "The HTTP client", "Only plain Dart (no Flutter, no data sources)", "Everything"], c: 2, why: "Dependencies point inward; the domain defines models and interfaces that outer layers implement." },
-        { q: "Why must secrets not be placed in `--dart-define` values for a release build?", a: ["They slow the app down", "They are compiled into the binary and can be extracted", "The stores scan for them and reject the app", "They're only available in debug builds"], c: 1, why: "Client binaries are public; real secrets belong on the server. Obfuscation makes them harder to find, not hidden." },
-        { q: "What does `PlatformDispatcher.instance.onError` catch?", a: ["Layout overflow only", "Uncaught asynchronous errors outside the Flutter framework's callbacks", "Compile errors", "HTTP 500 responses"], c: 1, why: "`FlutterError.onError` covers framework-caught errors; the dispatcher hook covers the rest." }
+        { id: 'layered-flutter-app-domain', q: "In a layered Flutter app, what may the domain layer import?", a: ["Flutter widgets", "The HTTP client", "Only plain Dart (no Flutter, no data sources)", "Everything"], c: 2, why: "Dependencies point inward; the domain defines models and interfaces that outer layers implement." },
+        { id: 'secrets-placed-dart-define', q: "Why must secrets not be placed in `--dart-define` values for a release build?", a: ["They slow the app down", "They are compiled into the binary and can be extracted", "The stores scan for them and reject the app", "They're only available in debug builds"], c: 1, why: "Client binaries are public; real secrets belong on the server. Obfuscation makes them harder to find, not hidden." },
+        { id: 'platformdispatcher-instance-oner', q: "What does `PlatformDispatcher.instance.onError` catch?", a: ["Layout overflow only", "Uncaught asynchronous errors outside the Flutter framework's callbacks", "Compile errors", "HTTP 500 responses"], c: 1, why: "`FlutterError.onError` covers framework-caught errors; the dispatcher hook covers the rest." }
       ]
     }
   ]

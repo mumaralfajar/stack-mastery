@@ -71,6 +71,9 @@ try {
       fail(l.id, `expected 3 quiz questions, got ${l.quiz?.length}`);
     } else {
       for (const [qi, q] of l.quiz.entries()) {
+        if (!q.id || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(q.id)) {
+          fail(l.id, `quiz[${qi}] missing valid slug id`);
+        }
         if (!Array.isArray(q.a) || q.a.length !== 4 || q.c < 0 || q.c > 3 || !q.why) {
           fail(l.id, `quiz[${qi}] invalid choices/index`);
         }

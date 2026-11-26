@@ -28,11 +28,11 @@ export const trackId = {
       "Menulis `count || 10` padahal `0` adalah angka yang sah. Pakai `??`.",
       "Tertukar antara `map` (mengembalikan array baru) dan `forEach` (tidak mengembalikan nilai)."
     ],
-    quiz: [
-      ["Apa yang dikembalikan `[1, 2, 3].map(n => n * 2)`?", ["`undefined`", "`[2, 4, 6]`, dan array aslinya juga jadi `[2, 4, 6]`", "`[2, 4, 6]`, tanpa mengubah array aslinya", "`6`"], "`map` membuat array baru berisi hasil transformasi tanpa menyentuh array aslinya."],
-      ["Jika `const a = { n: 1 }`, `const b = a`, lalu `b.n = 2`, berapa `a.n`?", ["1", "2", "undefined", "Error: `a` itu const"], "`a` dan `b` menunjuk ke object yang sama. `const` hanya melarang variabelnya di-assign ulang."],
-      ["Berapa hasil `0 ?? 10`?", ["`0`", "`10`", "`null`", "`false`"], "`??` hanya mengganti `null` dan `undefined`. Kalau `0 || 10` baru keluar `10`, karena `0` dianggap falsy."]
-    ]
+    quiz: {
+      'map-return': ["Apa yang dikembalikan `[1, 2, 3].map(n => n * 2)`?", ["`undefined`", "`[2, 4, 6]`, dan array aslinya juga jadi `[2, 4, 6]`", "`[2, 4, 6]`, tanpa mengubah array aslinya", "`6`"], "`map` membuat array baru berisi hasil transformasi tanpa menyentuh array aslinya."],
+      'const-const': ["Jika `const a = { n: 1 }`, `const b = a`, lalu `b.n = 2`, berapa `a.n`?", ["1", "2", "undefined", "Error: `a` itu const"], "`a` dan `b` menunjuk ke object yang sama. `const` hanya melarang variabelnya di-assign ulang."],
+      'what-is-0-10': ["Berapa hasil `0 ?? 10`?", ["`0`", "`10`", "`null`", "`false`"], "`??` hanya mengganti `null` dan `undefined`. Kalau `0 || 10` baru keluar `10`, karena `0` dianggap falsy."]
+    }
   },
   ts: {
     predict: {
@@ -68,11 +68,11 @@ export const trackId = {
       "Mengira TypeScript ikut memvalidasi respons API saat runtime. Menulis `as Product` cuma janji dari kamu, bukan pengecekan sungguhan.",
       "Menulis anotasi tipe di setiap variabel lokal padahal compiler sudah otomatis mengetahuinya."
     ],
-    quiz: [
-      ["Apa yang diizinkan oleh `type Size = 'S' | 'M' | 'L'`?", ["String apa pun", "Tepat salah satu dari ketiga string itu", "Array berisi ketiga string itu", "String apa pun yang diawali S, M, atau L"], "Itu union dari string literal type."],
-      ["Type TypeScript saat runtime…", ["dicek oleh engine JavaScript", "dihapus: hanya ada saat compile time", "diubah menjadi class", "disimpan sebagai komentar di output"], "Compiler menghapus semua tipe, sehingga file jadinya murni JavaScript biasa."],
-      ["Alternatif yang lebih aman daripada `any` untuk value yang bentuknya tidak diketahui?", ["`object`", "`unknown`, lalu narrow", "`never`", "`{}`"], "`unknown` memaksamu mengecek tipe nilainya dulu sebelum dipakai."]
-    ]
+    quiz: {
+      'type-size-allow': ["Apa yang diizinkan oleh `type Size = 'S' | 'M' | 'L'`?", ["String apa pun", "Tepat salah satu dari ketiga string itu", "Array berisi ketiga string itu", "String apa pun yang diawali S, M, atau L"], "Itu union dari string literal type."],
+      'typescript-types-runtime': ["Type TypeScript saat runtime…", ["dicek oleh engine JavaScript", "dihapus: hanya ada saat compile time", "diubah menjadi class", "disimpan sebagai komentar di output"], "Compiler menghapus semua tipe, sehingga file jadinya murni JavaScript biasa."],
+      'safer-alternative-any-value': ["Alternatif yang lebih aman daripada `any` untuk value yang bentuknya tidak diketahui?", ["`object`", "`unknown`, lalu narrow", "`never`", "`{}`"], "`unknown` memaksamu mengecek tipe nilainya dulu sebelum dipakai."]
+    }
   },
   components: {
     predict: {
@@ -108,11 +108,11 @@ export const trackId = {
       "Mencoba mengubah nilai props langsung dari dalam child component.",
       "Tanpa sengaja mencetak angka `0` ke layar gara-gara `items.length && <List />`. Pakai `items.length > 0 &&`."
     ],
-    quiz: [
-      ["Apa itu function component React?", ["Class yang meng-extend `HTMLElement`", "Function yang menerima props dan mengembalikan JSX", "Template string berisi HTML", "Deskripsi halaman dalam JSON"], "Komponen itu fungsi biasa yang mendeskripsikan UI berdasarkan props yang masuk."],
-      ["Kenapa setiap item list butuh `key`?", ["Untuk styling CSS", "Supaya React bisa mencocokkan item antar render", "Untuk mengurutkan list", "Supaya React bisa melewati render list-nya"], "Key memberi identitas stabil agar React meng-update, memindahkan, atau menghapus baris yang tepat."],
-      ["Bisakah child component mengubah props yang diterimanya?", ["Bisa, bebas", "Tidak, props itu read-only. Ia meminta ke parent lewat callback", "Hanya kalau prop-nya object", "Bisa, tapi hanya dengan `useState`"], "Data mengalir ke bawah, dan child meminta perubahan ke atas melalui fungsi callback di props."]
-    ]
+    quiz: {
+      'react-function-component': ["Apa itu function component React?", ["Class yang meng-extend `HTMLElement`", "Function yang menerima props dan mengembalikan JSX", "Template string berisi HTML", "Deskripsi halaman dalam JSON"], "Komponen itu fungsi biasa yang mendeskripsikan UI berdasarkan props yang masuk."],
+      'each-list-item-need': ["Kenapa setiap item list butuh `key`?", ["Untuk styling CSS", "Supaya React bisa mencocokkan item antar render", "Untuk mengurutkan list", "Supaya React bisa melewati render list-nya"], "Key memberi identitas stabil agar React meng-update, memindahkan, atau menghapus baris yang tepat."],
+      'child-component-change-props': ["Bisakah child component mengubah props yang diterimanya?", ["Bisa, bebas", "Tidak, props itu read-only. Ia meminta ke parent lewat callback", "Hanya kalau prop-nya object", "Bisa, tapi hanya dengan `useState`"], "Data mengalir ke bawah, dan child meminta perubahan ke atas melalui fungsi callback di props."]
+    }
   },
   jsdeep: {
     terms: [
@@ -144,11 +144,11 @@ export const trackId = {
       "Stale closure di dalam effect atau `setInterval` yang terus membaca state dari render pertama.",
       "Memblokir thread utama dengan loop sinkron yang lama sehingga klik dan animasi macet total."
     ],
-    quiz: [
-      ["Antara `setTimeout(…, 0)` dan `.then` dari promise yang sudah resolved di kode sinkron yang sama, mana yang log duluan?", ["Timeout-nya", "Callback promise-nya", "Yang ditulis lebih dulu", "Tergantung browser-nya"], "Semua microtask dijalankan sampai habis sebelum event loop mengambil task berikutnya."],
-      ["Apa yang ditangkap oleh closure?", ["Salinan value saat closure dibuat", "Variabelnya itu sendiri, yang tetap hidup bersama function-nya", "Hanya variabel global", "Tidak ada apa-apa setelah function luarnya selesai"], "Fungsi menyimpan referensi hidup ke variabel di lingkup luarnya."],
-      ["Menyimpan `const f = user.hi` lalu memanggil `f()` gagal membaca `this.name` karena…", ["`hi` sudah dihapus", "`this` bergantung pada cara pemanggilan, dan `f()` tidak punya object di depan titik", "`hi` adalah arrow function", "`name` itu private"], "Melepas method menghilangkan penerimanya, sehingga `this` menjadi `undefined` di strict mode."]
-    ]
+    quiz: {
+      'both-settimeout-resolved-then': ["Antara `setTimeout(…, 0)` dan `.then` dari promise yang sudah resolved di kode sinkron yang sama, mana yang log duluan?", ["Timeout-nya", "Callback promise-nya", "Yang ditulis lebih dulu", "Tergantung browser-nya"], "Semua microtask dijalankan sampai habis sebelum event loop mengambil task berikutnya."],
+      'closure-capture': ["Apa yang ditangkap oleh closure?", ["Salinan value saat closure dibuat", "Variabelnya itu sendiri, yang tetap hidup bersama function-nya", "Hanya variabel global", "Tidak ada apa-apa setelah function luarnya selesai"], "Fungsi menyimpan referensi hidup ke variabel di lingkup luarnya."],
+      'assigning-const-user-hi': ["Menyimpan `const f = user.hi` lalu memanggil `f()` gagal membaca `this.name` karena…", ["`hi` sudah dihapus", "`this` bergantung pada cara pemanggilan, dan `f()` tidak punya object di depan titik", "`hi` adalah arrow function", "`name` itu private"], "Melepas method menghilangkan penerimanya, sehingga `this` menjadi `undefined` di strict mode."]
+    }
   },
   state: {
     predict: {
@@ -185,11 +185,11 @@ export const trackId = {
       "Menaruh data turunan ke hook state tambahan lalu kewalahan menjaganya tetap cocok.",
       "Membuat ID pakai `Date.now()`, yang bisa kembar di loop cepat. Pakai `crypto.randomUUID()`."
     ],
-    quiz: [
-      ["`count` bernilai 0, lalu handler klik memanggil `setCount(count + 1)` dua kali berturut-turut. Berapa `count` pada render berikutnya?", ["0", "1", "2", "Terjadi error"], "Keduanya menghitung 0 + 1 dari snapshot render yang sama. Pakai `setCount(c => c + 1)` kalau mau jadi 2."],
-      ["State sebuah parent berubah. Komponen mana yang ikut re-render?", ["Hanya parent-nya", "Parent beserta semua turunannya", "Seluruh aplikasi", "Hanya child yang props-nya berubah"], "Me-render ulang komponen akan me-render subtree di bawahnya, kecuali dilewati oleh `memo` atau React Compiler."],
-      ["Kenapa `items.push(x)` diikuti `setItems(items)` gagal memperbarui layar?", ["`push` tidak mengubah array-nya", "Reference array-nya tidak berubah, jadi React tidak melihat state baru", "`setItems` harus di-await", "React hanya melacak object, bukan array"], "React membandingkan state lewat referensi object, jadi memberi array yang sama terbaca seperti tidak ada perubahan."]
-    ]
+    quiz: {
+      'count-click-handler-calls': ["`count` bernilai 0, lalu handler klik memanggil `setCount(count + 1)` dua kali berturut-turut. Berapa `count` pada render berikutnya?", ["0", "1", "2", "Terjadi error"], "Keduanya menghitung 0 + 1 dari snapshot render yang sama. Pakai `setCount(c => c + 1)` kalau mau jadi 2."],
+      'parent-state-changes-components': ["State sebuah parent berubah. Komponen mana yang ikut re-render?", ["Hanya parent-nya", "Parent beserta semua turunannya", "Seluruh aplikasi", "Hanya child yang props-nya berubah"], "Me-render ulang komponen akan me-render subtree di bawahnya, kecuali dilewati oleh `memo` atau React Compiler."],
+      'won-items-push-followed': ["Kenapa `items.push(x)` diikuti `setItems(items)` gagal memperbarui layar?", ["`push` tidak mengubah array-nya", "Reference array-nya tidak berubah, jadi React tidak melihat state baru", "`setItems` harus di-await", "React hanya melacak object, bukan array"], "React membandingkan state lewat referensi object, jadi memberi array yang sama terbaca seperti tidak ada perubahan."]
+    }
   },
   effects: {
     terms: [
@@ -220,11 +220,11 @@ export const trackId = {
       "Memakai `useEffect` untuk menghitung nilai dari props atau state padahal bisa dihitung langsung saat render.",
       "Tanpa cleanup, respons request lebih awal yang datang lambat menimpa data yang lebih baru."
     ],
-    quiz: [
-      ["`useEffect(() => { … }, [])` dijalankan…", ["Di setiap render", "Sekali setelah render pertama (mount)", "Tidak pernah", "Sebelum render pertama"], "Dengan dependency array kosong, tidak ada nilai yang memicu pengulangan (di mode dev, Strict Mode sengaja menjalankannya dua kali)."],
-      ["Untuk apa function yang dikembalikan dari sebuah effect?", ["Mengembalikan data ke komponen", "Cleanup sebelum effect jalan lagi dan saat unmount", "Menangani error", "Memoize effect-nya"], "Fungsi itu membereskan giliran sebelumnya: cabut listener, hapus timer, atau batalkan request."],
-      ["Kamu butuh `fullName` dari props `first` dan `last`. Pendekatan terbaik?", ["`useEffect` yang mengatur state", "Hitung saat render: `const fullName = first + ' ' + last`", "`useRef` yang di-update setiap render", "`useMemo` di sekeliling string-nya"], "Nilai turunan tak butuh effect maupun state tambahan yang cuma menambah render. `useMemo` untuk penggabungan string sekecil ini juga tak perlu."]
-    ]
+    quiz: {
+      'useeffect-runs': ["`useEffect(() => { … }, [])` dijalankan…", ["Di setiap render", "Sekali setelah render pertama (mount)", "Tidak pernah", "Sebelum render pertama"], "Dengan dependency array kosong, tidak ada nilai yang memicu pengulangan (di mode dev, Strict Mode sengaja menjalankannya dua kali)."],
+      'function-returned-effect': ["Untuk apa function yang dikembalikan dari sebuah effect?", ["Mengembalikan data ke komponen", "Cleanup sebelum effect jalan lagi dan saat unmount", "Menangani error", "Memoize effect-nya"], "Fungsi itu membereskan giliran sebelumnya: cabut listener, hapus timer, atau batalkan request."],
+      'need-fullname-first-last': ["Kamu butuh `fullName` dari props `first` dan `last`. Pendekatan terbaik?", ["`useEffect` yang mengatur state", "Hitung saat render: `const fullName = first + ' ' + last`", "`useRef` yang di-update setiap render", "`useMemo` di sekeliling string-nya"], "Nilai turunan tak butuh effect maupun state tambahan yang cuma menambah render. `useMemo` untuk penggabungan string sekecil ini juga tak perlu."]
+    }
   },
   forms: {
     splits: ["1 · ProductForm & useActionState","2 · Catalog (State Diangkat)"],
@@ -252,12 +252,12 @@ export const trackId = {
       "Berubah-ubah antara `value={undefined}` dan string pada satu input yang sama, memicu peringatan controlled vs uncontrolled.",
       "Menaruh teks error di dekat input tanpa menyambung `aria-describedby`, membuat pengguna screen reader tidak pernah mendengarnya."
     ],
-    quiz: [
-      ["Dua komponen bersebelahan harus menampilkan value yang sama. Di mana state-nya seharusnya tinggal?", ["Di kedua komponen", "Di parent bersama terdekat mereka", "Di variabel level module", "Di `localStorage`"], "Satu pemilik menyalurkan nilai ke keduanya supaya otomatis selalu seragam."],
-      ["Bagaimana child meng-update state milik parent-nya?", ["Mengubah prop-nya", "Memanggil callback function yang dikirim sebagai prop", "Membaca state parent dengan `useContext`", "Tidak bisa"], "Parent memberi fungsi callback lewat props dan child memanggilnya agar event naik ke atas."],
-      ["Sebuah form action mengembalikan error validasi, dan field-nya kembali kosong. Kenapa?", ["Action-nya memicu error", "React mengosongkan input uncontrolled sesudah action, jadi kembalikan datanya lalu pasang sebagai `defaultValue`", "`useActionState` hanya menyimpan field terakhir", "Form-nya butuh `method=\"post\"`"], "Reset otomatis membaca `defaultValue` tiap input, jadi memberi nilai kiriman sebelumnya menjaga ketikan user tetap ada."],
-      ["Input yang 'controlled' adalah input yang…", ["value-nya berasal dari state React", "value-nya hanya ada di DOM", "type-nya `password`", "perubahannya dinonaktifkan"], "State menjadi sumber utama: `onChange` mengubah state, lalu state mengisi `value`."]
-    ]
+    quiz: {
+      'two-sibling-components-show': ["Dua komponen bersebelahan harus menampilkan value yang sama. Di mana state-nya seharusnya tinggal?", ["Di kedua komponen", "Di parent bersama terdekat mereka", "Di variabel level module", "Di `localStorage`"], "Satu pemilik menyalurkan nilai ke keduanya supaya otomatis selalu seragam."],
+      'child-update-state-owned': ["Bagaimana child meng-update state milik parent-nya?", ["Mengubah prop-nya", "Memanggil callback function yang dikirim sebagai prop", "Membaca state parent dengan `useContext`", "Tidak bisa"], "Parent memberi fungsi callback lewat props dan child memanggilnya agar event naik ke atas."],
+      'form-action-returns-validation': ["Sebuah form action mengembalikan error validasi, dan field-nya kembali kosong. Kenapa?", ["Action-nya memicu error", "React mengosongkan input uncontrolled sesudah action, jadi kembalikan datanya lalu pasang sebagai `defaultValue`", "`useActionState` hanya menyimpan field terakhir", "Form-nya butuh `method=\"post\"`"], "Reset otomatis membaca `defaultValue` tiap input, jadi memberi nilai kiriman sebelumnya menjaga ketikan user tetap ada."],
+      'controlled-input-one-whose': ["Input yang 'controlled' adalah input yang…", ["value-nya berasal dari state React", "value-nya hanya ada di DOM", "type-nya `password`", "perubahannya dinonaktifkan"], "State menjadi sumber utama: `onChange` mengubah state, lalu state mengisi `value`."]
+    }
   },
   generics: {
     terms: [
@@ -283,11 +283,11 @@ export const trackId = {
       "Menulis ulang tipe yang nyaris kembar ketimbang menurunkannya pakai `Pick`, `Omit`, atau `Partial`.",
       "Mengira `getJson<Product[]>` ikut mengecek isi respons API. Itu cuma asersi tipe, jadi tetap validasi data dari jaringan memakai Zod."
     ],
-    quiz: [
-      ["Apa itu `Omit<Product, 'id'>`?", ["Product yang hanya berisi `id`", "Product tanpa property `id`", "Product dengan `id` yang dijadikan opsional", "Function yang menghapus `id` saat runtime"], "`Omit` membuat tipe tanpa key yang disebut. Tipe tidak pernah jalan saat runtime, jadi object aslinya tidak berubah."],
-      ["Di `<T, K extends keyof T>`, `K` boleh berisi apa?", ["String apa pun", "Hanya nama property dari `T`", "Type apa pun", "Type dari salah satu value T"], "`keyof T` berisi gabungan semua nama properti `T`, dan `K` wajib termasuk di situ."],
-      ["Apa yang dilakukan `Partial<T>`?", ["Menjadikan setiap property opsional", "Menjadikan setiap property wajib", "Menjadikan setiap property nullable", "Menjadikan `T` readonly"], "Semua properti mendapat tanda `?`, pas untuk payload update sebagian."]
-    ]
+    quiz: {
+      'omit-product-id': ["Apa itu `Omit<Product, 'id'>`?", ["Product yang hanya berisi `id`", "Product tanpa property `id`", "Product dengan `id` yang dijadikan opsional", "Function yang menghapus `id` saat runtime"], "`Omit` membuat tipe tanpa key yang disebut. Tipe tidak pernah jalan saat runtime, jadi object aslinya tidak berubah."],
+      'extends-keyof': ["Di `<T, K extends keyof T>`, `K` boleh berisi apa?", ["String apa pun", "Hanya nama property dari `T`", "Type apa pun", "Type dari salah satu value T"], "`keyof T` berisi gabungan semua nama properti `T`, dan `K` wajib termasuk di situ."],
+      'what-does-partial-t': ["Apa yang dilakukan `Partial<T>`?", ["Menjadikan setiap property opsional", "Menjadikan setiap property wajib", "Menjadikan setiap property nullable", "Menjadikan `T` readonly"], "Semua properti mendapat tanda `?`, pas untuk payload update sebagian."]
+    }
   },
   hooks: {
     splits: ["1 · Hook useDebounced","2 · cartReducer Bertipe","3 · CartContext & Provider"],
@@ -325,11 +325,11 @@ export const trackId = {
       "Membuat object `{ … }` baru di prop value context tiap kali render, bikin semua konsumen re-render setiap saat.",
       "Memanggil hook di dalam blok `if`, yang merusak urutan indeks hook React."
     ],
-    quiz: [
-      ["Dua komponen sama-sama memanggil `useCounter()`. Keduanya…", ["berbagi satu counter", "masing-masing mendapat state sendiri", "memicu error", "berbagi sampai salah satunya unmount"], "Custom hook cuma membagi logika, sementara state melekat ke komponen pemanggilnya."],
-      ["Kenapa hook tidak boleh dipanggil di dalam kondisi?", ["Jadi lebih lambat", "React mengenali hook lewat urutan pemanggilannya, yang harus cocok di setiap render", "TypeScript melarangnya", "Hook-nya jadi jalan dua kali"], "React menyimpan state berdasarkan urutan posisi panggilan hook, jadi melewatkan satu panggilan bikin hook sesudahnya bergeser."],
-      ["Mengubah `.current` dari sebuah `useRef`…", ["me-render ulang komponennya", "tidak memicu re-render", "memicu error di Strict Mode", "me-reset state komponennya"], "Ref adalah kotak variabel biasa di luar siklus render React."]
-    ]
+    quiz: {
+      'two-components-both-call': ["Dua komponen sama-sama memanggil `useCounter()`. Keduanya…", ["berbagi satu counter", "masing-masing mendapat state sendiri", "memicu error", "berbagi sampai salah satunya unmount"], "Custom hook cuma membagi logika, sementara state melekat ke komponen pemanggilnya."],
+      'hooks-called-inside-conditions': ["Kenapa hook tidak boleh dipanggil di dalam kondisi?", ["Jadi lebih lambat", "React mengenali hook lewat urutan pemanggilannya, yang harus cocok di setiap render", "TypeScript melarangnya", "Hook-nya jadi jalan dua kali"], "React menyimpan state berdasarkan urutan posisi panggilan hook, jadi melewatkan satu panggilan bikin hook sesudahnya bergeser."],
+      'changing-useref-value-current': ["Mengubah `.current` dari sebuah `useRef`…", ["me-render ulang komponennya", "tidak memicu re-render", "memicu error di Strict Mode", "me-reset state komponennya"], "Ref adalah kotak variabel biasa di luar siklus render React."]
+    }
   },
   perf: {
     predict: {
@@ -366,12 +366,12 @@ export const trackId = {
       "Sibuk mengutak-atik render padahal sumber lambatnya bundle JS 2 MB atau query API yang lemot.",
       "Memutasi object saat render, sehingga React Compiler tidak bisa mengoptimasinya dengan aman."
     ],
-    quiz: [
-      ["Sebuah child yang di-memoize menerima `onClick={() => select(id)}` dari parent-nya, tanpa React Compiler. Apakah `memo` melewati re-render?", ["Ya", "Tidak: function baru dibuat di setiap render, jadi props-nya berbeda", "Hanya di production", "Hanya untuk child pertama"], "Pengecekan dangkal selalu melihat referensi fungsi yang baru dibuat setiap render."],
-      ["React Compiler aktif. Apakah kamu masih butuh `useCallback` di sekeliling event handler?", ["Ya, di semua tempat", "Biasanya tidak: compiler otomatis me-memoize-nya", "Hanya untuk handler yang memanggil `setState`", "Hanya di dalam class component"], "Compiler menambahkan memoization itu waktu build selama kode mematuhi aturan React."],
-      ["Langkah pertama saat sebuah layar React terasa lambat?", ["Bungkus semuanya dengan `useMemo`", "Profiling untuk melihat apa yang render dan berapa lama", "Pindahkan semua state ke context", "Ganti `useState` dengan `useReducer`"], "Tanpa mengukur, kamu cuma menebak komponen atau langkah mana yang boros."],
-      ["Perbaikan terbaik untuk list berisi 20.000 baris?", ["`memo` di setiap baris", "Virtualisasi: render hanya baris yang terlihat", "`useCallback` untuk setiap handler", "Memakai index sebagai `key`"], "Menghindari pembuatan 20.000 node DOM jauh lebih berdampak daripada mempercepat re-render-nya."]
-    ]
+    quiz: {
+      'memoized-child-receives-onclick': ["Sebuah child yang di-memoize menerima `onClick={() => select(id)}` dari parent-nya, tanpa React Compiler. Apakah `memo` melewati re-render?", ["Ya", "Tidak: function baru dibuat di setiap render, jadi props-nya berbeda", "Hanya di production", "Hanya untuk child pertama"], "Pengecekan dangkal selalu melihat referensi fungsi yang baru dibuat setiap render."],
+      'react-compiler-enabled-still': ["React Compiler aktif. Apakah kamu masih butuh `useCallback` di sekeliling event handler?", ["Ya, di semua tempat", "Biasanya tidak: compiler otomatis me-memoize-nya", "Hanya untuk handler yang memanggil `setState`", "Hanya di dalam class component"], "Compiler menambahkan memoization itu waktu build selama kode mematuhi aturan React."],
+      'first-step-react-screen': ["Langkah pertama saat sebuah layar React terasa lambat?", ["Bungkus semuanya dengan `useMemo`", "Profiling untuk melihat apa yang render dan berapa lama", "Pindahkan semua state ke context", "Ganti `useState` dengan `useReducer`"], "Tanpa mengukur, kamu cuma menebak komponen atau langkah mana yang boros."],
+      'fix-list-20-000': ["Perbaikan terbaik untuk list berisi 20.000 baris?", ["`memo` di setiap baris", "Virtualisasi: render hanya baris yang terlihat", "`useCallback` untuk setiap handler", "Memakai index sebagai `key`"], "Menghindari pembuatan 20.000 node DOM jauh lebih berdampak daripada mempercepat re-render-nya."]
+    }
   },
   server: {
     splits: ['1 · Helper ApiError & api()', '2 · Query & Mutasi ProductsPage'],
@@ -401,12 +401,12 @@ export const trackId = {
       "Menyebar opsi pemanggil sesudah `headers` default sehingga header tambahan tak sengaja menimpa `Content-Type`.",
       "Memperbarui DTO TypeScript terpisah dari class C# sampai lama-kelamaan tidak cocok."
     ],
-    quiz: [
-      ["Setelah mutation 'create product' berhasil, bagaimana seharusnya list produk ter-update?", ["Ter-update sendiri", "Invalidate query list-nya supaya di-refetch", "Muat ulang halaman", "`push` item baru ke array di cache"], "Invalidation menandai cache sudah lewat masa lalu mengambil data segar dari server. Mengubah cache langsung melewati pelacakan perubahan."],
-      ["Mana yang tempatnya di URL, bukan di state komponen?", ["Apakah dropdown sedang terbuka", "Nomor halaman dan filter sebuah list", "Input yang baru setengah diketik", "State hover"], "Tampilan yang pantas dibagikan atau di-bookmark sebaiknya tetap bertahan saat halaman dimuat ulang."],
-      ["SPA-mu login dengan cookie `HttpOnly`. Apa lagi yang dibutuhkan operasi penulisan?", ["Tidak ada: `HttpOnly` memblokir semua serangan", "Perlindungan CSRF, seperti antiforgery token atau custom header yang wajib ada", "Token di `localStorage` juga", "`credentials: \"omit\"` di setiap request"], "Browser mengirim cookie ke API di setiap request, termasuk yang dipicu situs lain. Itu alasan utama butuh pelindung CSRF."],
-      ["Cara paling andal menjaga type TypeScript tetap selaras dengan API C#?", ["Salin manual", "Generate dari dokumen OpenAPI milik API", "Pakai `any` untuk response API", "Bagikan file `.d.ts` lewat Slack"], "Tipe hasil generate ikut berubah mengikuti API dan langsung menggagalkan build jika frontend tertinggal."]
-    ]
+    quiz: {
+      'successful-create-product-mutati': ["Setelah mutation 'create product' berhasil, bagaimana seharusnya list produk ter-update?", ["Ter-update sendiri", "Invalidate query list-nya supaya di-refetch", "Muat ulang halaman", "`push` item baru ke array di cache"], "Invalidation menandai cache sudah lewat masa lalu mengambil data segar dari server. Mengubah cache langsung melewati pelacakan perubahan."],
+      'belongs-url-than-component': ["Mana yang tempatnya di URL, bukan di state komponen?", ["Apakah dropdown sedang terbuka", "Nomor halaman dan filter sebuah list", "Input yang baru setengah diketik", "State hover"], "Tampilan yang pantas dibagikan atau di-bookmark sebaiknya tetap bertahan saat halaman dimuat ulang."],
+      'spa-signs-httponly-cookie': ["SPA-mu login dengan cookie `HttpOnly`. Apa lagi yang dibutuhkan operasi penulisan?", ["Tidak ada: `HttpOnly` memblokir semua serangan", "Perlindungan CSRF, seperti antiforgery token atau custom header yang wajib ada", "Token di `localStorage` juga", "`credentials: \"omit\"` di setiap request"], "Browser mengirim cookie ke API di setiap request, termasuk yang dipicu situs lain. Itu alasan utama butuh pelindung CSRF."],
+      'robust-way-keep-typescript': ["Cara paling andal menjaga type TypeScript tetap selaras dengan API C#?", ["Salin manual", "Generate dari dokumen OpenAPI milik API", "Pakai `any` untuk response API", "Bagikan file `.d.ts` lewat Slack"], "Tipe hasil generate ikut berubah mengikuti API dan langsung menggagalkan build jika frontend tertinggal."]
+    }
   },
   tsadv: {
     terms: [
@@ -433,11 +433,11 @@ export const trackId = {
       "Lupa conditional type tersebar ke anggota union lalu kaget melihat tipe hasilnya.",
       "Menulis ulang utilitas yang sudah disediakan TypeScript seperti `Awaited`, `NonNullable`, atau `ReturnType`."
     ],
-    quiz: [
-      ["Apa hasil `T extends Promise<infer R> ? R : T` untuk `T = Promise<string>`?", ["`Promise<string>`", "`string`", "`never`", "`unknown`"], "`infer R` mengambil tipe nilai yang keluar saat promise selesai."],
-      ["Apa yang dilakukan `satisfies` yang tidak dilakukan anotasi type?", ["Mengecek value-nya saat runtime", "Mengecek kecocokan sambil mempertahankan type sempit hasil inference", "Membuat value-nya bisa diubah", "Mematikan pengecekan untuk value itu"], "Anotasi biasa memperlebar tipe, sedangkan `satisfies` mengecek bentuk sembari mempertahankan tipe literalnya."],
-      ["Anggota baru ditambahkan ke union yang ditangani `switch` dengan `const x: never = value` di `default`. Hasilnya?", ["Bug diam-diam saat runtime", "Compile error sampai case baru itu ditangani", "Tidak ada apa-apa", "Case barunya jatuh ke case pertama"], "Cabang yang belum ditangani tak bisa masuk ke `never`, jadi build gagal persis di lokasi yang kurang."]
-    ]
+    quiz: {
+      'extends-promise-infer-promise': ["Apa hasil `T extends Promise<infer R> ? R : T` untuk `T = Promise<string>`?", ["`Promise<string>`", "`string`", "`never`", "`unknown`"], "`infer R` mengambil tipe nilai yang keluar saat promise selesai."],
+      'satisfies-type-annotation-doesn': ["Apa yang dilakukan `satisfies` yang tidak dilakukan anotasi type?", ["Mengecek value-nya saat runtime", "Mengecek kecocokan sambil mempertahankan type sempit hasil inference", "Membuat value-nya bisa diubah", "Mematikan pengecekan untuk value itu"], "Anotasi biasa memperlebar tipe, sedangkan `satisfies` mengecek bentuk sembari mempertahankan tipe literalnya."],
+      'new-member-added-union': ["Anggota baru ditambahkan ke union yang ditangani `switch` dengan `const x: never = value` di `default`. Hasilnya?", ["Bug diam-diam saat runtime", "Compile error sampai case baru itu ditangani", "Tidak ada apa-apa", "Case barunya jatuh ke case pertama"], "Cabang yang belum ditangani tak bisa masuk ke `never`, jadi build gagal persis di lokasi yang kurang."]
+    }
   },
   internals: {
     predict: {
@@ -473,11 +473,11 @@ export const trackId = {
       "Menaruh efek samping di badan fase render yang bisa dipanggil ulang berkali-kali.",
       "Mengira pemanggilan ganda Strict Mode itu bug lalu mematikannya."
     ],
-    quiz: [
-      ["Di posisi yang sama, sebuah `<div>` diganti dengan `<section>` yang child-nya identik. React akan…", ["mengubah tag-nya di tempat", "menghancurkan subtree lama dan membangun yang baru, sehingga state child-nya hilang", "mengabaikan perubahannya", "memicu error"], "Tipe element yang berbeda menandakan pohon baru, jadi React membongkar subtree lama bukannya memakai ulang."],
-      ["Apa yang bisa dilakukan dengan `useTransition`?", ["Menganimasikan CSS", "Menandai update state sebagai tidak mendesak supaya update yang mendesak bisa menyelanya", "Mengambil data di background", "Melewati render sebuah komponen"], "Transition menjaga ketikan dan klik tetap responsif selama render berat disiapkan."],
-      ["Kenapa Strict Mode menjalankan effect dua kali saat development?", ["Itu bug di build development", "Untuk mengungkap effect yang tidak punya cleanup yang benar", "Untuk memuat data dua kali demi kecepatan", "Karena Strict Mode juga me-render di server"], "Simulasi mount, unmount, lalu mount ulang menguji logika cleanup sejak dini."]
-    ]
+    quiz: {
+      'same-position-div-replaced': ["Di posisi yang sama, sebuah `<div>` diganti dengan `<section>` yang child-nya identik. React akan…", ["mengubah tag-nya di tempat", "menghancurkan subtree lama dan membangun yang baru, sehingga state child-nya hilang", "mengabaikan perubahannya", "memicu error"], "Tipe element yang berbeda menandakan pohon baru, jadi React membongkar subtree lama bukannya memakai ulang."],
+      'usetransition-let': ["Apa yang bisa dilakukan dengan `useTransition`?", ["Menganimasikan CSS", "Menandai update state sebagai tidak mendesak supaya update yang mendesak bisa menyelanya", "Mengambil data di background", "Melewati render sebuah komponen"], "Transition menjaga ketikan dan klik tetap responsif selama render berat disiapkan."],
+      'strict-mode-run-effects': ["Kenapa Strict Mode menjalankan effect dua kali saat development?", ["Itu bug di build development", "Untuk mengungkap effect yang tidak punya cleanup yang benar", "Untuk memuat data dua kali demi kecepatan", "Karena Strict Mode juga me-render di server"], "Simulasi mount, unmount, lalu mount ulang menguji logika cleanup sejak dini."]
+    }
   },
   arch: {
     splits: ["1 · Setup Server MSW","2 · Helper Query & Uji User"],
@@ -506,11 +506,11 @@ export const trackId = {
       "Memasang `onClick` ke `div` atau `li` daripada memakai `button`, yang memutus akses keyboard dan pembaca layar.",
       "Me-render komponen dalam test tanpa membungkus provider yang dibutuhkan lalu bingung mengejar pesan error."
     ],
-    quiz: [
-      ["Di mana tempat data yang diambil dari API?", ["Store Redux global, selalu", "Cache server state seperti TanStack Query", "`localStorage`", "`useRef` di komponen root"], "Data dari server butuh caching, aturan kedaluwarsa, dan invalidation yang diurus TanStack Query."],
-      ["Kenapa mencari dengan `getByRole('button', { name: 'Add' })`, bukan dengan class CSS?", ["Lebih cepat", "Ia mengetes apa yang dirasakan user dan teknologi bantu, dan bertahan saat refactor", "Class tidak ada di jsdom", "Tidak perlu rendering"], "Role dan nama aksesibel adalah kontrak asli antarmuka ke pengguna, sedangkan class CSS cuma urusan internal."],
-      ["Langkah pertama yang paling penting untuk aksesibilitas?", ["Tambahkan atribut ARIA ke setiap elemen", "Pakai elemen HTML semantik dengan label yang benar", "Pilih palet warna berkontras tinggi", "Pasang widget overlay aksesibilitas"], "HTML semantik memberi dukungan keyboard dan makna sejak awal. ARIA mengisi celah yang tersisa, dan widget overlay tidak memperbaiki markup yang rusak."]
-    ]
+    quiz: {
+      'data-fetched-api-belong': ["Di mana tempat data yang diambil dari API?", ["Store Redux global, selalu", "Cache server state seperti TanStack Query", "`localStorage`", "`useRef` di komponen root"], "Data dari server butuh caching, aturan kedaluwarsa, dan invalidation yang diurus TanStack Query."],
+      'query-getbyrole-button-name': ["Kenapa mencari dengan `getByRole('button', { name: 'Add' })`, bukan dengan class CSS?", ["Lebih cepat", "Ia mengetes apa yang dirasakan user dan teknologi bantu, dan bertahan saat refactor", "Class tidak ada di jsdom", "Tidak perlu rendering"], "Role dan nama aksesibel adalah kontrak asli antarmuka ke pengguna, sedangkan class CSS cuma urusan internal."],
+      'important-first-step-accessibili': ["Langkah pertama yang paling penting untuk aksesibilitas?", ["Tambahkan atribut ARIA ke setiap elemen", "Pakai elemen HTML semantik dengan label yang benar", "Pilih palet warna berkontras tinggi", "Pasang widget overlay aksesibilitas"], "HTML semantik memberi dukungan keyboard dan makna sejak awal. ARIA mengisi celah yang tersisa, dan widget overlay tidak memperbaiki markup yang rusak."]
+    }
   }
 }
 };
