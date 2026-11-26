@@ -40,6 +40,9 @@ jobs:
       - name: Lint (Biome)
         run: bun run lint
 
+      - name: Unit tests (bun test)
+        run: bun test
+
       - name: Type check (astro check)
         run: bun run typecheck
 

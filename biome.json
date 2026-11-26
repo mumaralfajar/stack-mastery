@@ -5,6 +5,7 @@
 		"includes": [
 			"src/**",
 			"tools/**",
+			"tests/**",
 			"!**/dist",
 			"!**/.astro",
 			"!**/node_modules",
