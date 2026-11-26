@@ -1,3 +1,4 @@
+// @ts-check
 // Bahasa Indonesia — track ASP.NET Core. Contoh kode tetap memakai versi aslinya.
 export const trackId = {
   id: 'aspnet',

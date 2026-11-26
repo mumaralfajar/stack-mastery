@@ -1,6 +1,12 @@
+// @ts-check
 // Interview preparation content: coding patterns and problems, system design, behavioral, rapid-fire.
+/** @typedef {{ val: number, left: TreeObj | null, right: TreeObj | null }} TreeObj */
+/** @param {number} val @param {TreeObj | null} [left] @param {TreeObj | null} [right] @returns {TreeObj} */
 const T = (val, left = null, right = null) => ({ val, left, right });
-const LL = (...v) => v.reduceRight((next, val) => ({ val, next }), null);
+/** @typedef {{ val: number, next: ListObj | null }} ListObj */
+/** @param {...number} v @returns {ListObj | null} */
+const LL = (...v) => v.reduceRight((/** @type {ListObj | null} */ next, val) => ({ val, next }), null);
+/** @param {...string} rows */
 const G = (...rows) => rows.map(r => r.split(''));
 const tree = T(3, T(9), T(20, T(15), T(7)));
 

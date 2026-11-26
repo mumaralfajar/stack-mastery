@@ -1,3 +1,4 @@
+// @ts-check
 export const projects = [
   {
     level: 0, title: 'Capstone 1: Product catalogue across the stack',

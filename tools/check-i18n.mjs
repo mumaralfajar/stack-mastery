@@ -206,7 +206,7 @@ const vizKeys = Object.keys(VIZ).sort().join(',');
 if (vizKeys !== [...VIZ_IDS].sort().join(',')) {
   errors.push(`viz registry: VIZ_MODULE ids [${[...VIZ_IDS].sort()}] differ from registered labs [${vizKeys}]`);
 }
-const vizSrc = (mod) => readFileSync(fileURLToPath(new URL(`../src/scripts/viz/${mod}.js`, import.meta.url)), 'utf8');
+const vizSrc = (mod) => readFileSync(fileURLToPath(new URL(`../src/scripts/viz/${mod}.ts`, import.meta.url)), 'utf8');
 for (const [id, mod] of Object.entries(VIZ_MODULE)) {
   if (!new RegExp(String.raw`\bVIZ\.${id}\s*=`).test(vizSrc(mod))) errors.push(`viz registry: ${id} is not defined in ${mod}.js`);
 }
@@ -255,7 +255,7 @@ const scanScripts = (dir) => {
       const key = m[2].replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\n/g, '\n');
       if (/[A-Za-z]{2,}/.test(key) && !uiMap.has(key)) errors.push(`missing section translation (${e.name}): ${key}`);
     }
-    if (p.includes('viz') && e.name.endsWith('.js')) {
+    if (p.includes('viz') && e.name !== 'registry.ts') {
       for (const m of s.matchAll(/\b(?:title|desc)\s*:\s*(['"])((?:\\.|(?!\1).)+)\1/g)) {
         const key = m[2].replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\n/g, '\n');
         if (!uiMap.has(key)) errors.push(`missing viz metadata translation (${e.name}): ${key}`);

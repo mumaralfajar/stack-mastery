@@ -1,11 +1,12 @@
 // Search over a pre-built index (generated at build time as /search-index.json), so this page never loads
 // lesson prose, interview data or lab modules. Each entry: { cat, kind, title, href, text }.
+import type { SearchEntry } from '../../data/search-index.ts';
 import { esc, h } from '../../lib/dom.ts';
 import { t as T } from '../../lib/i18n.ts';
 
-export function searchView(index) {
-  const plain = (s) => s.replace(/[`*]/g, '');
-  const markText = (str, terms) => {
+export function searchView(index: SearchEntry[]): HTMLDivElement {
+  const plain = (s: string): string => s.replace(/[`*]/g, '');
+  const markText = (str: string, terms: string[]): string => {
     if (!terms.length) return esc(str);
     const uniq = [...new Set(terms.filter(Boolean))].sort((a, b) => b.length - a.length);
     if (!uniq.length) return esc(str);
@@ -23,13 +24,13 @@ export function searchView(index) {
   };
   let cat = 'all';
   const results = h('div', { class: 'rows', 'aria-live': 'polite' });
-  const cats = [
+  const cats: readonly [string, string][] = [
     ['all', 'All'],
     ['lesson', 'Lessons'],
     ['interview', 'Interview'],
     ['viz', 'Visualizations'],
   ];
-  const catBtns = {};
+  const catBtns: Record<string, HTMLButtonElement> = {};
   const catBar = h(
     'div',
     { class: 'chips', style: { marginTop: '.6rem' } },
@@ -54,11 +55,11 @@ export function searchView(index) {
       return (catBtns[k] = b);
     }),
   );
-  const draw = () => {
+  const draw = (): void => {
     const terms = input.value.toLowerCase().split(/\s+/).filter(Boolean);
     const pool = cat === 'all' ? index : index.filter((it) => it.cat === cat);
     if (!terms.length) {
-      return results.replaceChildren(
+      results.replaceChildren(
         h(
           'p',
           { class: 'muted' },
@@ -67,6 +68,7 @@ export function searchView(index) {
           }),
         ),
       );
+      return;
     }
     const hits = pool
       .map((it) => {
@@ -78,7 +80,7 @@ export function searchView(index) {
           score: terms.reduce((s, term) => s + (title.includes(term) ? 5 : 0) + Math.min(text.split(term).length - 1, 3), 0),
         };
       })
-      .filter(Boolean)
+      .filter((x): x is { it: SearchEntry; score: number } => Boolean(x))
       .sort((x, y) => y.score - x.score)
       .slice(0, 40);
     results.replaceChildren(
@@ -112,7 +114,7 @@ export function searchView(index) {
     placeholder: 'Search lessons, problems, interview questions…',
     'aria-label': 'Search',
     oninput: draw,
-    onkeydown: (e) => {
+    onkeydown: (e: KeyboardEvent) => {
       if (e.key === 'Escape' && input.value) {
         input.value = '';
         draw();

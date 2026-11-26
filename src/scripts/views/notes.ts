@@ -2,13 +2,23 @@
 // Uses the compact pre-rendered localized catalog from #view-data (never downloads curriculum prose).
 import { h } from '../../lib/dom.ts';
 import { getLevels, t as T } from '../../lib/i18n.ts';
-import { dots, href, lessonHref } from '../../lib/icons.ts';
+import { dots, href, lessonHref } from '../../lib/ui.ts';
 import { day, key, peek } from '../../lib/state.ts';
+import type { CatalogLesson, CatalogTrack, TrackCatalog } from '../../lib/types.ts';
 
 const RUBRIC_TOTAL = 5;
 
-function collectNotes(catalog) {
-  const entries = [];
+interface NoteEntry {
+  k: string;
+  track: CatalogTrack;
+  lesson: CatalogLesson;
+  text: string;
+  rubricDone: number;
+  teachDone: boolean;
+}
+
+function collectNotes(catalog: TrackCatalog): NoteEntry[] {
+  const entries: NoteEntry[] = [];
   for (const track of catalog.tracks || []) {
     for (const lesson of track.lessons || []) {
       const k = key(track, lesson);
@@ -29,7 +39,7 @@ function collectNotes(catalog) {
   return entries;
 }
 
-function buildMarkdownGuide(entries, levels) {
+function buildMarkdownGuide(entries: NoteEntry[], levels: readonly [string, string, string, string]): string {
   const today = day();
   const lines = [
     '# Stack Mastery Study Guide',
@@ -52,10 +62,10 @@ function buildMarkdownGuide(entries, levels) {
   return lines.join('\n');
 }
 
-export function notes(catalog, onCleanup) {
+export function notes(catalog: TrackCatalog, onCleanup?: (fn: () => void) => void): HTMLDivElement {
   const tracks = catalog.tracks || [];
   const levels = getLevels();
-  const activeUrls = new Set();
+  const activeUrls = new Set<string>();
 
   const revokeAll = () => {
     for (const u of activeUrls) {

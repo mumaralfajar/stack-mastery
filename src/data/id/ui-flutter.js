@@ -1,3 +1,4 @@
+// @ts-check
 // Bahasa Indonesia — teks antarmuka untuk track Dart + Flutter: playground dan visualisasi di js/vizflutter.js.
 const dict = {
   // navigation, lesson page, setup guide

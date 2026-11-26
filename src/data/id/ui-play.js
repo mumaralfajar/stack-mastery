@@ -1,3 +1,4 @@
+// @ts-check
 // Bahasa Indonesia — teks antarmuka untuk playground.
 const dict = {
   'Could not load {src}. The playground needs an internet connection the first time.': 'Gagal memuat {src}. Playground butuh koneksi internet saat pertama dibuka.',

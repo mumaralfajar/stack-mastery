@@ -1,3 +1,4 @@
+// @ts-check
 // Frontend "build a component" round: prompts with what interviewers check.
 export const interviewUi = [
   ['Autocomplete search box', 'Fetch suggestions as the user types, show them in a list, and support mouse or keyboard.', 'Debounce requests, abort or ignore stale responses, support arrows/Enter/Escape, show loading/empty/error states, and use combobox ARIA roles.'],

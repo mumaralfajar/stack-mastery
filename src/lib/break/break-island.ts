@@ -4,7 +4,8 @@
 import { LESSON_INDEX, TRACK_META } from '../../data/manifest.ts';
 import { h } from '../dom.ts';
 import { getLang, setLang, t as T } from '../i18n.ts';
-import { LOGO_SVG, dockControlBar, ico } from '../icons.ts';
+import { LOGO_SVG, ico } from '../icons.ts';
+import { dockControlBar } from '../ui.ts';
 import { indexKey } from '../progress.ts';
 import { routePath } from '../routes.ts';
 import { score, subscribeState, toggleTheme } from '../state.ts';

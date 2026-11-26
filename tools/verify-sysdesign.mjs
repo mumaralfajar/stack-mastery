@@ -11,7 +11,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parseAllDocuments } from 'yaml';
 import track from '../src/data/tracks/sysdesign.js';
-import { VIZ } from '../src/scripts/viz/vizsys.js';
+import { VIZ } from '../src/scripts/viz/vizsys.ts';
 
 const show = process.argv.includes('--show');
 

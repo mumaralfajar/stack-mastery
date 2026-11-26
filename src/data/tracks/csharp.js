@@ -1,3 +1,4 @@
+// @ts-check
 export const track = {
   id: 'csharp', name: 'C#', lang: 'cs',
   tagline: 'The language: from types and classes to async, memory, and performance.',

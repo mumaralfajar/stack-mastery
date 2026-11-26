@@ -4,7 +4,7 @@ import { t as T } from '../../lib/i18n.ts';
 import { VIZ } from './registry.ts';
   const meta = { track: 'sysdesign', trackName: 'System Design' };
 
-  function pills(items, active, onPick, ariaLabel) {
+  function pills<T extends string>(items: [T, string][], active: T, onPick: (k: T) => void, ariaLabel: string): HTMLElement {
     const row = h('div', { class: 'viz-ctl', role: 'group', 'aria-label': ariaLabel });
     const btns = items.map(([k, label]) => {
       const b = h('button', {
@@ -34,17 +34,21 @@ import { VIZ } from './registry.ts';
     desc: 'Exercise Cache-Aside, Read-Through, Write-Through, and Write-Back across a 3-slot cache while comparing LRU and LFU eviction.',
     mount(el) {
       const CAP = 3;
-      let strategy = 'aside', eviction = 'lru';
+      type CacheStrategy = 'aside' | 'readthrough' | 'writethrough' | 'writeback';
+      type EvictPolicy = 'lru' | 'lfu';
+      type DbKey = 'A' | 'B' | 'C' | 'D';
+      interface CacheSlot { key: DbKey; ver: number; freq: number; lastUsed: number; dirty: boolean; }
+      let strategy: CacheStrategy = 'aside', eviction: EvictPolicy = 'lru';
       let tick = 0, hits = 0, misses = 0, dbReads = 0, dbWrites = 0;
-      let db = { A: 1, B: 1, C: 1, D: 1 };
-      let slots = []; // [{ key, ver, freq, lastUsed, dirty }]
+      let db: Record<DbKey, number> = { A: 1, B: 1, C: 1, D: 1 };
+      let slots: CacheSlot[] = [];
       let lastMsg = '';
 
       const board = h('div', { class: 'sd-slots' });
       const stats = h('div', { class: 'sd-grid' });
       const note = h('p', { class: 'viz-note', 'aria-live': 'polite' });
 
-      const evictOne = () => {
+      const evictOne = (): CacheSlot | null => {
         if (slots.length < CAP) return null;
         let idx = 0;
         for (let i = 1; i < slots.length; i++) {
@@ -87,7 +91,7 @@ import { VIZ } from './registry.ts';
         note.textContent = lastMsg;
       };
 
-      const readKey = k => {
+      const readKey = (k: DbKey) => {
         tick++;
         const hit = slots.find(s => s.key === k);
         if (hit) {
@@ -169,17 +173,17 @@ import { VIZ } from './registry.ts';
         render();
       };
 
-      const ctlStrategy = pills([
+      const ctlStrategy = pills<CacheStrategy>([
         ['aside', 'Cache-Aside'],
         ['readthrough', 'Read-Through'],
         ['writethrough', 'Write-Through'],
         ['writeback', 'Write-Back']
       ], strategy, m => { strategy = m; reset(); }, T('Caching strategy'));
 
-      const ctlEvict = pills([['lru', 'LRU'], ['lfu', 'LFU']], eviction, m => { eviction = m; lastMsg = T('Switched eviction policy to {p}.', { p: m.toUpperCase() }); render(); }, T('Eviction policy'));
+      const ctlEvict = pills<EvictPolicy>([['lru', 'LRU'], ['lfu', 'LFU']], eviction, m => { eviction = m; lastMsg = T('Switched eviction policy to {p}.', { p: m.toUpperCase() }); render(); }, T('Eviction policy'));
 
       const actions = h('div', { class: 'viz-ctl' },
-        ...['A', 'B', 'C', 'D'].map(k => {
+        ...(['A', 'B', 'C', 'D'] as const).map(k => {
           const btn = h('button', { type: 'button', class: 'btn' }, T('Read {k}', { k }));
           btn.onclick = () => readKey(k);
           return btn;
@@ -201,8 +205,20 @@ import { VIZ } from './registry.ts';
     desc: 'Compare Fixed Window, Sliding Window Counter, Token Bucket, and Leaky Bucket (limit: 4 req / 10s) right across the window edge at :09.',
     mount(el) {
       const LIMIT = 4, WIN = 10;
+      interface RateLimitState {
+        fw: { winStart: number; count: number; ok: number; drop: number };
+        sw: { winStart: number; prevCount: number; curCount: number; ok: number; drop: number };
+        tb: { tokens: number; lastSec: number; ok: number; drop: number };
+        lb: { queue: number; leakBank: number; lastSec: number; ok: number; drop: number };
+      }
+      const makeState = (): RateLimitState => ({
+        fw: { winStart: 0, count: 0, ok: 0, drop: 0 },
+        sw: { winStart: 0, prevCount: 0, curCount: 0, ok: 0, drop: 0 },
+        tb: { tokens: LIMIT, lastSec: 0, ok: 0, drop: 0 },
+        lb: { queue: 0, leakBank: 0, lastSec: 0, ok: 0, drop: 0 }
+      });
       let sec = 0;
-      let state = {};
+      let state: RateLimitState = makeState();
       let lastMsg = '';
       const clockBadge = h('div', { class: 'viz-ctl' });
       const grid = h('div', { class: 'sd-grid' });
@@ -210,16 +226,11 @@ import { VIZ } from './registry.ts';
 
       const initState = () => {
         sec = 0;
-        state = {
-          fw: { winStart: 0, count: 0, ok: 0, drop: 0 },
-          sw: { winStart: 0, prevCount: 0, curCount: 0, ok: 0, drop: 0 },
-          tb: { tokens: LIMIT, lastSec: 0, ok: 0, drop: 0 },
-          lb: { queue: 0, leakBank: 0, lastSec: 0, ok: 0, drop: 0 }
-        };
+        state = makeState();
         lastMsg = T('Limit = 4 req per 10s window. Try Jump to :09 -> Burst ×4 -> Advance +2s -> Burst ×4.');
       };
 
-      const syncTime = newSec => {
+      const syncTime = (newSec: number) => {
         const dt = Math.max(0, newSec - state.tb.lastSec);
         sec = newSec;
         // Fixed & Sliding windows track 10s bucket boundaries
@@ -308,7 +319,7 @@ import { VIZ } from './registry.ts';
         note.textContent = lastMsg;
       };
 
-      const act = (fn, msg) => () => { fn(); lastMsg = msg(); render(); };
+      const act = (fn: () => void, msg: () => string) => () => { fn(); lastMsg = msg(); render(); };
       const ctl = h('div', { class: 'viz-ctl' },
         (() => { const b = h('button', { type: 'button', class: 'btn' }, T('Send request')); b.onclick = act(sendOne, () => T('Sent 1 request at :{s}.', { s: String(sec).padStart(2, '0') })); return b; })(),
         (() => { const b = h('button', { type: 'button', class: 'btn' }, T('Burst ×4')); b.onclick = act(() => { for (let i = 0; i < 4; i++) sendOne(); }, () => T('Fired burst of 4 requests at :{s}. Look at Fixed vs Sliding counts!', { s: String(sec).padStart(2, '0') })); return b; })(),
@@ -329,7 +340,9 @@ import { VIZ } from './registry.ts';
     title: 'Database pooling and replication lag lab',
     desc: 'See how PgBouncer Transaction Mode slashes backend connections as pods scale, and watch replication lag break naive replica reads without LSN tracking.',
     mount(el) {
-      let pods = 24, poolMode = 'direct', writeLoad = 'low', checkLSN = false;
+      type PoolMode = 'direct' | 'pgbouncer';
+      type WriteLoad = 'low' | 'high';
+      let pods = 24, poolMode: PoolMode = 'direct', writeLoad: WriteLoad = 'low', checkLSN = false;
       const POD_CONNS = 25;
       const grid = h('div', { class: 'sd-grid' });
       const rwBox = h('div', {});
@@ -390,12 +403,12 @@ import { VIZ } from './registry.ts';
           : T('Postgres backends healthy ({n}). Toggle High write load and compare naive replica reads against LSN pinning.', { n: dbBackends });
       };
 
-      const ctlPool = pills([
+      const ctlPool = pills<PoolMode>([
         ['direct', 'Direct connections'],
         ['pgbouncer', 'PgBouncer Transaction']
       ], poolMode, m => { poolMode = m; render(); }, T('Connection pooling mode'));
 
-      const ctlWrite = pills([
+      const ctlWrite = pills<WriteLoad>([
         ['low', 'Low write load'],
         ['high', 'High write load']
       ], writeLoad, m => { writeLoad = m; render(); }, T('Write load level'));
@@ -422,7 +435,7 @@ import { VIZ } from './registry.ts';
       const N_KEYS = 40;
       let hasNodeE = false, vnodesPerNode = 10, bounded = false;
 
-      const fnv32 = str => {
+      const fnv32 = (str: string): number => {
         let hval = 0x811c9dc5;
         for (let i = 0; i < str.length; i++) {
           hval ^= str.charCodeAt(i);
@@ -436,8 +449,9 @@ import { VIZ } from './registry.ts';
         return { name: k, id: `k${i}`, pos: fnv32(k + '#' + i) };
       });
 
-      const buildRing = (nodes, vPer) => {
-        const arr = [];
+      interface VNode { node: string; pos: number; }
+      const buildRing = (nodes: string[], vPer: number): VNode[] => {
+        const arr: VNode[] = [];
         for (const n of nodes) {
           for (let v = 0; v < vPer; v++) {
             arr.push({ node: n, pos: fnv32(`${n}#v${v}`) });
@@ -447,16 +461,16 @@ import { VIZ } from './registry.ts';
         return arr;
       };
 
-      const assignKeys = (ring, nodes) => {
-        const load = Object.fromEntries(nodes.map(n => [n, 0]));
+      const assignKeys = (ring: VNode[], nodes: string[]) => {
+        const load: Record<string, number> = Object.fromEntries(nodes.map(n => [n, 0]));
         const cap = Math.ceil((N_KEYS / nodes.length) * 1.25);
-        const owner = {};
+        const owner: Record<string, string> = {};
         for (const k of keys) {
           let idx = ring.findIndex(v => v.pos >= k.pos);
           if (idx < 0) idx = 0;
           let picked = ring[idx].node;
           if (bounded) {
-            const seen = new Set();
+            const seen = new Set<string>();
             for (let off = 0; off < ring.length; off++) {
               const cand = ring[(idx + off) % ring.length].node;
               if (seen.has(cand)) continue;
@@ -476,7 +490,7 @@ import { VIZ } from './registry.ts';
       const note = h('p', { class: 'viz-note', 'aria-live': 'polite' });
 
       const ns = 'http://www.w3.org/2000/svg';
-      const mkSvg = (tag, attrs) => {
+      const mkSvg = (tag: string, attrs: Record<string, string | number>): SVGElement => {
         const e = document.createElementNS(ns, tag);
         for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v));
         return e;
@@ -491,7 +505,7 @@ import { VIZ } from './registry.ts';
         const resCur = assignKeys(rCur, curNodes);
 
         let ringMoved = 0, modMoved = 0;
-        const movedIds = new Set();
+        const movedIds = new Set<string>();
         for (const k of keys) {
           if (hasNodeE && resBase.owner[k.id] !== resCur.owner[k.id]) {
             ringMoved++;
@@ -506,8 +520,8 @@ import { VIZ } from './registry.ts';
         const cx = 130, cy = 130, R = 95;
         svg.appendChild(mkSvg('circle', { cx, cy, r: R, class: 'ring-track' }));
 
-        const deg = p => (p / 0x100000000) * Math.PI * 2 - Math.PI / 2;
-        const pt = (p, rad) => {
+        const deg = (p: number): number => (p / 0x100000000) * Math.PI * 2 - Math.PI / 2;
+        const pt = (p: number, rad: number): [number, number] => {
           const a = deg(p);
           return [cx + Math.cos(a) * rad, cy + Math.sin(a) * rad];
         };
@@ -565,7 +579,7 @@ import { VIZ } from './registry.ts';
           : T('Spread across {v} vnodes/server: key counts range from {min} to {max} keys per server.', { v: vnodesPerNode, min: minLoad, max: maxLoad });
       };
 
-      const vnodeCtl = pills([
+      const vnodeCtl = pills<string>([
         ['1', '1 vnode'],
         ['10', '10 vnodes'],
         ['50', '50 vnodes'],
@@ -599,8 +613,12 @@ import { VIZ } from './registry.ts';
     title: 'Transactional outbox, CDC relay, and DLQ lab',
     desc: 'Trigger a broker outage mid-checkout to contrast brittle Dual-Write loss against atomic Outbox + CDC and inspect Dead-Letter Queue parking.',
     mount(el) {
-      let mode = 'outbox', brokerUp = true, nextId = 1;
-      let orders = [], outbox = [], broker = [], consumerOk = [], dlq = [], lostEvents = 0;
+      type QueueMode = 'dual' | 'outbox';
+      interface QueueOrder { id: string; label: string; }
+      interface QueueEvent { id: string; label: string; attempts: number; poison: boolean; }
+      interface QueueViewItem { label: string; poison?: boolean; }
+      let mode: QueueMode = 'outbox', brokerUp = true, nextId = 1;
+      let orders: QueueOrder[] = [], outbox: QueueEvent[] = [], broker: QueueEvent[] = [], consumerOk: QueueOrder[] = [], dlq: QueueEvent[] = [], lostEvents = 0;
       let lastMsg = '';
 
       const statusBar = h('div', { class: 'viz-ctl' });
@@ -620,7 +638,7 @@ import { VIZ } from './registry.ts';
           h('span', { class: 'sd-badge ' + cls }, verdict)
         );
 
-        const mkList = (title, arr, emptyTxt, badgeCls) => h('div', { class: 'sd-card' },
+        const mkList = (title: string, arr: QueueViewItem[], emptyTxt: string, badgeCls: string) => h('div', { class: 'sd-card' },
           h('h4', {}, title, h('span', { class: 'sd-badge ' + (arr.length ? badgeCls : '') }, String(arr.length))),
           arr.length
             ? h('div', { class: 'cells' }, arr.slice(-6).map(x => h('span', { class: 'cell ' + (x.poison ? 'hit' : '') }, x.label)))
@@ -654,7 +672,7 @@ import { VIZ } from './registry.ts';
             lastMsg = T('BUG in Dual-Write! {id} committed to Postgres, then broker publish threw timeout -> EVENT LOST PERMANENTLY.', { id });
           }
         } else {
-          outbox.push({ id, label: `${id} (pending)`, poison: false });
+          outbox.push({ id, label: `${id} (pending)`, attempts: 0, poison: false });
           lastMsg = brokerUp
             ? T('Outbox committed {id} + outbox row inside ONE atomic transaction. Click Relay / Consume to ship.', { id })
             : T('Broker is DOWN, yet {id} and its outbox row committed atomically. The event stays on disk until the broker recovers.', { id });
@@ -684,23 +702,24 @@ import { VIZ } from './registry.ts';
         if (outbox.length) {
           while (outbox.length) {
             const ev = outbox.shift();
+            if (!ev) break;
             broker.push({ id: ev.id, label: ev.id, attempts: 0, poison: false });
             shipped++;
           }
         }
         if (broker.length) {
           const item = broker.shift();
-          if (item.poison) {
+          if (item && item.poison) {
             item.attempts++;
             if (item.attempts >= 3) {
-              dlq.push({ id: item.id, label: `${item.id} [DLQ]`, poison: true });
+              dlq.push({ id: item.id, label: `${item.id} [DLQ]`, attempts: item.attempts, poison: true });
               lastMsg = T('{id} exceeded max 3 retries and moved to Dead-Letter Queue (DLQ) so healthy messages keep flowing.', { id: item.id });
             } else {
               item.label = `${item.id} (try ${item.attempts}/3)`;
               broker.push(item); // requeue to back
               lastMsg = T('{id} failed schema parse (attempt {n}/3) -> requeued with backoff.', { id: item.id, n: item.attempts });
             }
-          } else {
+          } else if (item) {
             consumerOk.push({ id: item.id, label: `${item.id} ✓` });
             lastMsg = shipped
               ? T('CDC relayed {n} outbox events and consumer processed {id} idempotently.', { n: shipped, id: item.id })
@@ -714,7 +733,7 @@ import { VIZ } from './registry.ts';
         render();
       };
 
-      const modeCtl = pills([
+      const modeCtl = pills<QueueMode>([
         ['dual', 'Dual-Write (fragile)'],
         ['outbox', 'Transactional Outbox (atomic)']
       ], mode, m => { mode = m; reset(); }, T('Event publishing strategy'));
@@ -747,8 +766,11 @@ import { VIZ } from './registry.ts';
     desc: 'Saturate a failing dependency to watch Closed -> Open -> Half-Open transitions, bulkhead isolation, and Full Jitter retry spreading.',
     mount(el) {
       const THRESH = 3, BULK_CAP = 3;
-      let health = 'healthy', jitter = 'full';
-      let cbState = 'CLOSED', failStreak = 0, cooldownLeft = 0;
+      type HealthMode = 'healthy' | 'degraded' | 'outage';
+      type JitterMode = 'unjittered' | 'full';
+      type CbState = 'CLOSED' | 'OPEN' | 'HALF_OPEN';
+      let health: HealthMode = 'healthy', jitter: JitterMode = 'full';
+      let cbState: CbState = 'CLOSED', failStreak = 0, cooldownLeft = 0;
       let completed = 0, failed = 0, fastFailed = 0, bulkheadShed = 0, callSeq = 0;
       let buckets = [0, 0, 0, 0, 0, 0];
       let rngState = 42;
@@ -799,7 +821,7 @@ import { VIZ } from './registry.ts';
         render();
       };
 
-      const runBurst = count => {
+      const runBurst = (count: number) => {
         if (count > BULK_CAP && health !== 'healthy' && cbState === 'CLOSED') {
           const overflow = count - BULK_CAP;
           bulkheadShed += overflow;
@@ -854,13 +876,13 @@ import { VIZ } from './registry.ts';
         render();
       };
 
-      const hCtl = pills([
+      const hCtl = pills<HealthMode>([
         ['healthy', 'Healthy (0% fail)'],
         ['degraded', 'Degraded (60% fail)'],
         ['outage', 'Outage (100% fail)']
       ], health, m => { health = m; lastMsg = T('Downstream health set to {h}.', { h: m }); render(); }, T('Downstream health'));
 
-      const jCtl = pills([
+      const jCtl = pills<JitterMode>([
         ['unjittered', 'No Jitter (synchronized)'],
         ['full', 'Full Jitter (spread)']
       ], jitter, m => { jitter = m; buckets = [0, 0, 0, 0, 0, 0]; lastMsg = T('Switched backoff mode to {m}.', { m }); render(); }, T('Backoff jitter mode'));

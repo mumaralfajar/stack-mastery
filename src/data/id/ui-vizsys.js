@@ -1,3 +1,4 @@
+// @ts-check
 // Indonesian UI strings for System Design visual labs (src/scripts/viz/vizsys.js).
 const dict = {
   'Caching strategies and eviction lab': 'Lab strategi caching dan eviksi',

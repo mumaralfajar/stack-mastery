@@ -2,15 +2,15 @@
 import { codeBlock, h, tableWrap } from '../../lib/dom.ts';
 import { t as T } from '../../lib/i18n.ts';
 import { VIZ } from './registry.ts';
-  const btn = (label, onclick, cls) => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
-  const pills = (opts, cur, onPick) => {
+  const btn = (label: string, onclick: () => void, cls?: string): HTMLButtonElement => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
+  const pills = <T extends string>(opts: [T, string][], cur: T, onPick: (k: T) => void): HTMLElement => {
     const row = h('div', { class: 'chips' });
-    const btns = {};
+    const btns = {} as Record<T, HTMLButtonElement>;
     for (const [k, lbl] of opts) {
       btns[k] = h('button', {
         type: 'button', class: k === cur ? 'on' : '', 'aria-pressed': String(k === cur),
         onclick: () => {
-          Object.entries(btns).forEach(([x, b]) => { b.classList.toggle('on', x === k); b.setAttribute('aria-pressed', String(x === k)); });
+          (Object.entries(btns) as [T, HTMLButtonElement][]).forEach(([x, b]) => { b.classList.toggle('on', x === k); b.setAttribute('aria-pressed', String(x === k)); });
           onPick(k);
         }
       }, lbl);
@@ -18,7 +18,7 @@ import { VIZ } from './registry.ts';
     }
     return row;
   };
-  function stepper(countFn, draw) {
+  function stepper(countFn: () => number, draw: (i: number) => void) {
     let i = 0;
     const lbl = h('span', { class: 'muted' });
     const back = btn('← Back', () => { i--; upd(); }, 'ghost');
@@ -39,7 +39,9 @@ import { VIZ } from './registry.ts';
     title: 'Concurrent transactions and deadlocks', track: 'sql', trackName: 'SQL',
     desc: 'Step two sessions line by line. Contrast opposite lock order (deadlock victim 1205), consistent lock order, and RCSI snapshots where readers never block writers.',
     mount(el) {
-      const scenarios = {
+      type LockMode = 'deadlock' | 'ordered' | 'rcsi';
+      interface LockStep { a: string; b: string; locks: string; res: string; note: string; }
+      const scenarios: Record<LockMode, LockStep[]> = {
         deadlock: [
           { a: 'BEGIN TRAN', b: 'BEGIN TRAN', locks: '—', res: 'deadlock-pending', note: 'Both sessions start uncommitted transactions at the same instant.' },
           { a: 'UPDATE Orders WHERE id=1 (holds X)', b: 'waiting…', locks: 'Orders#1 → A (X)', res: 'ok', note: 'Session A acquires an exclusive lock (X) on Orders#1.' },
@@ -58,7 +60,7 @@ import { VIZ } from './registry.ts';
           { a: 'holding X lock (uncommitted)', b: 'Reads 80 immediately (RCSI) — NO BLOCKING', locks: 'Reader reads committed snapshot', res: 'good', note: 'Under Read Committed Snapshot Isolation, B reads the last committed version (80) without waiting or seeing dirty data.' }
         ]
       };
-      let mode = 'deadlock';
+      let mode: LockMode = 'deadlock';
       const box = h('div', {}), note = h('p', { class: 'viz-note', 'aria-live': 'polite' });
       const s = stepper(() => scenarios[mode].length, i => {
         const st = scenarios[mode][i];
@@ -70,7 +72,7 @@ import { VIZ } from './registry.ts';
             h('td', {}, st.locks))))));
         note.textContent = T(st.note);
       });
-      const ctl = pills([['deadlock', 'Deadlock (opposite order)'], ['ordered', 'Fixed (same order)'], ['rcsi', 'RCSI readers vs writers']], mode, m => { mode = m; s.reset(); });
+      const ctl = pills<LockMode>([['deadlock', 'Deadlock (opposite order)'], ['ordered', 'Fixed (same order)'], ['rcsi', 'RCSI readers vs writers']], mode, m => { mode = m; s.reset(); });
       el.append(ctl, s.el, box, note);
       s.start();
     }
@@ -81,7 +83,8 @@ import { VIZ } from './registry.ts';
     title: 'GROUP BY vs window functions', track: 'sql', trackName: 'SQL',
     desc: 'Contrast GROUP BY (collapses rows per group) with OVER (PARTITION BY … ORDER BY …) to keep every row and attach a running total.',
     mount(el) {
-      const orders = [
+      type SqlWinMode = 'groupby' | 'window';
+      const orders: [number, string, string, number][] = [
         [101, 'Tech', '2026-01-02', 120],
         [102, 'Home', '2026-01-03', 80],
         [103, 'Tech', '2026-01-05', 300],
@@ -89,20 +92,20 @@ import { VIZ } from './registry.ts';
         [105, 'Home', '2026-01-09', 150],
         [106, 'Office', '2026-01-10', 40]
       ];
-      let mode = 'groupby';
+      let mode: SqlWinMode = 'groupby';
       const box = h('div', {}), sqlPre = h('div', {}), note = h('p', { class: 'viz-note', 'aria-live': 'polite' });
       const draw = () => {
         if (mode === 'groupby') {
-          const map = new Map();
+          const map = new Map<string, number>();
           for (const [, cat, , amt] of orders) map.set(cat, (map.get(cat) || 0) + amt);
-          const rows = [...map.entries()].map(([cat, sum]) => [cat, sum]);
+          const rows = [...map.entries()];
           sqlPre.replaceChildren(codeBlock('SELECT category, SUM(amount) AS total\nFROM orders\nGROUP BY category;', 'sql'));
           box.replaceChildren(tableWrap('GROUP BY result', h('table', { class: 't' },
             h('thead', {}, h('tr', {}, ['category', 'total'].map(c => h('th', { scope: 'col' }, c)))),
             h('tbody', {}, rows.map(([c, s2]) => h('tr', {}, h('td', {}, c), h('td', {}, s2)))))));
           note.textContent = T('GROUP BY collapsed 6 order rows into 3 category totals, so per-order columns like order id and date disappear.');
         } else {
-          const run = {}, rank = {};
+          const run: Record<string, number> = {}, rank: Record<string, number> = {};
           const rows = orders.map(([id, cat, dt, amt]) => {
             run[cat] = (run[cat] || 0) + amt;
             rank[cat] = (rank[cat] || 0) + 1;
@@ -115,7 +118,7 @@ import { VIZ } from './registry.ts';
           note.textContent = T('OVER(PARTITION BY … ORDER BY …) keeps all 6 original order rows intact and adds the running sum and rank within each category.');
         }
       };
-      const ctl = pills([['groupby', 'GROUP BY (collapses rows)'], ['window', 'Window OVER() (keeps every row)']], mode, m => { mode = m; draw(); });
+      const ctl = pills<SqlWinMode>([['groupby', 'GROUP BY (collapses rows)'], ['window', 'Window OVER() (keeps every row)']], mode, m => { mode = m; draw(); });
       el.append(ctl, sqlPre, box, note);
       draw();
     }
@@ -126,9 +129,13 @@ import { VIZ } from './registry.ts';
     title: 'RxJS flattening operators', track: 'angular', trackName: 'Angular',
     desc: 'Trigger overlapping async clicks and compare switchMap (cancel stale), exhaustMap (ignore duplicates), concatMap (queue FIFO), and mergeMap (run all concurrently).',
     mount(el) {
-      let op = 'switchMap', reqs = [], nextId = 0, noteTxt = 'Pick an operator and click Trigger HTTP request twice quickly.';
+      type RxOp = 'switchMap' | 'exhaustMap' | 'concatMap' | 'mergeMap';
+      type ReqState = 'running' | 'done' | 'cancelled' | 'ignored' | 'queued';
+      interface RxReq { id: number; state: ReqState; pct: number; }
+      let op: RxOp = 'switchMap', reqs: RxReq[] = [], nextId = 0, noteTxt = 'Pick an operator and click Trigger HTTP request twice quickly.';
       const board = h('div', { class: 'rxjs-board' }), note = h('p', { class: 'viz-note', 'aria-live': 'polite' });
-      const labelState = s => ({ running: 'in flight', done: 'completed', cancelled: 'cancelled (stale)', ignored: 'ignored (busy)', queued: 'queued (FIFO)' }[s] || s);
+      const STATE_LABELS: Record<ReqState, string> = { running: 'in flight', done: 'completed', cancelled: 'cancelled (stale)', ignored: 'ignored (busy)', queued: 'queued (FIFO)' };
+      const labelState = (s: ReqState): string => STATE_LABELS[s] || s;
 
       const triggerOne = () => {
         const id = ++nextId;
@@ -183,7 +190,7 @@ import { VIZ } from './registry.ts';
         ) : [h('p', { class: 'muted' }, 'No requests yet. Click “Trigger HTTP request” twice before stepping.')]));
         note.textContent = T(noteTxt);
       };
-      const opCtl = pills([['switchMap', 'switchMap'], ['exhaustMap', 'exhaustMap'], ['concatMap', 'concatMap'], ['mergeMap', 'mergeMap']], op, m => { op = m; reset(); });
+      const opCtl = pills<RxOp>([['switchMap', 'switchMap'], ['exhaustMap', 'exhaustMap'], ['concatMap', 'concatMap'], ['mergeMap', 'mergeMap']], op, m => { op = m; reset(); });
       const actCtl = h('div', { class: 'viz-ctl' },
         btn('Trigger HTTP request', triggerOne),
         btn('Burst 2 rapid clicks', () => { triggerOne(); triggerOne(); }, 'ghost'),
@@ -199,6 +206,8 @@ import { VIZ } from './registry.ts';
     title: 'useEffect lifecycle and race conditions', track: 'react', trackName: 'TypeScript + React',
     desc: 'Contrast missing cleanup against AbortController / ignore cleanup when userId switches from 1 to 2 before the slower fetch finishes.',
     mount(el) {
+      type EffectMode = 'race' | 'clean';
+      let mode: EffectMode = 'race';
       let cleanMode = false;
       const steps = [
         { ui: 'Product #1 (loading…)', reqs: 'Fetch #1 in flight (600 ms)', log: 'Mount: render(id=1) → effect #1 runs', bad: false, note: 'First render paints immediately, and effect #1 starts fetching id=1.' },
@@ -221,8 +230,7 @@ import { VIZ } from './registry.ts';
           h('div', { class: 'viz-box' }, h('h4', {}, 'Effect log'), h('div', { class: 'slot' }, h('code', {}, T(logText))))));
         note.textContent = T(noteStr);
       });
-      let mode = 'race';
-      const ctl = pills([['race', 'No cleanup (race condition)'], ['clean', 'With cleanup (ignore / AbortController)']], mode, m => { mode = m; s.reset(); });
+      const ctl = pills<EffectMode>([['race', 'No cleanup (race condition)'], ['clean', 'With cleanup (ignore / AbortController)']], mode, m => { mode = m; s.reset(); });
       el.append(ctl, s.el, box, note);
       s.start();
     }
@@ -233,11 +241,12 @@ import { VIZ } from './registry.ts';
     title: 'Stacking context sandbox', track: 'css', trackName: 'CSS + Tailwind',
     desc: 'See how transform and opacity < 1 lock child z-index values inside a card, keeping z-index: 9999 behind a z-index: 10 header.',
     mount(el) {
-      let prop = 'transform';
+      type StackProp = 'transform' | 'opacity' | 'none';
+      let prop: StackProp = 'transform';
       const stage = h('div', { class: 'stack-stage' }), note = h('p', { class: 'viz-note', 'aria-live': 'polite' });
       const draw = () => {
         const trapped = prop !== 'none';
-        const cardStyle = prop === 'transform' ? { transform: 'translateY(0)' }
+        const cardStyle: Record<string, string> = prop === 'transform' ? { transform: 'translateY(0)' }
           : prop === 'opacity' ? { opacity: '0.99' } : {};
         stage.replaceChildren(
           h('div', { class: 'stack-hdr' }, 'Header · z-index: 10'),
@@ -248,7 +257,7 @@ import { VIZ } from './registry.ts';
           ? 'Card has {p}, creating a local stacking context with implicit root priority 0. Its child z-index: 9999 cannot escape to beat the Header (z-index: 10).'
           : 'With no transform/opacity on Card, the Tooltip participates in the root stacking context and z-index: 9999 paints on top of Header (z-index: 10).', { p: prop });
       };
-      const ctl = pills([['transform', 'transform: translateY(0)'], ['opacity', 'opacity: 0.99'], ['none', 'none (normal flow)']], prop, m => { prop = m; draw(); });
+      const ctl = pills<StackProp>([['transform', 'transform: translateY(0)'], ['opacity', 'opacity: 0.99'], ['none', 'none (normal flow)']], prop, m => { prop = m; draw(); });
       el.append(ctl, stage, note);
       draw();
     }
@@ -287,7 +296,7 @@ import { VIZ } from './registry.ts';
     title: 'Greedy vs DP table (coins [1, 3, 4])', track: 'cs', trackName: 'CS Fundamentals',
     desc: 'Target 6 with coins [1, 3, 4]. Greedy takes 4 + 1 + 1 (3 coins), while DP finds 3 + 3 (2 coins).',
     mount(el) {
-      const steps = [
+      const steps: { k: number; dp: (number | null)[]; note: string }[] = [
         { k: 0, dp: [0, null, null, null, null, null, null], note: 'Base case: 0 coins needed to make amount 0 (dp[0] = 0).' },
         { k: 1, dp: [0, 1, null, null, null, null, null], note: 'dp[1] = 1 + dp[1 - 1] = 1 coin (1).' },
         { k: 2, dp: [0, 1, 2, null, null, null, null], note: 'dp[2] = 1 + dp[2 - 1] = 2 coins (1 + 1).' },

@@ -42,7 +42,7 @@ const searchData = jsonForScript({
 </WorkspaceLayout>
 <script>
   import { registerUiDict } from '../lib/i18n.ts';
-  import { searchView } from '../scripts/views/search.js';
+  import { searchView } from '../scripts/views/search.ts';
 
   const root = document.getElementById('search-root');
   const data = JSON.parse(document.getElementById('search-data')?.textContent || '{}') as {

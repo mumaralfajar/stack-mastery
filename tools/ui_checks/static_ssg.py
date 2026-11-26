@@ -155,6 +155,9 @@ def static_checks(check):
 
     sw = (DIST / "sw.js").read_text(encoding="utf-8")
     check(re.search(r"const VERSION = 'stack-mastery-v\d+'", sw) is not None, "sw.js must use a versioned cache name")
+    css_assets = [p.name for p in (DIST / "_astro").glob("*.css")]
+    check(any(n.startswith("styles.") for n in css_assets) and not any(n.startswith("icons.") for n in css_assets),
+          f"Shared CSS bundle must be named styles.*.css instead of icons.*.css, got {css_assets}")
     for url in [
         "/stack-mastery/", "/stack-mastery/id/", "/stack-mastery/dashboard/", "/stack-mastery/id/dashboard/",
         "/stack-mastery/notes/", "/stack-mastery/id/notes/",

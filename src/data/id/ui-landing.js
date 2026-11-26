@@ -1,3 +1,4 @@
+// @ts-check
 // Bahasa Indonesia UI strings for the interactive Landing Page (src/scripts/views/landing.js).
 const dict = {
   'Landing navigation': 'Navigasi halaman utama',

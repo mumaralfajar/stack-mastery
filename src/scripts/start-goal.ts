@@ -6,11 +6,12 @@ import { getGoalConfig, isLearnerGoal } from '../lib/goals.ts';
 import { getLang, registerUiDict, t as T } from '../lib/i18n.ts';
 import { routePath } from '../lib/routes.ts';
 import { S, notifyStateChange, save, subscribeState } from '../lib/state.ts';
+import type { LessonIndexEntry } from '../lib/types.ts';
 
-const root = document.querySelector('[data-start-goal]');
+const root = document.querySelector<HTMLElement>('[data-start-goal]');
 if (root) {
   try {
-    const dict = JSON.parse(document.getElementById('start-goal-i18n')?.textContent || '{}');
+    const dict = JSON.parse(document.getElementById('start-goal-i18n')?.textContent || '{}') as Record<string, string>;
     registerUiDict(dict);
   } catch {
     /* ignore */
@@ -18,18 +19,19 @@ if (root) {
 
   const lang = getLang();
   const trackById = new Map(TRACK_META.map((tr) => [tr.id, tr]));
-  const firstLessonOf = (trackId) => LESSON_INDEX.find((l) => l.trackId === trackId);
-  const trackName = (trackId) => {
+  const firstLessonOf = (trackId: string): LessonIndexEntry | undefined =>
+    LESSON_INDEX.find((l) => l.trackId === trackId);
+  const trackName = (trackId: string): string => {
     const tr = trackById.get(trackId);
     if (!tr) return trackId;
     return lang === 'id' && tr.nameId ? tr.nameId : tr.name;
   };
 
-  const buttons = [...root.querySelectorAll('[data-goal]')];
-  const clearBtn = root.querySelector('[data-goal-clear]');
-  const summaryEl = root.querySelector('[data-goal-summary]');
-  const tracksEl = root.querySelector('[data-goal-tracks]');
-  const ctaLink = document.querySelector('[data-start-cta]');
+  const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-goal]')];
+  const clearBtn = root.querySelector<HTMLButtonElement>('[data-goal-clear]');
+  const summaryEl = root.querySelector<HTMLElement>('[data-goal-summary]');
+  const tracksEl = root.querySelector<HTMLElement>('[data-goal-tracks]');
+  const ctaLink = document.querySelector<HTMLAnchorElement>('[data-start-cta]');
 
   const draw = () => {
     const goal = S.onboarding?.goal || null;
@@ -54,7 +56,7 @@ if (root) {
         tracksEl.hidden = true;
       } else {
         tracksEl.hidden = false;
-        tracksEl.replaceChildren(
+        const trackLinks: (string | Node)[] = [
           h('span', { class: 'muted' }, 'Recommended tracks:'),
           ...cfg.tracks.map((id) =>
             h(
@@ -67,10 +69,11 @@ if (root) {
               trackName(id),
             ),
           ),
-          cfg.elevateInterview
-            ? h('a', { class: 'chip-link', href: routePath(lang, '/interview/') }, 'Interview hub')
-            : null,
-        );
+        ];
+        if (cfg.elevateInterview) {
+          trackLinks.push(h('a', { class: 'chip-link', href: routePath(lang, '/interview/') }, 'Interview hub'));
+        }
+        tracksEl.replaceChildren(...trackLinks);
       }
     }
 

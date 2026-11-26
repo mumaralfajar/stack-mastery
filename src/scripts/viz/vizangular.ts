@@ -3,21 +3,25 @@ import { h, treeWire } from '../../lib/dom.ts';
 import { t as T } from '../../lib/i18n.ts';
 import { VIZ } from './registry.ts';
   const meta = { track: 'angular', trackName: 'Angular' };
-  const btn = (label, onclick, cls) => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
-  const check = (label, on, onchange) => { const c = h('input', { type: 'checkbox', onchange }); c.checked = on; return [h('label', {}, c, label), c]; };
+  const btn = (label: string, onclick: () => void, cls?: string): HTMLButtonElement => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
+  const check = (label: string, on: boolean, onchange: (e: Event) => void): [HTMLElement, HTMLInputElement] => {
+    const c = h('input', { type: 'checkbox', onchange }); c.checked = on; return [h('label', {}, c, label), c];
+  };
 
   // ---------- Signal dependency graph ----------
   VIZ.ngsignals = {
     ...meta, title: 'Signal dependency graph',
     desc: 'Change a source signal and watch which computed nodes recalculate, which stay cached, and why diamond graphs never glitch.',
     mount(el) {
+      type EvalKey = 'subtotal' | 'shipping' | 'total' | 'effect';
+      type NodeState = 'recomputed' | 'cached' | 'same value' | 'ran' | 'skipped';
       let price = 100, qty = 2, coupon = false;
       let subVal = 200, shipVal = 0, totalVal = 200;
-      const evals = { subtotal: 1, shipping: 1, total: 1, effect: 1 };
-      let states = { subtotal: 'recomputed', shipping: 'recomputed', total: 'recomputed', effect: 'ran' };
+      const evals: Record<EvalKey, number> = { subtotal: 1, shipping: 1, total: 1, effect: 1 };
+      let states: Record<EvalKey, NodeState> = { subtotal: 'recomputed', shipping: 'recomputed', total: 'recomputed', effect: 'ran' };
       let noteText = 'Initial evaluation: subtotal = 200, shipping = 0 (free over 200), total = 200.';
 
-      const apply = (nextPrice, nextQty, nextCoupon, changed) => {
+      const apply = (nextPrice: number, nextQty: number, nextCoupon: boolean, changed: 'price' | 'qty' | 'coupon') => {
         const prevPrice = price, prevQty = qty, prevCoupon = coupon;
         const wasTrackingCoupon = prevQty > 0;
         price = nextPrice; qty = nextQty; coupon = nextCoupon;
@@ -62,8 +66,9 @@ import { VIZ } from './registry.ts';
         } else if (states.shipping === 'same value' && states.total === 'recomputed') {
           noteText = T('Diamond update: subtotal and shipping settled before total() ran once with no glitch, and effect() saw only the final total ({total}).', { total: totalVal });
         } else {
+          const computedKeys: EvalKey[] = ['subtotal', 'shipping', 'total'];
           noteText = T('Recalculated {n} node(s), so total is now {total}.', {
-            n: ['subtotal', 'shipping', 'total'].filter(k => states[k] !== 'cached').length,
+            n: computedKeys.filter(k => states[k] !== 'cached').length,
             total: totalVal
           });
         }
@@ -74,7 +79,7 @@ import { VIZ } from './registry.ts';
       const graph = h('div', { class: 'ng-graph' });
       const note = h('p', { class: 'viz-note', 'aria-live': 'polite' });
 
-      const slot = (name, val, badge, cls, extra, eq) => h('div', { class: 'slot ' + (cls || '') },
+      const slot = (name: string, val: number | boolean | string, badge: string, cls?: string, extra?: string, eq?: string) => h('div', { class: 'slot ' + (cls || '') },
         h('div', { class: 'slot-top' },
           h('span', {}, name, extra ? h('small', { class: 'muted' }, ' · ' + extra) : null),
           h('b', {}, String(val), ' ', h('span', { class: 'ng-tag' }, T(badge)))),
@@ -85,21 +90,21 @@ import { VIZ } from './registry.ts';
         const p100 = h('button', { type: 'button', 'aria-pressed': String(price === 100), class: price === 100 ? 'on' : '', onclick: () => apply(100, qty, coupon, 'price') }, T('price = {n}', { n: 100 }));
         const p150 = h('button', { type: 'button', 'aria-pressed': String(price === 150), class: price === 150 ? 'on' : '', onclick: () => apply(150, qty, coupon, 'price') }, T('price = {n}', { n: 150 }));
         const qBtns = [0, 1, 2, 3].map(n => h('button', { type: 'button', 'aria-pressed': String(qty === n), class: qty === n ? 'on' : '', onclick: () => apply(price, n, coupon, 'qty') }, T('qty = {n}', { n })));
-        const [cpLab] = check('hasCoupon ($15 off when qty > 0)', coupon, e => apply(price, qty, e.target.checked, 'coupon'));
+        const [cpLab] = check('hasCoupon ($15 off when qty > 0)', coupon, e => apply(price, qty, (e.target as HTMLInputElement).checked, 'coupon'));
 
         ctl.replaceChildren(
           h('div', { class: 'chips' }, p100, p150, qBtns),
           cpLab,
           btn('Reset', () => {
             price = 100; qty = 2; coupon = false; subVal = 200; shipVal = 0; totalVal = 200;
-            Object.keys(evals).forEach(k => evals[k] = 1);
+            (Object.keys(evals) as EvalKey[]).forEach(k => { evals[k] = 1; });
             states = { subtotal: 'recomputed', shipping: 'recomputed', total: 'recomputed', effect: 'ran' };
             noteText = 'Initial evaluation: subtotal = 200, shipping = 0 (free over 200), total = 200.';
             draw();
           }, 'ghost')
         );
 
-        const tagCls = st => st === 'recomputed' || st === 'ran' ? 'tt-new' : st === 'same value' ? 'tt-upd' : 'tt-kept';
+        const tagCls = (st: NodeState): string => st === 'recomputed' || st === 'ran' ? 'tt-new' : st === 'same value' ? 'tt-upd' : 'tt-kept';
         graph.replaceChildren(
           h('div', { class: 'viz-box' },
             h('h4', {}, '1 · Source signals'),
@@ -128,34 +133,35 @@ import { VIZ } from './registry.ts';
     ...meta, title: 'Change detection explorer',
     desc: 'Click a component to trigger an update. Compare legacy Eager (Zone.js), OnPush, and Zoneless + Signals.',
     mount(el) {
-      const parentOf = { Header: 'App', ProductList: 'App', CartBadge: 'App', 'Card A': 'ProductList', 'Card B': 'ProductList', 'Card C': 'ProductList' };
+      const parentOf: Record<string, string> = { Header: 'App', ProductList: 'App', CartBadge: 'App', 'Card A': 'ProductList', 'Card B': 'ProductList', 'Card C': 'ProductList' };
       const all = ['App', 'Header', 'ProductList', 'CartBadge', 'Card A', 'Card B', 'Card C'];
-      const modes = [
+      type CdMode = 'eager' | 'onpush' | 'zoneless';
+      const modes: [CdMode, string][] = [
         ['eager', 'Eager (Zone.js)'],
         ['onpush', 'OnPush'],
         ['zoneless', 'Zoneless + Signal']
       ];
-      let mode = 'zoneless';
-      const checks = {}, status = {}, nodes = {};
+      let mode: CdMode = 'zoneless';
+      const checks: Record<string, number> = {}, status: Record<string, string> = {}, nodes: Record<string, HTMLButtonElement> = {};
       const sharedSubs = new Set(['Card B', 'CartBadge']);
       const note = h('p', { class: 'viz-note', 'aria-live': 'polite' }, 'Click any component.');
       const [sharedLab, shared] = check('Show shared CartSignal subscribers (Card B & CartBadge)', true, () => reset());
-      const modeBtns = {};
+      const modeBtns = {} as Record<CdMode, HTMLButtonElement>;
 
-      const label = name => {
+      const label = (name: string) => {
         const subTag = shared.checked && sharedSubs.has(name) ? ' [CartSignal]' : '';
-        nodes[name].lastChild.textContent = `${T('checks:')} ${checks[name]}${status[name] ? ' · ' + T(status[name]) : ''}${subTag}`;
+        if (nodes[name].lastChild) nodes[name].lastChild.textContent = `${T('checks:')} ${checks[name]}${status[name] ? ' · ' + T(status[name]) : ''}${subTag}`;
       };
 
-      const ancestors = name => {
-        const path = new Set();
-        let cur = name;
+      const ancestors = (name: string): Set<string> => {
+        const path = new Set<string>();
+        let cur: string | undefined = name;
         while (cur) { path.add(cur); cur = parentOf[cur]; }
         return path;
       };
 
-      const trigger = (name, fromSignal = false) => {
-        const checked = new Set();
+      const trigger = (name: string, fromSignal = false) => {
+        const checked = new Set<string>();
         if (mode === 'eager') {
           all.forEach(n => checked.add(n));
         } else if (mode === 'onpush') {
@@ -200,9 +206,9 @@ import { VIZ } from './registry.ts';
         }
       };
 
-      const setMode = m => {
+      const setMode = (m: CdMode) => {
         mode = m;
-        Object.entries(modeBtns).forEach(([k, b]) => {
+        (Object.entries(modeBtns) as [CdMode, HTMLButtonElement][]).forEach(([k, b]) => {
           const on = k === m;
           b.classList.toggle('on', on);
           b.setAttribute('aria-pressed', String(on));
@@ -218,7 +224,7 @@ import { VIZ } from './registry.ts';
         note.textContent = T('Click any component.');
       };
 
-      const mk = name => {
+      const mk = (name: string): HTMLButtonElement => {
         checks[name] = 1; status[name] = '';
         return nodes[name] = h('button', { type: 'button', class: 'comp', onclick: () => trigger(name) },
           name, h('small', {}, T('checks:') + ' 1'));

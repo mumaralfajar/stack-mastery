@@ -16,6 +16,15 @@ export default defineConfig({
   vite: {
     build: {
       chunkSizeWarningLimit: 600,
+      rollupOptions: {
+        output: {
+          assetFileNames: (info) => {
+            const n = info.names?.[0] ?? info.name ?? '';
+            if (n === 'icons.css' || n.endsWith('.css')) return '_astro/styles.[hash][extname]';
+            return '_astro/[name].[hash][extname]';
+          },
+        },
+      },
     },
   },
 });

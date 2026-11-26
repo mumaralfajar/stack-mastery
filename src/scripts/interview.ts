@@ -2,59 +2,72 @@
 import { INTERVIEW_TOTALS } from '../data/manifest.ts';
 import { codeBlock, confirmDialog, h, md, tableWrap } from '../lib/dom.ts';
 import { getInterview, t as T } from '../lib/i18n.ts';
-import { bar, href, ring, shuffle } from '../lib/icons.ts';
+import { bar, href, ring, shuffle } from '../lib/ui.ts';
 import { notifyStateChange } from '../lib/state.ts';
 import { INTERVIEW_KEY, onStorageSync, readJson, writeJson } from '../lib/storage.ts';
-import { editor, loadTS, typeNote } from './playground.js';
+import type {
+  DesignCase,
+  InterviewData,
+  InterviewProblem,
+  InterviewProgress,
+  InterviewStory,
+  MockInterviewEntry,
+  RapidArea,
+} from '../lib/types.ts';
+import { editor, loadTS, typeNote } from './playground.ts';
 
-const fresh = () => ({ solved: {}, code: {}, design: {}, stories: [], rapid: {}, mocks: [], plan: {} });
-const isObj = (v) => Boolean(v) && typeof v === 'object' && !Array.isArray(v);
+const fresh = (): InterviewProgress => ({ solved: {}, code: {}, design: {}, stories: [], rapid: {}, mocks: [], plan: {} });
+const isObj = (v: unknown): v is Record<string, unknown> => Boolean(v) && typeof v === 'object' && !Array.isArray(v);
+const MOCK_TYPES = new Set<MockInterviewEntry['type']>(['coding', 'design', 'behavioral', 'rapid']);
 
-function normalizeInterview(raw) {
+function normalizeInterview(raw: unknown): InterviewProgress {
   const r = isObj(raw) ? raw : {};
-  const solved = {};
+  const solved: Record<string, boolean> = {};
   if (isObj(r.solved)) {
     for (const [k, v] of Object.entries(r.solved)) if (v === true) solved[k] = true;
   }
-  const code = {};
+  const code: Record<string, string> = {};
   if (isObj(r.code)) {
     for (const [k, v] of Object.entries(r.code)) if (typeof v === 'string') code[k] = v;
   }
-  const design = {};
+  const design: Record<string, boolean> = {};
   if (isObj(r.design)) {
     for (const [k, v] of Object.entries(r.design)) if (v === true) design[k] = true;
   }
-  const rapid = {};
+  const rapid: Record<string, 1 | 2> = {};
   if (isObj(r.rapid)) {
     for (const [k, v] of Object.entries(r.rapid)) if (v === 1 || v === 2) rapid[k] = v;
   }
-  const plan = {};
+  const plan: Record<number, boolean[]> = {};
   if (isObj(r.plan)) {
     for (const [k, v] of Object.entries(r.plan)) {
       if (/^\d+$/.test(k) && Array.isArray(v)) plan[Number(k)] = v.slice(0, 30).map(Boolean);
     }
   }
-  const stories = Array.isArray(r.stories)
+  const stories: InterviewStory[] = Array.isArray(r.stories)
     ? r.stories
-        .filter((s) => isObj(s) && typeof s.title === 'string')
+        .filter((s): s is Record<string, unknown> => isObj(s) && typeof s.title === 'string')
         .map((s) => ({
-          title: s.title,
+          title: String(s.title),
           s: typeof s.s === 'string' ? s.s : '',
           t: typeof s.t === 'string' ? s.t : '',
           a: typeof s.a === 'string' ? s.a : '',
           r: typeof s.r === 'string' ? s.r : '',
           ref: typeof s.ref === 'string' ? s.ref : '',
-          tags: Array.isArray(s.tags) ? s.tags.filter((x) => typeof x === 'string') : [],
+          tags: Array.isArray(s.tags) ? s.tags.filter((x): x is string => typeof x === 'string') : [],
         }))
     : [];
-  const mocks = Array.isArray(r.mocks)
+  const mocks: MockInterviewEntry[] = Array.isArray(r.mocks)
     ? r.mocks
-        .filter((m) => isObj(m) && typeof m.date === 'string' && typeof m.type === 'string' && typeof m.title === 'string')
+        .filter(
+          (m): m is Record<string, unknown> =>
+            isObj(m) && typeof m.date === 'string' && typeof m.type === 'string' && MOCK_TYPES.has(m.type as MockInterviewEntry['type']) && typeof m.title === 'string',
+        )
         .map((m) => ({
-          date: m.date,
-          type: m.type,
-          title: m.title,
-          scores: Array.isArray(m.scores) ? m.scores.filter((n) => typeof n === 'number' && Number.isFinite(n)) : [],
+          date: String(m.date),
+          type: m.type as MockInterviewEntry['type'],
+          title: String(m.title),
+          scores: Array.isArray(m.scores) ? m.scores.filter((n): n is number => typeof n === 'number' && Number.isFinite(n)) : [],
           avg: typeof m.avg === 'number' && Number.isFinite(m.avg) ? m.avg : 0,
           notes: typeof m.notes === 'string' ? m.notes : '',
         }))
@@ -63,27 +76,37 @@ function normalizeInterview(raw) {
   return { solved, code, design, stories, rapid, mocks, plan };
 }
 
-const D = normalizeInterview(readJson(INTERVIEW_KEY, fresh));
+const D: InterviewProgress = normalizeInterview(readJson(INTERVIEW_KEY, fresh));
 
-function reloadD(raw) {
-  let next;
+function reloadD(raw: string | null): boolean {
+  let next: InterviewProgress;
   try {
     next = normalizeInterview(JSON.parse(raw || '{}'));
   } catch {
     return false;
   }
-  for (const k of Object.keys(D)) delete D[k];
-  Object.assign(D, next);
+  D.solved = next.solved;
+  D.code = next.code;
+  D.design = next.design;
+  D.stories = next.stories;
+  D.rapid = next.rapid;
+  D.mocks = next.mocks;
+  D.plan = next.plan;
   return true;
 }
 
-function syncFromStorage() {
+function syncFromStorage(): void {
   const freshData = normalizeInterview(readJson(INTERVIEW_KEY, fresh));
-  for (const k of Object.keys(D)) delete D[k];
-  Object.assign(D, freshData);
+  D.solved = freshData.solved;
+  D.code = freshData.code;
+  D.design = freshData.design;
+  D.stories = freshData.stories;
+  D.rapid = freshData.rapid;
+  D.mocks = freshData.mocks;
+  D.plan = freshData.plan;
 }
 
-const save = () => {
+const save = (): void => {
   writeJson(INTERVIEW_KEY, D);
   notifyStateChange('interview', false);
 };
@@ -94,21 +117,22 @@ onStorageSync([INTERVIEW_KEY], (_key, newValue) => {
   reloadD(newValue);
 });
 
-const DIFF = ['Easy', 'Medium', 'Hard'];
-const pick = (a) => a[Math.floor(Math.random() * a.length)];
-const list = (items) => h('ul', { class: 'points' }, items.map((i) => h('li', { html: md(i) })));
-const sec = (title, ...kids) => h('section', { class: 'sec' }, h('h2', {}, title), ...kids);
-const head = (eyebrow, title, lede, ...kids) =>
+const DIFF = ['Easy', 'Medium', 'Hard'] as const;
+const pick = <T,>(a: readonly T[]): T => a[Math.floor(Math.random() * a.length)];
+const list = (items: readonly string[]) => h('ul', { class: 'points' }, items.map((i) => h('li', { html: md(i) })));
+const sec = (title: string | Node, ...kids: (Node | string | number | boolean | null | undefined | (Node | string | null | undefined)[])[]) =>
+  h('section', { class: 'sec' }, h('h2', {}, title), ...kids);
+const head = (eyebrow: string | (string | Node)[], title: string, lede: string | null, ...kids: (Node | null | undefined)[]) =>
   h('header', { class: 'head' }, h('p', { class: 'eyebrow' }, eyebrow), h('h1', {}, title), lede ? h('p', { class: 'lede' }, lede) : null, ...kids);
-const crumb = (label) => [h('a', { href: href('/interview/') }, 'Interview prep'), ' · ', label];
-const diffChip = (d) => h('span', { class: 'chip diff-' + d }, DIFF[d]);
-const patternName = (iv, id) => iv.patterns.find((p) => p.id === id).name;
+const crumb = (label: string | Node) => [h('a', { href: href('/interview/') }, 'Interview prep'), ' · ', label];
+const diffChip = (d: 0 | 1 | 2) => h('span', { class: 'chip diff-' + d }, DIFF[d]);
+const patternName = (iv: InterviewData, id: string): string => iv.patterns.find((p) => p.id === id)?.name || id;
 
 // ---------- readiness ----------
-const covered = (iv) => iv.behavioral.filter((b) => D.stories.some((s) => (s.tags || []).includes(b.id))).length;
-const getRapidTotal = (iv) => iv.rapid.reduce((a, r) => a + r.qs.length, 0);
+const covered = (iv: InterviewData): number => iv.behavioral.filter((b) => D.stories.some((s) => (s.tags || []).includes(b.id))).length;
+const getRapidTotal = (iv: InterviewData): number => iv.rapid.reduce((a, r) => a + r.qs.length, 0);
 
-function parts(iv) {
+function parts(iv: InterviewData): [string, number, number, string][] {
   return [
     ['Coding problems solved', Object.keys(D.solved).length, iv.problems.length, href('/interview/coding/')],
     ['System design cases mastered', Object.values(D.design).filter(Boolean).length, iv.design.cases.length, href('/interview/design/')],
@@ -119,16 +143,16 @@ function parts(iv) {
 }
 
 // ---------- timer ----------
-function timer(minutes) {
+function timer(minutes: number): HTMLDivElement {
   let left = minutes * 60;
-  let id = null;
+  let id: number | null = null;
   const face = h('b', { class: 'timer-face' });
-  const draw = () => {
+  const draw = (): void => {
     face.textContent = String(Math.floor(left / 60)).padStart(2, '0') + ':' + String(left % 60).padStart(2, '0');
     face.classList.toggle('low', left <= 60);
   };
-  const stop = () => {
-    clearInterval(id);
+  const stop = (): void => {
+    if (id !== null) clearInterval(id);
     id = null;
     go.textContent = T('Start');
   };
@@ -138,9 +162,9 @@ function timer(minutes) {
       type: 'button',
       class: 'btn sm',
       onclick: () => {
-        if (id) return stop();
+        if (id !== null) return stop();
         go.textContent = T('Pause');
-        id = setInterval(() => {
+        id = window.setInterval(() => {
           if (!face.isConnected) return stop();
           if (left > 0) left--;
           draw();
@@ -173,30 +197,43 @@ function timer(minutes) {
 }
 
 // ---------- judge: transpile, run in a worker with a time limit ----------
-const canon = (v) =>
+const canon = (v: unknown): unknown =>
   Array.isArray(v)
     ? v.map(canon)
     : v && typeof v === 'object'
-      ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canon(v[k])]))
+      ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canon((v as Record<string, unknown>)[k])]))
       : v;
-const key = (v) => JSON.stringify(canon(v));
-const same = (got, exp, mode) => {
+const key = (v: unknown): string => JSON.stringify(canon(v));
+const same = (got: unknown, exp: unknown, mode?: 'set' | 'nested'): boolean => {
   if (!Array.isArray(got) || !mode) return key(got) === key(exp);
-  const n = (a) => a.map((x) => (mode === 'nested' && Array.isArray(x) ? key(x.map(key).sort()) : key(x))).sort();
-  return key(n(got)) === key(n(exp));
+  const n = (a: unknown[]) => a.map((x) => (mode === 'nested' && Array.isArray(x) ? key(x.map(key).sort()) : key(x))).sort();
+  return key(n(got)) === key(n(exp as unknown[]));
 };
-const show = (v) => {
+const show = (v: unknown): string => {
   const s = v === undefined ? 'undefined' : JSON.stringify(v);
   return s.length > 110 ? s.slice(0, 110) + '…' : s;
 };
 
-async function judge(p, code) {
+interface JudgeCaseResult {
+  got?: unknown;
+  err?: string;
+}
+
+interface JudgeResult {
+  fatal?: string;
+  out?: JudgeCaseResult[];
+  logs?: string[];
+}
+
+async function judge(p: InterviewProblem, code: string): Promise<JudgeResult> {
   await loadTS();
-  const res = window.ts.transpileModule(code, {
+  const tsCompiler = window.ts;
+  if (!tsCompiler) return { fatal: 'TypeScript compiler unavailable' };
+  const res = tsCompiler.transpileModule(code, {
     reportDiagnostics: true,
     compilerOptions: { target: 'ES2022', module: 'ESNext' },
   });
-  const diag = (res.diagnostics || []).map((d) => window.ts.flattenDiagnosticMessageText(d.messageText, '\n'));
+  const diag = (res.diagnostics || []).map((d) => tsCompiler.flattenDiagnosticMessageText(d.messageText, '\n'));
   if (diag.length) return { fatal: T('Syntax error: ') + diag.join('; ') };
   const src = `const __logs = []; console.log = (...a) => __logs.push(a.map(x => typeof x === 'string' ? x : JSON.stringify(x)).join(' '));
 ${res.outputText}
@@ -207,8 +244,8 @@ self.onmessage = e => {
 };`;
   const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
   const w = new Worker(url);
-  return new Promise((resolve) => {
-    const done = (r) => {
+  return new Promise<JudgeResult>((resolve) => {
+    const done = (r: JudgeResult) => {
       clearTimeout(t);
       w.terminate();
       URL.revokeObjectURL(url);
@@ -218,8 +255,8 @@ self.onmessage = e => {
       () => done({ fatal: T('Time limit exceeded (4 s). Check for an infinite loop or an exponential algorithm.') }),
       4000,
     );
-    w.onmessage = (e) => done(e.data);
-    w.onerror = (e) => {
+    w.onmessage = (e: MessageEvent<JudgeResult>) => done(e.data);
+    w.onerror = (e: ErrorEvent) => {
       e.preventDefault();
       done({ fatal: (e.message || T('Runtime error')).replace(/^Uncaught /, '') });
     };
@@ -228,18 +265,20 @@ self.onmessage = e => {
 }
 
 // ---------- problem arena ----------
-function arena(iv, p, { mock } = {}) {
+function arena(iv: InterviewData, p: InterviewProblem, { mock = false }: { mock?: boolean } = {}): HTMLDivElement {
   const out = h('div', { class: 'out', 'aria-live': 'polite' }, h('p', { class: 'muted' }, 'Run the tests to see results.'));
-  const run = async () => {
+  const run = async (): Promise<void> => {
     out.replaceChildren(h('p', { class: 'muted' }, 'Running…'));
-    let r;
+    let r: JudgeResult;
     try {
       r = await judge(p, ta.value);
-    } catch (e) {
-      r = { fatal: String(e.message || e) };
+    } catch (e: unknown) {
+      r = { fatal: e instanceof Error ? e.message : String(e) };
     }
     if (r.fatal) return out.replaceChildren(h('p', { class: 'err' }, r.fatal));
-    const rows = r.out.map((x, i) => {
+    const casesOut = r.out || [];
+    const logs = r.logs || [];
+    const rows = casesOut.map((x, i) => {
       const [args, exp] = p.tests[i];
       const ok = !x.err && same(x.got, exp, p.mode);
       return {
@@ -268,20 +307,22 @@ function arena(iv, p, { mock } = {}) {
       save();
     }
     const note = await typeNote(ta);
-    out.replaceChildren(
-      ...[
-        note,
-        h(
-          'p',
-          { class: all ? 'ok' : 'err' },
-          all
-            ? T('✓ All {n} tests passed. Now state the time and space complexity out loud.', { n: rows.length })
-            : T('{passed} of {n} tests passed.', { passed, n: rows.length }),
-        ),
-        h('ul', { class: 'tests' }, rows.map((x) => x.el)),
-        r.logs.length ? h('div', {}, h('p', { class: 'muted' }, 'console.log output'), h('pre', {}, r.logs.join('\n'))) : null,
-      ].filter(Boolean),
+    const outNodes: Node[] = [];
+    if (note) outNodes.push(note);
+    outNodes.push(
+      h(
+        'p',
+        { class: all ? 'ok' : 'err' },
+        all
+          ? T('✓ All {n} tests passed. Now state the time and space complexity out loud.', { n: rows.length })
+          : T('{passed} of {n} tests passed.', { passed, n: rows.length }),
+      ),
+      h('ul', { class: 'tests' }, rows.map((x) => x.el)),
     );
+    if (logs.length) {
+      outNodes.push(h('div', {}, h('p', { class: 'muted' }, 'console.log output'), h('pre', {}, logs.join('\n'))));
+    }
+    out.replaceChildren(...outNodes);
   };
   const ta = editor(D.code[p.id] || p.starter, run, 'typescript');
   ta.classList.add('tall');
@@ -342,7 +383,7 @@ function arena(iv, p, { mock } = {}) {
             onclick: async () => {
               if (await confirmDialog(T('Replace your code with the starter?'), { title: 'Reset code', confirmText: 'Reset code', danger: true })) {
                 ta.value = p.starter;
-                ta.oninput();
+                ta.oninput?.call(ta, new InputEvent('input'));
               }
             },
           },
@@ -354,7 +395,7 @@ function arena(iv, p, { mock } = {}) {
   );
 }
 
-function problemView(iv, id) {
+function problemView(iv: InterviewData, id?: string): HTMLDivElement {
   const p = iv.problems.find((x) => x.id === id);
   if (!p) return codingView(iv);
   const i = iv.problems.indexOf(p);
@@ -386,7 +427,7 @@ function problemView(iv, id) {
   );
 }
 
-function codingView(iv) {
+function codingView(iv: InterviewData): HTMLDivElement {
   const solved = Object.keys(D.solved).length;
   return h(
     'div',
@@ -432,7 +473,7 @@ function codingView(iv) {
   );
 }
 
-function patternsView(iv) {
+function patternsView(iv: InterviewData): HTMLDivElement {
   return h(
     'div',
     { class: 'page iv' },
@@ -462,8 +503,8 @@ function patternsView(iv) {
 }
 
 // ---------- system design ----------
-function estimator() {
-  const fmt = (n) =>
+function estimator(): HTMLDivElement {
+  const fmt = (n: number): string =>
     n >= 1e12
       ? (n / 1e12).toFixed(1) + ' T'
       : n >= 1e9
@@ -473,7 +514,7 @@ function estimator() {
           : n >= 1e3
             ? (n / 1e3).toFixed(1) + ' K'
             : String(Math.round(n * 10) / 10);
-  const bytes = (n) => {
+  const bytes = (n: number): string => {
     const u = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
     let i = 0;
     while (n >= 1000 && i < 5) {
@@ -482,16 +523,16 @@ function estimator() {
     }
     return n.toFixed(1) + ' ' + u[i];
   };
-  const fields = [
+  const fields: readonly [string, string, number][] = [
     ['Daily active users', 'dau', 10000000],
     ['Writes per user per day', 'w', 2],
     ['Reads per write', 'r', 50],
     ['Bytes per write', 'b', 500],
     ['Peak ÷ average', 'peak', 3],
   ];
-  const inputs = {};
+  const inputs: Record<string, HTMLInputElement> = {};
   const out = h('div', {});
-  const draw = () => {
+  const draw = (): void => {
     const v = Object.fromEntries(Object.entries(inputs).map(([k, el]) => [k, Math.max(+el.value || 0, 0)]));
     const wps = (v.dau * v.w) / 86400;
     const rps = wps * v.r;
@@ -523,7 +564,7 @@ function estimator() {
     { class: 'est-grid' },
     fields.map(([label, k, def]) => {
       inputs[k] = h('input', { type: 'number', min: 0, oninput: draw });
-      inputs[k].value = def;
+      inputs[k].value = String(def);
       return h('label', {}, label, inputs[k]);
     }),
   );
@@ -537,7 +578,7 @@ function estimator() {
   );
 }
 
-const diagram = (tiers) =>
+const diagram = (tiers: string[][]): HTMLDivElement =>
   h(
     'div',
     { class: 'diagram' },
@@ -547,8 +588,8 @@ const diagram = (tiers) =>
     ]),
   );
 
-function caseBody(c, open) {
-  const d = (title, ...kids) => {
+function caseBody(c: DesignCase, open?: boolean): HTMLDivElement {
+  const d = (title: string, ...kids: Node[]) => {
     const el = h('details', {}, h('summary', {}, title), ...kids);
     el.open = !!open;
     return el;
@@ -560,18 +601,18 @@ function caseBody(c, open) {
     d('2 · Estimates', list(c.est)),
     d('3 · API and data model', h('ul', { class: 'points' }, c.api.map((a) => h('li', {}, h('code', {}, a))))),
     d('4 · High-level design', diagram(c.tiers)),
-    d('5 · Deep dives', c.deep.map(([title, body]) => h('div', {}, h('h3', {}, title), h('p', {}, body)))),
+    d('5 · Deep dives', ...c.deep.map(([title, body]) => h('div', {}, h('h3', {}, title), h('p', {}, body)))),
     d('6 · Follow-up questions to expect', list(c.follow)),
   );
 }
 
-function designView(iv, id) {
+function designView(iv: InterviewData, id?: string): HTMLDivElement {
   const c = iv.design.cases.find((x) => x.id === id);
   if (c) {
     const cb = h('input', {
       type: 'checkbox',
-      onchange: (e) => {
-        D.design[c.id] = e.target.checked;
+      onchange: (e: Event) => {
+        D.design[c.id] = (e.currentTarget as HTMLInputElement).checked;
         save();
       },
     });
@@ -659,26 +700,28 @@ function designView(iv, id) {
 }
 
 // ---------- behavioral ----------
-function behavioralView(iv) {
+function behavioralView(iv: InterviewData): HTMLDivElement {
   const page = h('div', { class: 'page iv' });
-  const draw = () => {
-    const form = { title: h('input', { type: 'text', placeholder: 'Short name, e.g. “Checkout latency fix”' }) };
-    ['s', 't', 'a', 'r', 'ref'].forEach((k) => {
-      form[k] = h('textarea', { rows: k === 'a' ? 4 : 2 });
-    });
-    const tags = iv.behavioral.map((b) => {
+  const draw = (): void => {
+    const titleInput = h('input', { type: 'text', placeholder: 'Short name, e.g. “Checkout latency fix”' });
+    const sArea = h('textarea', { rows: 2 });
+    const tArea = h('textarea', { rows: 2 });
+    const aArea = h('textarea', { rows: 4 });
+    const rArea = h('textarea', { rows: 2 });
+    const refArea = h('textarea', { rows: 2 });
+    const tags: [HTMLInputElement, HTMLLabelElement][] = iv.behavioral.map((b) => {
       const c = h('input', { type: 'checkbox', value: b.id });
       return [c, h('label', {}, c, ' ' + b.name)];
     });
-    const add = () => {
-      if (!form.title.value.trim()) return form.title.focus();
+    const add = (): void => {
+      if (!titleInput.value.trim()) { titleInput.focus(); return; }
       D.stories.push({
-        title: form.title.value.trim(),
-        s: form.s.value,
-        t: form.t.value,
-        a: form.a.value,
-        r: form.r.value,
-        ref: form.ref.value,
+        title: titleInput.value.trim(),
+        s: sArea.value,
+        t: tArea.value,
+        a: aArea.value,
+        r: rArea.value,
+        ref: refArea.value,
         tags: tags.filter(([c]) => c.checked).map(([c]) => c.value),
       });
       save();
@@ -686,7 +729,7 @@ function behavioralView(iv) {
     };
     const drillQ = h('p', { class: 'fc-q' });
     const drillL = h('p', { class: 'muted' });
-    const next = () => {
+    const next = (): void => {
       const b = pick(iv.behavioral);
       drillQ.textContent = pick(b.qs);
       const mine = D.stories.filter((s) => s.tags.includes(b.id));
@@ -792,12 +835,12 @@ function behavioralView(iv) {
         h(
           'div',
           { class: 'story-form' },
-          h('label', {}, 'Title', form.title),
-          h('label', {}, 'Situation', form.s),
-          h('label', {}, 'Task', form.t),
-          h('label', {}, 'Action: what you did', form.a),
-          h('label', {}, 'Result: with numbers', form.r),
-          h('label', {}, 'Reflection: what you learned', form.ref),
+          h('label', {}, 'Title', titleInput),
+          h('label', {}, 'Situation', sArea),
+          h('label', {}, 'Task', tArea),
+          h('label', {}, 'Action: what you did', aArea),
+          h('label', {}, 'Result: with numbers', rArea),
+          h('label', {}, 'Reflection: what you learned', refArea),
           h('div', { class: 'tagbox' }, h('span', { class: 'muted' }, 'Themes this story can answer:'), tags.map(([, l]) => l)),
           h('button', { type: 'button', class: 'btn', onclick: add }, 'Save story'),
         ),
@@ -815,15 +858,15 @@ function behavioralView(iv) {
 }
 
 // ---------- rapid-fire ----------
-function qa(area, i, onRate) {
+function qa(area: RapidArea, i: number, onRate?: () => void): HTMLDetailsElement {
   const [q, a] = area.qs[i];
   const k = (area.key || area.area) + '#' + i; // area.key keeps saved ratings stable across languages
   const state = h('small', {});
-  const drawState = () => {
+  const drawState = (): void => {
     state.textContent = D.rapid[k] === 2 ? T('✓ solid') : D.rapid[k] === 1 ? T('shaky') : '';
     state.className = D.rapid[k] === 2 ? 'ok' : 'muted';
   };
-  const rate = (v) => () => {
+  const rate = (v: 1 | 2) => () => {
     D.rapid[k] = v;
     save();
     drawState();
@@ -845,10 +888,10 @@ function qa(area, i, onRate) {
   );
 }
 
-function rapidView(iv) {
+function rapidView(iv: InterviewData): HTMLDivElement {
   const rapidTotal = getRapidTotal(iv);
   const progress = h('div', {});
-  const drawP = () => progress.replaceChildren(bar(Math.round((Object.values(D.rapid).filter((v) => v === 2).length / rapidTotal) * 100), 'Rapid-fire Q&A'));
+  const drawP = (): void => progress.replaceChildren(bar(Math.round((Object.values(D.rapid).filter((v) => v === 2).length / rapidTotal) * 100), 'Rapid-fire Q&A'));
   drawP();
   return h(
     'div',
@@ -866,7 +909,8 @@ function rapidView(iv) {
 }
 
 // ---------- mock interviews ----------
-const RUBRICS = {
+type MockType = MockInterviewEntry['type'];
+const RUBRICS: Record<MockType, readonly string[]> = {
   coding: [
     'Problem solving: clarified, found the right approach',
     'Coding: correct, clean, idiomatic',
@@ -888,9 +932,9 @@ const RUBRICS = {
   rapid: ['Accuracy', 'Depth beyond the definition', 'Clarity and brevity', 'Composure when unsure'],
 };
 const LEVELS4 = ['', '1: No hire', '2: Lean no hire', '3: Hire', '4: Strong hire'];
-const verdict = (avg) => (avg >= 3.5 ? 'Strong hire' : avg >= 3 ? 'Hire' : avg >= 2.5 ? 'Borderline' : 'No hire');
+const verdict = (avg: number): string => (avg >= 3.5 ? 'Strong hire' : avg >= 3 ? 'Hire' : avg >= 2.5 ? 'Borderline' : 'No hire');
 
-function scorecard(type, title, onSaved) {
+function scorecard(type: MockType, title: string, onSaved?: () => void): HTMLElement {
   const sels = RUBRICS[type].map((_, i) =>
     h('select', { id: `sc-${type}-${i}` }, LEVELS4.map((l, j) => h('option', { value: j }, l || 'Rate…'))),
   );
@@ -937,9 +981,9 @@ function scorecard(type, title, onSaved) {
 }
 
 // onChange re-renders the caller's history block (and Hub readiness) after a delete.
-function history(onChange) {
+function history(onChange?: () => void): HTMLElement {
   if (!D.mocks.length) return h('p', { class: 'muted' }, 'No mock interviews recorded yet.');
-  const remove = (m) => async () => {
+  const remove = (m: MockInterviewEntry) => async () => {
     if (!(await confirmDialog(T('Delete this mock interview result?'), { title: 'Delete', confirmText: 'Delete', danger: true }))) return;
     const i = D.mocks.indexOf(m);
     if (i >= 0) {
@@ -992,12 +1036,12 @@ function history(onChange) {
   );
 }
 
-function mockView(iv) {
+function mockView(iv: InterviewData): HTMLDivElement {
   const stage = h('div', {});
   const hist = h('div', {});
-  const refresh = () => hist.replaceChildren(history(refresh));
+  const refresh = (): void => hist.replaceChildren(history(refresh));
   refresh();
-  const start = {
+  const start: Record<MockType, () => Node[]> = {
     coding: () => {
       const pool = iv.problems.filter((p) => p.diff === +diffSel.value);
       const unsolved = pool.filter((p) => !D.solved[p.id]);
@@ -1023,7 +1067,7 @@ function mockView(iv) {
       const themes = shuffle(iv.behavioral).slice(0, 4);
       return [
         h('div', { class: 'actions' }, h('h2', { style: { margin: 0 } }, 'Four questions, about seven minutes each'), timer(30)),
-        themes.map((b, i) =>
+        ...themes.map((b, i) =>
           h(
             'div',
             { class: 'q' },
@@ -1035,21 +1079,21 @@ function mockView(iv) {
       ];
     },
     rapid: () => {
-      const all = shuffle(iv.rapid.flatMap((a) => a.qs.map((_, i) => [a, i]))).slice(0, 8);
+      const all = shuffle(iv.rapid.flatMap((a) => a.qs.map((_, i): [RapidArea, number] => [a, i]))).slice(0, 8);
       return [
         h('div', { class: 'actions' }, h('h2', { style: { margin: 0 } }, 'Eight stack questions'), timer(20)),
-        all.map(([a, i]) => qa(a, i)),
+        ...all.map(([a, i]) => qa(a, i)),
         scorecard('rapid', 'Stack knowledge round', refresh),
       ];
     },
   };
   const diffSel = h('select', { 'aria-label': 'Difficulty' }, DIFF.map((d, i) => h('option', { value: i }, d)));
-  diffSel.value = 1;
-  const go = (type) => () => {
-    stage.replaceChildren(...start[type]().flat(Infinity));
+  diffSel.value = '1';
+  const go = (type: MockType) => () => {
+    stage.replaceChildren(...start[type]());
     stage.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   };
-  const card = (type, title, desc, extra) =>
+  const card = (type: MockType, title: string, desc: string, extra?: Node) =>
     h(
       'div',
       { class: 'card' },
@@ -1079,10 +1123,10 @@ function mockView(iv) {
 }
 
 // ---------- hub ----------
-function hub(iv) {
+function hub(iv: InterviewData): HTMLDivElement {
   const ringHost = h('div', {});
   const metersHost = h('div', { class: 'meters' });
-  const drawReadiness = () => {
+  const drawReadiness = (): void => {
     const p = parts(iv);
     const r = Math.round((p.reduce((a, [, n, total]) => a + n / total, 0) / p.length) * 100);
     ringHost.replaceChildren(ring(r, { ariaLabel: 'Interview readiness', caption: 'ready' }));
@@ -1093,7 +1137,7 @@ function hub(iv) {
     );
   };
   const mockHist = h('div', {});
-  const refreshHist = () => {
+  const refreshHist = (): void => {
     mockHist.replaceChildren(history(refreshHist));
     drawReadiness();
   };
@@ -1192,11 +1236,12 @@ function hub(iv) {
             items.map((it, i) => {
               const cb = h('input', {
                 type: 'checkbox',
-                onchange: (e) => {
-                  done[i] = e.target.checked;
+                onchange: (e: Event) => {
+                  done[i] = (e.currentTarget as HTMLInputElement).checked;
                   D.plan[wi] = done;
                   save();
-                  el.querySelector('small').textContent = `${items.filter((_, j) => done[j]).length} / ${items.length}`;
+                  const smallEl = el.querySelector('small');
+                  if (smallEl) smallEl.textContent = `${items.filter((_, j) => done[j]).length} / ${items.length}`;
                 },
               });
               cb.checked = !!done[i];
@@ -1213,11 +1258,11 @@ function hub(iv) {
   );
 }
 
-export function interviewView(a, b) {
+export function interviewView(a?: string, b?: string): Node {
   syncFromStorage();
   const iv = getInterview();
   if (!iv) return document.createTextNode('');
-  const routes = {
+  const routes: Record<string, () => HTMLDivElement> = {
     coding: () => codingView(iv),
     problem: () => problemView(iv, b),
     patterns: () => patternsView(iv),
@@ -1226,5 +1271,5 @@ export function interviewView(a, b) {
     rapid: () => rapidView(iv),
     mock: () => mockView(iv),
   };
-  return (routes[a] || (() => hub(iv)))();
+  return (a && routes[a] ? routes[a] : () => hub(iv))();
 }
