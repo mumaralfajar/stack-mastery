@@ -33,11 +33,11 @@ export const trackId = {
       "Membiarkan variabel lokal atau import tidak terpakai. Compiler Go langsung menggagalkan build, bukan cuma memberi peringatan.",
       "Menganggap `int` bisa otomatis berubah jadi `float64`. Go mewajibkan konversi eksplisit seperti `float64(price)`."
     ],
-    quiz: [
-      ["Bagaimana cara mengekspor sebuah type atau function dari package Go?", ["Menambahkan keyword `export`", "Mengawali namanya dengan huruf kapital", "Menaruhnya di `index.go`", "Memberi komentar `//go:export`"], "Visibilitas ekspor di Go ditentukan sepenuhnya oleh huruf kapital pada huruf pertama identifier."],
-      ["Apa hasil `len(\"café\")`?", ["4", "5", "6", "Compile error"], "`len` pada string menghitung byte UTF-8; huruf `'é'` butuh 2 byte, jadi `3 + 2 = 5`."],
-      ["Apa yang terjadi bila kamu menulis `var buf bytes.Buffer` lalu langsung memanggil `buf.WriteString(\"hi\")` tanpa `new` atau inisialisasi?", ["Panic nil pointer", "Error compile zero-value", "Langsung bekerja karena zero value `bytes.Buffer` memang buffer kosong yang siap pakai", "Tidak mencetak apa-apa"], "Merancang tipe agar zero value-nya langsung siap pakai adalah kebiasaan umum di Go, seperti pada `bytes.Buffer` dan `sync.Mutex`."]
-    ]
+    quiz: {
+      'export-type-function-go': ["Bagaimana cara mengekspor sebuah type atau function dari package Go?", ["Menambahkan keyword `export`", "Mengawali namanya dengan huruf kapital", "Menaruhnya di `index.go`", "Memberi komentar `//go:export`"], "Visibilitas ekspor di Go ditentukan sepenuhnya oleh huruf kapital pada huruf pertama identifier."],
+      'len-caf-return': ["Apa hasil `len(\"café\")`?", ["4", "5", "6", "Compile error"], "`len` pada string menghitung byte UTF-8; huruf `'é'` butuh 2 byte, jadi `3 + 2 = 5`."],
+      'happens-declare-var-buf': ["Apa yang terjadi bila kamu menulis `var buf bytes.Buffer` lalu langsung memanggil `buf.WriteString(\"hi\")` tanpa `new` atau inisialisasi?", ["Panic nil pointer", "Error compile zero-value", "Langsung bekerja karena zero value `bytes.Buffer` memang buffer kosong yang siap pakai", "Tidak mencetak apa-apa"], "Merancang tipe agar zero value-nya langsung siap pakai adalah kebiasaan umum di Go, seperti pada `bytes.Buffer` dan `sync.Mutex`."]
+    }
   },
   collections: {
     terms: [
@@ -72,11 +72,11 @@ export const trackId = {
       "Mengembalikan potongan kecil dari `[]byte` berukuran 10 MB, misalnya token 10-byte dari body HTTP. Potongan kecil itu menahan seluruh array 10 MB di memori sampai kamu menyalinnya lewat `slices.Clone` atau `bytes.Clone`.",
       "Menulis boilerplate `sort.Slice` manual padahal `slices.Sort` dan `slices.Contains` sudah ada di standard library."
     ],
-    quiz: [
-      ["Apa bedanya menulis ke `nil` map dibanding membaca `nil` map?", ["Keduanya berjalan normal", "Menulis ke `nil` map memicu panic, sedangkan membaca `nil` map mengembalikan zero value", "Keduanya panic saat `len()`", "`nil` map otomatis mengalokasikan memori saat write pertama"], "`nil` map terbaca kosong (`0`, `false`), namun `m[k] = v` panic sampai diinisialisasi dengan `make` atau `{}`."],
-      ["Kenapa `b := a[:2:2]` melindungi `a` saat memanggil `append(b, x)`?", ["Membuat `a` menjadi read-only", "Mengatur `cap(b) == len(b) == 2`, memaksa `append` mengalokasikan backing array baru", "Menyalin `a` saat compile time", "Memindahkan kepemilikan pointer ke GC"], "Karena sisa kapasitas `b` nol, `append` tidak bisa menulis ke slot 2 milik `a` dan mengalokasikan array baru."],
-      ["Apa yang berubah di Go 1.22 pada `for i, v := range items`?", ["Loop selalu berjalan paralel", "Setiap iterasi mendapat variabel `i` dan `v` baru, bukan memakai satu alamat memori yang sama", "Map selalu iterasi terurut berdasarkan key", "Slice menjadi immutable di dalam loop"], "Variabel per iterasi ini membereskan bug klasik closure dan goroutine yang menangkap nilai loop terakhir."]
-    ]
+    quiz: {
+      'happens-write-nil-map': ["Apa bedanya menulis ke `nil` map dibanding membaca `nil` map?", ["Keduanya berjalan normal", "Menulis ke `nil` map memicu panic, sedangkan membaca `nil` map mengembalikan zero value", "Keduanya panic saat `len()`", "`nil` map otomatis mengalokasikan memori saat write pertama"], "`nil` map terbaca kosong (`0`, `false`), namun `m[k] = v` panic sampai diinisialisasi dengan `make` atau `{}`."],
+      'protect-calling-append': ["Kenapa `b := a[:2:2]` melindungi `a` saat memanggil `append(b, x)`?", ["Membuat `a` menjadi read-only", "Mengatur `cap(b) == len(b) == 2`, memaksa `append` mengalokasikan backing array baru", "Menyalin `a` saat compile time", "Memindahkan kepemilikan pointer ke GC"], "Karena sisa kapasitas `b` nol, `append` tidak bisa menulis ke slot 2 milik `a` dan mengalokasikan array baru."],
+      'go-22-change-range': ["Apa yang berubah di Go 1.22 pada `for i, v := range items`?", ["Loop selalu berjalan paralel", "Setiap iterasi mendapat variabel `i` dan `v` baru, bukan memakai satu alamat memori yang sama", "Map selalu iterasi terurut berdasarkan key", "Slice menjadi immutable di dalam loop"], "Variabel per iterasi ini membereskan bug klasik closure dan goroutine yang menangkap nilai loop terakhir."]
+    }
   },
   structs: {
     terms: [
@@ -107,11 +107,11 @@ export const trackId = {
       "Memakai `omitempty` pada `time.Time` atau nested struct padahal Go 1.24 sudah punya `omitzero`, karena `omitempty` tidak menganggap zero struct sebagai kosong.",
       "Memakai `new(Type)` dengan anggapan Go wajib memakai constructor. Struct literal (`&Type{Field: val}`) atau zero value jauh lebih umum."
     ],
-    quiz: [
-      ["Kapan sebuah method WAJIB memakai pointer receiver `*T` alih-alih value `T`?", ["Hanya untuk method exported", "Saat method mengubah receiver, menghindari salinan besar, atau struct berisi state non-copyable seperti `sync.Mutex`", "Hanya di dalam `package main`", "Setiap kali struct punya tag JSON"], "Value receiver bekerja pada salinan sehingga mutasi tertahan lokal dan penyalinan lock memicu race condition."],
-      ["Apa fungsi `Timeout: new(30)` di Go 1.26+?", ["Mengalokasikan slice berisi 30 int", "Mengembalikan `*int` yang menunjuk ke nilai `30` tanpa butuh helper function", "Syntax error", "Mengalokasikan 30 byte kosong"], "Go 1.26 memperluas built-in `new(expr)` agar langsung menerima ekspresi nilai awal."],
-      ["Kenapa memilih named field (`store *Repo`) dibanding embedding (`*Repo`) untuk dependency internal?", ["Named field lebih cepat di-compile", "Embedding mempromosikan semua method publik `Repo` ke API luar struct-mu", "Named field mengizinkan pointer nil sementara embedding tidak", "Go melarang embedding pointer"], "Pakai embedding hanya saat memang ingin mewariskan method publik (`is-a`); pakai named field untuk kolaborator internal."]
-    ]
+    quiz: {
+      'method-use-pointer-receiver': ["Kapan sebuah method WAJIB memakai pointer receiver `*T` alih-alih value `T`?", ["Hanya untuk method exported", "Saat method mengubah receiver, menghindari salinan besar, atau struct berisi state non-copyable seperti `sync.Mutex`", "Hanya di dalam `package main`", "Setiap kali struct punya tag JSON"], "Value receiver bekerja pada salinan sehingga mutasi tertahan lokal dan penyalinan lock memicu race condition."],
+      'timeout-new-30-go': ["Apa fungsi `Timeout: new(30)` di Go 1.26+?", ["Mengalokasikan slice berisi 30 int", "Mengembalikan `*int` yang menunjuk ke nilai `30` tanpa butuh helper function", "Syntax error", "Mengalokasikan 30 byte kosong"], "Go 1.26 memperluas built-in `new(expr)` agar langsung menerima ekspresi nilai awal."],
+      'prefer-named-field-store': ["Kenapa memilih named field (`store *Repo`) dibanding embedding (`*Repo`) untuk dependency internal?", ["Named field lebih cepat di-compile", "Embedding mempromosikan semua method publik `Repo` ke API luar struct-mu", "Named field mengizinkan pointer nil sementara embedding tidak", "Go melarang embedding pointer"], "Pakai embedding hanya saat memang ingin mewariskan method publik (`is-a`); pakai named field untuk kolaborator internal."]
+    }
   },
   interfaces: {
     terms: [
@@ -146,11 +146,11 @@ export const trackId = {
       "Mengembalikan typed nil pointer (`var err *MyErr`) atau `*bytes.Buffer` nil yang dibungkus menjadi `io.Reader` / `error`.",
       "Memakai `v := x.(string)` langsung tanpa `v, ok := x.(string)`."
     ],
-    quiz: [
-      ["Di mana interface Go seharusnya didefinisikan?", ["Di satu package terpusat `interfaces/`", "Di package pengimplementasi tepat di sebelah struct", "Di package pemanggil, berisi hanya 1–3 method yang memang dipanggil pemakai tersebut", "Di dalam `go.mod`"], "Interface minimal di sisi pemanggil memutus ketergantungan antar-package dan mencegah import melingkar."],
-      ["Apa efek `var _ io.Writer = (*AuditLog)(nil)` saat run time?", ["Mengalokasikan `AuditLog` nil tiap import", "Nol biaya runtime; ia memastikan saat compile time bahwa `*AuditLog` memenuhi `io.Writer`", "Memanggil `Write` dengan `nil`", "Panic bila `Write` tidak pernah dipanggil"], "Blank-identifier assertion dicek penuh oleh compiler tanpa biaya eksekusi."],
-      ["Kapan sebuah variabel interface bernilai sama dengan `nil`?", ["Setiap kali pointer di dalamnya `nil`", "Hanya ketika kedua word, yaitu dynamic type descriptor dan pointer nilai konkretnya, sama-sama `nil`", "Ketika seluruh field struct bernilai nol", "Interface tidak pernah bisa sama dengan `nil`"], "Interface berisi typed-nil menyimpan descriptor type yang tidak nil, sehingga `x != nil`."]
-    ]
+    quiz: {
+      'go-interface-normally-defined': ["Di mana interface Go seharusnya didefinisikan?", ["Di satu package terpusat `interfaces/`", "Di package pengimplementasi tepat di sebelah struct", "Di package pemanggil, berisi hanya 1–3 method yang memang dipanggil pemakai tersebut", "Di dalam `go.mod`"], "Interface minimal di sisi pemanggil memutus ketergantungan antar-package dan mencegah import melingkar."],
+      'var-io-writer-auditlog': ["Apa efek `var _ io.Writer = (*AuditLog)(nil)` saat run time?", ["Mengalokasikan `AuditLog` nil tiap import", "Nol biaya runtime; ia memastikan saat compile time bahwa `*AuditLog` memenuhi `io.Writer`", "Memanggil `Write` dengan `nil`", "Panic bila `Write` tidak pernah dipanggil"], "Blank-identifier assertion dicek penuh oleh compiler tanpa biaya eksekusi."],
+      'interface-variable-equal-nil': ["Kapan sebuah variabel interface bernilai sama dengan `nil`?", ["Setiap kali pointer di dalamnya `nil`", "Hanya ketika kedua word, yaitu dynamic type descriptor dan pointer nilai konkretnya, sama-sama `nil`", "Ketika seluruh field struct bernilai nol", "Interface tidak pernah bisa sama dengan `nil`"], "Interface berisi typed-nil menyimpan descriptor type yang tidak nil, sehingga `x != nil`."]
+    }
   },
   errors: {
     terms: [
@@ -182,11 +182,11 @@ export const trackId = {
       "Memanggil `slog.Error` di dalam helper lalu tetap me-return error yang sama sehingga handler mencatat error yang sama berkali-kali.",
       "Mengawali pesan error dengan huruf kapital (`\"Failed to save.\"`). Saat dibungkus, kalimatnya menjadi janggal seperti `\"creating order: Failed to save.\"`."
     ],
-    quiz: [
-      ["Mengapa `errors.Is(err, ErrNotFound)` lebih baik daripada `err == ErrNotFound`?", ["`==` gagal compile pada error", "`errors.Is` menelusuri rantai wrapping dari `%w` dan `errors.Join`, sementara `==` hanya mengecek lapisan terluar", "`errors.Is` otomatis mencetak stack trace", "`==` sudah dihapus di Go 1.27"], "`errors.Is` memanggil pohon `Unwrap()` sehingga sentinel di dalam rantai tetap cocok."],
-      ["Menurut aturan single handling rule, apa yang seharusnya dilakukan function repository saat query DB gagal?", ["Catat `slog.Error` dan kembalikan `nil`", "Log DAN kembalikan error yang sama", "Wrap dengan konteks (`fmt.Errorf(\"...: %w\", err)`) lalu kembalikan agar batas terluar yang me-log sekali", "Panggil `panic(err)`"], "Kembalikan wrapped error ke atas; biarkan batas terluar (HTTP handler atau `main`) menentukan status HTTP dan mencatat log sekali."],
-      ["Apa peningkatan `errors.AsType[*QuotaError](err)` (Go 1.26+) dibanding `errors.As(err, &target)`?", ["Berjalan secara asinkron", "Menghapus deklarasi manual `var target *QuotaError` dan memeriksa kecocokan type secara statis saat compile time", "Mengabaikan wrapped error", "Hanya mengecek sentinel error"], "`errors.AsType[T]` memakai generik untuk mengembalikan `(T, bool)` tanpa deklarasi variabel pointer tambahan."]
-    ]
+    quiz: {
+      'prefer-errors-err-errnotfound': ["Mengapa `errors.Is(err, ErrNotFound)` lebih baik daripada `err == ErrNotFound`?", ["`==` gagal compile pada error", "`errors.Is` menelusuri rantai wrapping dari `%w` dan `errors.Join`, sementara `==` hanya mengecek lapisan terluar", "`errors.Is` otomatis mencetak stack trace", "`==` sudah dihapus di Go 1.27"], "`errors.Is` memanggil pohon `Unwrap()` sehingga sentinel di dalam rantai tetap cocok."],
+      'according-go-single-handling': ["Menurut aturan single handling rule, apa yang seharusnya dilakukan function repository saat query DB gagal?", ["Catat `slog.Error` dan kembalikan `nil`", "Log DAN kembalikan error yang sama", "Wrap dengan konteks (`fmt.Errorf(\"...: %w\", err)`) lalu kembalikan agar batas terluar yang me-log sekali", "Panggil `panic(err)`"], "Kembalikan wrapped error ke atas; biarkan batas terluar (HTTP handler atau `main`) menentukan status HTTP dan mencatat log sekali."],
+      'errors-astype-quotaerror-err': ["Apa peningkatan `errors.AsType[*QuotaError](err)` (Go 1.26+) dibanding `errors.As(err, &target)`?", ["Berjalan secara asinkron", "Menghapus deklarasi manual `var target *QuotaError` dan memeriksa kecocokan type secara statis saat compile time", "Mengabaikan wrapped error", "Hanya mengecek sentinel error"], "`errors.AsType[T]` memakai generik untuk mengembalikan `(T, bool)` tanpa deklarasi variabel pointer tambahan."]
+    }
   },
   http: {
     splits: ['1 · Handler & json/v2', '2 · Security & middleware', '3 · Server & timeouts'],
@@ -212,11 +212,11 @@ export const trackId = {
       "Memeriksa path input user cukup dengan `filepath.Clean` dan `strings.HasPrefix`, bukan `os.OpenRoot`. Pengecekan teks sangat mudah dilewati lewat symlink atau perbedaan aturan OS.",
       "Melewatkan `http.MaxBytesReader` sebelum decoding JSON, sehingga pengirim bisa mengunggah body bergigabyte sampai RAM habis."
     ],
-    quiz: [
-      ["Di Go 1.22+, apa yang terjadi jika ada request `POST /products/1` saat route yang didaftarkan hanya `mux.HandleFunc(\"GET /products/{id}\", h)`?", ["Tetap memanggil `h`", "Mengembalikan 404 Not Found", "Otomatis membalas 405 Method Not Allowed lengkap dengan header `Allow`", "Panic saat compile"], "Go 1.22+ `ServeMux` mencocokkan HTTP method dan mengembalikan 405 otomatis ketika path cocok tapi method tidak terdaftar."],
-      ["Mengapa membungkus `r.Body` dengan `http.MaxBytesReader` sebelum `json.UnmarshalRead`?", ["Untuk mengompres respons JSON", "Untuk membatasi ukuran byte body agar payload raksasa tidak menghabiskan memori server", "Untuk menyalakan keep-alive", "Wajib agar `json/v2` membaca UTF-8"], "`MaxBytesReader` memutus stream seketika jika payload melampaui batas ukuran yang ditetapkan."],
-      ["Bagaimana `os.OpenRoot(dir)` (Go 1.24+) melindungi endpoint akses file?", ["Mengenkripsi file di disk", "Mengunci akses file dan symlink secara ketat di bawah `dir`, menolak escape `../`", "Mengubah file jadi read-only", "Menyimpan file statis di RAM"], "`os.Root` membatasi resolusi path di level OS terhadap celah path traversal."]
-    ]
+    quiz: {
+      'go-22-happens-someone': ["Di Go 1.22+, apa yang terjadi jika ada request `POST /products/1` saat route yang didaftarkan hanya `mux.HandleFunc(\"GET /products/{id}\", h)`?", ["Tetap memanggil `h`", "Mengembalikan 404 Not Found", "Otomatis membalas 405 Method Not Allowed lengkap dengan header `Allow`", "Panic saat compile"], "Go 1.22+ `ServeMux` mencocokkan HTTP method dan mengembalikan 405 otomatis ketika path cocok tapi method tidak terdaftar."],
+      'wrap-body-http-maxbytesreader': ["Mengapa membungkus `r.Body` dengan `http.MaxBytesReader` sebelum `json.UnmarshalRead`?", ["Untuk mengompres respons JSON", "Untuk membatasi ukuran byte body agar payload raksasa tidak menghabiskan memori server", "Untuk menyalakan keep-alive", "Wajib agar `json/v2` membaca UTF-8"], "`MaxBytesReader` memutus stream seketika jika payload melampaui batas ukuran yang ditetapkan."],
+      'os-openroot-dir-go': ["Bagaimana `os.OpenRoot(dir)` (Go 1.24+) melindungi endpoint akses file?", ["Mengenkripsi file di disk", "Mengunci akses file dan symlink secara ketat di bawah `dir`, menolak escape `../`", "Mengubah file jadi read-only", "Menyimpan file statis di RAM"], "`os.Root` membatasi resolusi path di level OS terhadap celah path traversal."]
+    }
   },
   testing: {
     splits: ['1 · shop.go', '2 · shop_test.go'],
@@ -242,11 +242,11 @@ export const trackId = {
       "Membuat banyak test untuk helper privat sambil membiarkan kontrak handler HTTP atau repository tidak teruji.",
       "Menamai file test per function (`apply_discount_test.go`), padahal cukup mengikuti pasangan `shop.go` dan `shop_test.go`."
     ],
-    quiz: [
-      ["Mengapa menandai function bantu test dengan `t.Helper()`?", ["Mempercepat eksekusi", "Baris error laporan menunjuk ke baris test pemanggil alih-alih baris di dalam helper", "Mengaktifkan eksekusi paralel", "Otomatis menutup body HTTP"], "`t.Helper()` memberi tahu runner agar melewati frame stack helper saat melaporkan lokasi gagal."],
-      ["Apa keunggulan utama `testing/synctest` + `synctest.Sleep`?", ["Menjalankan test di banyak server", "Memajukan jam palsu yang deterministik di dalam gelembung terisolasi tanpa menunggu waktu sungguhan", "Menggantikan `go test -race`", "Membuat database mock"], "`synctest` memajukan waktu simulasi seketika begitu seluruh goroutine gelembung terblokir."],
-      ["Mengapa memakai `for b.Loop()` (Go 1.24+) alih-alih `for i := 0; i < b.N; i++` pada benchmark baru?", ["`b.Loop()` menjalankan multithread", "Ia otomatis mencegah eliminasi dead-code oleh compiler dan mengecualikan waktu setup/teardown", "`b.N` dihapus di Go 1.27", "`b.Loop()` mematikan penghitungan alokasi"], "`b.Loop()` mengatur timer benchmark dan menjaga hasil pemanggilan di dalam loop tetap hidup."]
-    ]
+    quiz: {
+      'mark-helper-functions-inside': ["Mengapa menandai function bantu test dengan `t.Helper()`?", ["Mempercepat eksekusi", "Baris error laporan menunjuk ke baris test pemanggil alih-alih baris di dalam helper", "Mengaktifkan eksekusi paralel", "Otomatis menutup body HTTP"], "`t.Helper()` memberi tahu runner agar melewati frame stack helper saat melaporkan lokasi gagal."],
+      'key-benefit-testing-synctest': ["Apa keunggulan utama `testing/synctest` + `synctest.Sleep`?", ["Menjalankan test di banyak server", "Memajukan jam palsu yang deterministik di dalam gelembung terisolasi tanpa menunggu waktu sungguhan", "Menggantikan `go test -race`", "Membuat database mock"], "`synctest` memajukan waktu simulasi seketika begitu seluruh goroutine gelembung terblokir."],
+      'prefer-loop-go-24': ["Mengapa memakai `for b.Loop()` (Go 1.24+) alih-alih `for i := 0; i < b.N; i++` pada benchmark baru?", ["`b.Loop()` menjalankan multithread", "Ia otomatis mencegah eliminasi dead-code oleh compiler dan mengecualikan waktu setup/teardown", "`b.N` dihapus di Go 1.27", "`b.Loop()` mematikan penghitungan alokasi"], "`b.Loop()` mengatur timer benchmark dan menjaga hasil pemanggilan di dalam loop tetap hidup."]
+    }
   },
   generics: {
     terms: [
@@ -270,11 +270,11 @@ export const trackId = {
       "Mengabaikan nilai balik boolean dari `yield(v)` di dalam generator `iter.Seq`. Tetap memanggil `yield` setelah pemanggil keluar lewat `break` akan memicu panic.",
       "Mencoba menaruh generic method ke dalam kontrak interface, yang di Go 1.27 masih dilarang."
     ],
-    quiz: [
-      ["Apa arti `~int` di dalam constraint type Go?", ["Hanya int yang boleh nil", "`int` serta seluruh custom type yang underlying type-nya `int` (mis. `type UserID int`)", "Semua unsigned integer", "Integer presisi perkiraan"], "`~` mencocokkan tipe dasar sehingga type alias domain tetap bisa memakai helper generik."],
-      ["Di dalam iterator `iter.Seq[T]`, apa yang wajib dilakukan ketika `yield(v)` mengembalikan `false`?", ["Memanggil `panic`", "Berhenti memproduksi nilai dan langsung `return` karena pemanggil keluar dari loop lewat `break`", "Mencoba mengirim `v` ulang", "Reset ke indeks 0"], "Nilai `false` dari `yield` menandakan loop konsumen sudah berhenti (`break` atau `return`)."],
-      ["Apa kemampuan baru generic method di Go 1.27+, dan batasan apa yang tetap ada?", ["Method konkret boleh mendeklarasikan parameter type sendiri (`func (s Set[T]) Map[U any](...)`), namun method interface tetap tidak boleh", "Interface kini boleh berisi generic method juga", "Function generik tingkat package dihapus", "Method dapat mengubah type receiver secara dinamis"], "Go 1.27 mengizinkan method generik pada type konkret sembari mempertahankan kontrak interface tetap non-generik."]
-    ]
+    quiz: {
+      'int-mean-inside-go': ["Apa arti `~int` di dalam constraint type Go?", ["Hanya int yang boleh nil", "`int` serta seluruh custom type yang underlying type-nya `int` (mis. `type UserID int`)", "Semua unsigned integer", "Integer presisi perkiraan"], "`~` mencocokkan tipe dasar sehingga type alias domain tetap bisa memakai helper generik."],
+      'inside-iter-seq-iterator': ["Di dalam iterator `iter.Seq[T]`, apa yang wajib dilakukan ketika `yield(v)` mengembalikan `false`?", ["Memanggil `panic`", "Berhenti memproduksi nilai dan langsung `return` karena pemanggil keluar dari loop lewat `break`", "Mencoba mengirim `v` ulang", "Reset ke indeks 0"], "Nilai `false` dari `yield` menandakan loop konsumen sudah berhenti (`break` atau `return`)."],
+      'go-27-generic-methods': ["Apa kemampuan baru generic method di Go 1.27+, dan batasan apa yang tetap ada?", ["Method konkret boleh mendeklarasikan parameter type sendiri (`func (s Set[T]) Map[U any](...)`), namun method interface tetap tidak boleh", "Interface kini boleh berisi generic method juga", "Function generik tingkat package dihapus", "Method dapat mengubah type receiver secara dinamis"], "Go 1.27 mengizinkan method generik pada type konkret sembari mempertahankan kontrak interface tetap non-generik."]
+    }
   },
   goroutines: {
     viz: 'goroutine',
@@ -310,11 +310,11 @@ export const trackId = {
       "Memakai unbuffered result channel di dalam `select` bertimeout sehingga pengirim tersangkut permanen jika timeout menang lebih dulu.",
       "Memanggil `time.After(...)` berulang kali di dalam loop `for { select { ... } }` yang panjang. Setiap putaran membuat timer baru di memori, sedangkan `time.NewTimer` bersama `Reset` memakai ulang satu timer."
     ],
-    quiz: [
-      ["Siapa yang seharusnya memanggil `close(ch)` di Go?", ["Penerima setelah membaca satu item", "Sisi pengirim/produsen setelah seluruh datanya selesai dikirim", "`WaitGroup` otomatis menutupnya", "Goroutine mana pun yang memakai `recover`"], "Hanya pengirim yang tahu kapan pengiriman benar-benar selesai; mengirim setelah close memicu panic."],
-      ["Mengapa `ch := make(chan Result, 1)` mencegah kebocoran goroutine saat dipakai bersama `select` + `<-ctx.Done()`?", ["Buffer 1 menutup channel saat timeout", "Worker tetap bisa menaruh hasilnya ke 1 slot buffer lalu keluar meski pemanggil sudah kembali duluan", "Go melewati penjadwalan channel tanpa buffer", "Mempercepat CPU dua kali lipat"], "Tanpa buffer, worker yang selesai belakangan bakal terblokir permanen pada operasi kirim `ch <-`."],
-      ["Apa yang digantikan oleh `wg.Go(fn)` (Go 1.25+)?", ["Pernyataan `select`", "Boilerplate `wg.Add(1); go func() { defer wg.Done(); fn() }()` untuk tugas tunggu sederhana tanpa panic", "Penanganan error `errgroup.WithContext`", "Penguncian mutex"], "`sync.WaitGroup.Go` menghapus pola `Add(1)` dan `Done()` manual untuk wait group sederhana."]
-    ]
+    quiz: {
+      'call-close-ch-go': ["Siapa yang seharusnya memanggil `close(ch)` di Go?", ["Penerima setelah membaca satu item", "Sisi pengirim/produsen setelah seluruh datanya selesai dikirim", "`WaitGroup` otomatis menutupnya", "Goroutine mana pun yang memakai `recover`"], "Hanya pengirim yang tahu kapan pengiriman benar-benar selesai; mengirim setelah close memicu panic."],
+      'ch-make-chan-result': ["Mengapa `ch := make(chan Result, 1)` mencegah kebocoran goroutine saat dipakai bersama `select` + `<-ctx.Done()`?", ["Buffer 1 menutup channel saat timeout", "Worker tetap bisa menaruh hasilnya ke 1 slot buffer lalu keluar meski pemanggil sudah kembali duluan", "Go melewati penjadwalan channel tanpa buffer", "Mempercepat CPU dua kali lipat"], "Tanpa buffer, worker yang selesai belakangan bakal terblokir permanen pada operasi kirim `ch <-`."],
+      'wg-go-fn-go': ["Apa yang digantikan oleh `wg.Go(fn)` (Go 1.25+)?", ["Pernyataan `select`", "Boilerplate `wg.Add(1); go func() { defer wg.Done(); fn() }()` untuk tugas tunggu sederhana tanpa panic", "Penanganan error `errgroup.WithContext`", "Penguncian mutex"], "`sync.WaitGroup.Go` menghapus pola `Add(1)` dan `Done()` manual untuk wait group sederhana."]
+    }
   },
   context: {
     viz: 'gocontext',
@@ -345,11 +345,11 @@ export const trackId = {
       "Memakai string biasa seperti `\"userID\"` sebagai key `context.WithValue`, sehingga dua package yang memilih kata sama akan saling menimpa isi context.",
       "Menyimpan `ctx` di dalam struct (`type Client struct { ctx context.Context }`), padahal seharusnya dikirim per pemanggilan."
     ],
-    quiz: [
-      ["Mengapa `ctx` TIDAK BOLEH disimpan sebagai field di struct berumur panjang?", ["Akan gagal compile", "Setiap request punya deadline/pembatalan berbeda; menyimpannya di struct membekukan state kedaluwarsa atau milik request lain", "Interface melarang field `Context`", "Memaksa seluruh int melompat ke heap"], "Setiap operasi punya siklus hidup sendiri; mengirim `ctx` di argumen pertama menjaga batas konkurensi tetap jelas."],
-      ["Saat handler HTTP memicu log audit singkat yang tetap harus tuntas SETELAH respons HTTP terkirim, konstruktor context mana yang paling tepat?", ["`r.Context()` langsung", "`context.WithoutCancel(r.Context())` dipadukan dengan `WithTimeout`", "`nil`", "`context.Background()` di dalam driver DB"], "`WithoutCancel` mempertahankan metadata/tracing sambil melepaskan sinyal cancel dari HTTP request induk."],
-      ["Mengapa mendeklarasikan key context dengan unexported custom type (`type ctxKey string`)?", ["String polos tidak boleh jadi key interface", "Walaupun dua package memakai teks nama yang identik, perbedaan type Go menjamin key keduanya tidak akan pernah bentrok", "Membuat akses `Value()` O(1)", "Diwajibkan oleh `context.Background()`"], "`context.Value` membandingkan key berdasarkan type sekaligus nilainya, sehingga unexported type menjamin isolasi."]
-    ]
+    quiz: {
+      'ctx-never-stored-inside': ["Mengapa `ctx` TIDAK BOLEH disimpan sebagai field di struct berumur panjang?", ["Akan gagal compile", "Setiap request punya deadline/pembatalan berbeda; menyimpannya di struct membekukan state kedaluwarsa atau milik request lain", "Interface melarang field `Context`", "Memaksa seluruh int melompat ke heap"], "Setiap operasi punya siklus hidup sendiri; mengirim `ctx` di argumen pertama menjaga batas konkurensi tetap jelas."],
+      'http-handler-starts-quick': ["Saat handler HTTP memicu log audit singkat yang tetap harus tuntas SETELAH respons HTTP terkirim, konstruktor context mana yang paling tepat?", ["`r.Context()` langsung", "`context.WithoutCancel(r.Context())` dipadukan dengan `WithTimeout`", "`nil`", "`context.Background()` di dalam driver DB"], "`WithoutCancel` mempertahankan metadata/tracing sambil melepaskan sinyal cancel dari HTTP request induk."],
+      'declare-context-keys-unexported': ["Mengapa mendeklarasikan key context dengan unexported custom type (`type ctxKey string`)?", ["String polos tidak boleh jadi key interface", "Walaupun dua package memakai teks nama yang identik, perbedaan type Go menjamin key keduanya tidak akan pernah bentrok", "Membuat akses `Value()` O(1)", "Diwajibkan oleh `context.Background()`"], "`context.Value` membandingkan key berdasarkan type sekaligus nilainya, sehingga unexported type menjamin isolasi."]
+    }
   },
   database: {
     terms: [
@@ -374,11 +374,11 @@ export const trackId = {
       "Menyusun klausa `ORDER BY` atau `WHERE` dari input user lewat `fmt.Sprintf` ketimbang memakai parameter (`$1`/`@p1`) dan allowlist nama kolom.",
       "Melupakan `db.SetMaxOpenConns(...)`, membuat default tanpa batas milik Go membanjiri database dengan ribuan koneksi saat traffic melonjak."
     ],
-    quiz: [
-      ["Mengapa wajib memeriksa `rows.Err()` setelah `for rows.Next() { ... }` selesai?", ["Menutup koneksi ke DB", "`rows.Next()` mengembalikan `false` baik saat EOF normal MAUPUN saat terjadi error di tengah iterasi; `rows.Err()` membedakan keduanya", "Melakukan commit transaksi", "Membebaskan memori lebih cepat"], "Tanpa `rows.Err()`, putusnya koneksi di tengah pembacaan tampak seperti akhir baris yang normal."],
-      ["Mengapa `defer func() { _ = tx.Rollback() }()` aman ditulis tepat setelah `db.BeginTx`?", ["Ia membatalkan `Commit()`", "Jika `tx.Commit()` sudah berjalan, `Rollback()` mengembalikan `sql.ErrTxDone` tanpa efek samping; jika function keluar lebih awal karena error, ia otomatis me-rollback", "Ia menonaktifkan lock baris", "Go menjalankan `defer` sebelum `Commit()`"], "Pola ini memastikan seluruh jalur kegagalan dibatalkan tanpa menulis rollback di setiap `if err != nil`."],
-      ["Mengapa `uuid.NewV7()` (Go 1.27+) bekerja lebih baik untuk primary key SQL dibanding `uuid.NewV4()` yang acak?", ["v7 lebih pendek", "v7 menyertakan awalan timestamp sehingga baris baru masuk berurutan ke halaman B-tree dengan fragmentasi indeks jauh lebih sedikit", "v4 tidak bisa diindeks", "v7 mengenkripsi isi kolom"], "UUIDv7 yang berurut waktu menjaga lokalitas B-tree dan performa cache halaman indeks."]
-    ]
+    quiz: {
+      'check-rows-err-rows': ["Mengapa wajib memeriksa `rows.Err()` setelah `for rows.Next() { ... }` selesai?", ["Menutup koneksi ke DB", "`rows.Next()` mengembalikan `false` baik saat EOF normal MAUPUN saat terjadi error di tengah iterasi; `rows.Err()` membedakan keduanya", "Melakukan commit transaksi", "Membebaskan memori lebih cepat"], "Tanpa `rows.Err()`, putusnya koneksi di tengah pembacaan tampak seperti akhir baris yang normal."],
+      'defer-func-tx-rollback': ["Mengapa `defer func() { _ = tx.Rollback() }()` aman ditulis tepat setelah `db.BeginTx`?", ["Ia membatalkan `Commit()`", "Jika `tx.Commit()` sudah berjalan, `Rollback()` mengembalikan `sql.ErrTxDone` tanpa efek samping; jika function keluar lebih awal karena error, ia otomatis me-rollback", "Ia menonaktifkan lock baris", "Go menjalankan `defer` sebelum `Commit()`"], "Pola ini memastikan seluruh jalur kegagalan dibatalkan tanpa menulis rollback di setiap `if err != nil`."],
+      'uuid-newv7-go-27': ["Mengapa `uuid.NewV7()` (Go 1.27+) bekerja lebih baik untuk primary key SQL dibanding `uuid.NewV4()` yang acak?", ["v7 lebih pendek", "v7 menyertakan awalan timestamp sehingga baris baru masuk berurutan ke halaman B-tree dengan fragmentasi indeks jauh lebih sedikit", "v4 tidak bisa diindeks", "v7 mengenkripsi isi kolom"], "UUIDv7 yang berurut waktu menjaga lokalitas B-tree dan performa cache halaman indeks."]
+    }
   },
   concurrency: {
     terms: [
@@ -402,11 +402,11 @@ export const trackId = {
       "Menahan `sync.Mutex` saat melakukan pemanggilan HTTP atau query SQL sehingga seluruh request lain antre di belakang satu koneksi lambat.",
       "Meng-upgrade `RLock()` langsung menjadi `Lock()`, yang membuat pembaca lain dan penulis berikutnya deadlock permanen."
     ],
-    quiz: [
-      ["Apa yang terjadi di Go apabila dua goroutine memodifikasi `map[string]int` biasa pada saat yang sama tanpa pengunci?", ["Nilai terakhir menang diam-diam", "Runtime langsung memicu crash fatal yang tidak bisa di-recover (`concurrent map writes`)", "Go otomatis mengunci map tersebut", "Mengembalikan nilai error"], "Go mendeteksi penulisan map bersamaan saat runtime dan langsung menghentikan proses sebelum hash bucket korup."],
-      ["Mengapa membatasi konkurensi dengan worker pool atau `errgroup.SetLimit(n)` daripada `for _, item := range items { go work(item) }`?", ["Lebih dari 10 goroutine gagal compile", "Fan-out tanpa batas menaikkan tekanan memori, file descriptor, dan koneksi DB secara bersamaan hingga sistem tumbang", "Channel maksimal 8 elemen", "`WaitGroup` maksimal 64"], "Konkurensi terbatas menjaga stabilitas memori sekaligus melindungi dependensi hilir."],
-      ["Apa yang dideteksi oleh `pprof.Lookup(\"goroutineleak\")` (GA di Go 1.27+)?", ["Loop CPU panas", "Goroutine yang terblokir permanen pada channel atau lock sehingga tidak akan pernah bisa dilanjutkan kembali", "Query SQL lambat", "Alokasi di stack"], "Go 1.27 merilis profil `goroutineleak` secara umum untuk melacak goroutine yang terjebak permanen."]
-    ]
+    quiz: {
+      'happens-go-two-goroutines': ["Apa yang terjadi di Go apabila dua goroutine memodifikasi `map[string]int` biasa pada saat yang sama tanpa pengunci?", ["Nilai terakhir menang diam-diam", "Runtime langsung memicu crash fatal yang tidak bisa di-recover (`concurrent map writes`)", "Go otomatis mengunci map tersebut", "Mengembalikan nilai error"], "Go mendeteksi penulisan map bersamaan saat runtime dan langsung menghentikan proses sebelum hash bucket korup."],
+      'cap-concurrency-worker-pool': ["Mengapa membatasi konkurensi dengan worker pool atau `errgroup.SetLimit(n)` daripada `for _, item := range items { go work(item) }`?", ["Lebih dari 10 goroutine gagal compile", "Fan-out tanpa batas menaikkan tekanan memori, file descriptor, dan koneksi DB secara bersamaan hingga sistem tumbang", "Channel maksimal 8 elemen", "`WaitGroup` maksimal 64"], "Konkurensi terbatas menjaga stabilitas memori sekaligus melindungi dependensi hilir."],
+      'pprof-lookup-goroutineleak-ga': ["Apa yang dideteksi oleh `pprof.Lookup(\"goroutineleak\")` (GA di Go 1.27+)?", ["Loop CPU panas", "Goroutine yang terblokir permanen pada channel atau lock sehingga tidak akan pernah bisa dilanjutkan kembali", "Query SQL lambat", "Alokasi di stack"], "Go 1.27 merilis profil `goroutineleak` secara umum untuk melacak goroutine yang terjebak permanen."]
+    }
   },
   architecture: {
     splits: ['1 · Config & options', '2 · Wiring & handlers', '3 · Graceful shutdown'],
@@ -431,11 +431,11 @@ export const trackId = {
       "Mengoper sinyal `ctx` yang sudah dibatalkan ke `srv.Shutdown(ctx)`. Karena context-nya sudah berstatus batal, `Shutdown` langsung berhenti tanpa memberi waktu tunggu kecuali kamu membuat `WithTimeout(context.Background(), ...)` baru.",
       "Menyelipkan ID user yang terus berganti ke teks utama log (`slog.Info(\"gagal \" + id)`). Jaga teks pesan tetap konsisten dan taruh datanya sebagai atribut (`slog.Info(\"request failed\", \"userId\", id)`)."
     ],
-    quiz: [
-      ["Mengapa wajib memakai `context.WithTimeout(context.Background(), 10*time.Second)` baru saat memanggil `srv.Shutdown(...)` alih-alih mengoper signal `ctx`?", ["`context.Background()` mematikan log JSON", "Signal `ctx` sudah berstatus cancelled, sehingga memberikannya ke `Shutdown` tidak menyisakan waktu tunggu bagi request yang masih aktif", "Go melarang signal context di `net/http`", "`Shutdown` mengabaikan timeout"], "Context yang sudah batal membuat `srv.Shutdown` langsung keluar dengan `context.Canceled` sebelum menyelesaikan request yang sedang berjalan."],
-      ["Dalam urutan mana resource seharusnya ditutup saat menerima `SIGTERM`?", ["Tutup DB pool dulu, baru matikan HTTP server", "Hentikan listener HTTP dan tunggu request aktif tuntas (`srv.Shutdown`), BARU tutup pool DB", "Hentikan paksa dengan `os.Exit(1)` langsung", "Urutan penutupan tidak berpengaruh"], "Request yang masih berjalan tetap membutuhkan koneksi database sampai ia selesai mengirim respons."],
-      ["Mengapa sebaiknya menghindari `init()` untuk membaca konfigurasi atau membuka koneksi database?", ["`init()` berjalan saat import tanpa kendali pemanggil, tidak bisa mengembalikan error, dan membuat test bergantung urutan import", "`init()` sudah dihapus di Go 1.25", "`init()` berjalan setelah `main()`", "`init()` mematikan GC"], "Constructor eksplisit di `main()` membuat dependensi terlihat jelas, mudah diuji, dan error-nya mudah diperiksa."]
-    ]
+    quiz: {
+      'pass-fresh-context-withtimeout': ["Mengapa wajib memakai `context.WithTimeout(context.Background(), 10*time.Second)` baru saat memanggil `srv.Shutdown(...)` alih-alih mengoper signal `ctx`?", ["`context.Background()` mematikan log JSON", "Signal `ctx` sudah berstatus cancelled, sehingga memberikannya ke `Shutdown` tidak menyisakan waktu tunggu bagi request yang masih aktif", "Go melarang signal context di `net/http`", "`Shutdown` mengabaikan timeout"], "Context yang sudah batal membuat `srv.Shutdown` langsung keluar dengan `context.Canceled` sebelum menyelesaikan request yang sedang berjalan."],
+      'order-resources-shut-down': ["Dalam urutan mana resource seharusnya ditutup saat menerima `SIGTERM`?", ["Tutup DB pool dulu, baru matikan HTTP server", "Hentikan listener HTTP dan tunggu request aktif tuntas (`srv.Shutdown`), BARU tutup pool DB", "Hentikan paksa dengan `os.Exit(1)` langsung", "Urutan penutupan tidak berpengaruh"], "Request yang masih berjalan tetap membutuhkan koneksi database sampai ia selesai mengirim respons."],
+      'avoid-init-functions-reading': ["Mengapa sebaiknya menghindari `init()` untuk membaca konfigurasi atau membuka koneksi database?", ["`init()` berjalan saat import tanpa kendali pemanggil, tidak bisa mengembalikan error, dan membuat test bergantung urutan import", "`init()` sudah dihapus di Go 1.25", "`init()` berjalan setelah `main()`", "`init()` mematikan GC"], "Constructor eksplisit di `main()` membuat dependensi terlihat jelas, mudah diuji, dan error-nya mudah diperiksa."]
+    }
   },
   profiling: {
     splits: ['1 · format.go', '2 · format_bench_test.go'],
@@ -461,11 +461,11 @@ export const trackId = {
       "Mengembalikan slice atau buffer ke `sync.Pool` tanpa `buf.Reset()`, yang membocorkan data request sebelumnya atau menahan buffer raksasa 10 MB di pool.",
       "Mengutak-atik alokasi mikro sementara 95% waktu request sebenarnya habis menunggu query SQL yang belum memakai index."
     ],
-    quiz: [
-      ["Apa yang ditampilkan oleh perintah `go build -gcflags=-m`?", ["Ukuran binary mobile", "Keputusan escape analysis dan inlining compiler yang menunjukkan variabel mana di stack vs yang pindah ke heap", "Execution plan SQL", "Jumlah goroutine bocor"], "`-gcflags=-m` mencetak analisis penempatan stack vs heap dan keputusan inline saat build."],
-      ["Mengapa memanggil `b.Grow(estimatedBytes)` pada `strings.Builder` di jalur panas?", ["Otomatis mengompres string", "Mengalokasikan backing byte slice satu kali di depan sehingga `allocs/op` turun mendekati 1", "Melewati validasi UTF-8", "Memaksa builder tetap di stack secara permanen"], "Satu alokasi berkapasitas tepat menghindari salinan berulang tiap kapasitas internal digandakan."],
-      ["Mengapa harus mengulang benchmark baseline setelah melakukan upgrade toolchain Go (mis. 1.26 -> 1.27)?", ["Benchmark lama tidak mau berjalan", "Perbaikan GC dan allocator runtime (seperti Green Tea GC Go 1.26 dan size-specialized allocator Go 1.27) mengubah skor secara independen dari kodemu", "`benchstat` menolak nama file yang berbeda", "`b.Loop()` mengganti satuan waktunya"], "Membandingkan baseline toolchain lama melawan kode baru mencampur efek upgrade compiler dengan efek perubahan kodemu."]
-    ]
+    quiz: {
+      'go-build-gcflags-show': ["Apa yang ditampilkan oleh perintah `go build -gcflags=-m`?", ["Ukuran binary mobile", "Keputusan escape analysis dan inlining compiler yang menunjukkan variabel mana di stack vs yang pindah ke heap", "Execution plan SQL", "Jumlah goroutine bocor"], "`-gcflags=-m` mencetak analisis penempatan stack vs heap dan keputusan inline saat build."],
+      'call-grow-estimatedbytes-strings': ["Mengapa memanggil `b.Grow(estimatedBytes)` pada `strings.Builder` di jalur panas?", ["Otomatis mengompres string", "Mengalokasikan backing byte slice satu kali di depan sehingga `allocs/op` turun mendekati 1", "Melewati validasi UTF-8", "Memaksa builder tetap di stack secara permanen"], "Satu alokasi berkapasitas tepat menghindari salinan berulang tiap kapasitas internal digandakan."],
+      're-run-baseline-benchmark': ["Mengapa harus mengulang benchmark baseline setelah melakukan upgrade toolchain Go (mis. 1.26 -> 1.27)?", ["Benchmark lama tidak mau berjalan", "Perbaikan GC dan allocator runtime (seperti Green Tea GC Go 1.26 dan size-specialized allocator Go 1.27) mengubah skor secara independen dari kodemu", "`benchstat` menolak nama file yang berbeda", "`b.Loop()` mengganti satuan waktunya"], "Membandingkan baseline toolchain lama melawan kode baru mencampur efek upgrade compiler dengan efek perubahan kodemu."]
+    }
   }
 }
 };

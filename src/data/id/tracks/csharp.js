@@ -35,11 +35,11 @@ export const trackId = {
       "Mengira `7 / 2` menghasilkan `3.5`. Pembagian dua integer dibulatkan sebelum masuk variabel, jadi `double d = 7 / 2` tetap bernilai `3`.",
       "Bingung melihat output `59,97` padahal di tutorial tertulis `59.97`. Itu efek format angka regional, bukan bug."
     ],
-    quiz: [
-      ["Apa arti `var total = 5;` di C#?", ["`total` bertipe `dynamic`, jadi nanti bisa diisi type lain", "`total` bertipe `int`, ditebak compiler saat build", "`total` bertipe `object` sampai pertama kali dipakai", "`total` bertipe `long` karena `var` selalu memilih integer terbesar"], "`var` itu type inference saat compile time, jadi `total` selamanya bertipe `int`."],
-      ["Apa yang tercetak dari `double d = 9 / 2; Console.WriteLine(d);`?", ["4.5", "4", "5", "Tidak lolos compile"], "`9 / 2` dihitung sebagai pembagian integer dulu menjadi `4`, baru diubah ke `4.0` dan tercetak `4`."],
-      ["Type mana yang cocok untuk menyimpan harga barang?", ["`float`", "`double`", "`decimal`", "`string` agar tidak dibulatkan"], "`decimal` memakai basis 10 sehingga angka seperti 0.10 tetap akurat, berbeda dari float biner atau string."]
-    ]
+    quiz: {
+      'var-total-mean': ["Apa arti `var total = 5;` di C#?", ["`total` bertipe `dynamic`, jadi nanti bisa diisi type lain", "`total` bertipe `int`, ditebak compiler saat build", "`total` bertipe `object` sampai pertama kali dipakai", "`total` bertipe `long` karena `var` selalu memilih integer terbesar"], "`var` itu type inference saat compile time, jadi `total` selamanya bertipe `int`."],
+      'double-console-writeline-print': ["Apa yang tercetak dari `double d = 9 / 2; Console.WriteLine(d);`?", ["4.5", "4", "5", "Tidak lolos compile"], "`9 / 2` dihitung sebagai pembagian integer dulu menjadi `4`, baru diubah ke `4.0` dan tercetak `4`."],
+      'type-hold-price': ["Type mana yang cocok untuk menyimpan harga barang?", ["`float`", "`double`", "`decimal`", "`string` agar tidak dibulatkan"], "`decimal` memakai basis 10 sehingga angka seperti 0.10 tetap akurat, berbeda dari float biner atau string."]
+    }
   },
   flow: {
     terms: [
@@ -65,11 +65,11 @@ export const trackId = {
       "Salah ketik `if (x = 5)`. C# langsung menolak karena `x` bukan `bool`, mencegah bug klasik tertukarnya `=` dan `==`.",
       "Mengira method bisa mengubah nilai `int` milik pemanggil. Tanpa `ref` atau `out`, method hanya mengubah salinannya sendiri."
     ],
-    quiz: [
-      ["Perulangan mana yang paling pas untuk menyusuri tiap item di `List<string>` dari awal sampai akhir?", ["`for (int i = 0; i <= list.Count; i++)`", "`foreach`", "`while (list.Any())`", "`do … while`"], "`foreach` langsung mengambil tiap elemen tanpa risiko kelewatan batas indeks, sedangkan loop `for` di pilihan pertama membaca lewat ujung list."],
-      ["Method `void Reset(int n) { n = 0; }` dipanggil lewat `Reset(count)`. Berapa nilai `count` setelahnya?", ["0", "Tidak berubah", "Tergantung apakah `count` dideklarasikan dengan `var`", "Error compile"], "`int` dikirim by value, sehingga method hanya mengubah salinan `n` di dalamnya."],
-      ["Apa fungsi pola `_` di dalam cabang `switch` expression?", ["Variabel penampung nilai di dalam cabang", "Hanya cocok kalau nilainya `null`", "Cabang bawaan yang menangkap sisa nilai apa pun", "Mengulang hasil dari cabang sebelumnya"], "`_` adalah discard pattern yang menangkap nilai apa pun jika cabang di atasnya tidak ada yang cocok."]
-    ]
+    quiz: {
+      'loop-fit-visiting-every': ["Perulangan mana yang paling pas untuk menyusuri tiap item di `List<string>` dari awal sampai akhir?", ["`for (int i = 0; i <= list.Count; i++)`", "`foreach`", "`while (list.Any())`", "`do … while`"], "`foreach` langsung mengambil tiap elemen tanpa risiko kelewatan batas indeks, sedangkan loop `for` di pilihan pertama membaca lewat ujung list."],
+      'method-void-reset-int': ["Method `void Reset(int n) { n = 0; }` dipanggil lewat `Reset(count)`. Berapa nilai `count` setelahnya?", ["0", "Tidak berubah", "Tergantung apakah `count` dideklarasikan dengan `var`", "Error compile"], "`int` dikirim by value, sehingga method hanya mengubah salinan `n` di dalamnya."],
+      'mean-switch-expression-arm': ["Apa fungsi pola `_` di dalam cabang `switch` expression?", ["Variabel penampung nilai di dalam cabang", "Hanya cocok kalau nilainya `null`", "Cabang bawaan yang menangkap sisa nilai apa pun", "Mengulang hasil dari cabang sebelumnya"], "`_` adalah discard pattern yang menangkap nilai apa pun jika cabang di atasnya tidak ada yang cocok."]
+    }
   },
   classes: {
     terms: [
@@ -95,11 +95,11 @@ export const trackId = {
       "Membuka semua hal jadi `public` biar cepat. Kode luar bisa menulis `acct.Balance = -500` dan menerobos validasi di `Deposit`.",
       "Mengira property sama persis seperti field. Di balik layar, property adalah sepasang method yang bisa memvalidasi atau menghitung nilai."
     ],
-    quiz: [
-      ["Apa izin akses yang diberikan `public decimal Balance { get; private set; }`?", ["Siapa saja bebas membaca dan menulis", "Siapa saja bisa membaca, tapi hanya kode di dalam class yang boleh mengubah", "Hanya class turunan yang boleh mengubah", "Hanya bisa diisi sekali di constructor saja"], "Getter-nya public sedangkan setter-nya private, sehingga class tetap memegang kendali perubahan (jika ingin sekali isi di constructor, pakai `{ get; }`)."],
-      ["Apa tugas utama constructor?", ["Membebaskan memori object saat selesai dipakai", "Menyiapkan object baru dalam kondisi awal yang valid", "Berjalan setiap kali ada property dibaca", "Menyalin seluruh data dari object lain"], "Constructor berjalan tepat saat object dibuat untuk menegakkan aturan awalnya sejak pertama ada."],
-      ["Sebuah method `static` itu…", ["dimiliki terpisah oleh masing-masing object", "menempel di tipe class-nya sehingga bisa dipanggil tanpa instance", "hanya bisa dipanggil satu kali saja", "otomatis jalan saat aplikasi mulai"], "Member static dipanggil langsung lewat nama tipenya, seperti `Math.Max(1, 2)`."]
-    ]
+    quiz: {
+      'public-decimal-balance-get': ["Apa izin akses yang diberikan `public decimal Balance { get; private set; }`?", ["Siapa saja bebas membaca dan menulis", "Siapa saja bisa membaca, tapi hanya kode di dalam class yang boleh mengubah", "Hanya class turunan yang boleh mengubah", "Hanya bisa diisi sekali di constructor saja"], "Getter-nya public sedangkan setter-nya private, sehingga class tetap memegang kendali perubahan (jika ingin sekali isi di constructor, pakai `{ get; }`)."],
+      'job-constructor': ["Apa tugas utama constructor?", ["Membebaskan memori object saat selesai dipakai", "Menyiapkan object baru dalam kondisi awal yang valid", "Berjalan setiap kali ada property dibaca", "Menyalin seluruh data dari object lain"], "Constructor berjalan tepat saat object dibuat untuk menegakkan aturan awalnya sejak pertama ada."],
+      'static-method': ["Sebuah method `static` itu…", ["dimiliki terpisah oleh masing-masing object", "menempel di tipe class-nya sehingga bisa dipanggil tanpa instance", "hanya bisa dipanggil satu kali saja", "otomatis jalan saat aplikasi mulai"], "Member static dipanggil langsung lewat nama tipenya, seperti `Math.Max(1, 2)`."]
+    }
   },
   memory: {
     terms: [
@@ -132,11 +132,11 @@ export const trackId = {
       "Mengira mengirim class ke parameter method otomatis menggandakannya. Yang disalin tetap cuma referensinya.",
       "Mengharapkan `Replace(p1)` mengganti variabel milik pemanggil. Tanpa kata kunci `ref`, yang tertukar cuma referensi lokal di parameter."
     ],
-    quiz: [
-      ["Setelah `var x = new List<int>{1}; var y = x; y.Add(2);` berapa jumlah isi `x`?", ["1, karena `y` hasil salinan", "2", "0", "Error compile"], "`List<T>` bertipe reference, jadi `x` dan `y` sama-sama menunjuk ke satu list."],
-      ["Manakah dari pilihan berikut yang termasuk value type?", ["`string`", "`int[]`", "`DateTime`", "`List<int>`"], "`DateTime` adalah struct. Sebaliknya, `string`, `List<T>`, dan array `int[]` semuanya reference type."],
-      ["Kenapa `string` terasa seperti value type saat dipakai?", ["Disimpan langsung di stack", "Sifatnya immutable dan `==` membandingkan isi teksnya", "Bentuk aslinya adalah struct", "Compiler otomatis menggandakannya di tiap assignment"], "Meskipun tinggal di heap, sifat immutable dan perbandingan isi pada `==` membuatnya berperilaku seperti nilai."]
-    ]
+    quiz: {
+      'var-new-list-int': ["Setelah `var x = new List<int>{1}; var y = x; y.Add(2);` berapa jumlah isi `x`?", ["1, karena `y` hasil salinan", "2", "0", "Error compile"], "`List<T>` bertipe reference, jadi `x` dan `y` sama-sama menunjuk ke satu list."],
+      'value-type': ["Manakah dari pilihan berikut yang termasuk value type?", ["`string`", "`int[]`", "`DateTime`", "`List<int>`"], "`DateTime` adalah struct. Sebaliknya, `string`, `List<T>`, dan array `int[]` semuanya reference type."],
+      'string-feel-like-value': ["Kenapa `string` terasa seperti value type saat dipakai?", ["Disimpan langsung di stack", "Sifatnya immutable dan `==` membandingkan isi teksnya", "Bentuk aslinya adalah struct", "Compiler otomatis menggandakannya di tiap assignment"], "Meskipun tinggal di heap, sifat immutable dan perbandingan isi pada `==` membuatnya berperilaku seperti nilai."]
+    }
   },
   interfaces: {
     splits: ['1 · Pemakaian', '2 · Interface & notifier', '3 · Base abstract & subclass'],
@@ -162,11 +162,11 @@ export const trackId = {
       "Menulis `new` padahal maunya `override` pada method turunan. Kode lolos compile dengan warning, tapi referensi induk tetap memanggil method lama.",
       "Memakai pewarisan cuma demi menyalin kode antar benda yang tak nyambung. Hubungan pewarisan harus selalu masuk akal."
     ],
-    quiz: [
-      ["Berapa banyak interface yang boleh diimplementasikan satu class C#?", ["Satu saja", "Maksimal dua", "Bebas sebanyak apa pun", "Tidak boleh jika sudah punya class induk"], "Satu class hanya boleh punya satu induk class, tapi bebas menerapkan berapapun interface."],
-      ["Penanda apa yang wajib ada di method induk agar bisa di-`override`?", ["`static`", "`virtual` atau `abstract`", "`sealed`", "`public` saja sudah cukup"], "Hanya member `virtual`, `abstract`, atau hasil override sebelumnya yang boleh di-override lagi."],
-      ["Keuntungan utama `OrderService(INotifier notifier)` dibanding langsung `new EmailNotifier()` di dalam class adalah…", ["Panggilan method jadi lebih cepat", "Implementasinya bisa ditukar atau dibuatkan fake tanpa mengubah `OrderService`", "`OrderService` jadi tak butuh constructor", "Mencegah `OrderService` diwarisi class lain"], "Bergantung pada abstraksi memisahkan class dari implementasi konkret, dan itulah dasar dependency injection."]
-    ]
+    quiz: {
+      'many-interfaces-one-class': ["Berapa banyak interface yang boleh diimplementasikan satu class C#?", ["Satu saja", "Maksimal dua", "Bebas sebanyak apa pun", "Tidak boleh jika sudah punya class induk"], "Satu class hanya boleh punya satu induk class, tapi bebas menerapkan berapapun interface."],
+      'base-method-marked-override': ["Penanda apa yang wajib ada di method induk agar bisa di-`override`?", ["`static`", "`virtual` atau `abstract`", "`sealed`", "`public` saja sudah cukup"], "Hanya member `virtual`, `abstract`, atau hasil override sebelumnya yang boleh di-override lagi."],
+      'benefit-orderservice-inotifier-n': ["Keuntungan utama `OrderService(INotifier notifier)` dibanding langsung `new EmailNotifier()` di dalam class adalah…", ["Panggilan method jadi lebih cepat", "Implementasinya bisa ditukar atau dibuatkan fake tanpa mengubah `OrderService`", "`OrderService` jadi tak butuh constructor", "Mencegah `OrderService` diwarisi class lain"], "Bergantung pada abstraksi memisahkan class dari implementasi konkret, dan itulah dasar dependency injection."]
+    }
   },
   generics: {
     terms: [
@@ -192,11 +192,11 @@ export const trackId = {
       "Membaca langsung `dict[key]` saat key-nya tidak ada dan berujung `KeyNotFoundException`.",
       "Menambah atau menghapus item di tengah `foreach`. Salin dulu (`list.ToList()`) atau catat perubahan lalu terapkan setelah loop selesai."
     ],
-    quiz: [
-      ["Kamu harus mengecek ribuan kali apakah suatu ID sudah pernah muncul. Pilihan paling tepat?", ["`List<int>` dengan `Contains`", "`int[]` dicari pakai loop", "`HashSet<int>`", "`Queue<int>`"], "Pengecekan `HashSet.Contains` rata-rata O(1), jauh lebih cepat dibanding menyapu list atau array satu-satu (O(n))."],
-      ["Apa syarat yang diminta oleh constraint `where T : new()`?", ["T harus berupa value type", "T punya constructor public tanpa parameter", "T harus sudah dibuat dengan `new` sebelum dikirim", "T mengimplementasikan `ICloneable`"], "Constraint `new()` mengizinkan kode generik memanggil `new T()` dengan aman."],
-      ["Cara paling pas membaca key dictionary yang belum tentu ada?", ["Pakai `dict[key]` di dalam try/catch", "`dict.TryGetValue(key, out var v)`", "Cek `dict.ContainsKey(key)` dulu lalu baca `dict[key]`", "Cari lewat `dict.Keys.First(k => k == key)`"], "`TryGetValue` hanya mencari sekali di tabel hash. Menggabungkan `ContainsKey` dan indexer mencari dua kali, dan try/catch lambat."]
-    ]
+    quiz: {
+      'need-check-thousands-times': ["Kamu harus mengecek ribuan kali apakah suatu ID sudah pernah muncul. Pilihan paling tepat?", ["`List<int>` dengan `Contains`", "`int[]` dicari pakai loop", "`HashSet<int>`", "`Queue<int>`"], "Pengecekan `HashSet.Contains` rata-rata O(1), jauh lebih cepat dibanding menyapu list atau array satu-satu (O(n))."],
+      'new-require': ["Apa syarat yang diminta oleh constraint `where T : new()`?", ["T harus berupa value type", "T punya constructor public tanpa parameter", "T harus sudah dibuat dengan `new` sebelum dikirim", "T mengimplementasikan `ICloneable`"], "Constraint `new()` mengizinkan kode generik memanggil `new T()` dengan aman."],
+      'way-read-dictionary-key': ["Cara paling pas membaca key dictionary yang belum tentu ada?", ["Pakai `dict[key]` di dalam try/catch", "`dict.TryGetValue(key, out var v)`", "Cek `dict.ContainsKey(key)` dulu lalu baca `dict[key]`", "Cari lewat `dict.Keys.First(k => k == key)`"], "`TryGetValue` hanya mencari sekali di tabel hash. Menggabungkan `ContainsKey` dan indexer mencari dua kali, dan try/catch lambat."]
+    }
   },
   errors: {
     splits: ['1 · Kode pemanggil', '2 · ReadFirstLine & using', '3 · ParseAge & pembungkusan'],
@@ -224,12 +224,12 @@ export const trackId = {
       "Membungkus semua method kecil pakai `try/catch` 'untuk jaga-jaga', bukan membiarkannya ditangani di pemanggil terluar atau handler global.",
       "Memakai exception untuk kasus wajar seperti format angka salah atau data tidak ditemukan."
     ],
-    quiz: [
-      ["Di dalam blok `catch`, apa beda `throw;` dengan `throw ex;`?", ["Keduanya sama persis", "`throw;` meneruskan error dengan tetap menjaga stack trace aslinya", "`throw;` langsung menelan exception", "`throw;` membuat `Exception` baru tanpa pesan"], "`throw ex;` mengatur ulang posisi error ke baris catch sekarang, sedangkan `throw;` menjaga asal masalah sesungguhnya."],
-      ["Kapan blok `finally` dijalankan?", ["Hanya kalau terjadi exception", "Hanya kalau tidak ada exception", "Selalu jalan: saat sukses, saat gagal, dan bahkan setelah `return`", "Hanya jika tidak ada blok `catch`"], "Jaminan selalu jalan inilah yang membuat `finally` dan `using` aman untuk membersihkan resource."],
-      ["User mengetik `12a` di kolom umur. Cara terbaik menanganinya?", ["`int.Parse` di dalam try/catch", "`int.TryParse`, lalu tampilkan pesan validasi jika hasilnya `false`", "Biarkan error naik ke global error handler", "`Convert.ToInt32` dengan blok catch kosong"], "Input salah itu kejadian biasa, bukan error sistem. `TryParse` memeriksanya cepat tanpa biaya exception."],
-      ["Apa jaminan dari baris `using var conn = new SqlConnection(cs);`?", ["Koneksi terus terbuka sampai program selesai", "`Dispose()` otomatis dipanggil di akhir scope, meski ada exception", "Koneksi terbuka seketika tanpa dipanggil", "Koneksi aman dipakai bersamaan banyak thread"], "`using` diubah compiler menjadi blok try/finally yang selalu memanggil `Dispose()`."]
-    ]
+    quiz: {
+      'inside-catch-throw-differ': ["Di dalam blok `catch`, apa beda `throw;` dengan `throw ex;`?", ["Keduanya sama persis", "`throw;` meneruskan error dengan tetap menjaga stack trace aslinya", "`throw;` langsung menelan exception", "`throw;` membuat `Exception` baru tanpa pesan"], "`throw ex;` mengatur ulang posisi error ke baris catch sekarang, sedangkan `throw;` menjaga asal masalah sesungguhnya."],
+      'finally-block-run': ["Kapan blok `finally` dijalankan?", ["Hanya kalau terjadi exception", "Hanya kalau tidak ada exception", "Selalu jalan: saat sukses, saat gagal, dan bahkan setelah `return`", "Hanya jika tidak ada blok `catch`"], "Jaminan selalu jalan inilah yang membuat `finally` dan `using` aman untuk membersihkan resource."],
+      'user-types-12a-age': ["User mengetik `12a` di kolom umur. Cara terbaik menanganinya?", ["`int.Parse` di dalam try/catch", "`int.TryParse`, lalu tampilkan pesan validasi jika hasilnya `false`", "Biarkan error naik ke global error handler", "`Convert.ToInt32` dengan blok catch kosong"], "Input salah itu kejadian biasa, bukan error sistem. `TryParse` memeriksanya cepat tanpa biaya exception."],
+      'using-var-conn-new': ["Apa jaminan dari baris `using var conn = new SqlConnection(cs);`?", ["Koneksi terus terbuka sampai program selesai", "`Dispose()` otomatis dipanggil di akhir scope, meski ada exception", "Koneksi terbuka seketika tanpa dipanggil", "Koneksi aman dipakai bersamaan banyak thread"], "`using` diubah compiler menjadi blok try/finally yang selalu memanggil `Dispose()`."]
+    }
   },
   linq: {
     terms: [
@@ -262,11 +262,11 @@ export const trackId = {
       "Menulis `Count() > 0` sekadar untuk mengecek ketersediaan data. `Any()` lebih tepat maksudnya dan berubah jadi `EXISTS` yang hemat di EF Core.",
       "Memanggil `ToList()` di tengah query EF Core sehingga seluruh isi tabel tersedot ke memori dulu baru disaring."
     ],
-    quiz: [
-      ["Kapan baris `var q = items.Where(x => x > 5);` mulai menyaring item?", ["Langsung saat baris itu dieksekusi", "Ketika `q` mulai dibaca atau diulang", "Saat method-nya selesai dipanggil", "Saat `q` disalin ke variabel baru"], "Query LINQ bersifat lazy dan baru bekerja saat enumerasi dimulai."],
-      ["Panggilan mana yang gagal dengan error jika urutannya kosong?", ["`FirstOrDefault()`", "`Any()`", "`First()`", "`Where()`"], "`First()` mengharuskan minimal ada satu elemen yang cocok."],
-      ["Cara paling tepat untuk mengecek 'apakah ada minimal satu data yang cocok?'", ["`Count() > 0`", "`Any()`", "`ToList().Count > 0`", "`FirstOrDefault() != null`"], "`Any()` berhenti saat ketemu yang pertama. Menguji `FirstOrDefault() != null` justru salah pada angka karena nilai bakunya `0`, bukan `null`."]
-    ]
+    quiz: {
+      'var-items-filter-items': ["Kapan baris `var q = items.Where(x => x > 5);` mulai menyaring item?", ["Langsung saat baris itu dieksekusi", "Ketika `q` mulai dibaca atau diulang", "Saat method-nya selesai dipanggil", "Saat `q` disalin ke variabel baru"], "Query LINQ bersifat lazy dan baru bekerja saat enumerasi dimulai."],
+      'call-throws-sequence-empty': ["Panggilan mana yang gagal dengan error jika urutannya kosong?", ["`FirstOrDefault()`", "`Any()`", "`First()`", "`Where()`"], "`First()` mengharuskan minimal ada satu elemen yang cocok."],
+      'way-ask-there-least': ["Cara paling tepat untuk mengecek 'apakah ada minimal satu data yang cocok?'", ["`Count() > 0`", "`Any()`", "`ToList().Count > 0`", "`FirstOrDefault() != null`"], "`Any()` berhenti saat ketemu yang pertama. Menguji `FirstOrDefault() != null` justru salah pada angka karena nilai bakunya `0`, bukan `null`."]
+    }
   },
   delegates: {
     splits: ['1 · Lambda & closure', '2 · Event', '3 · Extension method & sumber event'],
@@ -299,11 +299,11 @@ export const trackId = {
       "Publisher tahan lama yang masih memegang referensi subscriber sementara lewat event karena lupa berhenti berlangganan.",
       "Membuat tipe delegate kustom baru padahal sudah tersedia `Func` atau `Action`."
     ],
-    quiz: [
-      ["Tipe manakah yang cocok untuk method berparameter `string` dan menghasilkan `int`?", ["`Action<string, int>`", "`Func<string, int>`", "`Func<int, string>`", "`Predicate<string>`"], "Pada `Func`, parameter tipe paling kanan selalu menjadi tipe kembaliannya."],
-      ["`int n = 1; Func<int> f = () => n; n = 5;` Apa hasil panggilan `f()`?", ["1", "5", "0", "Error saat jalan"], "Closure menyimpan referensi ke variabel `n` itu sendiri, bukan nilainya saat lambda dibuat."],
-      ["Apa saja yang boleh dilakukan kode luar terhadap `event` publik di sebuah class?", ["Menjalankan atau memicu event tersebut", "Menghapus semua subscriber dengan tanda `=`", "Cuma mendaftar dan berhenti berlangganan", "Membaca seluruh daftar subscriber-nya"], "Event membatasi kode luar hanya pada `+=` dan `-=`. Hanya class pemiliknya yang bisa memicu event."]
-    ]
+    quiz: {
+      'type-describes-method-taking': ["Tipe manakah yang cocok untuk method berparameter `string` dan menghasilkan `int`?", ["`Action<string, int>`", "`Func<string, int>`", "`Func<int, string>`", "`Predicate<string>`"], "Pada `Func`, parameter tipe paling kanan selalu menjadi tipe kembaliannya."],
+      'int-func-int-return': ["`int n = 1; Func<int> f = () => n; n = 5;` Apa hasil panggilan `f()`?", ["1", "5", "0", "Error saat jalan"], "Closure menyimpan referensi ke variabel `n` itu sendiri, bukan nilainya saat lambda dibuat."],
+      'code-outside-class-public': ["Apa saja yang boleh dilakukan kode luar terhadap `event` publik di sebuah class?", ["Menjalankan atau memicu event tersebut", "Menghapus semua subscriber dengan tanda `=`", "Cuma mendaftar dan berhenti berlangganan", "Membaca seluruh daftar subscriber-nya"], "Event membatasi kode luar hanya pada `+=` dan `-=`. Hanya class pemiliknya yang bisa memicu event."]
+    }
   },
   async: {
     splits: ['1 · Berurutan vs WhenAll', '2 · Pembatalan & streaming', '3 · Helper async'],
@@ -340,12 +340,12 @@ export const trackId = {
       "Lupa menaruh `await`. Method langsung lewat dan error dari task hilang tanpa ketahuan, jadi selalu bereskan warning CS4014.",
       "Memanggil `ToListAsync()` pada data raksasa hanya untuk satu kali loop, padahal streaming pakai `AsAsyncEnumerable()` menjaga memori tetap ringan."
     ],
-    quiz: [
-      ["Apa yang terjadi pada thread aktif ketika sampai di `await http.GetAsync(url)` saat data jaringan masih di jalan?", ["Thread tidur pulas sampai jawaban tiba", "Thread dilepas agar bisa mengurus request lain", "Thread sibuk memeriksa status jaringan tiap milidetik", "Thread menyerahkan request itu ke thread baru"], "`await` mengembalikan thread ke pool dan meneruskan sisa method saat data sudah datang."],
-      ["Tiga panggilan I/O independen berdurasi masing-masing 1 detik. Cara tercepat yang benar?", ["Menunggu satu demi satu dengan await", "Mulai ketiganya dulu, lalu `await Task.WhenAll`", "Bungkus tiap panggilan dalam `Task.Run` lalu ambil `.Result`", "Jalankan `Parallel.For` dan `.Wait()`"], "Memulai ketiganya dulu menyatukan waktu tunggunya menjadi sekitar 1 detik tanpa menahan satu thread pun."],
-      ["Kenapa `.Result` harus dihindari di dalam ASP.NET Core?", ["Nilainya bisa berbeda dengan hasil `await`", "Ia menyandera satu thread pool selama menunggu, membuat server kehabisan thread saat ramai", "Pasti selalu mengalami deadlock", "Dilarang keras di dalam controller"], "ASP.NET Core memang bebas dari deadlock UI klasik, tapi tiap thread yang tersandera berarti satu thread hilang dari antrean layanan."],
-      ["Sebuah method mengembalikan `IAsyncEnumerable<Order>`. Bagaimana cara membacanya?", ["`foreach (var o in GetOrders())`", "`await foreach (var o in GetOrders())`", "`GetOrders().Result`", "`await Task.WhenAll(GetOrders())`"], "`await foreach` menunggu tiap baris berikutnya hadir, sehingga data bisa langsung diproses sebelum semuanya selesai."]
-    ]
+    quiz: {
+      'happens-current-thread-await': ["Apa yang terjadi pada thread aktif ketika sampai di `await http.GetAsync(url)` saat data jaringan masih di jalan?", ["Thread tidur pulas sampai jawaban tiba", "Thread dilepas agar bisa mengurus request lain", "Thread sibuk memeriksa status jaringan tiap milidetik", "Thread menyerahkan request itu ke thread baru"], "`await` mengembalikan thread ke pool dan meneruskan sisa method saat data sudah datang."],
+      'three-independent-second-calls': ["Tiga panggilan I/O independen berdurasi masing-masing 1 detik. Cara tercepat yang benar?", ["Menunggu satu demi satu dengan await", "Mulai ketiganya dulu, lalu `await Task.WhenAll`", "Bungkus tiap panggilan dalam `Task.Run` lalu ambil `.Result`", "Jalankan `Parallel.For` dan `.Wait()`"], "Memulai ketiganya dulu menyatukan waktu tunggunya menjadi sekitar 1 detik tanpa menahan satu thread pun."],
+      'avoid-result-asp-net': ["Kenapa `.Result` harus dihindari di dalam ASP.NET Core?", ["Nilainya bisa berbeda dengan hasil `await`", "Ia menyandera satu thread pool selama menunggu, membuat server kehabisan thread saat ramai", "Pasti selalu mengalami deadlock", "Dilarang keras di dalam controller"], "ASP.NET Core memang bebas dari deadlock UI klasik, tapi tiap thread yang tersandera berarti satu thread hilang dari antrean layanan."],
+      'method-returns-iasyncenumerable': ["Sebuah method mengembalikan `IAsyncEnumerable<Order>`. Bagaimana cara membacanya?", ["`foreach (var o in GetOrders())`", "`await foreach (var o in GetOrders())`", "`GetOrders().Result`", "`await Task.WhenAll(GetOrders())`"], "`await foreach` menunggu tiap baris berikutnya hadir, sehingga data bisa langsung diproses sebelum semuanya selesai."]
+    }
   },
   modern: {
     terms: [
@@ -376,11 +376,11 @@ export const trackId = {
       "Menganggap `record` sekadar 'class versi singkat'. Nilai jual utamanya ada pada perbandingan isi dan sifat immutable.",
       "Memasang `{ get; set; }` di record lalu mengubah isinya saat sudah menjadi key `HashSet` atau dictionary, membuat kode hash-nya meleset."
     ],
-    quiz: [
-      ["Apa hasil evaluasi `a?.B ?? c` saat `a` bernilai null?", ["Menghasilkan `NullReferenceException`", "`null`", "`c`", "`default(B)`"], "`a?.B` berhenti dan bernilai null, lalu `??` langsung memilih cadangan `c`."],
-      ["Dua record dengan seluruh isi property persis sama saat dicek dengan `==` hasilnya…", ["selalu berbeda kecuali menunjuk object yang persis sama", "sama (equal)", "sama hanya jika salah satunya dibuat lewat `with`", "gagal compile"], "Record otomatis membandingkan isi nilai sebagai bawaan, bukan alamat memori."],
-      ["Apa pesan dari deklarasi `string? name` kepada compiler?", ["`name` bersifat opsional dan boleh dilewati saat memanggil fungsi", "`name` mungkin null, jadi beri peringatan kalau kupakai sebelum dicek", "`name` adalah value type yang boleh kosong", "`name` akan dicek null otomatis saat aplikasi berjalan"], "Anotasi nullable cuma berlaku saat compile time untuk memberi peringatan, tanpa mengubah perilaku runtime."]
-    ]
+    quiz: {
+      'evaluate-null': ["Apa hasil evaluasi `a?.B ?? c` saat `a` bernilai null?", ["Menghasilkan `NullReferenceException`", "`null`", "`c`", "`default(B)`"], "`a?.B` berhenti dan bernilai null, lalu `??` langsung memilih cadangan `c`."],
+      'two-records-identical-property': ["Dua record dengan seluruh isi property persis sama saat dicek dengan `==` hasilnya…", ["selalu berbeda kecuali menunjuk object yang persis sama", "sama (equal)", "sama hanya jika salah satunya dibuat lewat `with`", "gagal compile"], "Record otomatis membandingkan isi nilai sebagai bawaan, bukan alamat memori."],
+      'string-name-tell-compiler': ["Apa pesan dari deklarasi `string? name` kepada compiler?", ["`name` bersifat opsional dan boleh dilewati saat memanggil fungsi", "`name` mungkin null, jadi beri peringatan kalau kupakai sebelum dicek", "`name` adalah value type yang boleh kosong", "`name` akan dicek null otomatis saat aplikasi berjalan"], "Anotasi nullable cuma berlaku saat compile time untuk memberi peringatan, tanpa mengubah perilaku runtime."]
+    }
   },
   gc: {
     terms: [
@@ -408,11 +408,11 @@ export const trackId = {
       "Mengoptimasi bagian kode yang jarang lewat jalur sibuk. Selalu ukur dengan profiler dulu.",
       "Mengandalkan loop `Stopwatch` sederhana sebagai tolok ukur performa."
     ],
-    quiz: [
-      ["Kenapa pembersihan memori Gen 0 biasanya sangat murah dan cepat?", ["Berjalan di thread latar belakang tanpa biaya CPU", "Hampir semua object baru sudah tidak terpakai lagi sehingga sedikit yang perlu disalin", "Hanya memeriksa object berukuran di atas 85 KB", "Melewati object yang masih dipegang stack"], "Karena sebagian besar alokasi cepat tidak terpakai lagi, hanya sedikit yang selamat dan perlu dipindahkan."],
-      ["Mengapa `Span<T>` dilarang dijadikan field di dalam sebuah class?", ["Ukurannya terlalu besar untuk muat di class", "Ia bertipe `ref struct` yang mungkin menunjuk ke memori stack sehingga tidak boleh bocor ke heap", "Span selalu bersifat read-only", "Class memang tidak pernah boleh berisi struct"], "Span bisa menunjuk ke stack frame yang lenyap saat method usai, jadi compiler mencegahnya tersimpan di heap."],
-      ["Langkah pertama yang wajib diambil sebelum memangkas pemakaian memori?", ["Ubah semua tipe data sibuk jadi struct", "Panggil `GC.Collect()` setiap habis kerja berat", "Ukur dan profil dulu titik alokasinya", "Ganti semua LINQ dengan loop biasa"], "Tanpa mengukur lebih dulu, kamu tidak tahu persis di mana alokasi besar terjadi atau apakah itu memang sumber lambatnya."]
-    ]
+    quiz: {
+      'gen-collection-cheap': ["Kenapa pembersihan memori Gen 0 biasanya sangat murah dan cepat?", ["Berjalan di thread latar belakang tanpa biaya CPU", "Hampir semua object baru sudah tidak terpakai lagi sehingga sedikit yang perlu disalin", "Hanya memeriksa object berukuran di atas 85 KB", "Melewati object yang masih dipegang stack"], "Karena sebagian besar alokasi cepat tidak terpakai lagi, hanya sedikit yang selamat dan perlu dipindahkan."],
+      'span-field-class': ["Mengapa `Span<T>` dilarang dijadikan field di dalam sebuah class?", ["Ukurannya terlalu besar untuk muat di class", "Ia bertipe `ref struct` yang mungkin menunjuk ke memori stack sehingga tidak boleh bocor ke heap", "Span selalu bersifat read-only", "Class memang tidak pernah boleh berisi struct"], "Span bisa menunjuk ke stack frame yang lenyap saat method usai, jadi compiler mencegahnya tersimpan di heap."],
+      'first-step-optimising-memory': ["Langkah pertama yang wajib diambil sebelum memangkas pemakaian memori?", ["Ubah semua tipe data sibuk jadi struct", "Panggil `GC.Collect()` setiap habis kerja berat", "Ukur dan profil dulu titik alokasinya", "Ganti semua LINQ dengan loop biasa"], "Tanpa mengukur lebih dulu, kamu tidak tahu persis di mana alokasi besar terjadi atau apakah itu memang sumber lambatnya."]
+    }
   },
   concurrency: {
     splits: ['1 · Counter atomik', '2 · Gerbang SemaphoreSlim', '3 · Channel berbatas'],
@@ -445,11 +445,11 @@ export const trackId = {
       "Menganggap field `List` di dalam service singleton ASP.NET Core itu aman. Semua request pengguna masuk menyentuh list yang sama.",
       "Mencoba menulis `await` di dalam blok `lock` (ditolak compiler), atau memasang gembok pada `this` dan `string` yang bisa ikut dikunci kode lain."
     ],
-    quiz: [
-      ["Mengapa operasi `count++` tidak aman bila diakses beberapa thread sekaligus?", ["Operator `++` lambat di memori bersama", "Aslinya terdiri dari tiga langkah (baca, tambah, tulis) yang bisa saling menyalip", "`int` itu reference type", "JIT menunda penambahan ke akhir method"], "Dua thread bisa membaca angka lama yang sama lalu menulis hasil penjumlahan yang sama, membuat satu hitungan hilang."],
-      ["Alat pengunci mana yang mendukung penggunaan `await` di dalamnya?", ["`lock`", "`SemaphoreSlim`", "`volatile`", "`Interlocked.Increment`"], "`SemaphoreSlim.WaitAsync` kompatibel penuh dengan `await`, berbeda dengan `lock` yang melarang `await` di bloknya."],
-      ["Strategi paling aman untuk menjaga thread safety di seluruh aplikasi?", ["Pasang `lock` di setiap method", "Hindari data mutable bersama sedapat mungkin", "Ganti semua koleksi jadi `ConcurrentDictionary`", "Beri penanda `volatile` di semua field"], "Data yang tidak dibagi antar thread, atau tidak bisa diubah isinya, mustahil mengalami race condition."]
-    ]
+    quiz: {
+      'count-unsafe-across-threads': ["Mengapa operasi `count++` tidak aman bila diakses beberapa thread sekaligus?", ["Operator `++` lambat di memori bersama", "Aslinya terdiri dari tiga langkah (baca, tambah, tulis) yang bisa saling menyalip", "`int` itu reference type", "JIT menunda penambahan ke akhir method"], "Dua thread bisa membaca angka lama yang sama lalu menulis hasil penjumlahan yang sama, membuat satu hitungan hilang."],
+      'primitive-gives-mutual-exclusion': ["Alat pengunci mana yang mendukung penggunaan `await` di dalamnya?", ["`lock`", "`SemaphoreSlim`", "`volatile`", "`Interlocked.Increment`"], "`SemaphoreSlim.WaitAsync` kompatibel penuh dengan `await`, berbeda dengan `lock` yang melarang `await` di bloknya."],
+      'strategy-thread-safety-overall': ["Strategi paling aman untuk menjaga thread safety di seluruh aplikasi?", ["Pasang `lock` di setiap method", "Hindari data mutable bersama sedapat mungkin", "Ganti semua koleksi jadi `ConcurrentDictionary`", "Beri penanda `volatile` di semua field"], "Data yang tidak dibagi antar thread, atau tidak bisa diubah isinya, mustahil mengalami race condition."]
+    }
   },
   internals: {
     terms: [
@@ -474,11 +474,11 @@ export const trackId = {
       "Memakai reflection di jalur sibuk terus-menerus tanpa menyimpan hasil pencariannya di cache.",
       "Memilih reflection padahal cukup diselesaikan lewat generic atau interface. Penggantian nama property jadi baru meledak pas program jalan, bukan waktu build."
     ],
-    quiz: [
-      ["Mengapa `List<Dog>` tidak bisa langsung dimasukkan ke variabel bertipe `List<Animal>`?", ["`List<T>` adalah class sealed", "Nanti ada yang bisa memanggil `Add(new Cat())` ke dalam list khusus anjing", "`Dog` harus berbentuk struct", "Sebenarnya bisa dengan cast otomatis"], "`List<T>` memproduksi sekaligus menerima `T`, sehingga harus invariant agar tipe data tetap aman."],
-      ["Bagaimana EF Core mengubah lambda `p => p.Price > 10` menjadi perintah SQL?", ["Menjalankan lambda itu pada tiap baris data di memori", "Menerima struktur expression tree lalu menerjemahkan node-nya", "Membongkar ulang IL dari lambda tersebut", "Membaca teks source file kode aslinya"], "Parameter di `IQueryable` bertipe ekspresi terstruktur yang menggambarkan isi kodenya sebagai data."],
-      ["Keuntungan utama source generator dibanding reflection?", ["Kode bisa bebas bermutasi pas aplikasi berjalan", "Pekerjaannya bergeser ke compile time: startup lebih cepat dan lolos Native AOT", "Menghilangkan kebutuhan terhadap compiler", "Mengubah tipe kode menjadi dynamic"], "Kode hasil generator berupa C# biasa yang sudah terkompilasi tanpa ongkos pencarian saat runtime."]
-    ]
+    quiz: {
+      'list-dog-assignable-list': ["Mengapa `List<Dog>` tidak bisa langsung dimasukkan ke variabel bertipe `List<Animal>`?", ["`List<T>` adalah class sealed", "Nanti ada yang bisa memanggil `Add(new Cat())` ke dalam list khusus anjing", "`Dog` harus berbentuk struct", "Sebenarnya bisa dengan cast otomatis"], "`List<T>` memproduksi sekaligus menerima `T`, sehingga harus invariant agar tipe data tetap aman."],
+      'ef-core-translate-price': ["Bagaimana EF Core mengubah lambda `p => p.Price > 10` menjadi perintah SQL?", ["Menjalankan lambda itu pada tiap baris data di memori", "Menerima struktur expression tree lalu menerjemahkan node-nya", "Membongkar ulang IL dari lambda tersebut", "Membaca teks source file kode aslinya"], "Parameter di `IQueryable` bertipe ekspresi terstruktur yang menggambarkan isi kodenya sebagai data."],
+      'advantage-source-generators-refl': ["Keuntungan utama source generator dibanding reflection?", ["Kode bisa bebas bermutasi pas aplikasi berjalan", "Pekerjaannya bergeser ke compile time: startup lebih cepat dan lolos Native AOT", "Menghilangkan kebutuhan terhadap compiler", "Mengubah tipe kode menjadi dynamic"], "Kode hasil generator berupa C# biasa yang sudah terkompilasi tanpa ongkos pencarian saat runtime."]
+    }
   }
 }
 };

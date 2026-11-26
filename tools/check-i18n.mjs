@@ -76,7 +76,32 @@ for (const t of TRACKS) {
     }
     same(`${w}.points`, l.points, x.points);
     same(`${w}.pitfalls`, l.pitfalls, x.pitfalls);
-    same(`${w}.quiz`, l.quiz, x.quiz);
+    if (!x.quiz || typeof x.quiz !== 'object' || Array.isArray(x.quiz)) {
+      errors.push(`${w}.quiz: expected keyed object matching quiz IDs, found ${Array.isArray(x.quiz) ? 'array' : typeof x.quiz}`);
+    } else {
+      const seenQuizIds = new Set();
+      for (const q of l.quiz) {
+        if (!q.id || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(q.id)) {
+          errors.push(`${w}: quiz question missing valid slug id (${q.id})`);
+        } else if (seenQuizIds.has(q.id)) {
+          errors.push(`${w}: duplicate quiz id "${q.id}"`);
+        } else {
+          seenQuizIds.add(q.id);
+        }
+        const tq = x.quiz[q.id];
+        if (!tq) {
+          errors.push(`${w}.quiz.${q.id}: missing Indonesian translation`);
+        } else {
+          same(`${w}.quiz.${q.id}.answers`, q.a, tq[1]);
+          ticks(`${w}.quiz.${q.id}.q`, q.q, tq[0]);
+        }
+      }
+      for (const k of Object.keys(x.quiz)) {
+        if (!seenQuizIds.has(k)) {
+          errors.push(`${w}.quiz.${k}: Indonesian translation for unknown quiz id`);
+        }
+      }
+    }
     if (l.terms) {
       same(`${w}.terms`, l.terms, x.terms);
       (x.terms || []).forEach((pair, i) => {
@@ -97,12 +122,6 @@ for (const t of TRACKS) {
       }
     }
     (x.points || []).forEach((p, i) => l.points[i] && ticks(`${w}.points[${i}]`, l.points[i], p));
-    (x.quiz || []).forEach((q, i) => {
-      if (l.quiz[i]) {
-        same(`${w}.quiz[${i}].answers`, l.quiz[i].a, q[1]);
-        ticks(`${w}.quiz[${i}].q`, l.quiz[i].q, q[0]);
-      }
-    });
   }
 }
 
@@ -169,16 +188,16 @@ TRACKS.forEach((t, i) => {
   }
 });
 const flatLessons = TRACKS.flatMap((t) =>
-  t.lessons.map((l) => ({ trackId: t.id, id: l.id, level: l.level, mins: l.mins, viz: l.viz, quizCount: l.quiz.length })),
+  t.lessons.map((l) => ({ trackId: t.id, id: l.id, level: l.level, mins: l.mins, viz: l.viz, quizIds: l.quiz.map((q) => q.id) })),
 );
 same('manifest.LESSON_INDEX', flatLessons, LESSON_INDEX);
 flatLessons.forEach((fl, i) => {
   const m = LESSON_INDEX[i];
   if (!m || m.trackId !== fl.trackId || m.id !== fl.id || m.level !== fl.level || m.mins !== fl.mins || (m.viz || '') !== (fl.viz || '')) {
     errors.push(`manifest.LESSON_INDEX[${i}]: mismatch for ${fl.trackId}/${fl.id}`);
-  } else if (m.quizCount !== fl.quizCount) {
-    // The sidebar's due-card badge is computed from quizCount without loading lesson prose.
-    errors.push(`manifest.LESSON_INDEX[${i}].quizCount: expected ${fl.quizCount} (l.quiz.length) for ${fl.trackId}/${fl.id}, found ${m.quizCount}`);
+  } else if (JSON.stringify(m.quizIds) !== JSON.stringify(fl.quizIds)) {
+    // The sidebar's due-card badge and legacy migration use quizIds without loading lesson prose.
+    errors.push(`manifest.LESSON_INDEX[${i}].quizIds: expected ${JSON.stringify(fl.quizIds)} for ${fl.trackId}/${fl.id}, found ${JSON.stringify(m.quizIds)}`);
   }
 });
 

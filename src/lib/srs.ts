@@ -1,4 +1,4 @@
-// Pure adaptive SM-2 / FSRS-lite spaced repetition scheduler.
+// Pure adaptive SM-2 spaced repetition scheduler.
 // Seamlessly migrates legacy Leitner { box, due } cards without a 16-day cap.
 import type { AdaptiveSrsCard, SrsCard, SrsGrade } from './types.ts';
 

@@ -37,11 +37,11 @@ export const trackId = {
       "Tertukar antara `final` dan `const`: `final now = DateTime.now()` boleh, sedangkan `const now = DateTime.now()` gagal karena waktunya belum diketahui saat compile time.",
       "Mengira `7 / 2` hasilnya `3` seperti di C#. Di Dart, `/` selalu menghasilkan `double`."
     ],
-    quiz: [
-      ["Apa tipe `x` pada `var x = 5;`?", ["`dynamic`", "`int`, disimpulkan lalu dikunci", "`num`", "`Object?`"], "Dart menyimpulkan `int` dari nilai awal, dan variabel itu tidak bisa menyimpan tipe lain lagi."],
-      ["Apa hasil `name ?? 'Guest'` jika `name` bernilai null?", ["null", "`'Guest'`", "Terjadi exception", "`name`"], "`??` menghasilkan sisi kanannya saat sisi kirinya null."],
-      ["Deklarasi mana yang menjadi konstanta compile time?", ["`final a = DateTime.now();`", "`var a = 3;`", "`const a = 3;`", "`late int a;`"], "Nilai `const` harus diketahui saat compile time dan dikanonikalisasi."]
-    ]
+    quiz: {
+      'type-var': ["Apa tipe `x` pada `var x = 5;`?", ["`dynamic`", "`int`, disimpulkan lalu dikunci", "`num`", "`Object?`"], "Dart menyimpulkan `int` dari nilai awal, dan variabel itu tidak bisa menyimpan tipe lain lagi."],
+      'name-guest-evaluate-name': ["Apa hasil `name ?? 'Guest'` jika `name` bernilai null?", ["null", "`'Guest'`", "Terjadi exception", "`name`"], "`??` menghasilkan sisi kanannya saat sisi kirinya null."],
+      'declaration-compile-time-constan': ["Deklarasi mana yang menjadi konstanta compile time?", ["`final a = DateTime.now();`", "`var a = 3;`", "`const a = 3;`", "`late int a;`"], "Nilai `const` harus diketahui saat compile time dan dikanonikalisasi."]
+    }
   },
   dartoop: {
     predict: {
@@ -77,11 +77,11 @@ export const trackId = {
       "Mengubah isi list state langsung di tempat (`items.add(x)`) ketimbang membuat list baru, sehingga pembanding state lama dan baru tidak melihat perubahan.",
       "Lupa kalau `where` dan `map` bersifat lazy: mengulanginya dua kali menjalankan filter dua kali, jadi panggil `toList()` sekali jika dipakai ulang."
     ],
-    quiz: [
-      ["Bagaimana cara membuat member menjadi privat di Dart?", ["Memakai keyword `private`", "Menambah underscore di depan nama", "Menaruh di dalam `#region`", "Menandai dengan `@hidden`"], "Hak akses privat berlaku per library dan ditandai lewat awalan underscore."],
-      ["Dua instance class berisi field sama dibuat dengan gaya `new` (bukan `const`), lalu dibandingkan lewat `==`. Hasil bawaannya adalah…", ["true", "false, kecuali keduanya instance yang sama", "compile error", "true jika class punya `toString`"], "Equality bawaan mengecek identitas referensi. Override `==` dan `hashCode` untuk membandingkan isi (dua ekspresi `const` yang sama mengacu ke satu instance, jadi tetap sama tanpa override)."],
-      ["Apa hasil `[for (final n in [1, 2, 3]) if (n.isOdd) n * 10]`?", ["`[10, 20, 30]`", "`[10, 30]`", "`[1, 3]`", "Syntax error"], "Collection `for` dan `if` mengambil elemen ganjil saja lalu mengalikannya."]
-    ]
+    quiz: {
+      'make-member-private-dart': ["Bagaimana cara membuat member menjadi privat di Dart?", ["Memakai keyword `private`", "Menambah underscore di depan nama", "Menaruh di dalam `#region`", "Menandai dengan `@hidden`"], "Hak akses privat berlaku per library dan ditandai lewat awalan underscore."],
+      'two-instances-class-identical': ["Dua instance class berisi field sama dibuat dengan gaya `new` (bukan `const`), lalu dibandingkan lewat `==`. Hasil bawaannya adalah…", ["true", "false, kecuali keduanya instance yang sama", "compile error", "true jika class punya `toString`"], "Equality bawaan mengecek identitas referensi. Override `==` dan `hashCode` untuk membandingkan isi (dua ekspresi `const` yang sama mengacu ke satu instance, jadi tetap sama tanpa override)."],
+      'final-isodd-10-produce': ["Apa hasil `[for (final n in [1, 2, 3]) if (n.isOdd) n * 10]`?", ["`[10, 20, 30]`", "`[10, 30]`", "`[1, 3]`", "Syntax error"], "Collection `for` dan `if` mengambil elemen ganjil saja lalu mengalikannya."]
+    }
   },
   widgets: {
     terms: [
@@ -107,11 +107,11 @@ export const trackId = {
       "Membuat satu method `build` raksasa. Pecah menjadi class widget kecil agar kode lebih jelas dan cakupan rebuild mengecil.",
       "Memecah UI ke helper *method* bukan class widget: helper method tidak bisa `const` dan selalu ikut rebuild saat parent-nya berubah."
     ],
-    quiz: [
-      ["Apa yang dikembalikan method `build` milik `StatelessWidget`?", ["`RenderObject` yang menggambar dirinya sendiri", "Sebuah widget (deskripsi UI)", "Object `State`", "Sebuah `Element`"], "`build` mengembalikan widget tree untuk bagian layar ini, lalu Flutter membuat element serta render object-nya."],
-      ["Mengapa menambahkan `const` saat memanggil constructor widget?", ["Membuat widget jadi immutable", "Instance-nya di-kanonisasi sehingga Flutter melewati rebuild-nya", "Wajib untuk widget tanpa field", "Menjaga State saat hot reload"], "Widget `const` yang sama menunjuk ke satu object, jadi Flutter tahu tidak ada yang berubah."],
-      ["Apa fungsi `BuildContext`?", ["Global state aplikasi", "Penunjuk posisi widget di dalam tree", "Layar perangkat", "HTTP client"], "Melalui context, widget membaca ancestor seperti theme, media query, dan navigator."]
-    ]
+    quiz: {
+      'statelesswidget-build-method-ret': ["Apa yang dikembalikan method `build` milik `StatelessWidget`?", ["`RenderObject` yang menggambar dirinya sendiri", "Sebuah widget (deskripsi UI)", "Object `State`", "Sebuah `Element`"], "`build` mengembalikan widget tree untuk bagian layar ini, lalu Flutter membuat element serta render object-nya."],
+      'add-const-widget-constructor': ["Mengapa menambahkan `const` saat memanggil constructor widget?", ["Membuat widget jadi immutable", "Instance-nya di-kanonisasi sehingga Flutter melewati rebuild-nya", "Wajib untuk widget tanpa field", "Menjaga State saat hot reload"], "Widget `const` yang sama menunjuk ke satu object, jadi Flutter tahu tidak ada yang berubah."],
+      'what-is-buildcontext': ["Apa fungsi `BuildContext`?", ["Global state aplikasi", "Penunjuk posisi widget di dalam tree", "Layar perangkat", "HTTP client"], "Melalui context, widget membaca ancestor seperti theme, media query, dan navigator."]
+    }
   },
   layout: {
     predict: {
@@ -148,11 +148,11 @@ export const trackId = {
       "Mengunci ukuran piksel tetap di mana-mana ketimbang membiarkan widget fleksibel menyesuaikan layar.",
       "Membuat `IconButton` tanpa `tooltip`: screen reader hanya membaca 'button' dan tidak ada petunjuk saat tombol ditahan atau di-hover."
     ],
-    quiz: [
-      ["Di dalam `Row`, properti mana yang mengatur posisi child arah vertikal?", ["`mainAxisAlignment`", "`crossAxisAlignment`", "`textAlign`", "`alignment`"], "Sumbu utama Row horizontal, sehingga `crossAxisAlignment` mengatur arah vertikalnya."],
-      ["Apa peran `Expanded` di dalam `Row`?", ["Membuat child bisa di-scroll", "Membuat child mengisi seluruh sisa ruang di sumbu utama", "Menambah padding", "Menaruh child di tengah"], "Ia memberi child batas ketat sebesar sisa lebar yang tersedia."],
-      ["Pernyataan mana yang tepat menggambarkan layout di Flutter?", ["Child memilih posisinya sendiri", "Constraint turun, size naik, parent menentukan posisi", "Size turun, constraint naik", "Semua elemen diposisikan absolut"], "Dalam satu pass, constraint turun ke child, size naik ke parent, lalu parent menaruh posisinya."]
-    ]
+    quiz: {
+      'row-property-aligns-children': ["Di dalam `Row`, properti mana yang mengatur posisi child arah vertikal?", ["`mainAxisAlignment`", "`crossAxisAlignment`", "`textAlign`", "`alignment`"], "Sumbu utama Row horizontal, sehingga `crossAxisAlignment` mengatur arah vertikalnya."],
+      'expanded-inside-row': ["Apa peran `Expanded` di dalam `Row`?", ["Membuat child bisa di-scroll", "Membuat child mengisi seluruh sisa ruang di sumbu utama", "Menambah padding", "Menaruh child di tengah"], "Ia memberi child batas ketat sebesar sisa lebar yang tersedia."],
+      'statement-describes-flutter-layo': ["Pernyataan mana yang tepat menggambarkan layout di Flutter?", ["Child memilih posisinya sendiri", "Constraint turun, size naik, parent menentukan posisi", "Size turun, constraint naik", "Semua elemen diposisikan absolut"], "Dalam satu pass, constraint turun ke child, size naik ke parent, lalu parent menaruh posisinya."]
+    }
   },
   async: {
     predict: {
@@ -189,11 +189,11 @@ export const trackId = {
       "Mendengarkan stream tapi lupa meng-cancel subscription waktu widget ditutup.",
       "Mengira `.timeout()` membatalkan proses di server. Ia hanya menghentikan penantian `await`; request-nya terus berjalan sampai selesai di latar."
     ],
-    quiz: [
-      ["`Future` selesai ___; `Stream` bisa mengirim ___.", ["berkali-kali; sekali", "sekali; banyak nilai dari waktu ke waktu", "sekali; satu nilai tapi lebih lambat", "sekali per listener; sekali per listener"], "Sebuah `Future` menghasilkan satu nilai, sedangkan `Stream` mengirim rangkaian nilai seiring waktu."],
-      ["Dengan urutan mana callback `scheduleMicrotask` dan `Timer.run` jalan sesudah kode sinkron selesai?", ["Timer dulu", "Microtask dulu", "Mana yang didaftarkan lebih awal", "Bersamaan"], "Antrean microtask dikuras sampai habis sebelum event timer atau I/O berikutnya diambil."],
-      ["Ada dua panggilan independen berdurasi masing-masing 300 ms. Cara tercepat yang benar?", ["`await` satu per satu", "`await Future.wait([a(), b()])`", "Panggil tanpa `await` dan berharap selesai", "`await` masing-masing di dalam loop `for`"], "Kedua future langsung berjalan sebelum di-await sehingga waktunya tumpang-tindih. Tanpa `await`, hasil maupun error-nya tidak terbaca."]
-    ]
+    quiz: {
+      'future-completes-stream-emit': ["`Future` selesai ___; `Stream` bisa mengirim ___.", ["berkali-kali; sekali", "sekali; banyak nilai dari waktu ke waktu", "sekali; satu nilai tapi lebih lambat", "sekali per listener; sekali per listener"], "Sebuah `Future` menghasilkan satu nilai, sedangkan `Stream` mengirim rangkaian nilai seiring waktu."],
+      'order-schedulemicrotask-timer-ru': ["Dengan urutan mana callback `scheduleMicrotask` dan `Timer.run` jalan sesudah kode sinkron selesai?", ["Timer dulu", "Microtask dulu", "Mana yang didaftarkan lebih awal", "Bersamaan"], "Antrean microtask dikuras sampai habis sebelum event timer atau I/O berikutnya diambil."],
+      'two-independent-300-ms': ["Ada dua panggilan independen berdurasi masing-masing 300 ms. Cara tercepat yang benar?", ["`await` satu per satu", "`await Future.wait([a(), b()])`", "Panggil tanpa `await` dan berharap selesai", "`await` masing-masing di dalam loop `for`"], "Kedua future langsung berjalan sebelum di-await sehingga waktunya tumpang-tindih. Tanpa `await`, hasil maupun error-nya tidak terbaca."]
+    }
   },
   state: {
     predict: {
@@ -229,11 +229,11 @@ export const trackId = {
       "Lupa memanggil `dispose` pada controller, animation controller, dan stream subscription.",
       "Memanggil `setState` setelah widget tidak lagi tampil di layar (sesudah `await`). Cek `mounted` lebih dulu."
     ],
-    quiz: [
-      ["Apa efek memanggil `setState`?", ["Seluruh aplikasi restart", "`build` jalan ulang untuk widget tersebut dan subtree-nya", "Hanya `Text` yang berubah digambar ulang manual", "`initState` jalan lagi"], "Element ditandai dirty lalu di-rebuild pada frame berikutnya, dan Flutter cuma memperbarui node yang berbeda."],
-      ["Di mana `TextEditingController` harus di-dispose?", ["Di `build`", "Di `dispose` milik State", "Tidak perlu", "Di `initState`"], "`dispose` berjalan sekali ketika `State` dicopot permanen, tempat ideal melepas resource."],
-      ["Mengapa item daftar butuh `ValueKey`?", ["Untuk styling", "Supaya Flutter memasangkan tiap State ke item yang benar saat urutan daftar berubah", "Agar menjadi `const`", "Wajib untuk `ListView`"], "Tanpa key, state dicocokkan menurut urutan posisi sehingga tertukar bila susunan item bergeser."]
-    ]
+    quiz: {
+      'calling-setstate-cause': ["Apa efek memanggil `setState`?", ["Seluruh aplikasi restart", "`build` jalan ulang untuk widget tersebut dan subtree-nya", "Hanya `Text` yang berubah digambar ulang manual", "`initState` jalan lagi"], "Element ditandai dirty lalu di-rebuild pada frame berikutnya, dan Flutter cuma memperbarui node yang berbeda."],
+      'texteditingcontroller-disposed': ["Di mana `TextEditingController` harus di-dispose?", ["Di `build`", "Di `dispose` milik State", "Tidak perlu", "Di `initState`"], "`dispose` berjalan sekali ketika `State` dicopot permanen, tempat ideal melepas resource."],
+      'give-list-items-valuekey': ["Mengapa item daftar butuh `ValueKey`?", ["Untuk styling", "Supaya Flutter memasangkan tiap State ke item yang benar saat urutan daftar berubah", "Agar menjadi `const`", "Wajib untuk `ListView`"], "Tanpa key, state dicocokkan menurut urutan posisi sehingga tertukar bila susunan item bergeser."]
+    }
   },
   navforms: {
     predict: {
@@ -273,12 +273,12 @@ export const trackId = {
       "Memakai `double.parse` langsung pada ketikan user: `19,99` bikin crash di keyboard berkoma, jadi normalkan pemisah desimal lebih dulu.",
       "Cuma memvalidasi di perangkat atau memakai batas berbeda dari server. Terapkan aturan yang sama di backend."
     ],
-    quiz: [
-      ["Apa yang harus dikembalikan `validator` ketika input-nya valid?", ["`true`", "String kosong", "`null`", "Nilainya"], "String selain null ditampilkan sebagai error; null menandakan kolom lolos validasi."],
-      ["Apa beda `context.go` dengan `context.push` di go_router?", ["Tidak ada", "`go` mengganti stack agar sesuai lokasi; `push` menambah satu layar di atasnya", "`push` khusus web", "`go` tidak bisa membawa parameter"], "`go` menyusun ulang stack sesuai URL tujuan, sementara `push` menambahkan satu layar di atas stack saat ini."],
-      ["Mengapa memakai parameter path seperti `/products/42` lebih baik daripada mengirim object `Product`?", ["Lebih cepat", "Halaman tetap bisa dibuka ulang dari link atau sesudah aplikasi restart", "Object tidak bisa dikirim", "Menghindari rebuild"], "URL bisa disimpan sebagai teks, sedangkan object di memori hilang ketika aplikasi dibuka lewat link."],
-      ["`/products/:id` ditulis sejajar dengan `/` di level teratas. Sesudah `context.go('/products/42')`, layar apa yang ada di bawah halaman produk?", ["Halaman Home", "Tidak ada: ia sendirian di stack sehingga tidak ada tombol Back", "Halaman mana pun yang tadi dibuka", "Salinan halaman produk"], "`go` membentuk stack dari hierarki route. Taruh rute di dalam `/` supaya Home berada di bawahnya."]
-    ]
+    quiz: {
+      'validator-return-input-valid': ["Apa yang harus dikembalikan `validator` ketika input-nya valid?", ["`true`", "String kosong", "`null`", "Nilainya"], "String selain null ditampilkan sebagai error; null menandakan kolom lolos validasi."],
+      'difference-context-go-context': ["Apa beda `context.go` dengan `context.push` di go_router?", ["Tidak ada", "`go` mengganti stack agar sesuai lokasi; `push` menambah satu layar di atasnya", "`push` khusus web", "`go` tidak bisa membawa parameter"], "`go` menyusun ulang stack sesuai URL tujuan, sementara `push` menambahkan satu layar di atas stack saat ini."],
+      'prefer-path-parameter-such': ["Mengapa memakai parameter path seperti `/products/42` lebih baik daripada mengirim object `Product`?", ["Lebih cepat", "Halaman tetap bisa dibuka ulang dari link atau sesudah aplikasi restart", "Object tidak bisa dikirim", "Menghindari rebuild"], "URL bisa disimpan sebagai teks, sedangkan object di memori hilang ketika aplikasi dibuka lewat link."],
+      'products-id-top-level': ["`/products/:id` ditulis sejajar dengan `/` di level teratas. Sesudah `context.go('/products/42')`, layar apa yang ada di bawah halaman produk?", ["Halaman Home", "Tidak ada: ia sendirian di stack sehingga tidak ada tombol Back", "Halaman mana pun yang tadi dibuka", "Salinan halaman produk"], "`go` membentuk stack dari hierarki route. Taruh rute di dalam `/` supaya Home berada di bawahnya."]
+    }
   },
   network: {
     splits: ['1 · Model & ApiException', '2 · Client ProductApi', '3 · Layar ProductList'],
@@ -307,11 +307,11 @@ export const trackId = {
       "Membiarkan spinner berputar terus karena error dan timeout tidak pernah ditangani.",
       "Memanggil `http://10.0.2.2:5000` dari emulator Android dan langsung ditolak aturan cleartext sebelum request-nya keluar."
     ],
-    quiz: [
-      ["Mengapa `http.Client` di-inject ke class API?", ["Satu client per class lebih cepat", "Tes bisa memasukkan client tiruan sehingga tidak butuh jaringan nyata", "Diwajibkan package `http`", "Menjadikan client sebagai singleton"], "Dependensi yang dikirim dari luar bisa ditukar dengan fake saat tes."],
-      ["JSON berisi `\"price\": 25`. Cara paling aman membacanya sebagai double?", ["`json['price'] as double`", "`(json['price'] as num).toDouble()`", "`double(json['price'])`", "`json.price`"], "`25` di-decode sebagai `int`; `num` menerima keduanya dan `toDouble` mengonversinya."],
-      ["Di mana `Future` yang dipakai `FutureBuilder` sebaiknya dibuat?", ["Di dalam `build`", "Sekali, di State (sebagai field atau di `initState`)", "Di `dispose`", "Di `main`"], "`build` bisa jalan berkali-kali, jadi membuat future di sana akan mengulang request-nya setiap kali."]
-    ]
+    quiz: {
+      'inject-http-client-api': ["Mengapa `http.Client` di-inject ke class API?", ["Satu client per class lebih cepat", "Tes bisa memasukkan client tiruan sehingga tidak butuh jaringan nyata", "Diwajibkan package `http`", "Menjadikan client sebagai singleton"], "Dependensi yang dikirim dari luar bisa ditukar dengan fake saat tes."],
+      'json-contains-price-25': ["JSON berisi `\"price\": 25`. Cara paling aman membacanya sebagai double?", ["`json['price'] as double`", "`(json['price'] as num).toDouble()`", "`double(json['price'])`", "`json.price`"], "`25` di-decode sebagai `int`; `num` menerima keduanya dan `toDouble` mengonversinya."],
+      'future-used-futurebuilder-create': ["Di mana `Future` yang dipakai `FutureBuilder` sebaiknya dibuat?", ["Di dalam `build`", "Sekali, di State (sebagai field atau di `initState`)", "Di `dispose`", "Di `main`"], "`build` bisa jalan berkali-kali, jadi membuat future di sana akan mengulang request-nya setiap kali."]
+    }
   },
   bloc: {
     predict: {
@@ -352,12 +352,12 @@ export const trackId = {
       "Memanggil `emit` sesudah `await` tanpa cek `isClosed`, memicu error 'Cannot emit new states after calling close' saat user keluar layar di tengah request.",
       "Menampilkan teks mentah `'$e'` ke user. Exception untuk log; simpan pesan yang ramah dibaca manusia di dalam state."
     ],
-    quiz: [
-      ["Apa perbedaan Cubit dan Bloc?", ["Cubit tidak bisa di-unit test", "Cubit menyediakan method; Bloc menerima event lalu memetakannya ke state", "Bloc hanya bisa menyimpan satu tipe state", "Cubit me-rebuild seluruh layar di tiap perubahan"], "Keduanya meng-emit state; Bloc menambahkan lapisan event agar tiap perubahan bisa dilacak serta ditransformasi."],
-      ["Sebuah cubit menjalankan `state.items.add(x); emit(state);`. Mengapa UI-nya tidak berubah?", ["`emit` bersifat async", "State yang di-emit adalah object yang sama dengan sebelumnya sehingga dianggap tidak berubah", "List tidak bisa menjadi state", "Cubit sudah closed"], "Bloc melewati state yang bernilai sama dengan state aktif; jangan ubah isi di tempat dan emit object baru."],
-      ["Di mana snackbar sebaiknya ditampilkan saat merespons perubahan state?", ["`BlocBuilder`", "`BlocListener`", "`initState`", "Di dalam cubit"], "Listener berjalan sekali tiap perubahan state dan dibuat khusus untuk efek samping seperti snackbar atau pindah halaman."],
-      ["User membuka layar lalu pindah sebelum datanya datang. Aplikasi mencatat error 'Cannot emit new states after calling close'. Apa solusinya?", ["Jangan pernah menutup cubit", "Cek `isClosed` sesudah `await`, sebelum memanggil `emit`", "Bungkus `emit` dengan `Future.delayed`", "Ganti menjadi Bloc"], "`BlocProvider` menutup cubit waktu layarnya ditutup; respons yang datang terlambat harus diabaikan."]
-    ]
+    quiz: {
+      'difference-cubit-bloc': ["Apa perbedaan Cubit dan Bloc?", ["Cubit tidak bisa di-unit test", "Cubit menyediakan method; Bloc menerima event lalu memetakannya ke state", "Bloc hanya bisa menyimpan satu tipe state", "Cubit me-rebuild seluruh layar di tiap perubahan"], "Keduanya meng-emit state; Bloc menambahkan lapisan event agar tiap perubahan bisa dilacak serta ditransformasi."],
+      'cubit-runs-state-items': ["Sebuah cubit menjalankan `state.items.add(x); emit(state);`. Mengapa UI-nya tidak berubah?", ["`emit` bersifat async", "State yang di-emit adalah object yang sama dengan sebelumnya sehingga dianggap tidak berubah", "List tidak bisa menjadi state", "Cubit sudah closed"], "Bloc melewati state yang bernilai sama dengan state aktif; jangan ubah isi di tempat dan emit object baru."],
+      'snackbar-shown-response-state': ["Di mana snackbar sebaiknya ditampilkan saat merespons perubahan state?", ["`BlocBuilder`", "`BlocListener`", "`initState`", "Di dalam cubit"], "Listener berjalan sekali tiap perubahan state dan dibuat khusus untuk efek samping seperti snackbar atau pindah halaman."],
+      'user-opens-screen-leaves': ["User membuka layar lalu pindah sebelum datanya datang. Aplikasi mencatat error 'Cannot emit new states after calling close'. Apa solusinya?", ["Jangan pernah menutup cubit", "Cek `isClosed` sesudah `await`, sebelum memanggil `emit`", "Bungkus `emit` dengan `Future.delayed`", "Ganti menjadi Bloc"], "`BlocProvider` menutup cubit waktu layarnya ditutup; respons yang datang terlambat harus diabaikan."]
+    }
   },
   dartdeep: {
     splits: ['1 · Generics, extension & mixin', '2 · Pattern Result sealed', '3 · Record & main()'],
@@ -384,11 +384,11 @@ export const trackId = {
       "Memakai record untuk model domain besar yang lebih pas jadi class. Record cocok untuk pengelompokan kecil di lingkup lokal.",
       "Mengira extension method bekerja dinamis: Dart memilihnya menurut tipe statis di kompilasi, jadi tidak jalan pada nilai `dynamic`."
     ],
-    quiz: [
-      ["Apa manfaat menandai sebuah class sebagai `sealed`?", ["Instansiasi lebih cepat", "`switch` yang dicek kelengkapannya atas subtype langsungnya", "Field privat", "Pewarisan ganda"], "Semua subtype langsung wajib berada di library yang sama, jadi compiler tahu daftar lengkapnya."],
-      ["Apa itu `(int, String)` di Dart?", ["Tipe function", "Tipe record: pasangan immutable dengan value equality", "Sebuah list", "Syntax error"], "Record adalah tuple anonim yang immutable dan dibandingkan berdasarkan strukturnya."],
-      ["Pada `Success(:final value) => ...`, apa tugas `:final value`?", ["Mendeklarasikan konstanta", "Mencocokkan getter `value` lalu mengikatnya ke variabel baru `value`", "Memanggil constructor", "Mengecek null"], "Singkatan dari pola `value: final value` pada pencocokan object."]
-    ]
+    quiz: {
+      'marking-class-sealed-enable': ["Apa manfaat menandai sebuah class sebagai `sealed`?", ["Instansiasi lebih cepat", "`switch` yang dicek kelengkapannya atas subtype langsungnya", "Field privat", "Pewarisan ganda"], "Semua subtype langsung wajib berada di library yang sama, jadi compiler tahu daftar lengkapnya."],
+      'int-string-dart': ["Apa itu `(int, String)` di Dart?", ["Tipe function", "Tipe record: pasangan immutable dengan value equality", "Sebuah list", "Syntax error"], "Record adalah tuple anonim yang immutable dan dibandingkan berdasarkan strukturnya."],
+      'success-final-value-final': ["Pada `Success(:final value) => ...`, apa tugas `:final value`?", ["Mendeklarasikan konstanta", "Mencocokkan getter `value` lalu mengikatnya ke variabel baru `value`", "Memanggil constructor", "Mengecek null"], "Singkatan dari pola `value: final value` pada pencocokan object."]
+    }
   },
   testing: {
     terms: [
@@ -414,11 +414,11 @@ export const trackId = {
       "Memanggil `pumpAndSettle` saat spinner loading terus berputar tanpa henti, membuat tes hang sampai timeout.",
       "Mencari widget menurut class internal atau letak bersarangnya, bikin tes gampang rusak saat UI dirapikan. Cari lewat teks atau semantics label yang dilihat user."
     ],
-    quiz: [
-      ["Apa fungsi `await tester.pump()`?", ["Menjalankan aplikasi penuh", "Memajukan jam tes satu frame agar rebuild yang tertunda berjalan", "Mengambil screenshot", "Menunggu jaringan"], "Waktu tes dikendalikan manual; frame baru diproses saat kamu memanggil pump."],
-      ["Bagaimana cara menguji state apa saja yang dikeluarkan sebuah cubit?", ["Membaca field privatnya", "Mengecek stream state-nya, misalnya dengan `emitsInOrder`", "Lewat widget test saja", "Tidak bisa dites"], "Output publik cubit adalah stream state-nya, jadi bisa dicek langsung."],
-      ["Jenis tes mana yang membutuhkan perangkat asli atau emulator?", ["Unit test", "Widget test", "Integration test", "Golden test"], "Integration test menjalankan aplikasi penuh; unit dan widget test berjalan langsung di Dart VM."]
-    ]
+    quiz: {
+      'await-tester-pump': ["Apa fungsi `await tester.pump()`?", ["Menjalankan aplikasi penuh", "Memajukan jam tes satu frame agar rebuild yang tertunda berjalan", "Mengambil screenshot", "Menunggu jaringan"], "Waktu tes dikendalikan manual; frame baru diproses saat kamu memanggil pump."],
+      'test-cubit-emits': ["Bagaimana cara menguji state apa saja yang dikeluarkan sebuah cubit?", ["Membaca field privatnya", "Mengecek stream state-nya, misalnya dengan `emitsInOrder`", "Lewat widget test saja", "Tidak bisa dites"], "Output publik cubit adalah stream state-nya, jadi bisa dicek langsung."],
+      'test-type-needs-device': ["Jenis tes mana yang membutuhkan perangkat asli atau emulator?", ["Unit test", "Widget test", "Integration test", "Golden test"], "Integration test menjalankan aplikasi penuh; unit dan widget test berjalan langsung di Dart VM."]
+    }
   },
   platform: {
     splits: ['1 · Adapter penyimpanan', '2 · MethodChannel Battery', '3 · AdaptiveShell'],
@@ -446,11 +446,11 @@ export const trackId = {
       "Memilih layout dari `Platform.isAndroid`, bukan dari lebar layar yang tersedia. Tablet, HP lipat, dan jendela desktop yang diubah ukurannya bakal berantakan.",
       "Meminta semua izin sekaligus waktu aplikasi baru dibuka. Minta izin saat fitur terkait dipakai, lalu siapkan alur kalau user menolak."
     ],
-    quiz: [
-      ["Di mana token login sebaiknya disimpan di HP?", ["`shared_preferences`", "Secure storage yang memakai Keychain atau Keystore", "Variabel global", "File teks di folder documents"], "Preferences tidak dienkripsi. Keystore bawaan OS memang dibuat khusus untuk menyimpan data rahasia."],
-      ["Apa yang seharusnya menentukan pilihan antara bottom navigation bar dan navigation rail?", ["Sistem operasinya", "Lebar layar yang tersedia", "Versi Flutter", "Merek HP"], "Layout harus mengikuti ruang yang tersedia karena HP atau tablet yang sama bisa dipakai dalam posisi sempit maupun lebar."],
-      ["Apa yang dikembalikan saat memanggil `MethodChannel`?", ["Nilai langsung saat itu juga", "`Future` yang bisa selesai dengan error", "Selalu `Stream`", "Tidak mengembalikan apa-apa"], "Pesan dikirim asynchronous ke kode native, dan sisi native bisa gagal atau tidak punya handler-nya."]
-    ]
+    quiz: {
+      'auth-token-stored-device': ["Di mana token login sebaiknya disimpan di HP?", ["`shared_preferences`", "Secure storage yang memakai Keychain atau Keystore", "Variabel global", "File teks di folder documents"], "Preferences tidak dienkripsi. Keystore bawaan OS memang dibuat khusus untuk menyimpan data rahasia."],
+      'decide-bottom-navigation-bar': ["Apa yang seharusnya menentukan pilihan antara bottom navigation bar dan navigation rail?", ["Sistem operasinya", "Lebar layar yang tersedia", "Versi Flutter", "Merek HP"], "Layout harus mengikuti ruang yang tersedia karena HP atau tablet yang sama bisa dipakai dalam posisi sempit maupun lebar."],
+      'methodchannel-call-return': ["Apa yang dikembalikan saat memanggil `MethodChannel`?", ["Nilai langsung saat itu juga", "`Future` yang bisa selesai dengan error", "Selalu `Stream`", "Tidak mengembalikan apa-apa"], "Pesan dikirim asynchronous ke kode native, dan sisi native bisa gagal atau tidak punya handler-nya."]
+    }
   },
   render: {
     splits: ['1 · Worker isolate', '2 · CustomPainter Sparkline', '3 · Feed & Key'],
@@ -484,11 +484,11 @@ export const trackId = {
       "Membungkus semua widget dengan `RepaintBoundary`. Tiap boundary makan satu layer dan memory ekstra, jadi pakai hanya saat profiler menunjukkan biaya repaint tinggi. Item di list builder sudah punya sendiri.",
       "Memakai `Isolate.run` di aplikasi yang juga ditargetkan ke web karena di web langsung error. Pakai `compute` atau cek `kIsWeb` dulu."
     ],
-    quiz: [
-      ["Tree mana yang menyimpan `State` milik `StatefulWidget` di antara rebuild?", ["Widget tree", "Element tree", "Render tree", "Tidak ada, karena State itu global"], "Element bertahan di antara rebuild dan menyimpan State, sementara widget-nya dibuang lalu dibuat lagi."],
-      ["Kapan element memakai ulang State lama untuk widget yang baru?", ["Selalu", "Saat widget baru punya runtime type dan key yang sama", "Tidak pernah", "Hanya untuk widget `const`"], "Type dan key yang cocok artinya update widget yang sama. Kalau tidak cocok, subtree lama dibuang."],
-      ["Kenapa memakai `compute` untuk parsing JSON berukuran besar?", ["Supaya parsing-nya dikerjakan GPU", "Prosesnya pindah ke isolate terpisah sehingga UI isolate tetap lancar menggambar frame", "Menyimpan cache hasil parsing buat nanti", "Membaca JSON sebagian demi sebagian tanpa parsing"], "Isolate tidak berbagi memory ataupun thread, jadi UI tetap responsif saat proses berjalan (kecuali di web, karena `compute` jalan di main thread)."]
-    ]
+    quiz: {
+      'tree-holds-statefulwidget-state': ["Tree mana yang menyimpan `State` milik `StatefulWidget` di antara rebuild?", ["Widget tree", "Element tree", "Render tree", "Tidak ada, karena State itu global"], "Element bertahan di antara rebuild dan menyimpan State, sementara widget-nya dibuang lalu dibuat lagi."],
+      'element-reuse-state-new': ["Kapan element memakai ulang State lama untuk widget yang baru?", ["Selalu", "Saat widget baru punya runtime type dan key yang sama", "Tidak pernah", "Hanya untuk widget `const`"], "Type dan key yang cocok artinya update widget yang sama. Kalau tidak cocok, subtree lama dibuang."],
+      'use-compute-large-json': ["Kenapa memakai `compute` untuk parsing JSON berukuran besar?", ["Supaya parsing-nya dikerjakan GPU", "Prosesnya pindah ke isolate terpisah sehingga UI isolate tetap lancar menggambar frame", "Menyimpan cache hasil parsing buat nanti", "Membaca JSON sebagian demi sebagian tanpa parsing"], "Isolate tidak berbagi memory ataupun thread, jadi UI tetap responsif saat proses berjalan (kecuali di web, karena `compute` jalan di main thread)."]
+    }
   },
   arch: {
     splits: ['1 · Konfigurasi & Domain', '2 · Lapisan Data & Cubit', '3 · Error boundary & main()'],
@@ -515,11 +515,11 @@ export const trackId = {
       "Mengubah backend sampai versi aplikasi lama yang masih terpasang di HP user langsung rusak.",
       "Menghilangkan file debug symbol dari build yang di-obfuscate sehingga stack trace error di production tidak bisa dibaca."
     ],
-    quiz: [
-      ["Di aplikasi Flutter yang dibagi per layer, apa saja yang boleh di-import layer domain?", ["Widget Flutter", "HTTP client", "Hanya Dart biasa, tanpa Flutter dan tanpa data source", "Semuanya"], "Dependency selalu mengarah ke dalam. Layer domain hanya berisi model dan interface yang nanti diimplementasikan layer luar."],
-      ["Kenapa secret tidak boleh dimasukkan ke `--dart-define` untuk release build?", ["Bikin aplikasi jadi lambat", "Nilainya masuk ke binary dan tetap bisa diekstrak", "Store memindainya lalu menolak aplikasinya", "Hanya bisa dipakai di debug build"], "Binary aplikasi di sisi user itu sifatnya publik, jadi secret harus tinggal di server. Obfuscation cuma menyulitkan pencariannya, bukan menyembunyikannya."],
-      ["Error jenis apa yang ditangkap `PlatformDispatcher.instance.onError`?", ["Hanya layout overflow", "Error async yang terlewat di luar callback framework Flutter", "Compile error", "Response HTTP 500"], "`FlutterError.onError` menangkap error di dalam framework, sedangkan dispatcher ini menangkap sisanya."]
-    ]
+    quiz: {
+      'layered-flutter-app-domain': ["Di aplikasi Flutter yang dibagi per layer, apa saja yang boleh di-import layer domain?", ["Widget Flutter", "HTTP client", "Hanya Dart biasa, tanpa Flutter dan tanpa data source", "Semuanya"], "Dependency selalu mengarah ke dalam. Layer domain hanya berisi model dan interface yang nanti diimplementasikan layer luar."],
+      'secrets-placed-dart-define': ["Kenapa secret tidak boleh dimasukkan ke `--dart-define` untuk release build?", ["Bikin aplikasi jadi lambat", "Nilainya masuk ke binary dan tetap bisa diekstrak", "Store memindainya lalu menolak aplikasinya", "Hanya bisa dipakai di debug build"], "Binary aplikasi di sisi user itu sifatnya publik, jadi secret harus tinggal di server. Obfuscation cuma menyulitkan pencariannya, bukan menyembunyikannya."],
+      'platformdispatcher-instance-oner': ["Error jenis apa yang ditangkap `PlatformDispatcher.instance.onError`?", ["Hanya layout overflow", "Error async yang terlewat di luar callback framework Flutter", "Compile error", "Response HTTP 500"], "`FlutterError.onError` menangkap error di dalam framework, sedangkan dispatcher ini menangkap sisanya."]
+    }
   }
 }
 };

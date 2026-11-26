@@ -29,11 +29,11 @@ export const trackId = {
       "Memilih tingkatan heading cuma demi ukuran font, bukan urutan struktur dokumen.",
       "Memasang `<button>` di dalam form tanpa `type=\"button\"`, padahal bawaannya `submit` sehingga tiap klik langsung mengirim form."
     ],
-    quiz: [
-      ["Elemen mana yang seharusnya memicu aksi seperti 'Add to cart'?", ["`<div onclick>`", "`<button type=\"button\">`", "`<a href=\"#\">`", "`<span role=\"button\">`"], "Button mendukung fokus, Enter, dan Spasi bawaan serta diumumkan tepat oleh screen reader. Link untuk pindah URL, sedangkan span tetap butuh tabindex dan event keyboard manual."],
-      ["Untuk apa atribut `alt`?", ["Tooltip yang muncul saat hover", "Teks pengganti yang menjelaskan gambar, untuk orang dan alat yang tidak bisa melihatnya", "Keterangan yang tampil di bawah gambar", "Kata kunci untuk mesin pencari"], "Screen reader membacakan isinya, dan teks itu tampil saat gambar gagal dimuat."],
-      ["Bagaimana `<label>` terhubung ke input-nya?", ["Dengan ditaruh di sebelahnya", "`for` pada label yang cocok dengan `id` input (atau dengan membungkus input-nya)", "Dengan memakai `class` yang sama", "Dengan `aria-label` pada label"], "Tautan ini memberi input nama aksesibel serta memfokuskan kotak isian saat label diklik."]
-    ]
+    quiz: {
+      'element-trigger-action-such': ["Elemen mana yang seharusnya memicu aksi seperti 'Add to cart'?", ["`<div onclick>`", "`<button type=\"button\">`", "`<a href=\"#\">`", "`<span role=\"button\">`"], "Button mendukung fokus, Enter, dan Spasi bawaan serta diumumkan tepat oleh screen reader. Link untuk pindah URL, sedangkan span tetap butuh tabindex dan event keyboard manual."],
+      'alt-attribute': ["Untuk apa atribut `alt`?", ["Tooltip yang muncul saat hover", "Teks pengganti yang menjelaskan gambar, untuk orang dan alat yang tidak bisa melihatnya", "Keterangan yang tampil di bawah gambar", "Kata kunci untuk mesin pencari"], "Screen reader membacakan isinya, dan teks itu tampil saat gambar gagal dimuat."],
+      'label-connected-input': ["Bagaimana `<label>` terhubung ke input-nya?", ["Dengan ditaruh di sebelahnya", "`for` pada label yang cocok dengan `id` input (atau dengan membungkus input-nya)", "Dengan memakai `class` yang sama", "Dengan `aria-label` pada label"], "Tautan ini memberi input nama aksesibel serta memfokuskan kotak isian saat label diklik."]
+    }
   },
   cascade: {
     predict: {
@@ -70,12 +70,12 @@ export const trackId = {
       "Menempelkan `!important` demi jalan pintas, memaksa orang berikutnya menumpuk `!important` lebih banyak lagi.",
       "Mengira semua properti otomatis menular ke anak. Properti `border` dan `margin` tak pernah diwariskan."
     ],
-    quiz: [
-      ["Selector mana yang specificity-nya paling tinggi?", ["`.card .title`", "`#main`", "`div p span a`", "`.a.b.c`"], "Satu ID (1,0,0) langsung menang terhadap berapa pun class atau elemen."],
-      ["Dua rule dengan specificity sama mengatur `color`. Mana yang menang?", ["Yang pertama di file", "Yang dideklarasikan belakangan", "Yang deklarasinya lebih banyak", "Yang ada di file lebih besar"], "Bila importance, layer, dan skor specificity sama persis, deklarasi yang datang paling akhir yang menang."],
-      ["Property mana yang diwariskan bawaannya?", ["`margin`", "`border`", "`color`", "`width`"], "Properti teks semacam `color` dan `font` turun ke anak, sedangkan properti layout kotak tidak."],
-      ["Berapa specificity dari `:where(#main .card) a`?", ["(1,1,1)", "(0,0,1)", "(0,1,1)", "(1,0,1)"], "Semua selector di dalam `:where()` dihitung nol, jadi tinggal `a` saja yang dihitung."]
-    ]
+    quiz: {
+      'selector-highest-specificity': ["Selector mana yang specificity-nya paling tinggi?", ["`.card .title`", "`#main`", "`div p span a`", "`.a.b.c`"], "Satu ID (1,0,0) langsung menang terhadap berapa pun class atau elemen."],
+      'two-rules-identical-specificity': ["Dua rule dengan specificity sama mengatur `color`. Mana yang menang?", ["Yang pertama di file", "Yang dideklarasikan belakangan", "Yang deklarasinya lebih banyak", "Yang ada di file lebih besar"], "Bila importance, layer, dan skor specificity sama persis, deklarasi yang datang paling akhir yang menang."],
+      'property-inherited-default': ["Property mana yang diwariskan bawaannya?", ["`margin`", "`border`", "`color`", "`width`"], "Properti teks semacam `color` dan `font` turun ke anak, sedangkan properti layout kotak tidak."],
+      'specificity-card': ["Berapa specificity dari `:where(#main .card) a`?", ["(1,1,1)", "(0,0,1)", "(0,1,1)", "(1,0,1)"], "Semua selector di dalam `:where()` dihitung nol, jadi tinggal `a` saja yang dihitung."]
+    }
   },
   box: {
     predict: {
@@ -111,11 +111,11 @@ export const trackId = {
       "Menunggu `width` atau margin atas-bawah berefek pada elemen inline seperti `span`.",
       "Kaget melihat margin melebur lalu menambah margin lebih besar lagi. Di flex atau grid, pakailah `gap`."
     ],
-    quiz: [
-      ["Dengan `box-sizing: content-box`, `width: 200px; padding: 20px; border: 5px solid` di-render selebar berapa?", ["200px", "225px", "250px", "240px"], "Total lebarnya 200 + 20×2 + 5×2 = 250px karena padding dan border dihitung di luar lebar konten."],
-      ["Apa yang ada di antara content dan border?", ["Margin", "Padding", "Outline", "Gap"], "Padding berada di dalam garis border, sementara margin ada di luarnya. Outline digambar melapisi tepi tanpa memakan ruang layout."],
-      ["Dua paragraf bertumpuk punya `margin-bottom: 20px` dan `margin-top: 30px`. Celahnya…", ["50px", "30px", "20px", "25px"], "Margin vertikal yang berdekatan melebur mengambil nilai yang terbesar dari keduanya."]
-    ]
+    quiz: {
+      'box-sizing-content-box': ["Dengan `box-sizing: content-box`, `width: 200px; padding: 20px; border: 5px solid` di-render selebar berapa?", ["200px", "225px", "250px", "240px"], "Total lebarnya 200 + 20×2 + 5×2 = 250px karena padding dan border dihitung di luar lebar konten."],
+      'sits-content-border': ["Apa yang ada di antara content dan border?", ["Margin", "Padding", "Outline", "Gap"], "Padding berada di dalam garis border, sementara margin ada di luarnya. Outline digambar melapisi tepi tanpa memakan ruang layout."],
+      'two-stacked-paragraphs-margin': ["Dua paragraf bertumpuk punya `margin-bottom: 20px` dan `margin-top: 30px`. Celahnya…", ["50px", "30px", "20px", "25px"], "Margin vertikal yang berdekatan melebur mengambil nilai yang terbesar dari keduanya."]
+    }
   },
   units: {
     terms: [
@@ -142,11 +142,11 @@ export const trackId = {
       "Menulis ukuran font pakai `vw` murni yang nyaris kebal terhadap zoom browser.",
       "Memasang teks abu-abu pucat di atas putih sampai gagal uji kontras."
     ],
-    quiz: [
-      ["Ukuran font root adalah 16px. Berapa besar `1.5rem`?", ["15px", "16px", "24px", "1.5px"], "`rem` mengalikan ukuran font root: 1.5 × 16 = 24px."],
-      ["Apa yang dilakukan `clamp(1rem, 3vw, 2rem)`?", ["Selalu memakai 3vw", "Memakai 3vw, tapi tidak pernah di bawah 1rem atau di atas 2rem", "Memakai nilai terkecil dari ketiganya", "Memakai 3vw hanya di layar yang lebih sempit dari 2rem"], "`clamp` menjaga nilai tengah tetap bergerak di antara batas minimum dan maksimumnya."],
-      ["Rasio kontras minimum untuk teks body biasa menurut WCAG AA?", ["2:1", "3:1", "4.5:1", "7:1"], "AA mensyaratkan 4.5:1 untuk teks biasa dan 3:1 untuk teks besar, sedangkan 7:1 untuk level AAA yang lebih ketat."]
-    ]
+    quiz: {
+      'root-font-size-16px': ["Ukuran font root adalah 16px. Berapa besar `1.5rem`?", ["15px", "16px", "24px", "1.5px"], "`rem` mengalikan ukuran font root: 1.5 × 16 = 24px."],
+      'clamp-1rem-3vw-2rem': ["Apa yang dilakukan `clamp(1rem, 3vw, 2rem)`?", ["Selalu memakai 3vw", "Memakai 3vw, tapi tidak pernah di bawah 1rem atau di atas 2rem", "Memakai nilai terkecil dari ketiganya", "Memakai 3vw hanya di layar yang lebih sempit dari 2rem"], "`clamp` menjaga nilai tengah tetap bergerak di antara batas minimum dan maksimumnya."],
+      'minimum-contrast-ratio-normal': ["Rasio kontras minimum untuk teks body biasa menurut WCAG AA?", ["2:1", "3:1", "4.5:1", "7:1"], "AA mensyaratkan 4.5:1 untuk teks biasa dan 3:1 untuk teks besar, sedangkan 7:1 untuk level AAA yang lebih ketat."]
+    }
   },
   flexbox: {
     splits: ["1 · Navbar & Hero","2 · Sidebar & Kartu Wrap"],
@@ -183,11 +183,11 @@ export const trackId = {
       "Judul panjang atau tabel lebar menjebol batas flex. Atasi dengan `min-width: 0` di item flex.",
       "Memaksakan flexbox untuk membuat grid dua dimensi dengan lebar kaku."
     ],
-    quiz: [
-      ["Dengan `flex-direction: row`, property mana yang menengahkan item ke atas-bawah?", ["`justify-content`", "`align-items`", "`text-align`", "`vertical-align`"], "Pada baris horizontal, sumbu silangnya vertikal dan dikendalikan oleh `align-items`."],
-      ["Apa yang dilakukan `flex: 1` pada setiap child?", ["Mengatur lebar tiap child menjadi 1fr", "Memberi setiap child bagian yang sama dari ruang kosong", "Membuat setiap child selebar 100%", "Mencegah child mengecil"], "Aturan ini menyetel flex-grow ke 1 dengan basis nol, jadi ruang sisa dibagi rata."],
-      ["Di sebuah flex row, bagaimana cara mendorong hanya item terakhir ke paling kanan?", ["`float: right` pada item itu", "`margin-left: auto` pada item itu", "`justify-content: flex-end` pada container", "`position: absolute` pada item itu"], "Margin auto menyedot semua ruang kosong di sebelah kirinya. Sebaliknya, `justify-content: flex-end` menggeser semua item sekaligus."]
-    ]
+    quiz: {
+      'flex-direction-row-property': ["Dengan `flex-direction: row`, property mana yang menengahkan item ke atas-bawah?", ["`justify-content`", "`align-items`", "`text-align`", "`vertical-align`"], "Pada baris horizontal, sumbu silangnya vertikal dan dikendalikan oleh `align-items`."],
+      'flex-every-child': ["Apa yang dilakukan `flex: 1` pada setiap child?", ["Mengatur lebar tiap child menjadi 1fr", "Memberi setiap child bagian yang sama dari ruang kosong", "Membuat setiap child selebar 100%", "Mencegah child mengecil"], "Aturan ini menyetel flex-grow ke 1 dengan basis nol, jadi ruang sisa dibagi rata."],
+      'flex-row-push-only': ["Di sebuah flex row, bagaimana cara mendorong hanya item terakhir ke paling kanan?", ["`float: right` pada item itu", "`margin-left: auto` pada item itu", "`justify-content: flex-end` pada container", "`position: absolute` pada item itu"], "Margin auto menyedot semua ruang kosong di sebelah kirinya. Sebaliknya, `justify-content: flex-end` menggeser semua item sekaligus."]
+    }
   },
   grid: {
     predict: {
@@ -224,11 +224,11 @@ export const trackId = {
       "Menulis banyak aturan breakpoint jumlah kolom padahal `minmax()` sudah otomatis menyesuaikan.",
       "Kolom `1fr` jebol saat diisi tabel lebar atau URL panjang. Ganti jadi `minmax(0, 1fr)`."
     ],
-    quiz: [
-      ["Apa yang dihasilkan `grid-template-columns: 1fr 3fr`?", ["Dua kolom sama lebar", "Dua kolom yang berbagi ruang kosong 1:3", "Empat kolom", "Satu kolom berisi tiga baris"], "Satuan `fr` membagi ruang tersisa sebanding dengan angkanya."],
-      ["Deklarasi mana yang menghasilkan grid responsif tanpa media query?", ["`repeat(3, 1fr)`", "`repeat(auto-fit, minmax(min(200px, 100%), 1fr))`", "`200px 200px 200px`", "`grid-auto-flow: column`"], "Browser memasukkan sebanyak mungkin kolom selebar minimal 200px lalu merentangkannya, sedangkan `min()` menyelamatkan layar yang lebih sempit."],
-      ["Bagaimana membuat sebuah item grid membentang selebar penuh?", ["`width: 100vw`", "`grid-column: 1 / -1`", "`grid-column: span all`", "`justify-self: stretch`"], "Rentang garis 1 ke -1 melingkupi semua jalur kolom (`span all` bukan sintaks CSS valid)."]
-    ]
+    quiz: {
+      'grid-template-columns-1fr': ["Apa yang dihasilkan `grid-template-columns: 1fr 3fr`?", ["Dua kolom sama lebar", "Dua kolom yang berbagi ruang kosong 1:3", "Empat kolom", "Satu kolom berisi tiga baris"], "Satuan `fr` membagi ruang tersisa sebanding dengan angkanya."],
+      'declaration-gives-responsive-gri': ["Deklarasi mana yang menghasilkan grid responsif tanpa media query?", ["`repeat(3, 1fr)`", "`repeat(auto-fit, minmax(min(200px, 100%), 1fr))`", "`200px 200px 200px`", "`grid-auto-flow: column`"], "Browser memasukkan sebanyak mungkin kolom selebar minimal 200px lalu merentangkannya, sedangkan `min()` menyelamatkan layar yang lebih sempit."],
+      'make-grid-item-span': ["Bagaimana membuat sebuah item grid membentang selebar penuh?", ["`width: 100vw`", "`grid-column: 1 / -1`", "`grid-column: span all`", "`justify-self: stretch`"], "Rentang garis 1 ke -1 melingkupi semua jalur kolom (`span all` bukan sintaks CSS valid)."]
+    }
   },
   responsive: {
     splits: ["1 · Mobile-first & Media","2 · Container Query","3 · Hover & Reduced Motion"],
@@ -256,11 +256,11 @@ export const trackId = {
       "Menyembunyikan konten penting di versi mobile daripada menata ulang urutannya.",
       "Memasang animasi ke mana-mana lalu menimpanya dengan `!important` untuk reduced-motion. Cukup aktifkan hanya saat diizinkan."
     ],
-    quiz: [
-      ["Di stylesheet mobile-first, style dasarnya menargetkan…", ["Layar desktop", "Layar kecil, dengan query `min-width` menambah layout untuk layar yang lebih besar", "Tablet, dengan query ke dua arah", "Cetak"], "Kamu memulai dari susunan bertumpuk paling ringan lalu menambah perbaikan ke ukuran lebih lebar."],
-      ["Container query didasarkan pada apa?", ["Lebar viewport", "Ukuran container dari elemen itu", "Device pixel ratio", "Ukuran font user"], "Komponen merespons ruang yang ditempatinya sendiri di mana pun ia diletakkan."],
-      ["Rule mana yang mencegah gambar meluber dari parent-nya?", ["`width: 100vw`", "`max-width: 100%; height: auto`", "`overflow: hidden` pada gambar", "`object-fit: contain`"], "Gambar mengecil mengikuti lebar wadah tanpa melampaui 100% dan rasio aslinya tetap terjaga."]
-    ]
+    quiz: {
+      'mobile-first-stylesheet-base': ["Di stylesheet mobile-first, style dasarnya menargetkan…", ["Layar desktop", "Layar kecil, dengan query `min-width` menambah layout untuk layar yang lebih besar", "Tablet, dengan query ke dua arah", "Cetak"], "Kamu memulai dari susunan bertumpuk paling ringan lalu menambah perbaikan ke ukuran lebih lebar."],
+      'container-query-based': ["Container query didasarkan pada apa?", ["Lebar viewport", "Ukuran container dari elemen itu", "Device pixel ratio", "Ukuran font user"], "Komponen merespons ruang yang ditempatinya sendiri di mana pun ia diletakkan."],
+      'rule-keeps-images-overflowing': ["Rule mana yang mencegah gambar meluber dari parent-nya?", ["`width: 100vw`", "`max-width: 100%; height: auto`", "`overflow: hidden` pada gambar", "`object-fit: contain`"], "Gambar mengecil mengikuti lebar wadah tanpa melampaui 100% dan rasio aslinya tetap terjaga."]
+    }
   },
   position: {
     predict: {
@@ -297,12 +297,12 @@ export const trackId = {
       "`position: sticky` mati gara-gara leluhurnya memasang `overflow: hidden`.",
       "`position: fixed` mendadak ikut terseret scroll sebab induknya ketambahan `transform` dari animasi."
     ],
-    quiz: [
-      ["Elemen yang diberi position absolut ditempatkan mengacu ke…", ["Viewport, selalu", "Ancestor terdekatnya yang di-position", "Elemen parent-nya, selalu", "`<body>`, selalu"], "Elemen ini mencari leluhur terdekat selain `static`, baru jatuh ke initial containing block kalau tak ketemu."],
-      ["Mana yang membuat stacking context baru?", ["`color: red`", "`transform: translateX(0)`", "`margin: 0`", "`display: block`"], "Transform, opacity di bawah 1, filter, serta `isolation: isolate` sama-sama menciptakan stacking context baru."],
-      ["Kenapa `z-index` bisa tidak berpengaruh pada sebuah elemen?", ["Angkanya melebihi batas yang diizinkan browser", "Elemennya tidak di-position, dan bukan item flex atau grid", "Parent-nya punya `overflow: hidden`", "Nilai negatif diabaikan"], "Properti `z-index` dilewati begitu saja di elemen `static` di luar flex atau grid."],
-      ["Elemen `position: fixed` tiba-tiba ikut scroll bersama halaman. Penyebab yang paling mungkin?", ["`z-index`-nya tidak ada", "Ada ancestor yang sekarang punya `transform`, sehingga `fixed` relatif terhadapnya", "Halamannya memakai flexbox", "Meta tag viewport-nya tidak ada"], "Leluhur yang memiliki `transform` atau `filter` otomatis berubah jadi batas acuan bagi keturunan `fixed`."]
-    ]
+    quiz: {
+      'absolutely-positioned-element-pl': ["Elemen yang diberi position absolut ditempatkan mengacu ke…", ["Viewport, selalu", "Ancestor terdekatnya yang di-position", "Elemen parent-nya, selalu", "`<body>`, selalu"], "Elemen ini mencari leluhur terdekat selain `static`, baru jatuh ke initial containing block kalau tak ketemu."],
+      'creates-new-stacking-context': ["Mana yang membuat stacking context baru?", ["`color: red`", "`transform: translateX(0)`", "`margin: 0`", "`display: block`"], "Transform, opacity di bawah 1, filter, serta `isolation: isolate` sama-sama menciptakan stacking context baru."],
+      'index-effect-element': ["Kenapa `z-index` bisa tidak berpengaruh pada sebuah elemen?", ["Angkanya melebihi batas yang diizinkan browser", "Elemennya tidak di-position, dan bukan item flex atau grid", "Parent-nya punya `overflow: hidden`", "Nilai negatif diabaikan"], "Properti `z-index` dilewati begitu saja di elemen `static` di luar flex atau grid."],
+      'position-fixed-element-suddenly': ["Elemen `position: fixed` tiba-tiba ikut scroll bersama halaman. Penyebab yang paling mungkin?", ["`z-index`-nya tidak ada", "Ada ancestor yang sekarang punya `transform`, sehingga `fixed` relatif terhadapnya", "Halamannya memakai flexbox", "Meta tag viewport-nya tidak ada"], "Leluhur yang memiliki `transform` atau `filter` otomatis berubah jadi batas acuan bagi keturunan `fixed`."]
+    }
   },
   modern: {
     splits: ["1 · Token & Ganti Tema","2 · Nesting Komponen & :has()"],
@@ -341,12 +341,12 @@ export const trackId = {
       "Lupa `color-scheme`, meninggalkan input dan scrollbar putih menyilaukan di latar gelap.",
       "Menganimasikan `width`, `height`, atau `top` hingga browser mengulang kalkulasi layout di setiap frame."
     ],
-    quiz: [
-      ["Apa bedanya custom property dengan variabel Sass?", ["Lebih cepat diketik", "Ada di browser, ikut cascade dan diwariskan, dan bisa berubah per elemen atau per media query", "Hanya bisa menyimpan warna", "Butuh build step"], "Variabel Sass lenyap saat build, sedangkan custom property tetap hidup dan reaktif di browser."],
-      ["Apa yang dipilih oleh `.card:has(img)`?", ["Gambar di dalam card", "Card yang berisi gambar", "Card tanpa gambar", "Gambar pertama di setiap card"], "`:has()` membidik elemen berdasarkan keturunan yang ada di dalamnya."],
-      ["Sistemnya gelap, user memilih light, dan halamannya tetap gelap. Penyebab yang paling mungkin?", ["Browser meng-cache CSS lama", "Rule `prefers-color-scheme: dark` tidak mengecualikan `[data-theme=\"light\"]`", "`color-scheme` tidak ada", "Custom property tidak bisa diubah setelah halaman dimuat"], "Aturan media query terus menimpa token gelap. Jaga dengan `:root:not([data-theme=\"light\"])`."],
-      ["Property mana yang paling murah untuk dianimasikan?", ["`width` dan `height`", "`transform` dan `opacity`", "`margin` dan `padding`", "`top` dan `left`"], "Compositor GPU menanganinya langsung tanpa perlu menghitung ulang layout maupun paint."]
-    ]
+    quiz: {
+      'custom-properties-differ-sass': ["Apa bedanya custom property dengan variabel Sass?", ["Lebih cepat diketik", "Ada di browser, ikut cascade dan diwariskan, dan bisa berubah per elemen atau per media query", "Hanya bisa menyimpan warna", "Butuh build step"], "Variabel Sass lenyap saat build, sedangkan custom property tetap hidup dan reaktif di browser."],
+      'card-img-select': ["Apa yang dipilih oleh `.card:has(img)`?", ["Gambar di dalam card", "Card yang berisi gambar", "Card tanpa gambar", "Gambar pertama di setiap card"], "`:has()` membidik elemen berdasarkan keturunan yang ada di dalamnya."],
+      'system-dark-user-picks': ["Sistemnya gelap, user memilih light, dan halamannya tetap gelap. Penyebab yang paling mungkin?", ["Browser meng-cache CSS lama", "Rule `prefers-color-scheme: dark` tidak mengecualikan `[data-theme=\"light\"]`", "`color-scheme` tidak ada", "Custom property tidak bisa diubah setelah halaman dimuat"], "Aturan media query terus menimpa token gelap. Jaga dengan `:root:not([data-theme=\"light\"])`."],
+      'properties-cheapest-animate': ["Property mana yang paling murah untuk dianimasikan?", ["`width` dan `height`", "`transform` dan `opacity`", "`margin` dan `padding`", "`top` dan `left`"], "Compositor GPU menanganinya langsung tanpa perlu menghitung ulang layout maupun paint."]
+    }
   },
   tailwind: {
     terms: [
@@ -373,11 +373,11 @@ export const trackId = {
       "Menganggapnya sama dengan inline style, padahal inline style tak mendukung `:hover`, fokus, dark mode, breakpoint, atau skala token.",
       "Menaruh aturan CSS sendiri di luar `@layer` di proyek Tailwind v4, membuatnya tak sengaja menimpa seluruh class utilitas."
     ],
-    quiz: [
-      ["Apa arti `md:grid-cols-2`?", ["Dua kolom hanya di layar sedang", "Dua kolom mulai dari breakpoint `md` ke atas", "Dua kolom di bawah `md`", "Kolom berukuran sedang"], "Prefiks breakpoint memakai query `min-width` mobile-first, berlaku dari `md` ke atas."],
-      ["Kenapa CSS Tailwind tetap kecil di production?", ["Ia mengirim stylesheet tetap yang sudah di-minify", "Hanya class yang ditemukan di file source-mu yang dihasilkan", "Ia menghapus class yang tidak terpakai di browser saat runtime", "Ia memakai inline style"], "Tailwind memindai kode sumber lalu hanya merakit class utilitas yang benar-benar ditulis."],
-      ["Kenapa `className={'bg-' + color + '-500'}` sering tidak berfungsi?", ["React melarang penyambungan string di `className`", "Tailwind tidak bisa melihat nama class lengkapnya di source, jadi class itu tidak pernah dihasilkan", "Warna harus berupa nilai hex", "Template string itu lambat"], "Pemindaian build mendeteksi kata utuh di file, jadi petakan nilai varian ke nama class lengkap."]
-    ]
+    quiz: {
+      'md-grid-cols-mean': ["Apa arti `md:grid-cols-2`?", ["Dua kolom hanya di layar sedang", "Dua kolom mulai dari breakpoint `md` ke atas", "Dua kolom di bawah `md`", "Kolom berukuran sedang"], "Prefiks breakpoint memakai query `min-width` mobile-first, berlaku dari `md` ke atas."],
+      'tailwind-css-stay-small': ["Kenapa CSS Tailwind tetap kecil di production?", ["Ia mengirim stylesheet tetap yang sudah di-minify", "Hanya class yang ditemukan di file source-mu yang dihasilkan", "Ia menghapus class yang tidak terpakai di browser saat runtime", "Ia memakai inline style"], "Tailwind memindai kode sumber lalu hanya merakit class utilitas yang benar-benar ditulis."],
+      'classname-bg-color-500': ["Kenapa `className={'bg-' + color + '-500'}` sering tidak berfungsi?", ["React melarang penyambungan string di `className`", "Tailwind tidak bisa melihat nama class lengkapnya di source, jadi class itu tidak pernah dihasilkan", "Warna harus berupa nilai hex", "Template string itu lambat"], "Pemindaian build mendeteksi kata utuh di file, jadi petakan nilai varian ke nama class lengkap."]
+    }
   },
   twreact: {
     splits: ["1 · Setup & CSS @theme","2 · cn() & Peta Variant","3 · Komponen <Button> Bertipe"],
@@ -416,12 +416,12 @@ export const trackId = {
       "Menerima nama varian berupa string bebas ketimbang union ber-type.",
       "Membuat `<Button>` tanpa bawaan `type=\"button\"` sehingga tiap klik di dalam form memicu submit."
     ],
-    quiz: [
-      ["Apa yang terjadi kalau `--color-brand-500` didefinisikan di dalam `@theme`?", ["Tidak ada, sampai kamu menulis CSS yang memakainya", "Menghasilkan utility seperti `bg-brand-500` dan `text-brand-500`", "Mengganti semua warna bawaan", "Membuat komponen React"], "Variabel tema berfungsi sebagai design token yang menentukan class utilitas keluaran Tailwind."],
-      ["Masalah apa yang diselesaikan `tailwind-merge`?", ["Ukuran bundle", "Utility yang bertabrakan seperti `px-2 px-4`: ia menyimpan yang terakhir", "Dark mode yang tidak ada", "Build yang lambat"], "Utilitas ini menyelesaikan bentrokan sehingga `className` dari luar menimpa default dengan pasti."],
-      ["Sebuah `<Button>` yang reusable ditaruh di dalam `<form>`. Mengkliknya men-submit form. Kenapa?", ["React men-submit form di setiap klik", "`type`-nya default ke `submit` kalau tidak diatur", "`tailwind-merge` menghapus type-nya", "Form-nya tidak punya `action`"], "Tombol HTML bawaannya berjenis `submit`, jadi komponen reusable mesti menetapkan `type=\"button\"`."],
-      ["Cara terbaik memakai ulang sekumpulan utility di seluruh aplikasi React?", ["Copy-paste", "`@apply` di stylesheet global", "Ekstrak sebuah komponen", "Object `style` inline"], "Komponen menyatukan struktur HTML, aksesibilitas, perilaku, sekaligus daftar class utilitasnya."]
-    ]
+    quiz: {
+      'defining-color-brand-500': ["Apa yang terjadi kalau `--color-brand-500` didefinisikan di dalam `@theme`?", ["Tidak ada, sampai kamu menulis CSS yang memakainya", "Menghasilkan utility seperti `bg-brand-500` dan `text-brand-500`", "Mengganti semua warna bawaan", "Membuat komponen React"], "Variabel tema berfungsi sebagai design token yang menentukan class utilitas keluaran Tailwind."],
+      'problem-tailwind-merge-solve': ["Masalah apa yang diselesaikan `tailwind-merge`?", ["Ukuran bundle", "Utility yang bertabrakan seperti `px-2 px-4`: ia menyimpan yang terakhir", "Dark mode yang tidak ada", "Build yang lambat"], "Utilitas ini menyelesaikan bentrokan sehingga `className` dari luar menimpa default dengan pasti."],
+      'reusable-button-placed-inside': ["Sebuah `<Button>` yang reusable ditaruh di dalam `<form>`. Mengkliknya men-submit form. Kenapa?", ["React men-submit form di setiap klik", "`type`-nya default ke `submit` kalau tidak diatur", "`tailwind-merge` menghapus type-nya", "Form-nya tidak punya `action`"], "Tombol HTML bawaannya berjenis `submit`, jadi komponen reusable mesti menetapkan `type=\"button\"`."],
+      'preferred-way-reuse-set': ["Cara terbaik memakai ulang sekumpulan utility di seluruh aplikasi React?", ["Copy-paste", "`@apply` di stylesheet global", "Ekstrak sebuah komponen", "Object `style` inline"], "Komponen menyatukan struktur HTML, aksesibilitas, perilaku, sekaligus daftar class utilitasnya."]
+    }
   },
   arch: {
     splits: ["1 · Layer, Reset & Token","2 · Komponen & Utilitas","3 · Jebakan Unlayered & @scope"],
@@ -460,12 +460,12 @@ export const trackId = {
       "Menempelkan margin luar di komponen hingga letaknya miring tiap dipakai di layar baru.",
       "Menulis CSS biasa di luar `@layer` pada proyek Tailwind v4 lalu tanpa sadar menimpa class utilitas."
     ],
-    quiz: [
-      ["Dengan `@layer components, utilities;` rule mana yang menang: `#app .btn` di `components` atau `.hidden` di `utilities`?", ["`#app .btn`: specificity-nya lebih tinggi", "`.hidden`: layer yang belakangan menang, berapa pun specificity-nya", "Yang posisinya lebih akhir di file", "Tidak ada"], "Urutan layer diperiksa duluan sebelum membandingkan skor specificity."],
-      ["`.hidden { display: none }` berada di `@layer utilities`, sementara `.card { display: block }` di luar layer. Pada `<div class=\"card hidden\">`, mana yang menang?", ["`.hidden`: utilities adalah layer terakhir", "`.card`: style di luar layer mengalahkan semua layer", "Yang posisinya lebih akhir di file", "Tidak ada yang berlaku"], "Deklarasi di luar layer mengungguli seluruh isi layer. Itulah sebab CSS biasa bisa mengalahkan utilitas Tailwind v4."],
-      ["Apa yang diberikan CSS Modules?", ["Theming saat runtime", "Nama class dengan cakupan lokal yang dibuat saat build", "Library class utility", "Dukungan `@scope` bawaan di browser lama"], "Nama class tiap file di-hash menjadi unik agar gaya antar-komponen tak pernah bertabrakan."],
-      ["Kenapa komponen yang reusable sebaiknya tidak mengatur margin luarnya sendiri?", ["Margin lambat di-render", "Jarak bergantung pada konteks, jadi layout parent yang seharusnya mengaturnya", "Margin tidak berfungsi di dalam grid", "Merusak dark mode"], "Komponen yang membawa margin bawaan cuma pas di layar pertama tempat ia dirancang."]
-    ]
+    quiz: {
+      'layer-components-utilities-rule': ["Dengan `@layer components, utilities;` rule mana yang menang: `#app .btn` di `components` atau `.hidden` di `utilities`?", ["`#app .btn`: specificity-nya lebih tinggi", "`.hidden`: layer yang belakangan menang, berapa pun specificity-nya", "Yang posisinya lebih akhir di file", "Tidak ada"], "Urutan layer diperiksa duluan sebelum membandingkan skor specificity."],
+      'hidden-display-none-layer': ["`.hidden { display: none }` berada di `@layer utilities`, sementara `.card { display: block }` di luar layer. Pada `<div class=\"card hidden\">`, mana yang menang?", ["`.hidden`: utilities adalah layer terakhir", "`.card`: style di luar layer mengalahkan semua layer", "Yang posisinya lebih akhir di file", "Tidak ada yang berlaku"], "Deklarasi di luar layer mengungguli seluruh isi layer. Itulah sebab CSS biasa bisa mengalahkan utilitas Tailwind v4."],
+      'css-modules-provide': ["Apa yang diberikan CSS Modules?", ["Theming saat runtime", "Nama class dengan cakupan lokal yang dibuat saat build", "Library class utility", "Dukungan `@scope` bawaan di browser lama"], "Nama class tiap file di-hash menjadi unik agar gaya antar-komponen tak pernah bertabrakan."],
+      'reusable-component-avoid-setting': ["Kenapa komponen yang reusable sebaiknya tidak mengatur margin luarnya sendiri?", ["Margin lambat di-render", "Jarak bergantung pada konteks, jadi layout parent yang seharusnya mengaturnya", "Margin tidak berfungsi di dalam grid", "Merusak dark mode"], "Komponen yang membawa margin bawaan cuma pas di layar pertama tempat ia dirancang."]
+    }
   },
   render: {
     terms: [
@@ -493,11 +493,11 @@ export const trackId = {
       "Memasang gambar atau iklan tanpa jatah ruang kosong hingga halaman melompat-lompat waktu dimuat.",
       "Menimpa `transition: none !important` yang mematahkan pendengar event `transitionend` di JavaScript."
     ],
-    quiz: [
-      ["Perubahan mana yang bisa ditangani compositor saja?", ["`width`", "`margin-top`", "`transform`", "`font-size`"], "Transform dan opacity dilewati tahap layout maupun paint selama berada di lapisan sendiri."],
-      ["Apa yang paling langsung mengurangi layout shift dari gambar?", ["Lazy loading", "Menyiapkan ruang dengan dimensi atau `aspect-ratio`", "File yang lebih kecil", "Menyajikannya dari CDN"], "Begitu browser tahu ukurannya sejak awal, teks di bawah tak ikut terdorong waktu gambar selesai turun."],
-      ["Bagaimana menyembunyikan konten dari layar tapi tetap terbaca oleh screen reader?", ["`display: none`", "`visibility: hidden`", "Pola visually-hidden (`.sr-only`)", "`aria-hidden=\"true\"`"], "`display: none`, `visibility: hidden`, dan `aria-hidden` sama-sama menyingkirkan teks tersebut dari pohon aksesibilitas."]
-    ]
+    quiz: {
+      'change-handled-compositor-alone': ["Perubahan mana yang bisa ditangani compositor saja?", ["`width`", "`margin-top`", "`transform`", "`font-size`"], "Transform dan opacity dilewati tahap layout maupun paint selama berada di lapisan sendiri."],
+      'directly-reduces-layout-shift': ["Apa yang paling langsung mengurangi layout shift dari gambar?", ["Lazy loading", "Menyiapkan ruang dengan dimensi atau `aspect-ratio`", "File yang lebih kecil", "Menyajikannya dari CDN"], "Begitu browser tahu ukurannya sejak awal, teks di bawah tak ikut terdorong waktu gambar selesai turun."],
+      'content-hidden-visually-kept': ["Bagaimana menyembunyikan konten dari layar tapi tetap terbaca oleh screen reader?", ["`display: none`", "`visibility: hidden`", "Pola visually-hidden (`.sr-only`)", "`aria-hidden=\"true\"`"], "`display: none`, `visibility: hidden`, dan `aria-hidden` sama-sama menyingkirkan teks tersebut dari pohon aksesibilitas."]
+    }
   }
 }
 };

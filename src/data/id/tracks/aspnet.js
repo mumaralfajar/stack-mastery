@@ -29,11 +29,11 @@ export const trackId = {
       "Memakai `GET` untuk operasi pengubah data. Browser, crawler, dan link preview bebas memanggil `GET` kapan saja.",
       "Membalas `200 OK` dengan pesan error di body bukan menggunakan status code `4xx` atau `5xx` yang pas."
     ],
-    quiz: [
-      ["Kelompok status code mana yang berarti 'client mengirim sesuatu yang salah'?", ["2xx", "3xx", "4xx", "5xx"], "Kode 4xx seperti 400, 401, dan 404 menandakan masalah di request client."],
-      ["HTTP bersifat stateless artinya…", ["Server tidak bisa menyimpan data apa pun", "Setiap request membawa semua yang dibutuhkan untuk memprosesnya", "Response tidak punya body", "Cookie tidak diizinkan"], "Protokol ini tidak menyimpan sesi di antara request. Cookie dipakai untuk mengirim ulang state di setiap request."],
-      ["Terjadi error jaringan dan client otomatis mengirim ulang request yang sama. Untuk method mana itu aman tanpa desain tambahan?", ["`POST /orders`", "`PUT /orders/7`", "`POST /payments`", "Tidak ada satu pun"], "`PUT` menimpa resource dengan isi yang persis sama, jadi mengulangnya aman. Mengulang `POST` bisa membuat pesanan atau tagihan ganda."]
-    ]
+    quiz: {
+      'status-code-family-means': ["Kelompok status code mana yang berarti 'client mengirim sesuatu yang salah'?", ["2xx", "3xx", "4xx", "5xx"], "Kode 4xx seperti 400, 401, dan 404 menandakan masalah di request client."],
+      'http-stateless-means': ["HTTP bersifat stateless artinya…", ["Server tidak bisa menyimpan data apa pun", "Setiap request membawa semua yang dibutuhkan untuk memprosesnya", "Response tidak punya body", "Cookie tidak diizinkan"], "Protokol ini tidak menyimpan sesi di antara request. Cookie dipakai untuk mengirim ulang state di setiap request."],
+      'network-error-happens-client': ["Terjadi error jaringan dan client otomatis mengirim ulang request yang sama. Untuk method mana itu aman tanpa desain tambahan?", ["`POST /orders`", "`PUT /orders/7`", "`POST /payments`", "Tidak ada satu pun"], "`PUT` menimpa resource dengan isi yang persis sama, jadi mengulangnya aman. Mengulang `POST` bisa membuat pesanan atau tagihan ganda."]
+    }
   },
   anatomy: {
     terms: [
@@ -66,11 +66,11 @@ export const trackId = {
       "Meng-commit secret ke `appsettings.json`. Taruh di user secrets waktu dev dan environment variable atau vault saat production.",
       "Mengira `appsettings.Development.json` ikut dipakai di production."
     ],
-    quiz: [
-      ["Di mana `builder.Services.AddScoped<…>()` harus dipanggil?", ["Setelah `app.Run()`", "Sebelum `builder.Build()`", "Di dalam handler endpoint", "Di mana saja, asal di `Program.cs`"], "Service collection langsung terkunci begitu aplikasi di-build."],
-      ["Key yang sama ada di `appsettings.json` dan environment variable. Mana yang otomatis menang?", ["`appsettings.json`", "Environment variable", "Tidak ada: aplikasinya menolak start", "Yang paling baru diubah"], "Konfigurasi yang dimuat belakangan menimpa yang lebih awal, dan environment variable masuk sesudah file JSON."],
-      ["Apa itu Kestrel?", ["Driver database", "Web server lintas platform yang sudah terpasang di ASP.NET Core", "Reverse proxy yang harus di-install terpisah", "Penjadwal background job"], "Kestrel mendengarkan koneksi HTTP dan menyalurkan request ke pipeline. Reverse proxy seperti nginx atau IIS bisa ditaruh di depannya, meski tidak wajib."]
-    ]
+    quiz: {
+      'builder-services-addscoped-calle': ["Di mana `builder.Services.AddScoped<…>()` harus dipanggil?", ["Setelah `app.Run()`", "Sebelum `builder.Build()`", "Di dalam handler endpoint", "Di mana saja, asal di `Program.cs`"], "Service collection langsung terkunci begitu aplikasi di-build."],
+      'same-key-exists-appsettings': ["Key yang sama ada di `appsettings.json` dan environment variable. Mana yang otomatis menang?", ["`appsettings.json`", "Environment variable", "Tidak ada: aplikasinya menolak start", "Yang paling baru diubah"], "Konfigurasi yang dimuat belakangan menimpa yang lebih awal, dan environment variable masuk sesudah file JSON."],
+      'what-is-kestrel': ["Apa itu Kestrel?", ["Driver database", "Web server lintas platform yang sudah terpasang di ASP.NET Core", "Reverse proxy yang harus di-install terpisah", "Penjadwal background job"], "Kestrel mendengarkan koneksi HTTP dan menyalurkan request ke pipeline. Reverse proxy seperti nginx atau IIS bisa ditaruh di depannya, meski tidak wajib."]
+    }
   },
   routing: {
     terms: [
@@ -105,11 +105,11 @@ export const trackId = {
       "Mengeluarkan entity database langsung sebagai JSON request atau response. Bungkus pakai DTO record.",
       "Menaruh kata kerja di URL (`/api/createProduct`). Biarkan method HTTP yang membawa kata kerjanya."
     ],
-    quiz: [
-      ["Sebuah `POST` berhasil membuat resource. Status code terbaik?", ["200", "201", "204", "202"], "201 Created, idealnya disertai header `Location` yang menunjuk resource barunya. 202 berarti diterima tapi belum selesai."],
-      ["Dengan `app.MapGet(\"/items/{id:int}\", (int id) => …)`, request ke `/items/abc` mengembalikan…", ["500", "404", "200 dengan id = 0", "400"], "Constraint `:int` gagal cocok sehingga tidak ada rute yang sesuai. Karena itulah constraint bukan alat validasi."],
-      ["Di method POST, dari mana parameter bertipe kompleks seperti `CreateProduct input` otomatis di-bind?", ["Query string", "Route", "Body JSON", "Field form"], "Tipe kompleks di-bind dari body JSON, sementara tipe sederhana diambil dari route atau query string."]
-    ]
+    quiz: {
+      'post-successfully-creates-resour': ["Sebuah `POST` berhasil membuat resource. Status code terbaik?", ["200", "201", "204", "202"], "201 Created, idealnya disertai header `Location` yang menunjuk resource barunya. 202 berarti diterima tapi belum selesai."],
+      'app-mapget-items-id': ["Dengan `app.MapGet(\"/items/{id:int}\", (int id) => …)`, request ke `/items/abc` mengembalikan…", ["500", "404", "200 dengan id = 0", "400"], "Constraint `:int` gagal cocok sehingga tidak ada rute yang sesuai. Karena itulah constraint bukan alat validasi."],
+      'complex-type-parameter-like': ["Di method POST, dari mana parameter bertipe kompleks seperti `CreateProduct input` otomatis di-bind?", ["Query string", "Route", "Body JSON", "Field form"], "Tipe kompleks di-bind dari body JSON, sementara tipe sederhana diambil dari route atau query string."]
+    }
   },
   middleware: {
     terms: [
@@ -142,11 +142,11 @@ export const trackId = {
       "Menulis ke response setelah `next()` padahal status dan header response sudah terlanjur terkirim.",
       "Lupa bahwa kode di bawah `await next()` baru jalan di perjalanan pulang."
     ],
-    quiz: [
-      ["Middleware A didaftarkan sebelum B. Di jalur response, mana yang menjalankan kode 'sesudah'-nya lebih dulu?", ["A", "B", "Keduanya bersamaan", "Yang lebih dulu menyelesaikan kode 'sebelum'-nya"], "Pipeline keluar dari dalam ke luar, jadi B beres duluan lalu disusul A."],
-      ["Apa arti 'short-circuit'?", ["Aplikasinya crash", "Sebuah middleware menulis response tanpa memanggil `next`", "Dua middleware jalan paralel", "Request melewati routing tapi tetap sampai ke endpoint"], "Middleware sesudahnya dan endpoint tidak pernah dieksekusi, misalnya saat 401 atau membalas dari cache."],
-      ["Kenapa middleware penanganan exception harus didaftarkan paling awal?", ["Karena paling cepat", "Supaya ia membungkus, dan bisa menangkap exception dari, semua yang datang setelahnya", "Karena ia harus membaca body request lebih dulu", "Hanya supaya mudah dibaca"], "Middleware cuma bisa menangkap exception dari komponen yang dipanggil lewat `next` di dalamnya."]
-    ]
+    quiz: {
+      'middleware-registered-response-p': ["Middleware A didaftarkan sebelum B. Di jalur response, mana yang menjalankan kode 'sesudah'-nya lebih dulu?", ["A", "B", "Keduanya bersamaan", "Yang lebih dulu menyelesaikan kode 'sebelum'-nya"], "Pipeline keluar dari dalam ke luar, jadi B beres duluan lalu disusul A."],
+      'short-circuiting-mean': ["Apa arti 'short-circuit'?", ["Aplikasinya crash", "Sebuah middleware menulis response tanpa memanggil `next`", "Dua middleware jalan paralel", "Request melewati routing tapi tetap sampai ke endpoint"], "Middleware sesudahnya dan endpoint tidak pernah dieksekusi, misalnya saat 401 atau membalas dari cache."],
+      'exception-handling-middleware-re': ["Kenapa middleware penanganan exception harus didaftarkan paling awal?", ["Karena paling cepat", "Supaya ia membungkus, dan bisa menangkap exception dari, semua yang datang setelahnya", "Karena ia harus membaca body request lebih dulu", "Hanya supaya mudah dibaca"], "Middleware cuma bisa menangkap exception dari komponen yang dipanggil lewat `next` di dalamnya."]
+    }
   },
   di: {
     terms: [
@@ -178,11 +178,11 @@ export const trackId = {
       "Meng-inject service scoped ke singleton. Kalau memang perlu, inject `IServiceScopeFactory` lalu buat scope per tugas.",
       "Mengambil service dari `IServiceProvider` langsung di method ketimbang menaruhnya di parameter constructor (anti-pattern service locator)."
     ],
-    quiz: [
-      ["Dalam satu HTTP request, service scoped di-inject ke dua class berbeda. Ada berapa instance?", ["Satu", "Dua", "Satu per thread", "Dua, lalu digabung di akhir request"], "Scoped artinya satu instance per scope, dan setiap HTTP request mendapat satu scope."],
-      ["Lifetime apa yang otomatis dipakai `AddDbContext`?", ["Singleton", "Scoped", "Transient", "Singleton yang di-pool"], "`DbContext` menjadi satu unit kerja per request dan memang tidak thread-safe."],
-      ["Apa itu captive dependency?", ["Referensi melingkar antara dua service", "Service bermasa hidup singkat yang ditahan service bermasa hidup lebih lama", "Service yang didaftarkan dua kali", "Service yang tidak pernah di-dispose"], "Misalnya singleton memegang `DbContext` scoped: instance itu tak pernah dibebaskan dan terpakai lintas request."]
-    ]
+    quiz: {
+      'within-single-http-request': ["Dalam satu HTTP request, service scoped di-inject ke dua class berbeda. Ada berapa instance?", ["Satu", "Dua", "Satu per thread", "Dua, lalu digabung di akhir request"], "Scoped artinya satu instance per scope, dan setiap HTTP request mendapat satu scope."],
+      'lifetime-adddbcontext-use-defaul': ["Lifetime apa yang otomatis dipakai `AddDbContext`?", ["Singleton", "Scoped", "Transient", "Singleton yang di-pool"], "`DbContext` menjadi satu unit kerja per request dan memang tidak thread-safe."],
+      'captive-dependency': ["Apa itu captive dependency?", ["Referensi melingkar antara dua service", "Service bermasa hidup singkat yang ditahan service bermasa hidup lebih lama", "Service yang didaftarkan dua kali", "Service yang tidak pernah di-dispose"], "Misalnya singleton memegang `DbContext` scoped: instance itu tak pernah dibebaskan dan terpakai lintas request."]
+    }
   },
   efcore: {
     splits: ['1 · Setup & Program.cs', '2 · Proyeksi & update', '3 · Entity & DbContext'],
@@ -217,11 +217,11 @@ export const trackId = {
       "Mengembalikan entity langsung dari API karena navigation property bisa memicu JSON berputar dan membocorkan kolom tersembunyi.",
       "Menyusun SQL dengan menyambung string lewat `FromSqlRaw(\"… '\" + name + \"'\")`."
     ],
-    quiz: [
-      ["Kapan `db.Products.Where(p => p.Price < 100)` menyentuh database?", ["Saat itu juga", "Saat di-enumerate, misalnya oleh `ToListAsync()`", "Saat aplikasi start", "Saat `SaveChanges` dipanggil"], "`IQueryable` dieksekusi tunda sampai dibaca hasilnya, sama seperti LINQ biasa."],
-      ["Apa isi sebuah migration?", ["Backup database", "Kode yang mendeskripsikan perubahan schema, dengan langkah `Up` dan `Down`", "Hanya seed data", "SQL hasil compile untuk setiap query"], "Migration adalah catatan skema berversi yang bisa di-review."],
-      ["Kamu memuat sebuah entity dan mengubah property-nya. Apa yang menuliskannya ke database?", ["Tidak ada: otomatis tersimpan saat property-nya berubah", "`db.SaveChangesAsync()`", "`db.Update()` selalu wajib dipanggil dulu", "Men-dispose context-nya"], "Change tracker menangkap perubahannya lalu `SaveChanges` mengirim `UPDATE`. `Update()` cuma untuk entity yang tidak sedang di-track."]
-    ]
+    quiz: {
+      'db-products-price-100': ["Kapan `db.Products.Where(p => p.Price < 100)` menyentuh database?", ["Saat itu juga", "Saat di-enumerate, misalnya oleh `ToListAsync()`", "Saat aplikasi start", "Saat `SaveChanges` dipanggil"], "`IQueryable` dieksekusi tunda sampai dibaca hasilnya, sama seperti LINQ biasa."],
+      'migration-contain': ["Apa isi sebuah migration?", ["Backup database", "Kode yang mendeskripsikan perubahan schema, dengan langkah `Up` dan `Down`", "Hanya seed data", "SQL hasil compile untuk setiap query"], "Migration adalah catatan skema berversi yang bisa di-review."],
+      'loaded-entity-changed-property': ["Kamu memuat sebuah entity dan mengubah property-nya. Apa yang menuliskannya ke database?", ["Tidak ada: otomatis tersimpan saat property-nya berubah", "`db.SaveChangesAsync()`", "`db.Update()` selalu wajib dipanggil dulu", "Men-dispose context-nya"], "Change tracker menangkap perubahannya lalu `SaveChanges` mengirim `UPDATE`. `Update()` cuma untuk entity yang tidak sedang di-track."]
+    }
   },
   validation: {
     terms: [
@@ -255,11 +255,11 @@ export const trackId = {
       "Mengecek duplikat dengan `AnyAsync` lalu insert tanpa index unik di tabel.",
       "Mengembalikan struktur error JSON yang beda-beda antar endpoint."
     ],
-    quiz: [
-      ["Client mengirim harga negatif. Response yang benar?", ["500", "200 dengan pesan error", "400 dengan detail validasi", "422 tanpa body"], "Input salah dari client masuk kategori 4xx, dan 400 berisi detail field membantu client memperbaikinya."],
-      ["Masalah apa yang dicegah oleh DTO request?", ["Query yang lambat", "Over-posting: client mengisi property yang tidak boleh mereka kendalikan", "Baris duplikat", "Error CORS"], "Hanya property di dalam DTO yang bisa terisi dari body request."],
-      ["Dua request membuat produk bernama 'Lamp' bersamaan. Apa yang betul-betul mencegah duplikat?", ["Mengecek `AnyAsync` sebelum insert", "Index `UNIQUE`, dengan error duplicate key diubah jadi 409", "`lock` di sekeliling endpoint", "Attribute validasi"], "Dua cek `AnyAsync` bisa sama-sama lolos sebelum salah satu sempat insert, dan `lock` tidak mempan kalau server-nya lebih dari satu. Hanya index DB yang melihat semuanya."]
-    ]
+    quiz: {
+      'client-sends-negative-price': ["Client mengirim harga negatif. Response yang benar?", ["500", "200 dengan pesan error", "400 dengan detail validasi", "422 tanpa body"], "Input salah dari client masuk kategori 4xx, dan 400 berisi detail field membantu client memperbaikinya."],
+      'problem-request-dtos-prevent': ["Masalah apa yang dicegah oleh DTO request?", ["Query yang lambat", "Over-posting: client mengisi property yang tidak boleh mereka kendalikan", "Baris duplikat", "Error CORS"], "Hanya property di dalam DTO yang bisa terisi dari body request."],
+      'two-requests-create-product': ["Dua request membuat produk bernama 'Lamp' bersamaan. Apa yang betul-betul mencegah duplikat?", ["Mengecek `AnyAsync` sebelum insert", "Index `UNIQUE`, dengan error duplicate key diubah jadi 409", "`lock` di sekeliling endpoint", "Attribute validasi"], "Dua cek `AnyAsync` bisa sama-sama lolos sebelum salah satu sempat insert, dan `lock` tidak mempan kalau server-nya lebih dari satu. Hanya index DB yang melihat semuanya."]
+    }
   },
   auth: {
     splits: ['1 · Setup Auth & CORS', '2 · Endpoint & kepemilikan', '3 · Entity & pengaturan'],
@@ -294,11 +294,11 @@ export const trackId = {
       "Menaruh access token di `localStorage`, tempat script XSS mana pun bebas mencurinya.",
       "Menganggap CORS sebagai pengaman server API. Browser memang tunduk ke CORS, tapi `curl` dan script server lain mengabaikannya total."
     ],
-    quiz: [
-      ["User yang sudah login tapi tidak punya role Admin memanggil endpoint khusus admin. Status-nya?", ["401", "403", "404", "400"], "401 berarti belum login, sedangkan 403 berarti sudah login tapi tidak punya izin."],
-      ["Apa yang dijamin oleh signature JWT?", ["Payload-nya rahasia", "Token-nya dikeluarkan oleh pemegang key dan tidak diubah", "Token-nya belum kedaluwarsa", "User-nya benar orang yang ia akui, selamanya"], "Signature membuktikan keaslian dan keutuhan token, bukan kerahasiaan isinya. Masa berlaku dicek dari claim expiry terpisah."],
-      ["Pengecekan mana yang mencegah user A membaca order milik user B di `/api/orders/17`?", ["`RequireAuthorization()` saja", "Query yang hanya menemukan order milik pemanggil", "HTTPS", "CORS"], "Status login saja belum cukup. Setiap resource pribadi wajib dicek kepemilikannya."]
-    ]
+    quiz: {
+      'signed-user-without-admin': ["User yang sudah login tapi tidak punya role Admin memanggil endpoint khusus admin. Status-nya?", ["401", "403", "404", "400"], "401 berarti belum login, sedangkan 403 berarti sudah login tapi tidak punya izin."],
+      'signature-jwt-guarantee': ["Apa yang dijamin oleh signature JWT?", ["Payload-nya rahasia", "Token-nya dikeluarkan oleh pemegang key dan tidak diubah", "Token-nya belum kedaluwarsa", "User-nya benar orang yang ia akui, selamanya"], "Signature membuktikan keaslian dan keutuhan token, bukan kerahasiaan isinya. Masa berlaku dicek dari claim expiry terpisah."],
+      'check-stops-user-reading': ["Pengecekan mana yang mencegah user A membaca order milik user B di `/api/orders/17`?", ["`RequireAuthorization()` saja", "Query yang hanya menemukan order milik pemanggil", "HTTPS", "CORS"], "Status login saja belum cukup. Setiap resource pribadi wajib dicek kepemilikannya."]
+    }
   },
   config: {
     terms: [
@@ -331,11 +331,11 @@ export const trackId = {
       "Menulis password, token, atau alamat email user ke file log.",
       "Berharap `IOptions<T>` otomatis membaca nilai config baru. `IOptions<T>` dibaca sekali, jadi ganti ke `IOptionsMonitor<T>` kalau butuh update real-time."
     ],
-    quiz: [
-      ["Apa yang diubah oleh `ValidateOnStart()`?", ["Tidak ada", "Options yang tidak valid gagal saat aplikasi start, bukan saat pertama dipakai", "Options di-reload otomatis", "Validasi dilewati di production"], "Gagal pas startup mengubah error diam-diam saat runtime jadi gagal deploy yang cepat ketahuan."],
-      ["Interface options mana yang mengikuti perubahan konfigurasi tanpa restart?", ["`IOptions<T>`", "`IOptionsMonitor<T>`", "`IConfigurationRoot`", "`IOptionsFactory<T>`"], "`IOptionsMonitor` memantau update config, sementara `IOptions` cuma dibaca sekali."],
-      ["Di mana password database production seharusnya disimpan?", ["`appsettings.json`, di-commit ke git", "Environment variable atau secret vault", "`appsettings.Production.json`, di-commit ke git", "Konstanta di dalam kode"], "Secret wajib disimpan di luar Git dan disuntikkan saat deploy."]
-    ]
+    quiz: {
+      'validateonstart-change': ["Apa yang diubah oleh `ValidateOnStart()`?", ["Tidak ada", "Options yang tidak valid gagal saat aplikasi start, bukan saat pertama dipakai", "Options di-reload otomatis", "Validasi dilewati di production"], "Gagal pas startup mengubah error diam-diam saat runtime jadi gagal deploy yang cepat ketahuan."],
+      'options-interface-reflects-confi': ["Interface options mana yang mengikuti perubahan konfigurasi tanpa restart?", ["`IOptions<T>`", "`IOptionsMonitor<T>`", "`IConfigurationRoot`", "`IOptionsFactory<T>`"], "`IOptionsMonitor` memantau update config, sementara `IOptions` cuma dibaca sekali."],
+      'production-database-password-liv': ["Di mana password database production seharusnya disimpan?", ["`appsettings.json`, di-commit ke git", "Environment variable atau secret vault", "`appsettings.Production.json`, di-commit ke git", "Konstanta di dalam kode"], "Secret wajib disimpan di luar Git dan disuntikkan saat deploy."]
+    }
   },
   testing: {
     terms: [
@@ -361,11 +361,11 @@ export const trackId = {
       "Menulis test yang saling berbagi state atau bergantung pada urutan eksekusi.",
       "Mengira provider in-memory EF berperilaku sama seperti SQL Server padahal bebas constraint dan transaction."
     ],
-    quiz: [
-      ["Apa yang diberikan `WebApplicationFactory<Program>`?", ["Mock dari database", "Aplikasimu yang sungguhan, di-host di memory, dengan `HttpClient` untuk memanggilnya", "Deploy ke server test", "Rekaman traffic production"], "Pipeline aplikasi aslinya ikut berjalan di proses test, jadi routing, DI, dan middleware semuanya teruji."],
-      ["Tiga bagian dari test yang tersusun baik adalah…", ["Setup, Run, Teardown", "Arrange, Act, Assert", "Given, When, Verify", "Mock, Call, Check"], "Siapkan input, jalankan aksinya sekali, lalu verifikasi hasilnya."],
-      ["Kenapa SQL Server sungguhan lebih baik daripada provider in-memory EF untuk integration test?", ["Lebih cepat", "Provider in-memory tidak menegakkan constraint dan tidak menjalankan SQL sungguhan", "Tidak perlu setup", "xUnit tidak bisa memakai provider in-memory"], "Bug pada translasi SQL, constraint, dan transaction cuma muncul di database engine asli."]
-    ]
+    quiz: {
+      'webapplicationfactory-program-gi': ["Apa yang diberikan `WebApplicationFactory<Program>`?", ["Mock dari database", "Aplikasimu yang sungguhan, di-host di memory, dengan `HttpClient` untuk memanggilnya", "Deploy ke server test", "Rekaman traffic production"], "Pipeline aplikasi aslinya ikut berjalan di proses test, jadi routing, DI, dan middleware semuanya teruji."],
+      'three-parts-well-structured': ["Tiga bagian dari test yang tersusun baik adalah…", ["Setup, Run, Teardown", "Arrange, Act, Assert", "Given, When, Verify", "Mock, Call, Check"], "Siapkan input, jalankan aksinya sekali, lalu verifikasi hasilnya."],
+      'prefer-real-sql-server': ["Kenapa SQL Server sungguhan lebih baik daripada provider in-memory EF untuk integration test?", ["Lebih cepat", "Provider in-memory tidak menegakkan constraint dan tidak menjalankan SQL sungguhan", "Tidak perlu setup", "xUnit tidak bisa memakai provider in-memory"], "Bug pada translasi SQL, constraint, dan transaction cuma muncul di database engine asli."]
+    }
   },
   efadv: {
     splits: ['1 · N+1 vs proyeksi', '2 · Optimistic concurrency', '3 · Entity & DbContext'],
@@ -393,11 +393,11 @@ export const trackId = {
       "Menaruh `[Timestamp]` tapi mencocokkannya dengan nilai yang baru di-load saat save, sehingga editan dua user tetap saling menimpa.",
       "Memakai `ExecuteUpdateAsync` untuk aksi yang sebenarnya wajib melewati aturan domain atau cek concurrency."
     ],
-    quiz: [
-      ["Kamu menampilkan 100 order dan membaca `order.Customer.Name` di dalam loop dengan lazy loading. Berapa query-nya?", ["1", "2", "Sampai 101", "100"], "Satu query mengambil daftar order ditambah satu query per order untuk customer-nya: itulah pola N+1."],
-      ["Apa yang dilakukan `AsNoTracking()`?", ["Mematikan log SQL", "Melewati change tracking untuk entity yang dikembalikan, menghemat waktu dan memory", "Mencegah EF meng-cache query plan", "Membaca data yang belum di-commit"], "Query baca tidak membutuhkan salinan snapshot di change tracker."],
-      ["Seorang user memuat sebuah produk 5 menit lalu dan sekarang menyimpan editannya. Versi mana yang harus dibandingkan oleh `UPDATE` untuk menangkap perubahan di antaranya?", ["Versi yang baru saja dimuat EF di request ini", "Versi yang diterima client 5 menit lalu dan dikirim balik", "Tidak perlu versi: `[Timestamp]` menanganinya otomatis", "Versi terbaru di tabel"], "Versi yang barusan dimuat sudah mencakup editan orang lain, jadi membandingkannya tak akan menangkap konflik."]
-    ]
+    quiz: {
+      'list-100-orders-read': ["Kamu menampilkan 100 order dan membaca `order.Customer.Name` di dalam loop dengan lazy loading. Berapa query-nya?", ["1", "2", "Sampai 101", "100"], "Satu query mengambil daftar order ditambah satu query per order untuk customer-nya: itulah pola N+1."],
+      'what-does-asnotracking-do': ["Apa yang dilakukan `AsNoTracking()`?", ["Mematikan log SQL", "Melewati change tracking untuk entity yang dikembalikan, menghemat waktu dan memory", "Mencegah EF meng-cache query plan", "Membaca data yang belum di-commit"], "Query baca tidak membutuhkan salinan snapshot di change tracker."],
+      'user-loaded-product-minutes': ["Seorang user memuat sebuah produk 5 menit lalu dan sekarang menyimpan editannya. Versi mana yang harus dibandingkan oleh `UPDATE` untuk menangkap perubahan di antaranya?", ["Versi yang baru saja dimuat EF di request ini", "Versi yang diterima client 5 menit lalu dan dikirim balik", "Tidak perlu versi: `[Timestamp]` menanganinya otomatis", "Versi terbaru di tabel"], "Versi yang barusan dimuat sudah mencakup editan orang lain, jadi membandingkannya tak akan menangkap konflik."]
+    }
   },
   perf: {
     splits: ['1 · Setup & RateLimiter', '2 · Endpoint cache', '3 · Model & DbContext'],
@@ -426,12 +426,12 @@ export const trackId = {
       "Memasang cache membabi buta sebelum mengukur di mana waktu benar-benar habis.",
       "Cuma mengecek latency rata-rata, padahal ekor lambat di p95 dan p99 yang bikin user mengeluh."
     ],
-    quiz: [
-      ["Latency naik, CPU di 15%, dan kodenya berisi pemanggilan `.Result`. Penyebab yang paling mungkin?", ["Loop yang CPU-bound", "Thread-pool starvation karena mem-block pekerjaan async", "Garbage collector", "Serialisasi JSON yang lambat"], "Thread yang diblokir tidak bekerja tapi tetap dihitung sibuk, sementara antrean request baru kehabisan thread."],
-      ["Status code apa yang seharusnya dikembalikan rate limiter?", ["401", "403", "429", "503"], "429 Too Many Requests, idealnya dengan header `Retry-After`. 503 berarti seluruh service sedang down."],
-      ["Dengan `AddTokenBucketLimiter(\"api\", …)` tanpa partisi, satu client mengirim 10.000 request. Apa yang terjadi pada yang lain?", ["Tidak ada, setiap client punya embernya sendiri", "Mereka juga mendapat 429: semuanya berbagi satu ember", "Server-nya crash", "Hanya IP client itu yang otomatis diblokir"], "Limiter tanpa partisi berarti satu ember bersama. Partisi per user atau IP biar jatah tiap client terpisah."],
-      ["Kenapa aplikasi yang berjalan di beberapa server harus memakai distributed cache untuk data bersama?", ["Selalu lebih cepat", "Cache in-memory itu per instance, jadi antar instance bisa berbeda isinya", "ASP.NET Core mewajibkannya", "Cache memory tidak bisa membuat entry kedaluwarsa"], "Tiap instance menyimpan memory sendiri, jadi cache bersama menjaga semua server sinkron."]
-    ]
+    quiz: {
+      'latency-rising-cpu-15': ["Latency naik, CPU di 15%, dan kodenya berisi pemanggilan `.Result`. Penyebab yang paling mungkin?", ["Loop yang CPU-bound", "Thread-pool starvation karena mem-block pekerjaan async", "Garbage collector", "Serialisasi JSON yang lambat"], "Thread yang diblokir tidak bekerja tapi tetap dihitung sibuk, sementara antrean request baru kehabisan thread."],
+      'status-code-rate-limiter': ["Status code apa yang seharusnya dikembalikan rate limiter?", ["401", "403", "429", "503"], "429 Too Many Requests, idealnya dengan header `Retry-After`. 503 berarti seluruh service sedang down."],
+      'addtokenbucketlimiter-api-partit': ["Dengan `AddTokenBucketLimiter(\"api\", …)` tanpa partisi, satu client mengirim 10.000 request. Apa yang terjadi pada yang lain?", ["Tidak ada, setiap client punya embernya sendiri", "Mereka juga mendapat 429: semuanya berbagi satu ember", "Server-nya crash", "Hanya IP client itu yang otomatis diblokir"], "Limiter tanpa partisi berarti satu ember bersama. Partisi per user atau IP biar jatah tiap client terpisah."],
+      'app-running-several-servers': ["Kenapa aplikasi yang berjalan di beberapa server harus memakai distributed cache untuk data bersama?", ["Selalu lebih cepat", "Cache in-memory itu per instance, jadi antar instance bisa berbeda isinya", "ASP.NET Core mewajibkannya", "Cache memory tidak bisa membuat entry kedaluwarsa"], "Tiap instance menyimpan memory sendiri, jadi cache bersama menjaga semua server sinkron."]
+    }
   },
   arch: {
     splits: ['1 · Wiring aplikasi', '2 · Slice PlaceOrder', '3 · Entity domain', '4 · Outbox & worker'],
@@ -461,12 +461,12 @@ export const trackId = {
       "Membiarkan loop `BackgroundService` tanpa `try/catch`, sehingga satu kegagalan mematikan seluruh host.",
       "Memecah kode semrawut menjadi microservice dengan harapan masalah desain beres, padahal cuma memindah kerumitan ke jaringan."
     ],
-    quiz: [
-      ["Apa yang dijamin oleh outbox pattern?", ["Pesan langsung terkirim saat itu juga", "Pesan disimpan dalam transaction yang sama dengan perubahan datanya, sehingga tidak ada yang terjadi tanpa yang lain", "Tidak ada pesan yang terkirim dua kali", "Database tidak pernah ter-lock"], "Tulisannya atomik, lalu publisher mengirimnya minimal sekali di background. Sisi penerima tetap perlu tahan duplikat."],
-      ["Kenapa `BackgroundService` membuat scope untuk memakai `DbContext`?", ["Demi performance", "Hosted service itu singleton dan `DbContext` itu scoped", "Scope diwajibkan untuk logging", "Untuk membuka transaction database"], "Memasukkan service scoped ke singleton memicu captive dependency, makanya buat scope baru per unit kerja."],
-      ["Sebuah exception lolos dari `ExecuteAsync` di `BackgroundService` .NET 10. Bawaannya…", ["Dicatat di log lalu service-nya restart", "Diabaikan", "Seluruh aplikasi berhenti", "Hanya request itu yang gagal"], "Sejak .NET 8, host otomatis berhenti waktu background service crash, jadi bungkus pakai try/catch di loop."],
-      ["Kapan CQRS sepadan dengan ongkosnya?", ["Selalu", "Saat model baca dan tulis sangat berbeda bentuk atau bebannya", "Kapan pun memakai EF Core", "Hanya dengan microservice"], "CQRS menambah duplikasi dan kompleksitas, jadi baru sepadan saat baca dan tulis betul-betul punya kebutuhan berbeda."]
-    ]
+    quiz: {
+      'outbox-pattern-guarantee': ["Apa yang dijamin oleh outbox pattern?", ["Pesan langsung terkirim saat itu juga", "Pesan disimpan dalam transaction yang sama dengan perubahan datanya, sehingga tidak ada yang terjadi tanpa yang lain", "Tidak ada pesan yang terkirim dua kali", "Database tidak pernah ter-lock"], "Tulisannya atomik, lalu publisher mengirimnya minimal sekali di background. Sisi penerima tetap perlu tahan duplikat."],
+      'backgroundservice-create-scope-u': ["Kenapa `BackgroundService` membuat scope untuk memakai `DbContext`?", ["Demi performance", "Hosted service itu singleton dan `DbContext` itu scoped", "Scope diwajibkan untuk logging", "Untuk membuka transaction database"], "Memasukkan service scoped ke singleton memicu captive dependency, makanya buat scope baru per unit kerja."],
+      'exception-escapes-executeasync-n': ["Sebuah exception lolos dari `ExecuteAsync` di `BackgroundService` .NET 10. Bawaannya…", ["Dicatat di log lalu service-nya restart", "Diabaikan", "Seluruh aplikasi berhenti", "Hanya request itu yang gagal"], "Sejak .NET 8, host otomatis berhenti waktu background service crash, jadi bungkus pakai try/catch di loop."],
+      'cqrs-worth-cost': ["Kapan CQRS sepadan dengan ongkosnya?", ["Selalu", "Saat model baca dan tulis sangat berbeda bentuk atau bebannya", "Kapan pun memakai EF Core", "Hanya dengan microservice"], "CQRS menambah duplikasi dan kompleksitas, jadi baru sepadan saat baca dan tulis betul-betul punya kebutuhan berbeda."]
+    }
   },
   prod: {
     splits: ['1 · Telemetri & resiliensi', '2 · Health check & client', '3 · Dockerfile & kontainer'],
@@ -494,11 +494,11 @@ export const trackId = {
       "Menjalankan migrasi yang langsung menghapus kolom saat versi aplikasi lama masih aktif membacanya.",
       "Memetakan port 80 ke container padahal ASP.NET Core sejak .NET 8 mendengarkan di port 8080."
     ],
-    quiz: [
-      ["Database mati selama 20 detik. Apa yang seharusnya dilaporkan liveness probe?", ["Unhealthy, supaya aplikasinya restart", "Healthy: proses aplikasinya sendiri baik-baik saja", "Unhealthy, tapi baru setelah 10 detik", "Degraded"], "Me-restart aplikasi tidak memperbaiki SQL Server, jadi readiness yang wajib gagal sementara liveness tetap hijau."],
-      ["Apa yang dilakukan circuit breaker setelah kegagalan berulang?", ["Me-retry lebih cepat", "Langsung menggagalkan panggilan sementara ketimbang menghubungi dependency yang bermasalah", "Me-restart server", "Otomatis pindah ke server cadangan"], "Ia memberi waktu bagi dependency untuk pulih sambil melindungi thread pool dan latency aplikasimu."],
-      ["Operasi mana yang aman di-retry otomatis tanpa desain tambahan?", ["`POST /payments`", "`GET /products/5`", "`POST /orders`", "Mengirim email"], "`GET` bersifat idempotent, sedangkan operasi lain butuh idempotency key lebih dulu."]
-    ]
+    quiz: {
+      'database-down-20-seconds': ["Database mati selama 20 detik. Apa yang seharusnya dilaporkan liveness probe?", ["Unhealthy, supaya aplikasinya restart", "Healthy: proses aplikasinya sendiri baik-baik saja", "Unhealthy, tapi baru setelah 10 detik", "Degraded"], "Me-restart aplikasi tidak memperbaiki SQL Server, jadi readiness yang wajib gagal sementara liveness tetap hijau."],
+      'circuit-breaker-repeated-failure': ["Apa yang dilakukan circuit breaker setelah kegagalan berulang?", ["Me-retry lebih cepat", "Langsung menggagalkan panggilan sementara ketimbang menghubungi dependency yang bermasalah", "Me-restart server", "Otomatis pindah ke server cadangan"], "Ia memberi waktu bagi dependency untuk pulih sambil melindungi thread pool dan latency aplikasimu."],
+      'operation-safe-retry-automatical': ["Operasi mana yang aman di-retry otomatis tanpa desain tambahan?", ["`POST /payments`", "`GET /products/5`", "`POST /orders`", "Mengirim email"], "`GET` bersifat idempotent, sedangkan operasi lain butuh idempotency key lebih dulu."]
+    }
   }
 }
 };

@@ -3,6 +3,7 @@ export type Lang = 'en' | 'id';
 export type LevelIndex = 0 | 1 | 2 | 3;
 
 export interface QuizItem {
+  id: string;
   q: string;
   a: string[];
   c: number;
@@ -62,8 +63,8 @@ export interface LessonIndexEntry {
   level: LevelIndex;
   mins: number;
   viz?: string;
-  /** Number of quiz questions, so flashcard due counts never need the lesson prose. */
-  quizCount: number;
+  /** Stable quiz IDs in canonical order, so due counts and legacy migration never need lesson prose. */
+  quizIds: readonly string[];
 }
 
 export interface VizLab {
@@ -199,7 +200,7 @@ export interface LessonProgress {
   quiz?: boolean;
   teach?: boolean;
   pred?: boolean;
-  q?: Record<number, boolean>;
+  q?: Record<string, boolean>;
   notes?: string;
   rubric?: boolean[];
 }
@@ -287,7 +288,7 @@ export interface LessonTranslation {
   code?: string;
   splits?: string[];
   predict?: Partial<PredictChallenge>;
-  quiz?: [string, string[], string][];
+  quiz?: Record<string, [string, string[], string]>;
 }
 
 export interface TrackTranslation {

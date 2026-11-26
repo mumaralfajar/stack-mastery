@@ -55,10 +55,10 @@ OFFSET 3 ROWS FETCH NEXT 3 ROWS ONLY;
         "Reading SQL top-to-bottom like imperative code. Check the GROUP BY lesson for the actual order."
       ],
       quiz: [
-        { q: "Which clause chooses which **rows** are returned?", a: ["`SELECT`", "`WHERE`", "`ORDER BY`", "`TOP`"], c: 1, why: "`WHERE` filters rows, `SELECT` picks columns, and `TOP` trims the sorted list." },
-        { q: "Without `ORDER BY`, the order of rows is…", a: ["by primary key", "by insertion time", "not guaranteed", "by the clustered index, always"], c: 2, why: "Small tables often look key-ordered by chance, yet a parallel plan or new index can shuffle rows anytime." },
-        { q: "What does `WHERE name LIKE 'A%'` match?", a: ["Names containing the % character", "Names that start with A", "Names that end with A", "Exactly the name 'A%'"], c: 1, why: "`%` acts as a wildcard matching zero or more characters." },
-        { q: "`SELECT TOP (3) name FROM products;` with no `ORDER BY` returns…", a: ["The 3 most expensive products", "The 3 cheapest products", "Any 3 rows", "The 3 most recently added products"], c: 2, why: "`TOP` keeps the first rows in whatever order arrives, and without `ORDER BY` none is guaranteed." }
+        { id: 'clause-chooses-rows-returned', q: "Which clause chooses which **rows** are returned?", a: ["`SELECT`", "`WHERE`", "`ORDER BY`", "`TOP`"], c: 1, why: "`WHERE` filters rows, `SELECT` picks columns, and `TOP` trims the sorted list." },
+        { id: 'without-order-order-rows', q: "Without `ORDER BY`, the order of rows is…", a: ["by primary key", "by insertion time", "not guaranteed", "by the clustered index, always"], c: 2, why: "Small tables often look key-ordered by chance, yet a parallel plan or new index can shuffle rows anytime." },
+        { id: 'name-like-match', q: "What does `WHERE name LIKE 'A%'` match?", a: ["Names containing the % character", "Names that start with A", "Names that end with A", "Exactly the name 'A%'"], c: 1, why: "`%` acts as a wildcard matching zero or more characters." },
+        { id: 'select-top-name-products', q: "`SELECT TOP (3) name FROM products;` with no `ORDER BY` returns…", a: ["The 3 most expensive products", "The 3 cheapest products", "Any 3 rows", "The 3 most recently added products"], c: 2, why: "`TOP` keeps the first rows in whatever order arrives, and without `ORDER BY` none is guaranteed." }
       ]
     },
     {
@@ -116,9 +116,9 @@ SELECT name, COALESCE(city, 'Unknown') AS city FROM customers;
         "Expecting `DELETE` on a parent row to wipe children automatically. Foreign keys reject it unless defined with `ON DELETE CASCADE`."
       ],
       quiz: [
-        { q: "What does `UPDATE products SET price = 0;` do?", a: ["Nothing, because `UPDATE` requires a `WHERE`", "Sets the price of every product to 0", "Only updates rows where price is NULL", "Updates the first row only"], c: 1, why: "With no `WHERE` filter, every row in the table matches." },
-        { q: "The result of `NULL = NULL` in SQL is…", a: ["true", "false", "unknown", "an error"], c: 2, why: "Comparing two unknowns stays unknown, so write `IS NULL`." },
-        { q: "What does `COALESCE(nickname, name, 'N/A')` return?", a: ["Always 'N/A'", "The first of the three that is not NULL", "All three joined together", "NULL if any of them is NULL"], c: 1, why: "`COALESCE` checks arguments left to right and returns the first non-NULL value." }
+        { id: 'update-products-set-price', q: "What does `UPDATE products SET price = 0;` do?", a: ["Nothing, because `UPDATE` requires a `WHERE`", "Sets the price of every product to 0", "Only updates rows where price is NULL", "Updates the first row only"], c: 1, why: "With no `WHERE` filter, every row in the table matches." },
+        { id: 'result-null-null-sql', q: "The result of `NULL = NULL` in SQL is…", a: ["true", "false", "unknown", "an error"], c: 2, why: "Comparing two unknowns stays unknown, so write `IS NULL`." },
+        { id: 'coalesce-nickname-name-return', q: "What does `COALESCE(nickname, name, 'N/A')` return?", a: ["Always 'N/A'", "The first of the three that is not NULL", "All three joined together", "NULL if any of them is NULL"], c: 1, why: "`COALESCE` checks arguments left to right and returns the first non-NULL value." }
       ]
     },
     {
@@ -171,10 +171,10 @@ ORDER BY paid_orders DESC;     -- the alias works here: ORDER BY runs after SELE
         "`AVG` on an `INT` column returns an `INT` in SQL Server, so averaging 1 and 2 returns 1. Cast first with `AVG(CAST(quantity AS DECIMAL(10,2)))`."
       ],
       quiz: [
-        { q: "Which clause can filter on `SUM(amount) > 100`?", a: ["`WHERE`", "`HAVING`", "`ORDER BY`", "`GROUP BY`"], c: 1, why: "Aggregates aren't calculated until grouping finishes, and `HAVING` runs after `GROUP BY`." },
-        { q: "Logically, which runs first?", a: ["`SELECT`", "`WHERE`", "`FROM`", "`GROUP BY`"], c: 2, why: "SQL must identify the source table first before filtering or grouping its rows." },
-        { q: "A column has values 5, NULL, 7. What is `COUNT(col)`?", a: ["3", "2", "12", "NULL"], c: 1, why: "`COUNT(col)` skips NULL values, whereas `COUNT(*)` would return 3." },
-        { q: "`quantity` is an `INT` column with values 1 and 2. What does `AVG(quantity)` return in SQL Server?", a: ["1.5", "1", "2", "NULL"], c: 1, why: "In SQL Server, averaging integers truncates to an integer. Cast to `DECIMAL` first to get 1.5." }
+        { id: 'clause-filter-sum-amount', q: "Which clause can filter on `SUM(amount) > 100`?", a: ["`WHERE`", "`HAVING`", "`ORDER BY`", "`GROUP BY`"], c: 1, why: "Aggregates aren't calculated until grouping finishes, and `HAVING` runs after `GROUP BY`." },
+        { id: 'logically-runs-first', q: "Logically, which runs first?", a: ["`SELECT`", "`WHERE`", "`FROM`", "`GROUP BY`"], c: 2, why: "SQL must identify the source table first before filtering or grouping its rows." },
+        { id: 'column-values-null-count', q: "A column has values 5, NULL, 7. What is `COUNT(col)`?", a: ["3", "2", "12", "NULL"], c: 1, why: "`COUNT(col)` skips NULL values, whereas `COUNT(*)` would return 3." },
+        { id: 'quantity-int-column-values', q: "`quantity` is an `INT` column with values 1 and 2. What does `AVG(quantity)` return in SQL Server?", a: ["1.5", "1", "2", "NULL"], c: 1, why: "In SQL Server, averaging integers truncates to an integer. Cast to `DECIMAL` first to get 1.5." }
       ]
     },
     // ---------------- Intermediate ----------------
@@ -236,9 +236,9 @@ ORDER BY revenue DESC;
         "Joining two separate one-to-many tables (such as orders and payments) directly to one parent and summing, which multiplies totals."
       ],
       quiz: [
-        { q: "Customers has 4 rows (1 with no orders), and Orders has 5 rows matching valid customers. How many rows does `customers LEFT JOIN orders` return?", a: ["4", "5", "6", "9"], c: 2, why: "Five matched pairs plus one customer with no order, padded with NULLs." },
-        { q: "How do you find customers with no orders?", a: ["`INNER JOIN … WHERE o.id IS NULL`", "`LEFT JOIN … WHERE o.id IS NULL`", "`LEFT JOIN … ON o.customer_id = c.id AND o.id IS NULL`", "`RIGHT JOIN … WHERE c.id IS NULL`"], c: 1, why: "Unmatched left rows carry NULLs on the right side, so filter for those after the join. Putting the test in `ON` keeps every customer." },
-        { q: "After `LEFT JOIN orders o`, adding `WHERE o.status = 'paid'` does what?", a: ["Nothing changes", "Removes customers with no orders, acting like an inner join", "Keeps every customer but blanks their unpaid orders", "Causes an error"], c: 1, why: "NULL = 'paid' is unknown, so unmatched rows are filtered out. Blanking unpaid orders is what you get by moving the condition into `ON`." }
+        { id: 'customers-rows-orders-orders', q: "Customers has 4 rows (1 with no orders), and Orders has 5 rows matching valid customers. How many rows does `customers LEFT JOIN orders` return?", a: ["4", "5", "6", "9"], c: 2, why: "Five matched pairs plus one customer with no order, padded with NULLs." },
+        { id: 'find-customers-orders', q: "How do you find customers with no orders?", a: ["`INNER JOIN … WHERE o.id IS NULL`", "`LEFT JOIN … WHERE o.id IS NULL`", "`LEFT JOIN … ON o.customer_id = c.id AND o.id IS NULL`", "`RIGHT JOIN … WHERE c.id IS NULL`"], c: 1, why: "Unmatched left rows carry NULLs on the right side, so filter for those after the join. Putting the test in `ON` keeps every customer." },
+        { id: 'left-join-orders-adding', q: "After `LEFT JOIN orders o`, adding `WHERE o.status = 'paid'` does what?", a: ["Nothing changes", "Removes customers with no orders, acting like an inner join", "Keeps every customer but blanks their unpaid orders", "Causes an error"], c: 1, why: "NULL = 'paid' is unknown, so unmatched rows are filtered out. Blanking unpaid orders is what you get by moving the condition into `ON`." }
       ]
     },
     {
@@ -316,9 +316,9 @@ SELECT REPLICATE('  ', depth) + name AS category, depth FROM tree ORDER BY depth
         "A subquery in `SELECT` that runs once per row when a join would do."
       ],
       quiz: [
-        { q: "What is a correlated subquery?", a: ["One that returns multiple columns", "One that references a column from the outer query", "One that uses `IN`", "One that appears in `FROM`"], c: 1, why: "It depends on the current outer row, so logically it is evaluated for each one." },
-        { q: "Why prefer `NOT EXISTS` to `NOT IN (subquery)`?", a: ["`NOT EXISTS` is always faster", "`NOT IN` returns no rows if the subquery yields any NULL", "`NOT IN` is not supported in SQL Server", "`NOT IN` can't use an index"], c: 1, why: "`x NOT IN (1, NULL)` is unknown for every x, so no row passes." },
-        { q: "The main purpose of a CTE is…", a: ["Faster execution, always", "Readability: naming a step of the query", "Creating a temporary table that lasts for the session", "Caching a result so it is computed only once"], c: 1, why: "A CTE is a named expression that exists only for one statement. SQL Server doesn't cache it." }
+        { id: 'correlated-subquery', q: "What is a correlated subquery?", a: ["One that returns multiple columns", "One that references a column from the outer query", "One that uses `IN`", "One that appears in `FROM`"], c: 1, why: "It depends on the current outer row, so logically it is evaluated for each one." },
+        { id: 'prefer-exists-subquery', q: "Why prefer `NOT EXISTS` to `NOT IN (subquery)`?", a: ["`NOT EXISTS` is always faster", "`NOT IN` returns no rows if the subquery yields any NULL", "`NOT IN` is not supported in SQL Server", "`NOT IN` can't use an index"], c: 1, why: "`x NOT IN (1, NULL)` is unknown for every x, so no row passes." },
+        { id: 'purpose-cte', q: "The main purpose of a CTE is…", a: ["Faster execution, always", "Readability: naming a step of the query", "Creating a temporary table that lasts for the session", "Caching a result so it is computed only once"], c: 1, why: "A CTE is a named expression that exists only for one statement. SQL Server doesn't cache it." }
       ]
     },
     {
@@ -397,10 +397,10 @@ SELECT productId, quantity FROM OPENJSON(@lines) WITH (productId INT, quantity I
         "Filtering frequently on `JSON_VALUE(preferences, '$.language') = 'id'`, which can't hit normal indexes. Extract it to a column or index a computed column."
       ],
       quiz: [
-        { q: "Orders and products are many-to-many. How is that modelled?", a: ["A comma-separated `product_ids` column in `orders`", "A junction table with a foreign key to each", "An `order_id` column in `products`", "One `orders` row per product, repeating the order details"], c: 1, why: "A junction table holds one row per link and stores relationship attributes like quantity." },
-        { q: "What does a foreign key constraint prevent?", a: ["Slow joins", "Rows that reference a parent row that does not exist", "Duplicate values in the column", "NULL values in the column"], c: 1, why: "It enforces parent-child links on writes. `UNIQUE` handles duplicates, and foreign key columns still allow NULL unless marked `NOT NULL`." },
-        { q: "Why is `unit_price` stored on `order_items` even though `products` has `price`?", a: ["It was added by mistake and should come from a join", "The sale must keep the price at the time of purchase", "To make the join to `products` faster", "Foreign keys require a copy"], c: 1, why: "They're two separate facts: today's catalog price versus what the buyer paid at checkout." },
-        { q: "Which data fits a JSON column best?", a: ["A customer's email, which must be unique", "Notification settings whose fields differ from customer to customer", "The `customer_id` an order belongs to", "A product's price, used in reports every day"], c: 1, why: "Flexible data read and saved as one unit suits JSON. Fields you constrain, join, or aggregate need real typed columns." }
+        { id: 'orders-products-many-many', q: "Orders and products are many-to-many. How is that modelled?", a: ["A comma-separated `product_ids` column in `orders`", "A junction table with a foreign key to each", "An `order_id` column in `products`", "One `orders` row per product, repeating the order details"], c: 1, why: "A junction table holds one row per link and stores relationship attributes like quantity." },
+        { id: 'foreign-key-constraint-prevent', q: "What does a foreign key constraint prevent?", a: ["Slow joins", "Rows that reference a parent row that does not exist", "Duplicate values in the column", "NULL values in the column"], c: 1, why: "It enforces parent-child links on writes. `UNIQUE` handles duplicates, and foreign key columns still allow NULL unless marked `NOT NULL`." },
+        { id: 'unit-price-stored-order', q: "Why is `unit_price` stored on `order_items` even though `products` has `price`?", a: ["It was added by mistake and should come from a join", "The sale must keep the price at the time of purchase", "To make the join to `products` faster", "Foreign keys require a copy"], c: 1, why: "They're two separate facts: today's catalog price versus what the buyer paid at checkout." },
+        { id: 'data-fits-json-column', q: "Which data fits a JSON column best?", a: ["A customer's email, which must be unique", "Notification settings whose fields differ from customer to customer", "The `customer_id` an order belongs to", "A product's price, used in reports every day"], c: 1, why: "Flexible data read and saved as one unit suits JSON. Fields you constrain, join, or aggregate need real typed columns." }
       ]
     },
     // ---------------- Advanced ----------------
@@ -457,9 +457,9 @@ SELECT order_date, status FROM orders WHERE customer_id = 2;
         "Indexing low-cardinality flags like `is_active` and wondering why the optimizer still scans."
       ],
       quiz: [
-        { q: "An index exists on `(country, city)`. Which filter can seek on it?", a: ["`WHERE city = 'Bandung'`", "`WHERE country = 'ID'`", "`WHERE city = 'Bandung' OR country = 'ID'`", "Both of the first two"], c: 1, why: "Composite indexes start matching from the leftmost column, so `city` alone isn't a prefix." },
-        { q: "What is the main cost of adding an index?", a: ["Reads get slower", "Every insert, update and delete must also maintain it, and it takes storage", "The table can no longer be altered", "It locks the table for as long as it exists"], c: 1, why: "Every write has to keep those extra sorted structures in sync, plus they take storage." },
-        { q: "A 'covering' index means…", a: ["It covers every column in the table", "It includes all the columns a query needs, so the table is not read", "It is the clustered index", "It speeds up every query on that table"], c: 1, why: "SQL Server answers the entire query straight from the index with zero key lookups." }
+        { id: 'index-exists-country-city', q: "An index exists on `(country, city)`. Which filter can seek on it?", a: ["`WHERE city = 'Bandung'`", "`WHERE country = 'ID'`", "`WHERE city = 'Bandung' OR country = 'ID'`", "Both of the first two"], c: 1, why: "Composite indexes start matching from the leftmost column, so `city` alone isn't a prefix." },
+        { id: 'cost-adding-index', q: "What is the main cost of adding an index?", a: ["Reads get slower", "Every insert, update and delete must also maintain it, and it takes storage", "The table can no longer be altered", "It locks the table for as long as it exists"], c: 1, why: "Every write has to keep those extra sorted structures in sync, plus they take storage." },
+        { id: 'covering-index-means', q: "A 'covering' index means…", a: ["It covers every column in the table", "It includes all the columns a query needs, so the table is not read", "It is the clustered index", "It speeds up every query on that table"], c: 1, why: "SQL Server answers the entire query straight from the index with zero key lookups." }
       ]
     },
     {
@@ -528,9 +528,9 @@ SELECT @@ROWCOUNT AS saved;   -- 1 here; 0 would mean someone changed the row af
         "Leaving `XACT_ABORT` off, allowing SQL Server to ignore certain errors and commit a partial transaction."
       ],
       quiz: [
-        { q: "A transfer debits account A, then the server crashes before crediting B. With a transaction, what is the result after restart?", a: ["A is debited, B not credited", "Neither change is applied", "B is credited when the server restarts", "The database must be restored from a backup"], c: 1, why: "Atomicity: an uncommitted transaction is rolled back in full during recovery." },
-        { q: "Which anomaly is 'reading data another transaction has not committed yet'?", a: ["Phantom", "Dirty read", "Lost update", "Non-repeatable read"], c: 1, why: "Dirty reads are only possible at Read Uncommitted, or with `NOLOCK` hints." },
-        { q: "Safest way to decrement stock under concurrency?", a: ["`SELECT`, then `UPDATE` with the computed value, inside a transaction", "`UPDATE … SET stock = stock - 1 WHERE stock > 0`, then check rows affected", "Keep the stock count in application memory", "Read it with `NOLOCK` first so you don't block anyone"], c: 1, why: "Under Read Committed, two transactions can still read the same stock before either writes. A single atomic statement can't interleave with another writer." }
+        { id: 'transfer-debits-account-then', q: "A transfer debits account A, then the server crashes before crediting B. With a transaction, what is the result after restart?", a: ["A is debited, B not credited", "Neither change is applied", "B is credited when the server restarts", "The database must be restored from a backup"], c: 1, why: "Atomicity: an uncommitted transaction is rolled back in full during recovery." },
+        { id: 'anomaly-reading-data-another', q: "Which anomaly is 'reading data another transaction has not committed yet'?", a: ["Phantom", "Dirty read", "Lost update", "Non-repeatable read"], c: 1, why: "Dirty reads are only possible at Read Uncommitted, or with `NOLOCK` hints." },
+        { id: 'safest-way-decrement-stock', q: "Safest way to decrement stock under concurrency?", a: ["`SELECT`, then `UPDATE` with the computed value, inside a transaction", "`UPDATE … SET stock = stock - 1 WHERE stock > 0`, then check rows affected", "Keep the stock count in application memory", "Read it with `NOLOCK` first so you don't block anyone"], c: 1, why: "Under Read Committed, two transactions can still read the same stock before either writes. A single atomic statement can't interleave with another writer." }
       ]
     },
     {
@@ -590,9 +590,9 @@ SELECT id, customer_id, order_date FROM ranked WHERE rn = 1;
         "A running total that jumps in steps because several rows share the same date. Break ties in the `ORDER BY`."
       ],
       quiz: [
-        { q: "Scores 90, 90, 80. What does `RANK()` (descending) assign?", a: ["1, 2, 3", "1, 1, 2", "1, 1, 3", "1, 2, 2"], c: 2, why: "`RANK` gives ties the same rank and skips numbers, whereas `DENSE_RANK` gives 1, 1, 2." },
-        { q: "How many rows does a window function return compared to its input?", a: ["One per partition", "The same number", "One per distinct `ORDER BY` value", "Fewer, if there are ties"], c: 1, why: "Window functions add computed columns without collapsing rows." },
-        { q: "Which function reads the previous row's value?", a: ["`LEAD`", "`LAG`", "`FIRST_VALUE`", "`ROW_NUMBER`"], c: 1, why: "`LAG` looks backward, and `LEAD` looks forward." }
+        { id: 'scores-90-90-80', q: "Scores 90, 90, 80. What does `RANK()` (descending) assign?", a: ["1, 2, 3", "1, 1, 2", "1, 1, 3", "1, 2, 2"], c: 2, why: "`RANK` gives ties the same rank and skips numbers, whereas `DENSE_RANK` gives 1, 1, 2." },
+        { id: 'many-rows-window-function', q: "How many rows does a window function return compared to its input?", a: ["One per partition", "The same number", "One per distinct `ORDER BY` value", "Fewer, if there are ties"], c: 1, why: "Window functions add computed columns without collapsing rows." },
+        { id: 'function-reads-previous-row', q: "Which function reads the previous row's value?", a: ["`LEAD`", "`LAG`", "`FIRST_VALUE`", "`ROW_NUMBER`"], c: 1, why: "`LAG` looks backward, and `LEAD` looks forward." }
       ]
     },
     // ---------------- Expert ----------------
@@ -651,9 +651,9 @@ ORDER BY order_date DESC, id DESC;
         "Fixing parameter sniffing with `OPTION (RECOMPILE)` on a query that runs thousands of times a second. Compiling every time costs CPU."
       ],
       quiz: [
-        { q: "Which condition can use an index seek on `order_date`?", a: ["`WHERE YEAR(order_date) = 2026`", "`WHERE order_date >= '2026-01-01' AND order_date < '2027-01-01'`", "`WHERE CONVERT(CHAR(4), order_date, 120) = '2026'`", "`WHERE DATEADD(day, 1, order_date) > '2026-01-01'`"], c: 1, why: "Only a range filter on the bare column is sargable. The others run a function on it first." },
-        { q: "Estimated rows: 10. Actual rows: 900,000. Most likely cause?", a: ["Too many indexes on the table", "Stale or misleading statistics, or parameter sniffing", "The server is short of memory", "The query uses a CTE"], c: 1, why: "The optimizer planned for 10 rows instead of 900,000. Fix the estimate and the plan changes." },
-        { q: "Which join algorithm suits a small outer input with an index on the inner table?", a: ["Hash join", "Nested loops", "Merge join", "Whichever table is written first"], c: 1, why: "Nested loops performs one cheap index seek per outer row." }
+        { id: 'condition-use-index-seek', q: "Which condition can use an index seek on `order_date`?", a: ["`WHERE YEAR(order_date) = 2026`", "`WHERE order_date >= '2026-01-01' AND order_date < '2027-01-01'`", "`WHERE CONVERT(CHAR(4), order_date, 120) = '2026'`", "`WHERE DATEADD(day, 1, order_date) > '2026-01-01'`"], c: 1, why: "Only a range filter on the bare column is sargable. The others run a function on it first." },
+        { id: 'estimated-rows-10-actual', q: "Estimated rows: 10. Actual rows: 900,000. Most likely cause?", a: ["Too many indexes on the table", "Stale or misleading statistics, or parameter sniffing", "The server is short of memory", "The query uses a CTE"], c: 1, why: "The optimizer planned for 10 rows instead of 900,000. Fix the estimate and the plan changes." },
+        { id: 'join-algorithm-suits-small', q: "Which join algorithm suits a small outer input with an index on the inner table?", a: ["Hash join", "Nested loops", "Merge join", "Whichever table is written first"], c: 1, why: "Nested loops performs one cheap index seek per outer row." }
       ]
     },
     {
@@ -735,10 +735,10 @@ SELECT quantity FROM cart_items WHERE customer_id = 1 AND product_id = 2;   -- 2
         "Upserting with `IF NOT EXISTS … INSERT` and zero lock hints, causing duplicate-key errors under concurrent hits."
       ],
       quiz: [
-        { q: "What is the standard way to prevent deadlocks between transactions that update the same rows?", a: ["Add `WITH (NOLOCK)` to the updates", "Access the rows in a consistent order", "Raise the isolation level to Serializable", "Increase the lock timeout"], c: 1, why: "Shared lock order breaks cycles before they form, while Serializable grabs extra locks and invites deadlocks." },
-        { q: "With `READ_COMMITTED_SNAPSHOT` on, a long-running read…", a: ["blocks all writers until it finishes", "sees a consistent version and does not block writers", "sees other transactions' uncommitted changes", "takes a table lock"], c: 1, why: "Readers read committed row snapshots instead of taking shared locks." },
-        { q: "What should application code do when it is chosen as a deadlock victim?", a: ["Show the error to the user", "Retry the whole transaction", "Retry only the statement that failed", "Nothing: the change was saved"], c: 1, why: "The entire transaction rolled back, so retrying just the final statement applies partial writes." },
-        { q: "Two requests run `UPDATE …` then `IF @@ROWCOUNT = 0 INSERT …` concurrently without lock hints. What happens?", a: ["Nothing, since both statements run atomically", "Both find no row and both insert, so one fails on the primary key", "The database merges the two inserts into one row", "The second request waits automatically until the first commits"], c: 1, why: "Each query is atomic alone, yet the pair can interleave. `UPDLOCK, HOLDLOCK` locks the slot until commit." }
+        { id: 'standard-way-prevent-deadlocks', q: "What is the standard way to prevent deadlocks between transactions that update the same rows?", a: ["Add `WITH (NOLOCK)` to the updates", "Access the rows in a consistent order", "Raise the isolation level to Serializable", "Increase the lock timeout"], c: 1, why: "Shared lock order breaks cycles before they form, while Serializable grabs extra locks and invites deadlocks." },
+        { id: 'read-committed-snapshot-long', q: "With `READ_COMMITTED_SNAPSHOT` on, a long-running read…", a: ["blocks all writers until it finishes", "sees a consistent version and does not block writers", "sees other transactions' uncommitted changes", "takes a table lock"], c: 1, why: "Readers read committed row snapshots instead of taking shared locks." },
+        { id: 'application-code-chosen-deadlock', q: "What should application code do when it is chosen as a deadlock victim?", a: ["Show the error to the user", "Retry the whole transaction", "Retry only the statement that failed", "Nothing: the change was saved"], c: 1, why: "The entire transaction rolled back, so retrying just the final statement applies partial writes." },
+        { id: 'two-requests-run-update', q: "Two requests run `UPDATE …` then `IF @@ROWCOUNT = 0 INSERT …` concurrently without lock hints. What happens?", a: ["Nothing, since both statements run atomically", "Both find no row and both insert, so one fails on the primary key", "The database merges the two inserts into one row", "The second request waits automatically until the first commits"], c: 1, why: "Each query is atomic alone, yet the pair can interleave. `UPDLOCK, HOLDLOCK` locks the slot until commit." }
       ]
     },
     {
@@ -794,9 +794,9 @@ CREATE TABLE events (id BIGINT NOT NULL, at DATE NOT NULL, payload NVARCHAR(MAX)
         "Running one EF Core `RenameColumn` migration on a live cluster while older app nodes still query the old name."
       ],
       quiz: [
-        { q: "First step of a zero-downtime column rename?", a: ["Drop the old column", "Add the new column alongside the old one", "Rename it in place with `sp_rename`", "Copy the table under a new name"], c: 1, why: "Expand first so running old and new app instances stay compatible." },
-        { q: "A user saves a profile, the next page reads from a replica and shows the old value. Why?", a: ["A bug in the SQL query", "Replication lag: the replica hasn't applied the write yet", "The browser cached the old page", "A deadlock rolled the save back"], c: 1, why: "Async replicas trail slightly behind, so read-your-own-write requests belong on the primary." },
-        { q: "What makes sharding costly compared to partitioning within one server?", a: ["Indexes stop working across shards", "Cross-shard joins and transactions are hard or impossible", "Each shard needs a different schema", "Backups can no longer be taken"], c: 1, why: "Splitting tables across servers breaks single-engine joins and atomic multi-row commits." }
+        { id: 'first-step-zero-downtime', q: "First step of a zero-downtime column rename?", a: ["Drop the old column", "Add the new column alongside the old one", "Rename it in place with `sp_rename`", "Copy the table under a new name"], c: 1, why: "Expand first so running old and new app instances stay compatible." },
+        { id: 'user-saves-profile-next', q: "A user saves a profile, the next page reads from a replica and shows the old value. Why?", a: ["A bug in the SQL query", "Replication lag: the replica hasn't applied the write yet", "The browser cached the old page", "A deadlock rolled the save back"], c: 1, why: "Async replicas trail slightly behind, so read-your-own-write requests belong on the primary." },
+        { id: 'makes-sharding-costly-compared', q: "What makes sharding costly compared to partitioning within one server?", a: ["Indexes stop working across shards", "Cross-shard joins and transactions are hard or impossible", "Each shard needs a different schema", "Backups can no longer be taken"], c: 1, why: "Splitting tables across servers breaks single-engine joins and atomic multi-row commits." }
       ]
     }
   ]

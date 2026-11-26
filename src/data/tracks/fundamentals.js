@@ -65,9 +65,9 @@ git log --oneline --graph       # read the history
         "Running plain `git init` and landing on `master`, which breaks tutorials expecting `main`. Use `git init -b main`, or rename with `git branch -m main`."
       ],
       quiz: [
-        { q: "What does `git add` do?", a: ["Creates a commit", "Stages changes for the next commit", "Uploads to the remote", "Starts tracking the whole repository"], c: 1, why: "It moves changes into the staging area, then `git commit` records them." },
-        { q: "Why work on a feature branch instead of `main`?", a: ["Commits on a branch can't conflict", "Unfinished work stays isolated, and `main` keeps working and reviewable", "Branches are backed up to GitHub automatically", "Only branches can be pushed"], c: 1, why: "Branches isolate half-done work until it's reviewed and ready to merge. They can still conflict, and nothing uploads until you push." },
-        { q: "You pushed a commit containing an API key, then deleted the key in the next commit. What now?", a: ["Nothing, it's gone", "Revoke or rotate the key because it's still in history", "Run `git revert` on the first commit", "Make the repository private again"], c: 1, why: "Every clone keeps the old commit. Once a secret is pushed, assume someone has it." }
+        { id: 'git-add', q: "What does `git add` do?", a: ["Creates a commit", "Stages changes for the next commit", "Uploads to the remote", "Starts tracking the whole repository"], c: 1, why: "It moves changes into the staging area, then `git commit` records them." },
+        { id: 'work-feature-branch', q: "Why work on a feature branch instead of `main`?", a: ["Commits on a branch can't conflict", "Unfinished work stays isolated, and `main` keeps working and reviewable", "Branches are backed up to GitHub automatically", "Only branches can be pushed"], c: 1, why: "Branches isolate half-done work until it's reviewed and ready to merge. They can still conflict, and nothing uploads until you push." },
+        { id: 'pushed-commit-containing-api', q: "You pushed a commit containing an API key, then deleted the key in the next commit. What now?", a: ["Nothing, it's gone", "Revoke or rotate the key because it's still in history", "Run `git revert` on the first commit", "Make the repository private again"], c: 1, why: "Every clone keeps the old commit. Once a secret is pushed, assume someone has it." }
       ]
     },
     {
@@ -140,9 +140,9 @@ Console.WriteLine(HasDuplicateFast(data));         // False, in milliseconds; th
         "Stating the time complexity and forgetting space."
       ],
       quiz: [
-        { q: "What is the complexity of a loop over n items that calls `list.Contains(x)` on a list of n items each time?", a: ["O(n)", "O(n log n)", "O(n²)", "O(1), because `Contains` is built in"], c: 2, why: "`Contains` on a list is O(n) itself, and it runs n times. Built-in doesn't mean free." },
-        { q: "Binary search on 1,000,000 sorted items needs about how many steps?", a: ["20", "1,000", "500,000", "1,000,000"], c: 0, why: "log₂(1,000,000) ≈ 20 because each step cuts the remaining items in half." },
-        { q: "5n² + 3n + 100 simplifies to…", a: ["O(n)", "O(5n²)", "O(n²)", "O(n² + n)"], c: 2, why: "Drop constants and lower-order terms. The n² term dominates as n grows." }
+        { id: 'complexity-loop-items-calls', q: "What is the complexity of a loop over n items that calls `list.Contains(x)` on a list of n items each time?", a: ["O(n)", "O(n log n)", "O(n²)", "O(1), because `Contains` is built in"], c: 2, why: "`Contains` on a list is O(n) itself, and it runs n times. Built-in doesn't mean free." },
+        { id: 'binary-search-000-000', q: "Binary search on 1,000,000 sorted items needs about how many steps?", a: ["20", "1,000", "500,000", "1,000,000"], c: 0, why: "log₂(1,000,000) ≈ 20 because each step cuts the remaining items in half." },
+        { id: '5n-3n-100-simplifies', q: "5n² + 3n + 100 simplifies to…", a: ["O(n)", "O(5n²)", "O(n²)", "O(n² + n)"], c: 2, why: "Drop constants and lower-order terms. The n² term dominates as n grows." }
       ]
     },
     {
@@ -203,9 +203,9 @@ Console.WriteLine(s.EnumerateRunes().Count());                 // 6: Unicode cod
         "Declaring names as `VARCHAR` and getting '?' for anything outside the code page."
       ],
       quiz: [
-        { q: "Why is `0.1 + 0.2 == 0.3` false for `double` in C#?", a: ["The compiler rounds the right-hand side", "0.1 and 0.2 have no exact binary form, so the sum is slightly off", "`==` compares references for doubles", "A double keeps only two decimal places"], c: 1, why: "Binary floating point stores the nearest binary fraction, making the sum 0.30000000000000004. Use `decimal` for exact decimals." },
-        { q: "Which type fits an account balance in SQL Server?", a: ["`FLOAT`", "`REAL`", "`DECIMAL(19,4)`", "`NVARCHAR(20)`"], c: 2, why: "`DECIMAL` is exact in base 10. `FLOAT` and `REAL` are binary floats, and text can't be summed or checked as numbers." },
-        { q: "`\"👍\".Length` is 2 in C#. Why?", a: ["C# strings are UTF-16, and this emoji needs two 16-bit units", "Windows stores every emoji as two characters", "`Length` counts bytes in UTF-8", "It's a bug in .NET"], c: 0, why: "Characters past the first 65,536 code points use a surrogate pair in UTF-16. Use `EnumerateRunes()` to count code points." }
+        { id: 'false-double', q: "Why is `0.1 + 0.2 == 0.3` false for `double` in C#?", a: ["The compiler rounds the right-hand side", "0.1 and 0.2 have no exact binary form, so the sum is slightly off", "`==` compares references for doubles", "A double keeps only two decimal places"], c: 1, why: "Binary floating point stores the nearest binary fraction, making the sum 0.30000000000000004. Use `decimal` for exact decimals." },
+        { id: 'type-fits-account-balance', q: "Which type fits an account balance in SQL Server?", a: ["`FLOAT`", "`REAL`", "`DECIMAL(19,4)`", "`NVARCHAR(20)`"], c: 2, why: "`DECIMAL` is exact in base 10. `FLOAT` and `REAL` are binary floats, and text can't be summed or checked as numbers." },
+        { id: 'length-is-2-in', q: "`\"👍\".Length` is 2 in C#. Why?", a: ["C# strings are UTF-16, and this emoji needs two 16-bit units", "Windows stores every emoji as two characters", "`Length` counts bytes in UTF-8", "It's a bug in .NET"], c: 0, why: "Characters past the first 65,536 code points use a surrogate pair in UTF-16. Use `EnumerateRunes()` to count code points." }
       ]
     },
     // ---------------- Intermediate ----------------
@@ -283,9 +283,9 @@ class ListNode(int val, ListNode? next = null)
         "Losing the rest of a linked list by overwriting `Next` before saving it. Sketch the boxes and arrows first."
       ],
       quiz: [
-        { q: "Which structure gives O(1) average lookup by key?", a: ["`List<T>` kept sorted", "`LinkedList<T>`", "Hash table", "`Queue<T>`"], c: 2, why: "The key's hash jumps straight to its bucket. A sorted list gives O(log n) via binary search." },
-        { q: "Which structure fits 'undo the most recent action'?", a: ["Queue", "Stack", "Dictionary", "Sorted list"], c: 1, why: "Undo is last in, first out." },
-        { q: "What is the cost of `list.Insert(0, x)` on a List of n items?", a: ["O(1)", "O(log n)", "O(n)", "Amortized O(1), like `Add`"], c: 2, why: "Every existing element shifts right by one spot. Only appending at the end is amortized O(1)." }
+        { id: 'structure-gives-average-lookup', q: "Which structure gives O(1) average lookup by key?", a: ["`List<T>` kept sorted", "`LinkedList<T>`", "Hash table", "`Queue<T>`"], c: 2, why: "The key's hash jumps straight to its bucket. A sorted list gives O(log n) via binary search." },
+        { id: 'structure-fits-undo-recent', q: "Which structure fits 'undo the most recent action'?", a: ["Queue", "Stack", "Dictionary", "Sorted list"], c: 1, why: "Undo is last in, first out." },
+        { id: 'cost-list-insert-list', q: "What is the cost of `list.Insert(0, x)` on a List of n items?", a: ["O(1)", "O(log n)", "O(n)", "Amortized O(1), like `Add`"], c: 2, why: "Every existing element shifts right by one spot. Only appending at the end is amortized O(1)." }
       ]
     },
     {
@@ -344,9 +344,9 @@ Console.WriteLine(string.Join(", ", byAge.Select(p => p.Item1)));   // Budi, Ana
         "Writing your own sort in production code instead of using the standard library."
       ],
       quiz: [
-        { q: "What two things must every recursive function have?", a: ["A loop and a counter", "A base case and a step towards it", "A memo and a return value", "Two recursive calls"], c: 1, why: "Without a base case it never stops, and without progress it never reaches the base case." },
-        { q: "What is the time complexity of merge sort?", a: ["O(n)", "O(n log n)", "O(n²) in the worst case", "O(log n)"], c: 1, why: "You get log n splitting levels with O(n) merge work on each level regardless of input. Quick sort is the one with an O(n²) worst case." },
-        { q: "You sort orders by date, then sort the result by customer with `Array.Sort`. Are each customer's orders still in date order?", a: ["Yes, always", "Not guaranteed: `Array.Sort` is not stable", "Only for small arrays", "Yes, if dates are unique"], c: 1, why: "An unstable sort can shuffle equal keys. `OrderBy(o => o.Customer).ThenBy(o => o.Date)` makes your intent clear." }
+        { id: 'two-things-every-recursive', q: "What two things must every recursive function have?", a: ["A loop and a counter", "A base case and a step towards it", "A memo and a return value", "Two recursive calls"], c: 1, why: "Without a base case it never stops, and without progress it never reaches the base case." },
+        { id: 'time-complexity-merge-sort', q: "What is the time complexity of merge sort?", a: ["O(n)", "O(n log n)", "O(n²) in the worst case", "O(log n)"], c: 1, why: "You get log n splitting levels with O(n) merge work on each level regardless of input. Quick sort is the one with an O(n²) worst case." },
+        { id: 'sort-orders-date-then', q: "You sort orders by date, then sort the result by customer with `Array.Sort`. Are each customer's orders still in date order?", a: ["Yes, always", "Not guaranteed: `Array.Sort` is not stable", "Only for small arrays", "Yes, if dates are unique"], c: 1, why: "An unstable sort can shuffle equal keys. `OrderBy(o => o.Customer).ThenBy(o => o.Date)` makes your intent clear." }
       ]
     },
     // ---------------- Advanced ----------------
@@ -440,9 +440,9 @@ class Node(int value)
         "Infinite binary search loops: with `lo < hi`, always move `lo` to `mid + 1` or `hi` to `mid`, never `lo = mid`."
       ],
       quiz: [
-        { q: "Which traversal visits a binary search tree's values in sorted order?", a: ["Pre-order", "In-order", "Post-order", "Level-order"], c: 1, why: "Left subtree (smaller), node, right subtree (larger)." },
-        { q: "What does a min-heap guarantee?", a: ["Every level is sorted left to right", "The smallest element is at the root", "Searching for any value is O(log n)", "Equal priorities come out in insertion order"], c: 1, why: "Only parent-child order holds, keeping the minimum at the root. Searching for an arbitrary value still takes O(n)." },
-        { q: "Inserting 1, 2, 3, 4, 5 in order into a plain BST produces…", a: ["A balanced tree", "A chain of right children with O(n) search", "A tree of height 3", "A min-heap"], c: 1, why: "Each value exceeds the last, turning the tree into a linked list." }
+        { id: 'traversal-visits-binary-search', q: "Which traversal visits a binary search tree's values in sorted order?", a: ["Pre-order", "In-order", "Post-order", "Level-order"], c: 1, why: "Left subtree (smaller), node, right subtree (larger)." },
+        { id: 'min-heap-guarantee', q: "What does a min-heap guarantee?", a: ["Every level is sorted left to right", "The smallest element is at the root", "Searching for any value is O(log n)", "Equal priorities come out in insertion order"], c: 1, why: "Only parent-child order holds, keeping the minimum at the root. Searching for an arbitrary value still takes O(n)." },
+        { id: 'inserting-order-plain-bst', q: "Inserting 1, 2, 3, 4, 5 in order into a plain BST produces…", a: ["A balanced tree", "A chain of right children with O(n) search", "A tree of height 3", "A min-heap"], c: 1, why: "Each value exceeds the last, turning the tree into a linked list." }
       ]
     },
     {
@@ -539,10 +539,10 @@ static List<string> TopoOrder(Dictionary<string, string[]> g)
         "Missing hidden graphs: 'word ladder', 'course prerequisites', and 'rotting oranges' never say the word."
       ],
       quiz: [
-        { q: "Which algorithm finds the shortest path when every edge costs the same?", a: ["DFS", "BFS", "Topological sort", "Dijkstra is required"], c: 1, why: "BFS reaches nodes in order of distance from the start. Dijkstra is needed only when edges have different costs." },
-        { q: "What is the time complexity of BFS or DFS with an adjacency list?", a: ["O(V)", "O(V + E)", "O(V²)", "O(E log V)"], c: 1, why: "Each vertex is visited once and each edge examined once. O(E log V) is Dijkstra with a heap." },
-        { q: "A topological order exists only if the directed graph…", a: ["is connected", "has no cycles", "is a tree", "has a single starting node"], c: 1, why: "A cycle means some node would have to come before itself. Multiple starting nodes are fine." },
-        { q: "In a directed graph, DFS reaches node D a second time. What does that tell you?", a: ["There is a cycle", "Nothing on its own: check whether D is still on the current path", "The graph is undirected", "The visited set is broken"], c: 1, why: "Only reaching a node on the current path means a cycle. Reaching a finished node just means two paths meet." }
+        { id: 'algorithm-finds-shortest-path', q: "Which algorithm finds the shortest path when every edge costs the same?", a: ["DFS", "BFS", "Topological sort", "Dijkstra is required"], c: 1, why: "BFS reaches nodes in order of distance from the start. Dijkstra is needed only when edges have different costs." },
+        { id: 'time-complexity-bfs-dfs', q: "What is the time complexity of BFS or DFS with an adjacency list?", a: ["O(V)", "O(V + E)", "O(V²)", "O(E log V)"], c: 1, why: "Each vertex is visited once and each edge examined once. O(E log V) is Dijkstra with a heap." },
+        { id: 'topological-order-exists-only', q: "A topological order exists only if the directed graph…", a: ["is connected", "has no cycles", "is a tree", "has a single starting node"], c: 1, why: "A cycle means some node would have to come before itself. Multiple starting nodes are fine." },
+        { id: 'directed-graph-dfs-reaches', q: "In a directed graph, DFS reaches node D a second time. What does that tell you?", a: ["There is a cycle", "Nothing on its own: check whether D is still on the current path", "The graph is undirected", "The visited set is broken"], c: 1, why: "Only reaching a node on the current path means a cycle. Reaching a finished node just means two paths meet." }
       ]
     },
     {
@@ -626,9 +626,9 @@ static string Show(List<List<int>> lists) => string.Join(" ", lists.Select(l => 
         "Generating everything and filtering at the end when checking early would prune most branches."
       ],
       quiz: [
-        { q: "Why remove the last item from `path` after the recursive call?", a: ["To save memory", "So the next choice starts from the same state this one did", "Because a C# list can't hold duplicates", "To make the recursion stop"], c: 1, why: "Un-choosing restores the state so every sibling branch starts from the exact same point." },
-        { q: "The candidates are sorted, and the next one is already bigger than the remaining sum. What should the loop do?", a: ["Skip it and try the next candidate", "Break: every later candidate is bigger too", "Add it anyway and check at the end", "Start again from the first candidate"], c: 1, why: "That's pruning. Sorting makes it safe to break out of the whole loop instead of skipping one item." },
-        { q: "How many subsets does a set of 20 distinct items have?", a: ["400", "20!", "2²⁰, about a million", "190"], c: 2, why: "Each item is either in or out, giving 2ⁿ subsets. 2²⁰ is 1,048,576, still small enough to build, while 2⁴⁰ isn't." }
+        { id: 'remove-last-item-path', q: "Why remove the last item from `path` after the recursive call?", a: ["To save memory", "So the next choice starts from the same state this one did", "Because a C# list can't hold duplicates", "To make the recursion stop"], c: 1, why: "Un-choosing restores the state so every sibling branch starts from the exact same point." },
+        { id: 'candidates-sorted-next-one', q: "The candidates are sorted, and the next one is already bigger than the remaining sum. What should the loop do?", a: ["Skip it and try the next candidate", "Break: every later candidate is bigger too", "Add it anyway and check at the end", "Start again from the first candidate"], c: 1, why: "That's pruning. Sorting makes it safe to break out of the whole loop instead of skipping one item." },
+        { id: 'many-subsets-set-20', q: "How many subsets does a set of 20 distinct items have?", a: ["400", "20!", "2²⁰, about a million", "190"], c: 2, why: "Each item is either in or out, giving 2ⁿ subsets. 2²⁰ is 1,048,576, still small enough to build, while 2⁴⁰ isn't." }
       ]
     },
     // ---------------- Expert ----------------
@@ -703,9 +703,9 @@ Console.WriteLine(Lcs("kitten", "sitting"));    // 4 ("ittn")
         "Deep top-down recursion on huge inputs (hundreds of thousands) overflowing the stack. Switch to bottom-up."
       ],
       quiz: [
-        { q: "Which two properties make a problem suitable for dynamic programming?", a: ["Sorted input and unique values", "Overlapping subproblems and optimal substructure", "A recursive solution and small input", "A greedy solution that fails"], c: 1, why: "Repeated subproblems make caching pay off, while optimal substructure makes combining cached answers valid." },
-        { q: "What is the first step in designing a DP solution?", a: ["Optimise space", "Define precisely what the state means", "Write the nested loops", "Write the memo dictionary"], c: 1, why: "Without a clear state definition, you can't write or verify the recurrence." },
-        { q: "When is a greedy algorithm safe to use?", a: ["Whenever it is faster than DP", "When you can argue the locally best choice never blocks the best overall answer", "Whenever the input is sorted", "Never in interviews"], c: 1, why: "Greedy needs proof that it stays optimal. Without one, a single counter-example sends you back to DP." }
+        { id: 'two-properties-make-problem', q: "Which two properties make a problem suitable for dynamic programming?", a: ["Sorted input and unique values", "Overlapping subproblems and optimal substructure", "A recursive solution and small input", "A greedy solution that fails"], c: 1, why: "Repeated subproblems make caching pay off, while optimal substructure makes combining cached answers valid." },
+        { id: 'first-step-designing-dp', q: "What is the first step in designing a DP solution?", a: ["Optimise space", "Define precisely what the state means", "Write the nested loops", "Write the memo dictionary"], c: 1, why: "Without a clear state definition, you can't write or verify the recurrence." },
+        { id: 'greedy-algorithm-safe-use', q: "When is a greedy algorithm safe to use?", a: ["Whenever it is faster than DP", "When you can argue the locally best choice never blocks the best overall answer", "Whenever the input is sorted", "Never in interviews"], c: 1, why: "Greedy needs proof that it stays optimal. Without one, a single counter-example sends you back to DP." }
       ]
     },
     {
@@ -779,9 +779,9 @@ Console.WriteLine(string.Join(", ", await Task.WhenAll(BuyAsync("Chair"), BuyAsy
         "Blocking async code with `.Result` under a lock or on a UI thread, which is a classic deadlock setup."
       ],
       quiz: [
-        { q: "Two threads each run `count++` 1,000 times on a shared `int` that starts at 0. What is the final value?", a: ["Always 2,000", "Anything up to 2,000: increments can be lost", "Always 1,000", "The program throws an exception"], c: 1, why: "`count++` reads, adds, and writes. Two threads can read the same value and write back the same total." },
-        { q: "Why is synchronous JavaScript code never interrupted by another callback?", a: ["The browser locks every variable", "The event loop runs one callback at a time, on one thread", "`await` copies all the variables", "JavaScript has no concurrency at all"], c: 1, why: "Other callbacks wait until the active one returns or hits `await`. State can change across an `await`, never mid-sync block." },
-        { q: "In C#, you need to protect a section that contains an `await`. What do you use?", a: ["`lock (gate) { … }`", "`SemaphoreSlim` with `await WaitAsync()` and `Release()`", "`Thread.Sleep` before the section", "`volatile` on the fields"], c: 1, why: "`lock` can't hold an `await`. Use `SemaphoreSlim(1, 1)` as an async lock and release it inside `finally`." }
+        { id: 'two-threads-each-run', q: "Two threads each run `count++` 1,000 times on a shared `int` that starts at 0. What is the final value?", a: ["Always 2,000", "Anything up to 2,000: increments can be lost", "Always 1,000", "The program throws an exception"], c: 1, why: "`count++` reads, adds, and writes. Two threads can read the same value and write back the same total." },
+        { id: 'synchronous-javascript-code-neve', q: "Why is synchronous JavaScript code never interrupted by another callback?", a: ["The browser locks every variable", "The event loop runs one callback at a time, on one thread", "`await` copies all the variables", "JavaScript has no concurrency at all"], c: 1, why: "Other callbacks wait until the active one returns or hits `await`. State can change across an `await`, never mid-sync block." },
+        { id: 'need-protect-section-contains', q: "In C#, you need to protect a section that contains an `await`. What do you use?", a: ["`lock (gate) { … }`", "`SemaphoreSlim` with `await WaitAsync()` and `Release()`", "`Thread.Sleep` before the section", "`volatile` on the fields"], c: 1, why: "`lock` can't hold an `await`. Use `SemaphoreSlim(1, 1)` as an async lock and release it inside `finally`." }
       ]
     }
   ]

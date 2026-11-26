@@ -59,9 +59,9 @@ async function load(): Promise<void> {
         "Confusing `map` (returns a new array) with `forEach` (returns nothing)."
       ],
       quiz: [
-        { q: "What does `[1, 2, 3].map(n => n * 2)` return?", a: ["`undefined`", "`[2, 4, 6]`, and the original becomes `[2, 4, 6]` too", "`[2, 4, 6]`, leaving the original alone", "`6`"], c: 2, why: "`map` returns a new array of transformed elements and doesn't touch the original." },
-        { q: "With `const a = { n: 1 }`, `const b = a`, and `b.n = 2`, what is `a.n`?", a: ["1", "2", "undefined", "An error: `a` is const"], c: 1, why: "`a` and `b` point to the same object. `const` only stops you from reassigning the variable." },
-        { q: "What is `0 ?? 10`?", a: ["`0`", "`10`", "`null`", "`false`"], c: 0, why: "`??` only replaces `null` and `undefined`. `0 || 10` would give `10`, because `0` is falsy." }
+        { id: 'map-return', q: "What does `[1, 2, 3].map(n => n * 2)` return?", a: ["`undefined`", "`[2, 4, 6]`, and the original becomes `[2, 4, 6]` too", "`[2, 4, 6]`, leaving the original alone", "`6`"], c: 2, why: "`map` returns a new array of transformed elements and doesn't touch the original." },
+        { id: 'const-const', q: "With `const a = { n: 1 }`, `const b = a`, and `b.n = 2`, what is `a.n`?", a: ["1", "2", "undefined", "An error: `a` is const"], c: 1, why: "`a` and `b` point to the same object. `const` only stops you from reassigning the variable." },
+        { id: 'what-is-0-10', q: "What is `0 ?? 10`?", a: ["`0`", "`10`", "`null`", "`false`"], c: 0, why: "`??` only replaces `null` and `undefined`. `0 || 10` would give `10`, because `0` is falsy." }
       ]
     },
     {
@@ -130,9 +130,9 @@ function show(r: Result<Product>) {
         "Annotating every local variable when the compiler already infers it."
       ],
       quiz: [
-        { q: "What does `type Size = 'S' | 'M' | 'L'` allow?", a: ["Any string", "Exactly one of those three strings", "An array of those three strings", "Any string starting with S, M or L"], c: 1, why: "It's a union of string literal types." },
-        { q: "TypeScript types at runtime are…", a: ["checked by the JavaScript engine", "erased: they exist only at compile time", "converted into classes", "kept as comments in the output"], c: 1, why: "The compiler erases all types, so the emitted output is plain JavaScript." },
-        { q: "Safer alternative to `any` for a value of unknown shape?", a: ["`object`", "`unknown`, then narrow", "`never`", "`{}`"], c: 1, why: "`unknown` makes you verify the type before using the value." }
+        { id: 'type-size-allow', q: "What does `type Size = 'S' | 'M' | 'L'` allow?", a: ["Any string", "Exactly one of those three strings", "An array of those three strings", "Any string starting with S, M or L"], c: 1, why: "It's a union of string literal types." },
+        { id: 'typescript-types-runtime', q: "TypeScript types at runtime are…", a: ["checked by the JavaScript engine", "erased: they exist only at compile time", "converted into classes", "kept as comments in the output"], c: 1, why: "The compiler erases all types, so the emitted output is plain JavaScript." },
+        { id: 'safer-alternative-any-value', q: "Safer alternative to `any` for a value of unknown shape?", a: ["`object`", "`unknown`, then narrow", "`never`", "`{}`"], c: 1, why: "`unknown` makes you verify the type before using the value." }
       ]
     },
     {
@@ -203,9 +203,9 @@ export default function App() {
         "Accidentally printing a stray `0` on screen with `items.length && <List />`. Write `items.length > 0 &&`."
       ],
       quiz: [
-        { q: "What is a React function component?", a: ["A class that extends `HTMLElement`", "A function that takes props and returns JSX", "A template string of HTML", "A JSON description of the page"], c: 1, why: "Components are plain functions describing UI for the props they receive." },
-        { q: "Why does each list item need a `key`?", a: ["For CSS styling", "So React can match items between renders", "To sort the list", "So React can skip rendering the list"], c: 1, why: "Keys give elements a stable identity, so React updates, moves, or removes the right rows." },
-        { q: "Can a child component change the props it receives?", a: ["Yes, freely", "No, props are read-only. It asks the parent through a callback", "Only if the prop is an object", "Yes, but only with `useState`"], c: 1, why: "Data flows down, and children ask for updates upward through callback props." }
+        { id: 'react-function-component', q: "What is a React function component?", a: ["A class that extends `HTMLElement`", "A function that takes props and returns JSX", "A template string of HTML", "A JSON description of the page"], c: 1, why: "Components are plain functions describing UI for the props they receive." },
+        { id: 'each-list-item-need', q: "Why does each list item need a `key`?", a: ["For CSS styling", "So React can match items between renders", "To sort the list", "So React can skip rendering the list"], c: 1, why: "Keys give elements a stable identity, so React updates, moves, or removes the right rows." },
+        { id: 'child-component-change-props', q: "Can a child component change the props it receives?", a: ["Yes, freely", "No, props are read-only. It asks the parent through a callback", "Only if the prop is an object", "Yes, but only with `useState`"], c: 1, why: "Data flows down, and children ask for updates upward through callback props." }
       ]
     },
     // ---------------- Intermediate ----------------
@@ -274,9 +274,9 @@ async function loadDashboard() {
         "Blocking the main thread with a slow synchronous loop so clicks and frames stall until it exits."
       ],
       quiz: [
-        { q: "Both a `setTimeout(…, 0)` and a resolved `.then` are queued in synchronous code. Which logs first?", a: ["The timeout", "The promise callback", "Whichever was written first", "It depends on the browser"], c: 1, why: "All microtasks drain before the event loop pulls the next task." },
-        { q: "What does a closure capture?", a: ["A copy of the values at creation time", "The variables themselves, which stay alive with the function", "Only global variables", "Nothing once the outer function returns"], c: 1, why: "The inner function holds live references to its surrounding scope." },
-        { q: "Assigning `const f = user.hi` and calling `f()` fails to read `this.name` because…", a: ["`hi` was deleted", "`this` depends on the call, and `f()` has no object before the dot", "`hi` is an arrow function", "`name` is private"], c: 1, why: "Detaching a method loses its receiver, leaving `this` as `undefined` in strict mode." }
+        { id: 'both-settimeout-resolved-then', q: "Both a `setTimeout(…, 0)` and a resolved `.then` are queued in synchronous code. Which logs first?", a: ["The timeout", "The promise callback", "Whichever was written first", "It depends on the browser"], c: 1, why: "All microtasks drain before the event loop pulls the next task." },
+        { id: 'closure-capture', q: "What does a closure capture?", a: ["A copy of the values at creation time", "The variables themselves, which stay alive with the function", "Only global variables", "Nothing once the outer function returns"], c: 1, why: "The inner function holds live references to its surrounding scope." },
+        { id: 'assigning-const-user-hi', q: "Assigning `const f = user.hi` and calling `f()` fails to read `this.name` because…", a: ["`hi` was deleted", "`this` depends on the call, and `f()` has no object before the dot", "`hi` is an arrow function", "`name` is private"], c: 1, why: "Detaching a method loses its receiver, leaving `this` as `undefined` in strict mode." }
       ]
     },
     {
@@ -355,9 +355,9 @@ export function Todos() {
         "Generating IDs with `Date.now()`, which collides in fast loops. Use `crypto.randomUUID()`."
       ],
       quiz: [
-        { q: "`count` is 0, and a click handler calls `setCount(count + 1)` twice in a row. What is `count` next render?", a: ["0", "1", "2", "It throws"], c: 1, why: "Both calls read 0 + 1 from the same render snapshot. Use `setCount(c => c + 1)` to get 2." },
-        { q: "A parent's state changes. Which components re-render by default?", a: ["Only the parent", "The parent and all its descendants", "The whole app", "Only children whose props changed"], c: 1, why: "Re-rendering a component renders its entire subtree unless `memo` or React Compiler skips unchanged children." },
-        { q: "Why won't `items.push(x)` followed by `setItems(items)` refresh the screen?", a: ["`push` doesn't change the array", "The array reference is unchanged, so React sees no new state", "`setItems` must be awaited", "React only tracks objects, not arrays"], c: 1, why: "React compares state by object reference, so passing back the same array looks unchanged." }
+        { id: 'count-click-handler-calls', q: "`count` is 0, and a click handler calls `setCount(count + 1)` twice in a row. What is `count` next render?", a: ["0", "1", "2", "It throws"], c: 1, why: "Both calls read 0 + 1 from the same render snapshot. Use `setCount(c => c + 1)` to get 2." },
+        { id: 'parent-state-changes-components', q: "A parent's state changes. Which components re-render by default?", a: ["Only the parent", "The parent and all its descendants", "The whole app", "Only children whose props changed"], c: 1, why: "Re-rendering a component renders its entire subtree unless `memo` or React Compiler skips unchanged children." },
+        { id: 'won-items-push-followed', q: "Why won't `items.push(x)` followed by `setItems(items)` refresh the screen?", a: ["`push` doesn't change the array", "The array reference is unchanged, so React sees no new state", "`setItems` must be awaited", "React only tracks objects, not arrays"], c: 1, why: "React compares state by object reference, so passing back the same array looks unchanged." }
       ]
     },
     {
@@ -421,9 +421,9 @@ export function ProductDetails({ id }: { id: number }) {
         "Missing cleanup lets slow earlier responses overwrite newer data on screen."
       ],
       quiz: [
-        { q: "`useEffect(() => { … }, [])` runs…", a: ["On every render", "Once after the first render (mount)", "Never", "Before the first render"], c: 1, why: "With an empty dependency array, nothing changes to trigger re-runs (in dev, Strict Mode double-runs it on purpose)." },
-        { q: "What is the function returned from an effect for?", a: ["Returning data to the component", "Cleanup before the next run and on unmount", "Handling errors", "Memoizing the effect"], c: 1, why: "It tears down the previous run: unsubscribe listeners, clear timers, or abort fetches." },
-        { q: "You need `fullName` from `first` and `last` props. Best approach?", a: ["A `useEffect` that sets state", "Compute it during render: `const fullName = first + ' ' + last`", "A `useRef` updated on each render", "`useMemo` around the string"], c: 1, why: "Derived values don't need effects or extra state, which only add unnecessary renders. `useMemo` adds noise for cheap string joining." }
+        { id: 'useeffect-runs', q: "`useEffect(() => { … }, [])` runs…", a: ["On every render", "Once after the first render (mount)", "Never", "Before the first render"], c: 1, why: "With an empty dependency array, nothing changes to trigger re-runs (in dev, Strict Mode double-runs it on purpose)." },
+        { id: 'function-returned-effect', q: "What is the function returned from an effect for?", a: ["Returning data to the component", "Cleanup before the next run and on unmount", "Handling errors", "Memoizing the effect"], c: 1, why: "It tears down the previous run: unsubscribe listeners, clear timers, or abort fetches." },
+        { id: 'need-fullname-first-last', q: "You need `fullName` from `first` and `last` props. Best approach?", a: ["A `useEffect` that sets state", "Compute it during render: `const fullName = first + ' ' + last`", "A `useRef` updated on each render", "`useMemo` around the string"], c: 1, why: "Derived values don't need effects or extra state, which only add unnecessary renders. `useMemo` adds noise for cheap string joining." }
       ]
     },
     {
@@ -503,10 +503,10 @@ export function Catalog() {
         "Displaying an error near an input without linking `aria-describedby`, hiding it from screen-reader users."
       ],
       quiz: [
-        { q: "Two sibling components must show the same value. Where should the state live?", a: ["In both siblings", "In their closest common parent", "In a module-level variable", "In `localStorage`"], c: 1, why: "One owner sends the value down to both, keeping them in sync automatically." },
-        { q: "How does a child update state owned by its parent?", a: ["It changes the prop", "It calls a callback function passed as a prop", "It reads the parent's state with `useContext`", "It can't"], c: 1, why: "The parent hands down a callback and the child invokes it, sending events upward." },
-        { q: "A form action returns validation errors, and the fields come back empty. Why?", a: ["The action threw an error", "React resets uncontrolled fields after an action, so return submitted values and pass `defaultValue`", "`useActionState` only keeps the last field", "The form needs `method=\"post\"`"], c: 1, why: "Automatic resets read each input's `defaultValue`, so passing the submitted values keeps the user's typing intact." },
-        { q: "A 'controlled' input is one whose…", a: ["value comes from React state", "value lives only in the DOM", "type is `password`", "changes are disabled"], c: 0, why: "State acts as the source of truth: `onChange` writes to state, and state drives `value`." }
+        { id: 'two-sibling-components-show', q: "Two sibling components must show the same value. Where should the state live?", a: ["In both siblings", "In their closest common parent", "In a module-level variable", "In `localStorage`"], c: 1, why: "One owner sends the value down to both, keeping them in sync automatically." },
+        { id: 'child-update-state-owned', q: "How does a child update state owned by its parent?", a: ["It changes the prop", "It calls a callback function passed as a prop", "It reads the parent's state with `useContext`", "It can't"], c: 1, why: "The parent hands down a callback and the child invokes it, sending events upward." },
+        { id: 'form-action-returns-validation', q: "A form action returns validation errors, and the fields come back empty. Why?", a: ["The action threw an error", "React resets uncontrolled fields after an action, so return submitted values and pass `defaultValue`", "`useActionState` only keeps the last field", "The form needs `method=\"post\"`"], c: 1, why: "Automatic resets read each input's `defaultValue`, so passing the submitted values keeps the user's typing intact." },
+        { id: 'controlled-input-one-whose', q: "A 'controlled' input is one whose…", a: ["value comes from React state", "value lives only in the DOM", "type is `password`", "changes are disabled"], c: 0, why: "State acts as the source of truth: `onChange` writes to state, and state drives `value`." }
       ]
     },
     {
@@ -569,9 +569,9 @@ export function List<T>({ items, render, keyOf }: ListProps<T>) {
         "Thinking `getJson<Product[]>` validates the API payload. It's only a type assertion, so parse untrusted responses at runtime with Zod."
       ],
       quiz: [
-        { q: "What is `Omit<Product, 'id'>`?", a: ["Product with only `id`", "Product without the `id` property", "Product with `id` made optional", "A function that deletes `id` at runtime"], c: 1, why: "`Omit` builds a type without the named keys. Types don't exist at runtime, so nothing changes on real objects." },
-        { q: "In `<T, K extends keyof T>`, what may `K` be?", a: ["Any string", "Only a property name of `T`", "Any type", "The type of one of T's values"], c: 1, why: "`keyof T` is the union of `T`'s keys, and `K` has to belong to it." },
-        { q: "What does `Partial<T>` do?", a: ["Makes every property optional", "Makes every property required", "Makes every property nullable", "Makes `T` readonly"], c: 0, why: "Each property gains `?`, which fits patch or update payloads." }
+        { id: 'omit-product-id', q: "What is `Omit<Product, 'id'>`?", a: ["Product with only `id`", "Product without the `id` property", "Product with `id` made optional", "A function that deletes `id` at runtime"], c: 1, why: "`Omit` builds a type without the named keys. Types don't exist at runtime, so nothing changes on real objects." },
+        { id: 'extends-keyof', q: "In `<T, K extends keyof T>`, what may `K` be?", a: ["Any string", "Only a property name of `T`", "Any type", "The type of one of T's values"], c: 1, why: "`keyof T` is the union of `T`'s keys, and `K` has to belong to it." },
+        { id: 'what-does-partial-t', q: "What does `Partial<T>` do?", a: ["Makes every property optional", "Makes every property required", "Makes every property nullable", "Makes `T` readonly"], c: 0, why: "Each property gains `?`, which fits patch or update payloads." }
       ]
     },
     // ---------------- Advanced ----------------
@@ -661,9 +661,9 @@ export function useCart() {
         "Calling a hook inside an `if`, which breaks the call order."
       ],
       quiz: [
-        { q: "Two components both call `useCounter()`. They…", a: ["share one counter", "each get independent state", "throw an error", "share until one unmounts"], c: 1, why: "Custom hooks reuse logic, while each caller owns its own state." },
-        { q: "Why must hooks not be called inside conditions?", a: ["It's slower", "React identifies hooks by call order, which must match on every render", "TypeScript forbids it", "The hook would run twice"], c: 1, why: "React matches hook state by call index, so skipping one hook shifts every call after it." },
-        { q: "Changing a `useRef` value's `.current`…", a: ["re-renders the component", "doesn't trigger a re-render", "throws in Strict Mode", "resets the component's state"], c: 1, why: "Refs are mutable boxes outside the render cycle." }
+        { id: 'two-components-both-call', q: "Two components both call `useCounter()`. They…", a: ["share one counter", "each get independent state", "throw an error", "share until one unmounts"], c: 1, why: "Custom hooks reuse logic, while each caller owns its own state." },
+        { id: 'hooks-called-inside-conditions', q: "Why must hooks not be called inside conditions?", a: ["It's slower", "React identifies hooks by call order, which must match on every render", "TypeScript forbids it", "The hook would run twice"], c: 1, why: "React matches hook state by call index, so skipping one hook shifts every call after it." },
+        { id: 'changing-useref-value-current', q: "Changing a `useRef` value's `.current`…", a: ["re-renders the component", "doesn't trigger a re-render", "throws in Strict Mode", "resets the component's state"], c: 1, why: "Refs are mutable boxes outside the render cycle." }
       ]
     },
     {
@@ -740,10 +740,10 @@ export function Catalog({ rows }: { rows: Row[] }) {
         "Code that mutates during render, which the React Compiler can't safely memoize."
       ],
       quiz: [
-        { q: "A memoized child receives `onClick={() => select(id)}` from its parent, with no React Compiler. Does `memo` skip re-renders?", a: ["Yes", "No: a new function is created each render, so the props differ", "Only in production", "Only for the first child"], c: 1, why: "Shallow comparison sees a different function reference every time." },
-        { q: "The React Compiler is enabled. Do you still need `useCallback` around event handlers?", a: ["Yes, everywhere", "Usually not: the compiler memoizes them automatically", "Only for handlers that call `setState`", "Only inside class components"], c: 1, why: "The compiler adds the memoization at build time, as long as the code follows the rules of React." },
-        { q: "First step when a React screen feels slow?", a: ["Wrap everything in `useMemo`", "Profile to see what renders and how long it takes", "Move all state into context", "Replace `useState` with `useReducer`"], c: 1, why: "Without measuring you can't know which component or operation is the cost." },
-        { q: "Best fix for a list of 20,000 rows?", a: ["`memo` on each row", "Virtualization: render only the visible rows", "`useCallback` for every handler", "Using the index as `key`"], c: 1, why: "Not creating 20,000 DOM nodes beats making their re-renders cheaper." }
+        { id: 'memoized-child-receives-onclick', q: "A memoized child receives `onClick={() => select(id)}` from its parent, with no React Compiler. Does `memo` skip re-renders?", a: ["Yes", "No: a new function is created each render, so the props differ", "Only in production", "Only for the first child"], c: 1, why: "Shallow comparison sees a different function reference every time." },
+        { id: 'react-compiler-enabled-still', q: "The React Compiler is enabled. Do you still need `useCallback` around event handlers?", a: ["Yes, everywhere", "Usually not: the compiler memoizes them automatically", "Only for handlers that call `setState`", "Only inside class components"], c: 1, why: "The compiler adds the memoization at build time, as long as the code follows the rules of React." },
+        { id: 'first-step-react-screen', q: "First step when a React screen feels slow?", a: ["Wrap everything in `useMemo`", "Profile to see what renders and how long it takes", "Move all state into context", "Replace `useState` with `useReducer`"], c: 1, why: "Without measuring you can't know which component or operation is the cost." },
+        { id: 'fix-list-20-000', q: "Best fix for a list of 20,000 rows?", a: ["`memo` on each row", "Virtualization: render only the visible rows", "`useCallback` for every handler", "Using the index as `key`"], c: 1, why: "Not creating 20,000 DOM nodes beats making their re-renders cheaper." }
       ]
     },
     {
@@ -852,10 +852,10 @@ export function ProductsPage() {
         "Updating TypeScript DTOs by hand alongside C# classes until they drift apart."
       ],
       quiz: [
-        { q: "After a successful 'create product' mutation, how should the product list update?", a: ["It updates by itself", "Invalidate the list query so it refetches", "Reload the page", "`push` the new item into the cached array"], c: 1, why: "Invalidation marks the cached data stale and refetches it from the source of truth. Mutating the cache in place bypasses change detection." },
-        { q: "Which belongs in the URL rather than in component state?", a: ["Whether a dropdown is open", "The current page number and filters of a list", "A half-typed input", "Hover state"], c: 1, why: "Shareable, bookmarkable view state should survive a reload and be linkable." },
-        { q: "Your SPA signs in with an `HttpOnly` cookie. What else do writes need?", a: ["Nothing: `HttpOnly` blocks every attack", "CSRF protection, such as an antiforgery token or a required custom header", "A token in `localStorage` as well", "`credentials: \"omit\"` on every request"], c: 1, why: "The browser sends cookies with every request to your API, including requests triggered by another site. That's what CSRF protection guards against." },
-        { q: "Most robust way to keep TypeScript types in step with a C# API?", a: ["Copy them by hand", "Generate them from the API's OpenAPI document", "Use `any` for API responses", "Share a `.d.ts` file in Slack"], c: 1, why: "Generated types change when the API changes, and fail the build when the frontend is out of date." }
+        { id: 'successful-create-product-mutati', q: "After a successful 'create product' mutation, how should the product list update?", a: ["It updates by itself", "Invalidate the list query so it refetches", "Reload the page", "`push` the new item into the cached array"], c: 1, why: "Invalidation marks the cached data stale and refetches it from the source of truth. Mutating the cache in place bypasses change detection." },
+        { id: 'belongs-url-than-component', q: "Which belongs in the URL rather than in component state?", a: ["Whether a dropdown is open", "The current page number and filters of a list", "A half-typed input", "Hover state"], c: 1, why: "Shareable, bookmarkable view state should survive a reload and be linkable." },
+        { id: 'spa-signs-httponly-cookie', q: "Your SPA signs in with an `HttpOnly` cookie. What else do writes need?", a: ["Nothing: `HttpOnly` blocks every attack", "CSRF protection, such as an antiforgery token or a required custom header", "A token in `localStorage` as well", "`credentials: \"omit\"` on every request"], c: 1, why: "The browser sends cookies with every request to your API, including requests triggered by another site. That's what CSRF protection guards against." },
+        { id: 'robust-way-keep-typescript', q: "Most robust way to keep TypeScript types in step with a C# API?", a: ["Copy them by hand", "Generate them from the API's OpenAPI document", "Use `any` for API responses", "Share a `.d.ts` file in Slack"], c: 1, why: "Generated types change when the API changes, and fail the build when the frontend is out of date." }
       ]
     },
     // ---------------- Expert ----------------
@@ -921,9 +921,9 @@ type RouteName = keyof typeof routes;                // "home" | "product"
         "Rebuilding built-in helpers like `Awaited`, `NonNullable`, or `ReturnType`."
       ],
       quiz: [
-        { q: "What is `T extends Promise<infer R> ? R : T` for `T = Promise<string>`?", a: ["`Promise<string>`", "`string`", "`never`", "`unknown`"], c: 1, why: "`infer R` captures the resolved value type inside the promise." },
-        { q: "What does `satisfies` do that a type annotation doesn't?", a: ["Checks the value at runtime", "Checks compatibility while keeping the value's narrower inferred type", "Makes the value mutable", "Turns off checking for that value"], c: 1, why: "Regular annotations widen types, whereas `satisfies` checks the shape and preserves literal types." },
-        { q: "A new member is added to a union handled by a `switch` with `const x: never = value` in `default`. Result?", a: ["A silent bug at runtime", "A compile error until the new case is handled", "Nothing", "The new case falls through to the first case"], c: 1, why: "The missing branch isn't assignable to `never`, so the build breaks right where you forgot it." }
+        { id: 'extends-promise-infer-promise', q: "What is `T extends Promise<infer R> ? R : T` for `T = Promise<string>`?", a: ["`Promise<string>`", "`string`", "`never`", "`unknown`"], c: 1, why: "`infer R` captures the resolved value type inside the promise." },
+        { id: 'satisfies-type-annotation-doesn', q: "What does `satisfies` do that a type annotation doesn't?", a: ["Checks the value at runtime", "Checks compatibility while keeping the value's narrower inferred type", "Makes the value mutable", "Turns off checking for that value"], c: 1, why: "Regular annotations widen types, whereas `satisfies` checks the shape and preserves literal types." },
+        { id: 'new-member-added-union', q: "A new member is added to a union handled by a `switch` with `const x: never = value` in `default`. Result?", a: ["A silent bug at runtime", "A compile error until the new case is handled", "Nothing", "The new case falls through to the first case"], c: 1, why: "The missing branch isn't assignable to `never`, so the build breaks right where you forgot it." }
       ]
     },
     {
@@ -996,9 +996,9 @@ export function Search({ items }: { items: string[] }) {
         "Treating Strict Mode's double run as a bug and switching it off."
       ],
       quiz: [
-        { q: "At the same position, a `<div>` is replaced by a `<section>` with identical children. React will…", a: ["change the tag in place", "destroy the old subtree and build a new one, losing child state", "ignore the change", "throw an error"], c: 1, why: "A different element type signals a new tree, so React tears down the old subtree instead of reusing it." },
-        { q: "What does `useTransition` let you do?", a: ["Animate CSS", "Mark a state update as non-urgent so urgent updates can interrupt it", "Fetch data in the background", "Skip rendering a component"], c: 1, why: "Transitions keep typing and clicks smooth while heavy updates prepare in the background." },
-        { q: "Why does Strict Mode run effects twice in development?", a: ["It's a bug in development builds", "To reveal effects that lack proper cleanup", "To load data twice for speed", "Because Strict Mode also renders on the server"], c: 1, why: "Running mount, unmount, and mount again tests cleanup logic early." }
+        { id: 'same-position-div-replaced', q: "At the same position, a `<div>` is replaced by a `<section>` with identical children. React will…", a: ["change the tag in place", "destroy the old subtree and build a new one, losing child state", "ignore the change", "throw an error"], c: 1, why: "A different element type signals a new tree, so React tears down the old subtree instead of reusing it." },
+        { id: 'usetransition-let', q: "What does `useTransition` let you do?", a: ["Animate CSS", "Mark a state update as non-urgent so urgent updates can interrupt it", "Fetch data in the background", "Skip rendering a component"], c: 1, why: "Transitions keep typing and clicks smooth while heavy updates prepare in the background." },
+        { id: 'strict-mode-run-effects', q: "Why does Strict Mode run effects twice in development?", a: ["It's a bug in development builds", "To reveal effects that lack proper cleanup", "To load data twice for speed", "Because Strict Mode also renders on the server"], c: 1, why: "Running mount, unmount, and mount again tests cleanup logic early." }
       ]
     },
     {
@@ -1072,9 +1072,9 @@ test("shows the server's validation error next to the price field", async () => 
         "Rendering components in tests without their required providers and chasing cryptic errors."
       ],
       quiz: [
-        { q: "Where does data fetched from the API belong?", a: ["A global Redux store, always", "A server-state cache such as TanStack Query", "`localStorage`", "A `useRef` in the root component"], c: 1, why: "Server data needs caching, staleness rules, and invalidation, which TanStack Query handles." },
-        { q: "Why query by `getByRole('button', { name: 'Add' })` rather than by CSS class?", a: ["It's faster", "It tests what users and assistive technology perceive, and survives refactoring", "Classes don't exist in jsdom", "It needs no rendering"], c: 1, why: "Role and accessible name form the UI's real contract, whereas CSS classes are internal details." },
-        { q: "Most important first step for accessibility?", a: ["Add ARIA attributes to every element", "Use semantic HTML elements with proper labels", "Pick a high-contrast colour palette", "Install an accessibility overlay widget"], c: 1, why: "Semantic HTML gives keyboard focus and meaning out of the box. ARIA fills gaps, and overlay widgets never fix broken markup." }
+        { id: 'data-fetched-api-belong', q: "Where does data fetched from the API belong?", a: ["A global Redux store, always", "A server-state cache such as TanStack Query", "`localStorage`", "A `useRef` in the root component"], c: 1, why: "Server data needs caching, staleness rules, and invalidation, which TanStack Query handles." },
+        { id: 'query-getbyrole-button-name', q: "Why query by `getByRole('button', { name: 'Add' })` rather than by CSS class?", a: ["It's faster", "It tests what users and assistive technology perceive, and survives refactoring", "Classes don't exist in jsdom", "It needs no rendering"], c: 1, why: "Role and accessible name form the UI's real contract, whereas CSS classes are internal details." },
+        { id: 'important-first-step-accessibili', q: "Most important first step for accessibility?", a: ["Add ARIA attributes to every element", "Use semantic HTML elements with proper labels", "Pick a high-contrast colour palette", "Install an accessibility overlay widget"], c: 1, why: "Semantic HTML gives keyboard focus and meaning out of the box. ARIA fills gaps, and overlay widgets never fix broken markup." }
       ]
     }
   ]

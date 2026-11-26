@@ -1,9 +1,9 @@
-// Flashcard review and mock exam views (client-rendered; they need every lesson's quiz questions).
+// Flashcard review and mock exam views (client-rendered from lightweight /quiz-index.json).
 import { h, md, tableWrap } from '../../lib/dom.ts';
-import { getAllTracks, getLevels, t as T } from '../../lib/i18n.ts';
+import { getLevels, t as T } from '../../lib/i18n.ts';
 import { href, lessonHref, quizItem, section, shuffle } from '../../lib/icons.ts';
 import { previewGrades, recordCardMiss, scheduleCard } from '../../lib/srs.ts';
-import { S, allCards, allLessons, day, dueCards, notifyStateChange, peek, save, touch } from '../../lib/state.ts';
+import { S, cardKey, day, key, notifyStateChange, peek, save, touch } from '../../lib/state.ts';
 
 const GRADE_META = [
   ['again', 'Again', 'Again ({d}d)', 'ghost', '1'],
@@ -12,8 +12,22 @@ const GRADE_META = [
   ['easy', 'Easy', 'Easy ({d}d)', 'ghost', '4'],
 ];
 
-export function review(onCleanup) {
-  const tracks = getAllTracks();
+function indexLessons(quizIndex) {
+  return (quizIndex?.tracks || []).flatMap((t) => t.lessons.map((l) => ({ t, l, k: key(t, l) })));
+}
+
+function indexCards(quizIndex) {
+  return indexLessons(quizIndex).flatMap((e) => e.l.quiz.map((q) => ({ id: cardKey(e.k, q.id), q, t: e.t, l: e.l })));
+}
+
+function indexDueCards(quizIndex) {
+  const today = day();
+  return indexCards(quizIndex).filter((c) => (S.cards[c.id] ? S.cards[c.id].due <= today : !!peek(key(c.t, c.l)).read));
+}
+
+export function review(quizIndex, onCleanup) {
+  const tracks = quizIndex?.tracks || [];
+  const lessons = indexLessons(quizIndex);
   const trackSel = h(
     'select',
     { 'aria-label': 'Filter by track' },
@@ -46,7 +60,7 @@ export function review(onCleanup) {
 
   const resetQueue = () => {
     const tid = trackSel.value;
-    queue = shuffle(dueCards().filter((c) => !tid || c.t.id === tid)).slice(0, 20);
+    queue = shuffle(indexDueCards(quizIndex).filter((c) => !tid || c.t.id === tid)).slice(0, 20);
     n = 0;
     got = 0;
     show();
@@ -94,7 +108,7 @@ export function review(onCleanup) {
           h(
             'p',
             {},
-            allLessons().some((e) => peek(e.k).read)
+            lessons.some((e) => peek(e.k).read)
               ? "You're caught up. Come back tomorrow, or try a mock exam."
               : 'Mark a lesson as learned and its questions will appear here.',
           ),
@@ -104,7 +118,7 @@ export function review(onCleanup) {
     if (n >= queue.length) {
       notifyStateChange('study');
       const tid = trackSel.value;
-      const remaining = dueCards().filter((c) => !tid || c.t.id === tid).length;
+      const remaining = indexDueCards(quizIndex).filter((c) => !tid || c.t.id === tid).length;
       return stage.replaceChildren(
         h(
           'div',
@@ -196,8 +210,8 @@ export function review(onCleanup) {
   return page;
 }
 
-export function exam() {
-  const tracks = getAllTracks();
+export function exam(quizIndex) {
+  const tracks = quizIndex?.tracks || [];
   const trackNames = new Map(tracks.map((t) => [t.id, t.name]));
   const levels = getLevels();
   const page = h(
@@ -253,7 +267,7 @@ export function exam() {
   const start = () => {
     const selectedTrack = ts.value || 'all';
     const pool = shuffle(
-      allCards().filter((c) => (!ts.value || c.t.id === ts.value) && (ls.value === '' || c.l.level === +ls.value)),
+      indexCards(quizIndex).filter((c) => (!ts.value || c.t.id === ts.value) && (ls.value === '' || c.l.level === +ls.value)),
     ).slice(0, 10);
     if (!pool.length) {
       return stage.replaceChildren(

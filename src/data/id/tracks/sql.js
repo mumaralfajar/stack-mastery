@@ -30,12 +30,12 @@ export const trackId = {
       "Menulis `TOP (3)` tanpa `ORDER BY` yang cuma mengambil tiga baris acak, bukan tiga teratas.",
       "Membaca SQL berurutan dari atas ke bawah layaknya program biasa. Cek materi GROUP BY untuk melihat urutan aslinya."
     ],
-    quiz: [
-      ["Clause mana yang memilih **baris** mana saja yang dikembalikan?", ["`SELECT`", "`WHERE`", "`ORDER BY`", "`TOP`"], "`WHERE` menyaring baris, `SELECT` memilih kolom, dan `TOP` memotong hasil setelah diurutkan."],
-      ["Tanpa `ORDER BY`, urutan barisnya…", ["sesuai primary key", "sesuai waktu dimasukkan", "tidak dijamin", "selalu sesuai clustered index"], "Di tabel kecil hasilnya sering tampak urut primary key begitu saja, padahal plan paralel atau index baru bisa mengacaknya kapan saja."],
-      ["Apa yang dicocokkan oleh `WHERE name LIKE 'A%'`?", ["Nama yang mengandung karakter %", "Nama yang diawali huruf A", "Nama yang diakhiri huruf A", "Persis nama 'A%'"], "`%` berperan sebagai wildcard yang cocok dengan nol atau banyak karakter."],
-      ["`SELECT TOP (3) name FROM products;` tanpa `ORDER BY` mengembalikan…", ["3 produk termahal", "3 produk termurah", "3 baris sembarang", "3 produk yang paling baru ditambahkan"], "`TOP` mengambil baris teratas dari urutan apa pun yang keluar, dan tanpa `ORDER BY` tidak ada jaminan urutan."]
-    ]
+    quiz: {
+      'clause-chooses-rows-returned': ["Clause mana yang memilih **baris** mana saja yang dikembalikan?", ["`SELECT`", "`WHERE`", "`ORDER BY`", "`TOP`"], "`WHERE` menyaring baris, `SELECT` memilih kolom, dan `TOP` memotong hasil setelah diurutkan."],
+      'without-order-order-rows': ["Tanpa `ORDER BY`, urutan barisnya…", ["sesuai primary key", "sesuai waktu dimasukkan", "tidak dijamin", "selalu sesuai clustered index"], "Di tabel kecil hasilnya sering tampak urut primary key begitu saja, padahal plan paralel atau index baru bisa mengacaknya kapan saja."],
+      'name-like-match': ["Apa yang dicocokkan oleh `WHERE name LIKE 'A%'`?", ["Nama yang mengandung karakter %", "Nama yang diawali huruf A", "Nama yang diakhiri huruf A", "Persis nama 'A%'"], "`%` berperan sebagai wildcard yang cocok dengan nol atau banyak karakter."],
+      'select-top-name-products': ["`SELECT TOP (3) name FROM products;` tanpa `ORDER BY` mengembalikan…", ["3 produk termahal", "3 produk termurah", "3 baris sembarang", "3 produk yang paling baru ditambahkan"], "`TOP` mengambil baris teratas dari urutan apa pun yang keluar, dan tanpa `ORDER BY` tidak ada jaminan urutan."]
+    }
   },
   dml: {
     terms: [
@@ -69,11 +69,11 @@ export const trackId = {
       "Memakai `NOT IN (subquery)` lalu tak satu pun baris kembali ketika ada satu nilai NULL di dalamnya.",
       "Mengira `DELETE` di baris parent otomatis menyapu child. Foreign key menolak perintah itu kecuali dipasang `ON DELETE CASCADE`."
     ],
-    quiz: [
-      ["Apa yang dilakukan `UPDATE products SET price = 0;`?", ["Tidak ada karena `UPDATE` wajib pakai `WHERE`", "Mengubah harga semua produk jadi 0", "Hanya mengubah baris yang harganya NULL", "Hanya mengubah baris pertama"], "Tanpa saringan `WHERE`, seluruh baris dalam tabel ikut terubah."],
-      ["Hasil `NULL = NULL` di SQL adalah…", ["true", "false", "unknown", "error"], "Membandingkan dua nilai yang tak pasti tetap menghasilkan unknown, jadi pakailah `IS NULL`."],
-      ["Apa yang dikembalikan `COALESCE(nickname, name, 'N/A')`?", ["Selalu 'N/A'", "Yang pertama dari ketiganya yang tidak NULL", "Ketiganya digabung jadi satu", "NULL kalau salah satunya NULL"], "`COALESCE` mengecek argumen dari kiri ke kanan dan mengembalikan nilai non-NULL pertama."]
-    ]
+    quiz: {
+      'update-products-set-price': ["Apa yang dilakukan `UPDATE products SET price = 0;`?", ["Tidak ada karena `UPDATE` wajib pakai `WHERE`", "Mengubah harga semua produk jadi 0", "Hanya mengubah baris yang harganya NULL", "Hanya mengubah baris pertama"], "Tanpa saringan `WHERE`, seluruh baris dalam tabel ikut terubah."],
+      'result-null-null-sql': ["Hasil `NULL = NULL` di SQL adalah…", ["true", "false", "unknown", "error"], "Membandingkan dua nilai yang tak pasti tetap menghasilkan unknown, jadi pakailah `IS NULL`."],
+      'coalesce-nickname-name-return': ["Apa yang dikembalikan `COALESCE(nickname, name, 'N/A')`?", ["Selalu 'N/A'", "Yang pertama dari ketiganya yang tidak NULL", "Ketiganya digabung jadi satu", "NULL kalau salah satunya NULL"], "`COALESCE` mengecek argumen dari kiri ke kanan dan mengembalikan nilai non-NULL pertama."]
+    }
   },
   aggregate: {
     terms: [
@@ -105,12 +105,12 @@ export const trackId = {
       "Memilih kolom yang tak masuk `GROUP BY` maupun aggregate. SQL Server menolaknya, sedangkan SQLite diam-diam memetik nilai acak.",
       "`AVG` pada kolom `INT` di SQL Server menghasilkan `INT`, jadi rata-rata 1 dan 2 keluar 1. Ubah dulu tipenya pakai `AVG(CAST(quantity AS DECIMAL(10,2)))`."
     ],
-    quiz: [
-      ["Clause mana yang bisa memfilter `SUM(amount) > 100`?", ["`WHERE`", "`HAVING`", "`ORDER BY`", "`GROUP BY`"], "Aggregate baru ada sesudah pengelompokan selesai, dan `HAVING` jalan sesudah `GROUP BY`."],
-      ["Menurut urutan kerja, mana yang dijalankan pertama?", ["`SELECT`", "`WHERE`", "`FROM`", "`GROUP BY`"], "SQL harus mengambil sumber tabelnya lebih dulu sebelum menyaring atau mengelompokkan baris."],
-      ["Sebuah kolom berisi value 5, NULL, 7. Berapa `COUNT(col)`?", ["3", "2", "12", "NULL"], "`COUNT(col)` melewati nilai NULL, berbeda dari `COUNT(*)` yang menjawab 3."],
-      ["`quantity` adalah kolom `INT` berisi 1 dan 2. Apa yang dikembalikan `AVG(quantity)` di SQL Server?", ["1.5", "1", "2", "NULL"], "Di SQL Server, rata-rata bilangan bulat dibuang pecahannya menjadi bilangan bulat. Cast ke `DECIMAL` dulu untuk mendapat 1.5."]
-    ]
+    quiz: {
+      'clause-filter-sum-amount': ["Clause mana yang bisa memfilter `SUM(amount) > 100`?", ["`WHERE`", "`HAVING`", "`ORDER BY`", "`GROUP BY`"], "Aggregate baru ada sesudah pengelompokan selesai, dan `HAVING` jalan sesudah `GROUP BY`."],
+      'logically-runs-first': ["Menurut urutan kerja, mana yang dijalankan pertama?", ["`SELECT`", "`WHERE`", "`FROM`", "`GROUP BY`"], "SQL harus mengambil sumber tabelnya lebih dulu sebelum menyaring atau mengelompokkan baris."],
+      'column-values-null-count': ["Sebuah kolom berisi value 5, NULL, 7. Berapa `COUNT(col)`?", ["3", "2", "12", "NULL"], "`COUNT(col)` melewati nilai NULL, berbeda dari `COUNT(*)` yang menjawab 3."],
+      'quantity-int-column-values': ["`quantity` adalah kolom `INT` berisi 1 dan 2. Apa yang dikembalikan `AVG(quantity)` di SQL Server?", ["1.5", "1", "2", "NULL"], "Di SQL Server, rata-rata bilangan bulat dibuang pecahannya menjadi bilangan bulat. Cast ke `DECIMAL` dulu untuk mendapat 1.5."]
+    }
   },
   joins: {
     terms: [
@@ -141,11 +141,11 @@ export const trackId = {
       "Memakai `COUNT(*)` sesudah left join ikut menghitung baris ber-NULL sebagai angka 1. Hitunglah kolom di sisi kanan seperti `o.id`.",
       "Menggabungkan dua tabel one-to-many (seperti order dan pembayaran) langsung ke parent lalu dijumlahkan, membuat tiap angka berlipat ganda."
     ],
-    quiz: [
-      ["Customers punya 4 baris (1 tanpa order), dan Orders punya 5 baris milik customer valid. Berapa baris hasil `customers LEFT JOIN orders`?", ["4", "5", "6", "9"], "Lima pasangan yang cocok ditambah satu customer tanpa order yang diisi NULL."],
-      ["Bagaimana cara mencari customer yang tidak punya order?", ["`INNER JOIN … WHERE o.id IS NULL`", "`LEFT JOIN … WHERE o.id IS NULL`", "`LEFT JOIN … ON o.customer_id = c.id AND o.id IS NULL`", "`RIGHT JOIN … WHERE c.id IS NULL`"], "Baris kiri tanpa pasangan membawa NULL di sisi kanan, jadi saring baris itu sesudah join. Menaruhnya di `ON` malah meloloskan semua customer."],
-      ["Setelah `LEFT JOIN orders o`, menambahkan `WHERE o.status = 'paid'` berakibat apa?", ["Tidak ada yang berubah", "Customer tanpa order ikut terbuang, jadi berperilaku seperti inner join", "Semua customer tetap ada, tapi order yang belum dibayar dikosongkan", "Menyebabkan error"], "NULL = 'paid' bernilai unknown, jadi baris tanpa pasangan tersaring. Mengosongkan order yang belum dibayar didapat dengan memindah kondisinya ke `ON`."]
-    ]
+    quiz: {
+      'customers-rows-orders-orders': ["Customers punya 4 baris (1 tanpa order), dan Orders punya 5 baris milik customer valid. Berapa baris hasil `customers LEFT JOIN orders`?", ["4", "5", "6", "9"], "Lima pasangan yang cocok ditambah satu customer tanpa order yang diisi NULL."],
+      'find-customers-orders': ["Bagaimana cara mencari customer yang tidak punya order?", ["`INNER JOIN … WHERE o.id IS NULL`", "`LEFT JOIN … WHERE o.id IS NULL`", "`LEFT JOIN … ON o.customer_id = c.id AND o.id IS NULL`", "`RIGHT JOIN … WHERE c.id IS NULL`"], "Baris kiri tanpa pasangan membawa NULL di sisi kanan, jadi saring baris itu sesudah join. Menaruhnya di `ON` malah meloloskan semua customer."],
+      'left-join-orders-adding': ["Setelah `LEFT JOIN orders o`, menambahkan `WHERE o.status = 'paid'` berakibat apa?", ["Tidak ada yang berubah", "Customer tanpa order ikut terbuang, jadi berperilaku seperti inner join", "Semua customer tetap ada, tapi order yang belum dibayar dikosongkan", "Menyebabkan error"], "NULL = 'paid' bernilai unknown, jadi baris tanpa pasangan tersaring. Mengosongkan order yang belum dibayar didapat dengan memindah kondisinya ke `ON`."]
+    }
   },
   subqueries: {
     splits: ['1 · Skalar & EXISTS', '2 · CTE berantai', '3 · CTE rekursif'],
@@ -179,11 +179,11 @@ export const trackId = {
       "Lupa bahwa di SQL Server statement **sebelum** `WITH` wajib diakhiri titik koma, kalau tidak muncul pesan 'Incorrect syntax near the keyword with'.",
       "Menaruh subquery di `SELECT` yang dieksekusi sekali per baris padahal join biasa jauh lebih ringan."
     ],
-    quiz: [
-      ["Apa itu correlated subquery?", ["Subquery yang mengembalikan banyak kolom", "Subquery yang merujuk ke kolom dari query luar", "Subquery yang memakai `IN`", "Subquery yang muncul di `FROM`"], "Hasilnya bergantung pada baris luar yang sedang diproses, sehingga dievaluasi per baris."],
-      ["Kenapa lebih baik memakai `NOT EXISTS` daripada `NOT IN (subquery)`?", ["`NOT EXISTS` selalu lebih cepat", "`NOT IN` tidak mengembalikan baris apa pun kalau subquery-nya menghasilkan NULL", "`NOT IN` tidak didukung di SQL Server", "`NOT IN` tidak bisa memakai index"], "`x NOT IN (1, NULL)` bernilai unknown untuk x berapa pun, sehingga tak ada baris yang lolos."],
-      ["Tujuan utama CTE adalah…", ["Eksekusi yang selalu lebih cepat", "Keterbacaan: memberi nama pada satu tahap query", "Membuat temporary table yang bertahan selama session", "Meng-cache hasil supaya hanya dihitung sekali"], "CTE adalah ekspresi bernama untuk satu statement saja dan tidak di-cache oleh SQL Server."]
-    ]
+    quiz: {
+      'correlated-subquery': ["Apa itu correlated subquery?", ["Subquery yang mengembalikan banyak kolom", "Subquery yang merujuk ke kolom dari query luar", "Subquery yang memakai `IN`", "Subquery yang muncul di `FROM`"], "Hasilnya bergantung pada baris luar yang sedang diproses, sehingga dievaluasi per baris."],
+      'prefer-exists-subquery': ["Kenapa lebih baik memakai `NOT EXISTS` daripada `NOT IN (subquery)`?", ["`NOT EXISTS` selalu lebih cepat", "`NOT IN` tidak mengembalikan baris apa pun kalau subquery-nya menghasilkan NULL", "`NOT IN` tidak didukung di SQL Server", "`NOT IN` tidak bisa memakai index"], "`x NOT IN (1, NULL)` bernilai unknown untuk x berapa pun, sehingga tak ada baris yang lolos."],
+      'purpose-cte': ["Tujuan utama CTE adalah…", ["Eksekusi yang selalu lebih cepat", "Keterbacaan: memberi nama pada satu tahap query", "Membuat temporary table yang bertahan selama session", "Meng-cache hasil supaya hanya dihitung sekali"], "CTE adalah ekspresi bernama untuk satu statement saja dan tidak di-cache oleh SQL Server."]
+    }
   },
   design: {
     splits: ['1 · Tabel inti', '2 · Junction table & index', '3 · Kolom JSON'],
@@ -215,12 +215,12 @@ export const trackId = {
       "Menyimpan nominal uang di `FLOAT` atau `REAL`. Pakailah `DECIMAL` agar angka sen tidak meleset.",
       "Terus menyaring `JSON_VALUE(preferences, '$.language') = 'id'`, yang tak bisa menyentuh index biasa. Keluarkan jadi kolom normal atau index computed column."
     ],
-    quiz: [
-      ["Order dan produk berelasi many-to-many. Bagaimana memodelkannya?", ["Kolom `product_ids` berisi daftar yang dipisah koma di `orders`", "Junction table dengan foreign key ke masing-masing tabel", "Kolom `order_id` di `products`", "Satu baris `orders` per produk, dengan detail order yang diulang"], "Junction table punya satu baris per pasangan sekaligus mampu menyimpan atribut hubungan seperti quantity."],
-      ["Apa yang dicegah oleh constraint foreign key?", ["Join yang lambat", "Baris yang merujuk ke baris parent yang tidak ada", "Value yang duplikat di kolom itu", "Value NULL di kolom itu"], "Constraint ini menjaga tautan parent-child saat penulisan. Duplikat dijaga `UNIQUE`, sedangkan foreign key masih boleh NULL kecuali ditandai `NOT NULL`."],
-      ["Kenapa `unit_price` disimpan di `order_items` padahal `products` sudah punya `price`?", ["Itu kesalahan dan seharusnya diambil lewat join", "Penjualan harus menyimpan harga saat pembelian terjadi", "Supaya join ke `products` lebih cepat", "Foreign key mewajibkan salinan"], "Keduanya dua fakta terpisah: harga katalog hari ini berbeda dengan harga yang dibayar waktu transaksi."],
-      ["Data mana yang paling cocok untuk kolom JSON?", ["Email customer, yang harus unik", "Pengaturan notifikasi yang field-nya berbeda-beda tiap customer", "`customer_id` pemilik sebuah order", "Harga produk, yang dipakai di laporan setiap hari"], "Data fleksibel yang dibaca serta disimpan utuh cocok masuk JSON. Kolom yang butuh constraint, join, atau agregasi harus berbentuk kolom bertipe asli."]
-    ]
+    quiz: {
+      'orders-products-many-many': ["Order dan produk berelasi many-to-many. Bagaimana memodelkannya?", ["Kolom `product_ids` berisi daftar yang dipisah koma di `orders`", "Junction table dengan foreign key ke masing-masing tabel", "Kolom `order_id` di `products`", "Satu baris `orders` per produk, dengan detail order yang diulang"], "Junction table punya satu baris per pasangan sekaligus mampu menyimpan atribut hubungan seperti quantity."],
+      'foreign-key-constraint-prevent': ["Apa yang dicegah oleh constraint foreign key?", ["Join yang lambat", "Baris yang merujuk ke baris parent yang tidak ada", "Value yang duplikat di kolom itu", "Value NULL di kolom itu"], "Constraint ini menjaga tautan parent-child saat penulisan. Duplikat dijaga `UNIQUE`, sedangkan foreign key masih boleh NULL kecuali ditandai `NOT NULL`."],
+      'unit-price-stored-order': ["Kenapa `unit_price` disimpan di `order_items` padahal `products` sudah punya `price`?", ["Itu kesalahan dan seharusnya diambil lewat join", "Penjualan harus menyimpan harga saat pembelian terjadi", "Supaya join ke `products` lebih cepat", "Foreign key mewajibkan salinan"], "Keduanya dua fakta terpisah: harga katalog hari ini berbeda dengan harga yang dibayar waktu transaksi."],
+      'data-fits-json-column': ["Data mana yang paling cocok untuk kolom JSON?", ["Email customer, yang harus unik", "Pengaturan notifikasi yang field-nya berbeda-beda tiap customer", "`customer_id` pemilik sebuah order", "Harga produk, yang dipakai di laporan setiap hari"], "Data fleksibel yang dibaca serta disimpan utuh cocok masuk JSON. Kolom yang butuh constraint, join, atau agregasi harus berbentuk kolom bertipe asli."]
+    }
   },
   indexes: {
     terms: [
@@ -254,11 +254,11 @@ export const trackId = {
       "Lupa meng-index foreign key sehingga hapus parent dan join memicu scan ke seluruh tabel anak.",
       "Meng-index kolom bervariasi rendah seperti flag `is_active` lalu bingung kenapa optimizer tetap memindai semua baris."
     ],
-    quiz: [
-      ["Ada index pada `(country, city)`. Filter mana yang bisa melakukan seek dengan index itu?", ["`WHERE city = 'Bandung'`", "`WHERE country = 'ID'`", "`WHERE city = 'Bandung' OR country = 'ID'`", "Dua pilihan pertama"], "Composite index cocok mulai dari kolom paling kiri, jadi `city` sendirian tak memenuhi awalannya."],
-      ["Apa biaya utama dari menambah index?", ["Pembacaan jadi lebih lambat", "Setiap insert, update, dan delete juga harus memperbarui index-nya, dan ia memakan storage", "Tabelnya tidak bisa di-alter lagi", "Tabelnya ter-lock selama index itu ada"], "Tiap penulisan wajib ikut memutakhirkan struktur terurut tambahan ini di disk."],
-      ["Index yang 'covering' artinya…", ["Ia mencakup setiap kolom di tabel", "Ia memuat semua kolom yang dibutuhkan sebuah query, jadi tabelnya tidak dibaca", "Ia adalah clustered index", "Ia mempercepat semua query pada tabel itu"], "SQL Server menjawab seluruh query langsung dari index dengan nol key lookup."]
-    ]
+    quiz: {
+      'index-exists-country-city': ["Ada index pada `(country, city)`. Filter mana yang bisa melakukan seek dengan index itu?", ["`WHERE city = 'Bandung'`", "`WHERE country = 'ID'`", "`WHERE city = 'Bandung' OR country = 'ID'`", "Dua pilihan pertama"], "Composite index cocok mulai dari kolom paling kiri, jadi `city` sendirian tak memenuhi awalannya."],
+      'cost-adding-index': ["Apa biaya utama dari menambah index?", ["Pembacaan jadi lebih lambat", "Setiap insert, update, dan delete juga harus memperbarui index-nya, dan ia memakan storage", "Tabelnya tidak bisa di-alter lagi", "Tabelnya ter-lock selama index itu ada"], "Tiap penulisan wajib ikut memutakhirkan struktur terurut tambahan ini di disk."],
+      'covering-index-means': ["Index yang 'covering' artinya…", ["Ia mencakup setiap kolom di tabel", "Ia memuat semua kolom yang dibutuhkan sebuah query, jadi tabelnya tidak dibaca", "Ia adalah clustered index", "Ia mempercepat semua query pada tabel itu"], "SQL Server menjawab seluruh query langsung dari index dengan nol key lookup."]
+    }
   },
   transactions: {
     splits: ['1 · Transfer semua-atau-tidak', '2 · Lost update vs atomik', '3 · Optimistic concurrency'],
@@ -293,11 +293,11 @@ export const trackId = {
       "Mengira isolation bawaan menangkis semua balapan. Read Committed masih meloloskan non-repeatable read, phantom, dan lost update.",
       "Membiarkan `XACT_ABORT` mati membuat SQL Server mengabaikan sebagian error dan telanjur men-commit perubahan separuh."
     ],
-    quiz: [
-      ["Sebuah transfer mendebit rekening A, lalu server crash sebelum mengkredit B. Dengan transaction, apa hasilnya setelah restart?", ["A terdebit, B tidak terkredit", "Tidak ada perubahan yang diterapkan", "B dikredit saat server menyala lagi", "Database harus di-restore dari backup"], "Atomicity menggagalkan seluruh transaksi yang belum commit selama proses pemulihan."],
-      ["Anomali mana yang berarti 'membaca data yang belum di-commit oleh transaction lain'?", ["Phantom", "Dirty read", "Lost update", "Non-repeatable read"], "Dirty read hanya bisa muncul pada mode Read Uncommitted atau saat memakai hint `NOLOCK`."],
-      ["Cara paling aman mengurangi stok di bawah concurrency?", ["`SELECT`, lalu `UPDATE` dengan value hasil hitungan, di dalam transaction", "`UPDATE … SET stock = stock - 1 WHERE stock > 0`, lalu cek jumlah baris yang terkena", "Simpan jumlah stok di memory aplikasi", "Baca dengan `NOLOCK` dulu supaya tidak memblokir siapa pun"], "Dalam Read Committed, dua sesi sama-sama bisa membaca stok sama sebelum menulis. Satu perintah atomic menutup celah penyisipan penulis lain."]
-    ]
+    quiz: {
+      'transfer-debits-account-then': ["Sebuah transfer mendebit rekening A, lalu server crash sebelum mengkredit B. Dengan transaction, apa hasilnya setelah restart?", ["A terdebit, B tidak terkredit", "Tidak ada perubahan yang diterapkan", "B dikredit saat server menyala lagi", "Database harus di-restore dari backup"], "Atomicity menggagalkan seluruh transaksi yang belum commit selama proses pemulihan."],
+      'anomaly-reading-data-another': ["Anomali mana yang berarti 'membaca data yang belum di-commit oleh transaction lain'?", ["Phantom", "Dirty read", "Lost update", "Non-repeatable read"], "Dirty read hanya bisa muncul pada mode Read Uncommitted atau saat memakai hint `NOLOCK`."],
+      'safest-way-decrement-stock': ["Cara paling aman mengurangi stok di bawah concurrency?", ["`SELECT`, lalu `UPDATE` dengan value hasil hitungan, di dalam transaction", "`UPDATE … SET stock = stock - 1 WHERE stock > 0`, lalu cek jumlah baris yang terkena", "Simpan jumlah stok di memory aplikasi", "Baca dengan `NOLOCK` dulu supaya tidak memblokir siapa pun"], "Dalam Read Committed, dua sesi sama-sama bisa membaca stok sama sebelum menulis. Satu perintah atomic menutup celah penyisipan penulis lain."]
+    }
   },
   window: {
     terms: [
@@ -331,11 +331,11 @@ export const trackId = {
       "Lupa menulis `ORDER BY` pada total berjalan sehingga seluruh baris mencetak grand total sama rata.",
       "Total berjalan melompat mendadak karena banyak transaksi bertanggal sama. Sertakan pemecah seri unik di dalam `ORDER BY`."
     ],
-    quiz: [
-      ["Skor 90, 90, 80. Peringkat apa yang diberikan `RANK()` (menurun)?", ["1, 2, 3", "1, 1, 2", "1, 1, 3", "1, 2, 2"], "`RANK` menyamakan peringkat angka seri lalu melompati angka berikutnya, sedangkan `DENSE_RANK` menghasilkan 1, 1, 2."],
-      ["Berapa banyak baris yang dikembalikan window function dibandingkan input-nya?", ["Satu per partition", "Jumlahnya sama", "Satu per value `ORDER BY` yang berbeda", "Lebih sedikit, kalau ada yang seri"], "Window function menambah kolom hitungan tanpa meringkas jumlah baris."],
-      ["Function mana yang membaca value dari baris sebelumnya?", ["`LEAD`", "`LAG`", "`FIRST_VALUE`", "`ROW_NUMBER`"], "`LAG` membaca baris mundur ke belakang, sedangkan `LEAD` membaca maju ke depan."]
-    ]
+    quiz: {
+      'scores-90-90-80': ["Skor 90, 90, 80. Peringkat apa yang diberikan `RANK()` (menurun)?", ["1, 2, 3", "1, 1, 2", "1, 1, 3", "1, 2, 2"], "`RANK` menyamakan peringkat angka seri lalu melompati angka berikutnya, sedangkan `DENSE_RANK` menghasilkan 1, 1, 2."],
+      'many-rows-window-function': ["Berapa banyak baris yang dikembalikan window function dibandingkan input-nya?", ["Satu per partition", "Jumlahnya sama", "Satu per value `ORDER BY` yang berbeda", "Lebih sedikit, kalau ada yang seri"], "Window function menambah kolom hitungan tanpa meringkas jumlah baris."],
+      'function-reads-previous-row': ["Function mana yang membaca value dari baris sebelumnya?", ["`LEAD`", "`LAG`", "`FIRST_VALUE`", "`ROW_NUMBER`"], "`LAG` membaca baris mundur ke belakang, sedangkan `LEAD` membaca maju ke depan."]
+    }
   },
   plans: {
     splits: ['1 · Filter sargable', '2 · Mengukur dengan STATISTICS', '3 · Keyset pagination'],
@@ -364,11 +364,11 @@ export const trackId = {
       "Paging memakai `OFFSET` dalam yang terus membaca lalu membuang ribuan baris di tiap halaman.",
       "Memasang `OPTION (RECOMPILE)` pada query yang dipanggil ribuan kali per detik, membuang CPU terus-terusan hanya untuk compile ulang."
     ],
-    quiz: [
-      ["Kondisi mana yang bisa memakai index seek pada `order_date`?", ["`WHERE YEAR(order_date) = 2026`", "`WHERE order_date >= '2026-01-01' AND order_date < '2027-01-01'`", "`WHERE CONVERT(CHAR(4), order_date, 120) = '2026'`", "`WHERE DATEADD(day, 1, order_date) > '2026-01-01'`"], "Hanya rentang pada kolom polos yang sifatnya sargable. Opsi lain menjalankan fungsi ke kolomnya dulu."],
-      ["Perkiraan baris: 10. Baris aktual: 900.000. Penyebab yang paling mungkin?", ["Terlalu banyak index di tabel itu", "Statistics yang basi atau menyesatkan, atau parameter sniffing", "Server kekurangan memory", "Query-nya memakai CTE"], "Optimizer menyusun plan untuk 10 baris padahal aslinya 900.000. Perbaiki estimasi barisnya agar plan ikut pulih."],
-      ["Algoritma join mana yang cocok untuk input luar yang kecil dengan index di tabel dalam?", ["Hash join", "Nested loops", "Merge join", "Tabel mana pun yang ditulis lebih dulu"], "Nested loops melakukan satu index seek murah per baris luar."]
-    ]
+    quiz: {
+      'condition-use-index-seek': ["Kondisi mana yang bisa memakai index seek pada `order_date`?", ["`WHERE YEAR(order_date) = 2026`", "`WHERE order_date >= '2026-01-01' AND order_date < '2027-01-01'`", "`WHERE CONVERT(CHAR(4), order_date, 120) = '2026'`", "`WHERE DATEADD(day, 1, order_date) > '2026-01-01'`"], "Hanya rentang pada kolom polos yang sifatnya sargable. Opsi lain menjalankan fungsi ke kolomnya dulu."],
+      'estimated-rows-10-actual': ["Perkiraan baris: 10. Baris aktual: 900.000. Penyebab yang paling mungkin?", ["Terlalu banyak index di tabel itu", "Statistics yang basi atau menyesatkan, atau parameter sniffing", "Server kekurangan memory", "Query-nya memakai CTE"], "Optimizer menyusun plan untuk 10 baris padahal aslinya 900.000. Perbaiki estimasi barisnya agar plan ikut pulih."],
+      'join-algorithm-suits-small': ["Algoritma join mana yang cocok untuk input luar yang kecil dengan index di tabel dalam?", ["Hash join", "Nested loops", "Merge join", "Tabel mana pun yang ditulis lebih dulu"], "Nested loops melakukan satu index seek murah per baris luar."]
+    }
   },
   locking: {
     splits: ['1 · Deadlock & urutan lock', '2 · Row version & upsert', '3 · Versi MERGE'],
@@ -398,12 +398,12 @@ export const trackId = {
       "Mengulang hanya satu perintah SQL yang gagal, padahal SQL Server membatalkan seluruh isi transaction korban.",
       "Upsert memakai `IF NOT EXISTS … INSERT` tanpa hint lock, yang berakhir bentrok duplicate key saat diklik serentak."
     ],
-    quiz: [
-      ["Apa cara standar mencegah deadlock antara transaction yang meng-update baris yang sama?", ["Tambahkan `WITH (NOLOCK)` pada update-nya", "Akses baris-barisnya dengan urutan yang konsisten", "Naikkan isolation level ke Serializable", "Perbesar lock timeout"], "Urutan lock bersama memutus siklus sebelum sempat terbentuk, sedangkan Serializable mengambil lebih banyak lock sehingga deadlock justru makin mudah terjadi."],
-      ["Dengan `READ_COMMITTED_SNAPSHOT` aktif, pembacaan yang berjalan lama…", ["memblokir semua penulis sampai selesai", "melihat versi yang konsisten dan tidak memblokir penulis", "melihat perubahan transaction lain yang belum di-commit", "mengambil lock pada seluruh tabel"], "Pembaca membaca snapshot versi baris yang sudah commit, bukan meminta shared lock."],
-      ["Apa yang harus dilakukan kode aplikasi saat terpilih sebagai korban deadlock?", ["Tampilkan error-nya ke user", "Retry seluruh transaction", "Retry hanya statement yang gagal", "Tidak perlu apa-apa: perubahannya sudah tersimpan"], "Seluruh isi transaction sudah di-rollback, jadi mengulang kalimat terakhir saja hanya menuliskan setengah data."],
-      ["Dua request menjalankan `UPDATE …` lalu `IF @@ROWCOUNT = 0 INSERT …` bersamaan tanpa hint lock. Apa yang terjadi?", ["Tidak ada, sebab kedua perintah berjalan terpisah", "Keduanya tidak menemukan baris dan sama-sama insert, jadi salah satunya gagal di primary key", "Database menggabungkan kedua insert menjadi satu baris", "Request kedua otomatis menunggu sampai yang pertama commit"], "Tiap perintah memang berjalan tunggal, tapi pasangan keduanya masih bisa terselip. Hint `UPDLOCK, HOLDLOCK` mengunci celahnya sampai commit."]
-    ]
+    quiz: {
+      'standard-way-prevent-deadlocks': ["Apa cara standar mencegah deadlock antara transaction yang meng-update baris yang sama?", ["Tambahkan `WITH (NOLOCK)` pada update-nya", "Akses baris-barisnya dengan urutan yang konsisten", "Naikkan isolation level ke Serializable", "Perbesar lock timeout"], "Urutan lock bersama memutus siklus sebelum sempat terbentuk, sedangkan Serializable mengambil lebih banyak lock sehingga deadlock justru makin mudah terjadi."],
+      'read-committed-snapshot-long': ["Dengan `READ_COMMITTED_SNAPSHOT` aktif, pembacaan yang berjalan lama…", ["memblokir semua penulis sampai selesai", "melihat versi yang konsisten dan tidak memblokir penulis", "melihat perubahan transaction lain yang belum di-commit", "mengambil lock pada seluruh tabel"], "Pembaca membaca snapshot versi baris yang sudah commit, bukan meminta shared lock."],
+      'application-code-chosen-deadlock': ["Apa yang harus dilakukan kode aplikasi saat terpilih sebagai korban deadlock?", ["Tampilkan error-nya ke user", "Retry seluruh transaction", "Retry hanya statement yang gagal", "Tidak perlu apa-apa: perubahannya sudah tersimpan"], "Seluruh isi transaction sudah di-rollback, jadi mengulang kalimat terakhir saja hanya menuliskan setengah data."],
+      'two-requests-run-update': ["Dua request menjalankan `UPDATE …` lalu `IF @@ROWCOUNT = 0 INSERT …` bersamaan tanpa hint lock. Apa yang terjadi?", ["Tidak ada, sebab kedua perintah berjalan terpisah", "Keduanya tidak menemukan baris dan sama-sama insert, jadi salah satunya gagal di primary key", "Database menggabungkan kedua insert menjadi satu baris", "Request kedua otomatis menunggu sampai yang pertama commit"], "Tiap perintah memang berjalan tunggal, tapi pasangan keduanya masih bisa terselip. Hint `UPDLOCK, HOLDLOCK` mengunci celahnya sampai commit."]
+    }
   },
   scale: {
     terms: [
@@ -431,11 +431,11 @@ export const trackId = {
       "Mengira bacaan dari read replica langsung menampilkan data terbaru beberapa milidetik sesudah primary menulis.",
       "Menjalankan satu migrasi `RenameColumn` EF Core di produksi saat instance aplikasi versi lama masih mengakses nama kolom lama."
     ],
-    quiz: [
-      ["Langkah pertama me-rename kolom tanpa downtime?", ["Hapus kolom lamanya", "Tambahkan kolom baru di samping kolom lama", "Rename di tempat dengan `sp_rename`", "Salin tabelnya dengan nama baru"], "Expand lebih dulu supaya aplikasi versi lama dan baru sama-sama tetap cocok."],
-      ["User menyimpan profil, halaman berikutnya membaca dari replica dan menampilkan value lama. Kenapa?", ["Ada bug di query SQL-nya", "Replication lag: replica belum menerapkan penulisan itu", "Browser meng-cache halaman lama", "Deadlock me-rollback penyimpanannya"], "Replika asinkron sedikit tertinggal, jadi request yang wajib langsung melihat tulisan sendiri harus diarahkan ke primary."],
-      ["Apa yang membuat sharding mahal dibandingkan partitioning di satu server?", ["Index berhenti bekerja lintas shard", "Join dan transaction lintas shard sulit atau mustahil", "Setiap shard butuh schema yang berbeda", "Backup tidak bisa dilakukan lagi"], "Memisah tabel ke server berlainan memutus join antar-mesin serta transaksi atomic sekaligus."]
-    ]
+    quiz: {
+      'first-step-zero-downtime': ["Langkah pertama me-rename kolom tanpa downtime?", ["Hapus kolom lamanya", "Tambahkan kolom baru di samping kolom lama", "Rename di tempat dengan `sp_rename`", "Salin tabelnya dengan nama baru"], "Expand lebih dulu supaya aplikasi versi lama dan baru sama-sama tetap cocok."],
+      'user-saves-profile-next': ["User menyimpan profil, halaman berikutnya membaca dari replica dan menampilkan value lama. Kenapa?", ["Ada bug di query SQL-nya", "Replication lag: replica belum menerapkan penulisan itu", "Browser meng-cache halaman lama", "Deadlock me-rollback penyimpanannya"], "Replika asinkron sedikit tertinggal, jadi request yang wajib langsung melihat tulisan sendiri harus diarahkan ke primary."],
+      'makes-sharding-costly-compared': ["Apa yang membuat sharding mahal dibandingkan partitioning di satu server?", ["Index berhenti bekerja lintas shard", "Join dan transaction lintas shard sulit atau mustahil", "Setiap shard butuh schema yang berbeda", "Backup tidak bisa dilakukan lagi"], "Memisah tabel ke server berlainan memutus join antar-mesin serta transaksi atomic sekaligus."]
+    }
   }
 }
 };
