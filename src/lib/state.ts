@@ -163,7 +163,7 @@ function normalizeStudyWithMeta(raw: Partial<StudyProgress>): { state: StudyProg
   return { state: merged, migrated: lessonsRes.migrated || cardsRes.migrated };
 }
 
-function normalizeStudy(raw: Partial<StudyProgress>): StudyProgress {
+export function normalizeStudy(raw: Partial<StudyProgress>): StudyProgress {
   return normalizeStudyWithMeta(raw).state;
 }
 

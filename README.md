@@ -248,8 +248,9 @@ Stack Mastery is a Progressive Web App (`public/manifest.webmanifest`, `public/s
 | `src/data/` | Typed manifest (`manifest.ts`, including each lesson's `quizIds`), chunked loaders (`index.ts`, `tracks-core.ts`, `tracks-ui.ts`, `interview-data.ts`, `track-loaders.ts`), the build-time aggregators and indexes (`site.ts`, `search-index.ts`, `quiz-index.ts`), English tracks (`tracks/*.js`), `projects.js`, `interview.js`, `interview-cs.js` |
 | `src/data/id/` | Bahasa Indonesia loaders (`index.ts`, `core.ts`, `web.ts`, `ui.ts`), tracks (`tracks/*.js`), UI dictionaries (`ui-*.js`), `projects.js`, and `interview.js` |
 | `public/` | `manifest.webmanifest`, `sw.js`, `robots.txt`, favicons, and PNG/SVG app icons |
-| `tools/check-i18n.mjs`, `extract-text.mjs` | Translation parity check (lessons, UI strings in `.js`/`.ts`/`.astro`, `h()` labels, table headers, playground chips, manifest `quizCount`, lab registry) and text extractor |
-| `tools/verify*.mjs`, `tools/verify-ui.py` | Language sample compilers/runners and the Playwright UI + axe-core WCAG 2.2 AA suite |
+| `tools/check-i18n.mjs`, `extract-text.mjs` | Translation parity check (lessons, UI strings in `.js`/`.ts`/`.astro`, `h()` labels, table headers, playground chips, manifest `quizIds`, lab registry) and text extractor |
+| `tests/*.test.ts` | Bun unit tests covering SM-2 scheduling, routing/legacy hash migration, state normalization, progress selectors, i18n, and SSR escaping |
+| `tools/verify*.mjs`, `tools/verify-ui.py`, `tools/ui_checks/` | Language sample compilers/runners and the modular Playwright UI + axe-core WCAG 2.2 AA suite |
 
 ## Adding or editing content
 
@@ -292,7 +293,8 @@ Every stack track includes real compiler and runtime verification scripts inside
 
 | Script | Command | What it checks |
 | --- | --- | --- |
-| **Lint** | `bun run lint` | Biome correctness and suspicious-code rules across `src/` and `tools/` |
+| **Lint** | `bun run lint` | Biome correctness and suspicious-code rules across `src/`, `tools/`, and `tests/` |
+| **Unit tests** | `bun test` | Fast unit tests for SM-2 scheduling, URL/hash routing, state normalization/migration, progress selectors, i18n, and SSR helpers |
 | **Type check** | `bun run typecheck` | `astro check` diagnostics for Astro components and scripts |
 | **i18n parity** | `bun run check:i18n` | Structural, key, and code-span parity across EN and ID, untranslated `h()` labels and `.astro` template strings, table headers, playground chips, manifest `quizIds`, and the lab registry |
 | **UI & WCAG** | `bun run verify:ui` | On `dist/`: every static route and SEO tag, the landing JS budget (< 45 KB), single-lab chunk loading, legacy `#/…` redirects, PWA manifest and offline reload, EN/ID desktop/mobile layout, dialogs, all 40 labs, playgrounds (SRI hashes checked against the served bytes, live Monaco and DartPad theme sync, `</style>` injection, Retry fallbacks, external sandbox links, observer and Blob cleanup), interview prep, cross-tab sync, and axe-core WCAG 2.2 AA (0 critical or serious) |
@@ -314,7 +316,7 @@ Every pull request to `main` runs `.github/workflows/ci.yml`. These three checks
 
 | Check | What it runs |
 | --- | --- |
-| **Quality & Build** | `bun install --frozen-lockfile`, `bun run lint`, `bun run typecheck`, `bun run check:i18n`, `bun run build:timings` |
+| **Quality & Build** | `bun install --frozen-lockfile`, `bun run lint`, `bun test`, `bun run typecheck`, `bun run check:i18n`, `bun run build:timings` |
 | **Playwright UI & a11y** | `bun run build`, then `python -u tools/verify-ui.py` on bundled Chromium |
 | **Conventional PR** | The PR title and every commit message follow Conventional Commits v1.0.0 |
 
