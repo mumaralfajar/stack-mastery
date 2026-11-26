@@ -3,20 +3,26 @@ import { codeBlock, h } from '../../lib/dom.ts';
 import { t as T } from '../../lib/i18n.ts';
 import { VIZ } from './registry.ts';
   const meta = { track: 'css', trackName: 'CSS + Tailwind' };
-  const select = (label, opts, onchange) => { const s = h('select', { onchange }, opts.map(o => h('option', {}, o))); return [h('label', {}, label, s), s]; };
-  const range = (label, min, max, step, val, oninput) => {
-    const out = h('b', {}, val), r = h('input', { type: 'range', min, max, step, oninput: e => { out.textContent = e.target.value; oninput(); } });
-    r.value = val; return [h('label', {}, label, r, out), r];
+  const select = (label: string, opts: string[], onchange: () => void): [HTMLElement, HTMLSelectElement] => {
+    const s = h('select', { onchange }, opts.map(o => h('option', {}, o)));
+    return [h('label', {}, label, s), s];
   };
-  const check = (label, on, onchange) => { const c = h('input', { type: 'checkbox', onchange }); c.checked = on; return [h('label', {}, c, label), c]; };
-  const codeOut = () => { const el = h('div', {}); return { el, set: (css, tw) => el.replaceChildren(codeBlock(css, 'css'), h('p', { class: 'muted', style: { margin: '.6rem 0 0' } }, 'Tailwind: ', h('code', {}, tw))) }; };
+  const range = (label: string, min: number, max: number, step: number, val: number, oninput: () => void): [HTMLElement, HTMLInputElement] => {
+    const out = h('b', {}, val), r = h('input', { type: 'range', min, max, step, oninput: (e: Event) => { out.textContent = (e.target as HTMLInputElement).value; oninput(); } });
+    r.value = String(val); return [h('label', {}, label, r, out), r];
+  };
+  const check = (label: string, on: boolean, onchange: (e: Event) => void): [HTMLElement, HTMLInputElement] => {
+    const c = h('input', { type: 'checkbox', onchange }); c.checked = on; return [h('label', {}, c, label), c];
+  };
+  const codeOut = () => { const el = h('div', {}); return { el, set: (css: string, tw: string) => el.replaceChildren(codeBlock(css, 'css'), h('p', { class: 'muted', style: { margin: '.6rem 0 0' } }, 'Tailwind: ', h('code', {}, tw))) }; };
 
   // ---------- specificity ----------
   VIZ.specificity = {
     ...meta, title: 'Cascade and specificity',
     desc: 'Several rules all try to color the same link. Toggle them on or off to see which rule wins and why.',
     mount(el) {
-      const rules = [
+      interface CssRule { sel: string; color: string; spec: [number, number, number]; on?: boolean; inline?: boolean; important?: boolean; }
+      const rules: CssRule[] = [
         { sel: 'a', color: 'gray', spec: [0, 0, 1], on: true },
         { sel: '.btn', color: 'royalblue', spec: [0, 1, 0], on: true },
         { sel: '.btn.primary', color: 'seagreen', spec: [0, 2, 0], on: true },
@@ -26,14 +32,14 @@ import { VIZ } from './registry.ts';
         { sel: 'style="…" (inline)', color: 'teal', inline: true, spec: [0, 0, 0] },
         { sel: '.btn', color: 'darkorange', important: true, spec: [0, 1, 0] }
       ];
-      const rank = (r, i) => [r.important ? 1 : 0, r.inline ? 1 : 0, ...r.spec, i];
-      const cmp = (a, b) => { for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] - b[i]; return 0; };
+      const rank = (r: CssRule, i: number): number[] => [r.important ? 1 : 0, r.inline ? 1 : 0, ...r.spec, i];
+      const cmp = (a: number[], b: number[]): number => { for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] - b[i]; return 0; };
       const sample = h('a', { class: 'spec-sample' }, 'Buy now'), note = h('p', { class: 'viz-note' }), list = h('div', { class: 'spec-list' });
       const draw = () => {
         const live = rules.map((r, i) => ({ r, k: rank(r, i) })).filter(x => x.r.on).sort((a, b) => cmp(b.k, a.k));
         const win = live[0], second = live[1];
         list.replaceChildren(...rules.map(r => {
-          const cb = h('input', { type: 'checkbox', onchange: e => { r.on = e.target.checked; draw(); } }); cb.checked = !!r.on;
+          const cb = h('input', { type: 'checkbox', onchange: (e: Event) => { r.on = (e.target as HTMLInputElement).checked; draw(); } }); cb.checked = !!r.on;
           return h('label', { class: 'spec-rule' + (win && win.r === r ? ' win' : '') }, cb,
             h('code', {}, r.inline ? `style="color: ${r.color}"` : `${r.sel} { color: ${r.color}${r.important ? ' !important' : ''}; }`),
             h('span', { class: 'id' }, r.inline ? 'inline' : `(${r.spec.join(',')})`));
@@ -81,7 +87,7 @@ import { VIZ } from './registry.ts';
     ...meta, title: 'Flexbox playground',
     desc: 'Change the container’s properties and watch the items move. The matching CSS and Tailwind classes update below.',
     mount(el) {
-      const tw = { 'flex-start': 'start', 'flex-end': 'end', center: 'center', 'space-between': 'between', 'space-around': 'around', 'space-evenly': 'evenly', stretch: 'stretch' };
+      const tw: Record<string, string> = { 'flex-start': 'start', 'flex-end': 'end', center: 'center', 'space-between': 'between', 'space-around': 'around', 'space-evenly': 'evenly', stretch: 'stretch' };
       const draw = () => {
         const d = dS.value, j = jS.value, a = aS.value, wr = wS.value, g = +gR.value;
         Object.assign(box.style, { flexDirection: d, justifyContent: j, alignItems: a, flexWrap: wr, gap: g + 'px' });
@@ -106,13 +112,13 @@ import { VIZ } from './registry.ts';
     ...meta, title: 'Grid playground',
     desc: 'Pick a column template, then resize the window with auto-fit selected to see a responsive grid with no media queries.',
     mount(el) {
-      const templates = {
+      const templates: Record<string, string> = {
         'repeat(3, 1fr)': 'grid-cols-3',
         '200px 1fr': 'grid-cols-[200px_1fr]',
         '1fr 2fr 1fr': 'grid-cols-[1fr_2fr_1fr]',
         'repeat(auto-fit, minmax(120px, 1fr))': 'grid-cols-[repeat(auto-fit,minmax(120px,1fr))]'
       };
-      const notes = {
+      const notes: Record<string, string> = {
         'repeat(3, 1fr)': 'Three equal columns: the free space is split into three fractions.',
         '200px 1fr': 'A fixed 200px sidebar column beside one flexible column filling the remaining width.',
         '1fr 2fr 1fr': 'The middle column gets twice the share of the others.',

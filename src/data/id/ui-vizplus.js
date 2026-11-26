@@ -1,3 +1,4 @@
+// @ts-check
 // Indonesian translations for the 7 visualizations in src/scripts/viz/vizplus.js.
 const dict = {
   'Concurrent transactions and deadlocks': 'Transaksi konkuren dan deadlock',

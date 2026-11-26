@@ -9,14 +9,14 @@ export function registerViz(labs: Record<string, VizLab>): void {
 }
 
 const LOADERS = {
-  viz: () => import('./viz.js'),
-  vizcss: () => import('./vizcss.js'),
-  vizmore: () => import('./vizmore.js'),
-  vizangular: () => import('./vizangular.js'),
-  vizflutter: () => import('./vizflutter.js'),
-  vizplus: () => import('./vizplus.js'),
-  vizgo: () => import('./vizgo.js'),
-  vizsys: () => import('./vizsys.js'),
+  viz: () => import('./viz.ts'),
+  vizcss: () => import('./vizcss.ts'),
+  vizmore: () => import('./vizmore.ts'),
+  vizangular: () => import('./vizangular.ts'),
+  vizflutter: () => import('./vizflutter.ts'),
+  vizplus: () => import('./vizplus.ts'),
+  vizgo: () => import('./vizgo.ts'),
+  vizsys: () => import('./vizsys.ts'),
 };
 
 export type VizModule = keyof typeof LOADERS;

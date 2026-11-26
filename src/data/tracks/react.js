@@ -1,3 +1,4 @@
+// @ts-check
 export const track = {
   id: 'react', name: 'TypeScript + React', lang: 'tsx',
   tagline: 'The frontend: modern JavaScript, the type system, components, state and architecture.',

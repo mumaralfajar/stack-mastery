@@ -1,3 +1,4 @@
+// @ts-check
 // Bahasa Indonesia — terjemahan visualisasi interaktif Go di src/scripts/viz/vizgo.js.
 const dict = {
   'Go': 'Go',

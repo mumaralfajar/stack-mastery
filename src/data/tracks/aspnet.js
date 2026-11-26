@@ -1,3 +1,4 @@
+// @ts-check
 export const track = {
   id: 'aspnet', name: 'ASP.NET Core', lang: 'cs',
   tagline: 'The backend: HTTP, APIs, dependency injection, EF Core, security, and production.',

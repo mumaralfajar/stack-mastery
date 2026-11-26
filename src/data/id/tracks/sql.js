@@ -1,3 +1,4 @@
+// @ts-check
 // Bahasa Indonesia — track SQL. Contoh kode tetap memakai versi aslinya.
 export const trackId = {
   id: 'sql',

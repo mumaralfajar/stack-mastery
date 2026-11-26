@@ -1,3 +1,4 @@
+// @ts-check
 // Bahasa Indonesia — track System Design. Contoh kode memakai versi aslinya.
 export const trackId = {
   id: 'sysdesign',

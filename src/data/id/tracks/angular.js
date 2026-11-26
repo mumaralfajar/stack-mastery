@@ -1,3 +1,4 @@
+// @ts-check
 // Indonesian translation for the Angular track (exact parity with data/angular.js).
 export const trackId = {
   id: 'angular',

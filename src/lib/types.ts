@@ -291,6 +291,23 @@ export interface LessonTranslation {
   quiz?: Record<string, [string, string[], string]>;
 }
 
+export interface CatalogLesson {
+  id: string;
+  title: string;
+  level: LevelIndex;
+}
+
+export interface CatalogTrack {
+  id: string;
+  name: string;
+  tagline: string;
+  lessons: CatalogLesson[];
+}
+
+export interface TrackCatalog {
+  tracks: CatalogTrack[];
+}
+
 export interface TrackTranslation {
   id: string;
   name?: string;

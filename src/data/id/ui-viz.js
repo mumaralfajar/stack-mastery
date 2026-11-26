@@ -1,3 +1,4 @@
+// @ts-check
 // Bahasa Indonesia — teks visualisasi di js/viz.js.
 const dict = {
   'Buy now': 'Beli sekarang',

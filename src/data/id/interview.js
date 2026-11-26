@@ -1,3 +1,4 @@
+// @ts-check
 // Bahasa Indonesia — konten persiapan interview. Kode, test case, dan solusi tetap memakai versi aslinya.
 const ivBase = {
   method: [

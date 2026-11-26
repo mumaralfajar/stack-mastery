@@ -2,14 +2,28 @@
 // Only loads this track's Beginner quiz JSON embedded in #track-placement-data.
 import { confirmDialog, h, md } from '../lib/dom.ts';
 import { registerUiDict, t as T } from '../lib/i18n.ts';
-import { shuffle } from '../lib/icons.ts';
+import { shuffle } from '../lib/ui.ts';
 import { trackPctIndex } from '../lib/progress.ts';
 import { notifyStateChange, peek, st, subscribeState, touch } from '../lib/state.ts';
+import type { LevelIndex, QuizItem } from '../lib/types.ts';
 
-const page = document.querySelector('[data-track]');
-let placementData = null;
+interface PlacementLesson {
+  id: string;
+  title: string;
+  quiz: QuizItem[];
+}
+
+interface PlacementPayload {
+  trackId: string;
+  trackName: string;
+  beginnerLessons: PlacementLesson[];
+  i18n?: Record<string, string>;
+}
+
+const page = document.querySelector<HTMLElement>('[data-track]');
+let placementData: PlacementPayload | null = null;
 try {
-  placementData = JSON.parse(document.getElementById('track-placement-data')?.textContent || 'null');
+  placementData = JSON.parse(document.getElementById('track-placement-data')?.textContent || 'null') as PlacementPayload | null;
 } catch {
   placementData = null;
 }
@@ -18,11 +32,11 @@ if (placementData?.i18n) {
   registerUiDict(placementData.i18n);
 }
 
-const openBtn = page?.querySelector('[data-placement-open]');
-const noteEl = page?.querySelector('[data-placement-note]');
-const panel = page?.querySelector('[data-placement-panel]');
+const openBtn = page?.querySelector<HTMLButtonElement>('[data-placement-open]');
+const noteEl = page?.querySelector<HTMLElement>('[data-placement-note]');
+const panel = page?.querySelector<HTMLElement>('[data-placement-panel]');
 
-const allBeginnerDone = () => {
+const allBeginnerDone = (): boolean => {
   if (!placementData?.beginnerLessons?.length) return false;
   return placementData.beginnerLessons.every((bl) => {
     const s = peek(`${placementData.trackId}/${bl.id}`);
@@ -30,20 +44,20 @@ const allBeginnerDone = () => {
   });
 };
 
-const draw = () => {
+const draw = (): void => {
   if (!page) return;
   const id = page.dataset.track || '';
   const pct = trackPctIndex(id);
-  const bar = page.querySelector('[data-track-bar]');
+  const bar = page.querySelector<HTMLElement>('[data-track-bar]');
   if (bar) {
     bar.setAttribute('aria-label', `${bar.dataset.label} ${pct}%`);
-    const fill = bar.querySelector('i');
+    const fill = bar.querySelector<HTMLElement>('i');
     if (fill) fill.style.width = pct + '%';
   }
-  for (const el of page.querySelectorAll('[data-level-pct]')) {
-    el.textContent = trackPctIndex(id, Number(el.dataset.levelPct)) + '%';
+  for (const el of page.querySelectorAll<HTMLElement>('[data-level-pct]')) {
+    el.textContent = trackPctIndex(id, Number(el.dataset.levelPct) as LevelIndex) + '%';
   }
-  for (const row of page.querySelectorAll('[data-k]')) {
+  for (const row of page.querySelectorAll<HTMLElement>('[data-k]')) {
     const s = peek(row.dataset.k || '');
     const flags = [s.read, s.quiz, s.teach];
     for (const [i, dot] of [...row.querySelectorAll('.dots i')].entries()) {
@@ -62,14 +76,20 @@ const draw = () => {
 draw();
 subscribeState(draw);
 
+interface SampledQuestion {
+  lessonId: string;
+  lessonTitle: string;
+  q: QuizItem;
+}
+
 // Sample up to 6 questions evenly across this track's Beginner lessons (round-robin).
-function samplePlacementQuestions(beginnerLessons, maxQuestions = 6) {
+function samplePlacementQuestions(beginnerLessons: PlacementLesson[], maxQuestions = 6): SampledQuestion[] {
   const buckets = beginnerLessons.map((bl) => ({
     lessonId: bl.id,
     lessonTitle: bl.title,
     items: shuffle(bl.quiz || []),
   }));
-  const picked = [];
+  const picked: SampledQuestion[] = [];
   let added = true;
   while (picked.length < maxQuestions && added) {
     added = false;
@@ -86,19 +106,20 @@ function samplePlacementQuestions(beginnerLessons, maxQuestions = 6) {
 }
 
 if (page && openBtn && panel && placementData?.beginnerLessons?.length) {
-  const closeQuiz = () => {
+  const activePlacement = placementData;
+  const closeQuiz = (): void => {
     panel.hidden = true;
     panel.replaceChildren();
     openBtn.setAttribute('aria-expanded', 'false');
     openBtn.focus();
   };
 
-  const launchQuiz = () => {
-    const items = samplePlacementQuestions(placementData.beginnerLessons, 6).map((entry) => ({
+  const launchQuiz = (): void => {
+    const items = samplePlacementQuestions(activePlacement.beginnerLessons, 6).map((entry) => ({
       ...entry,
       options: shuffle(entry.q.a.map((text, idx) => ({ text, ok: idx === entry.q.c }))),
     }));
-    const answers = new Array(items.length).fill(-1);
+    const answers = new Array<number>(items.length).fill(-1);
     const warnEl = h('p', { class: 'fb bad', role: 'alert', hidden: true });
     const summaryEl = h('div', { class: 'empty placement-summary', role: 'status', hidden: true });
 
@@ -132,7 +153,7 @@ if (page && openBtn && panel && placementData?.beginnerLessons?.length) {
     const form = h(
       'form',
       {
-        onsubmit: (e) => {
+        onsubmit: (e: SubmitEvent) => {
           e.preventDefault();
           const firstMissing = answers.findIndex((a) => a < 0);
           if (firstMissing >= 0) {
@@ -171,20 +192,20 @@ if (page && openBtn && panel && placementData?.beginnerLessons?.length) {
                     const ok = await confirmDialog(
                       T(
                         'Mark all {n} Beginner lessons in {track} as Learned and Checked? Teach-Back stays unchecked so you can still write your own explanations.',
-                        { n: placementData.beginnerLessons.length, track: placementData.trackName },
+                        { n: activePlacement.beginnerLessons.length, track: activePlacement.trackName },
                       ),
                       { title: 'Test out of Beginner', confirmText: 'Mark Beginner lessons complete', danger: false },
                     );
                     if (!ok) return;
-                    for (const bl of placementData.beginnerLessons) {
-                      const entry = st(`${placementData.trackId}/${bl.id}`);
+                    for (const bl of activePlacement.beginnerLessons) {
+                      const entry = st(`${activePlacement.trackId}/${bl.id}`);
                       entry.read = true;
                       entry.quiz = true;
                     }
                     touch();
                     notifyStateChange('study');
                     draw();
-                    applyBtn.disabled = true;
+                    if (applyBtn) applyBtn.disabled = true;
                     summaryEl.replaceChildren(
                       h('strong', {}, T('Placement score: {correct} / {total} ({pct}%)', { correct, total: items.length, pct: pctScore })),
                       h('p', { class: 'ok' }, 'Beginner lessons marked Learned and Checked. Teach-Back remains open for your own notes.'),

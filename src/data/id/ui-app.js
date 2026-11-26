@@ -1,3 +1,4 @@
+// @ts-check
 // Bahasa Indonesia — teks antarmuka utama aplikasi dan helper.
 // Istilah teknis yang lebih lazim dalam bahasa Inggris sengaja tidak diterjemahkan.
 const dict = {

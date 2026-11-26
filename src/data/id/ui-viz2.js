@@ -1,3 +1,4 @@
+// @ts-check
 // Bahasa Indonesia — teks visualisasi di js/vizcss.js dan js/vizmore.js.
 const dict = {
   // specificity

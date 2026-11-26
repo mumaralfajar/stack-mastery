@@ -3,11 +3,13 @@ import { h, tableWrap, treeWire } from '../../lib/dom.ts';
 import { t as T } from '../../lib/i18n.ts';
 import { VIZ } from './registry.ts';
   const meta = { track: 'flutter', trackName: 'Dart + Flutter' };
-  const btn = (label, onclick, cls) => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
-  const check = (label, on, onchange) => { const c = h('input', { type: 'checkbox', onchange }); c.checked = on; return [h('label', {}, c, label), c]; };
+  const btn = (label: string, onclick: () => void, cls?: string): HTMLButtonElement => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
+  const check = (label: string, on: boolean, onchange: (e: Event) => void): [HTMLElement, HTMLInputElement] => {
+    const c = h('input', { type: 'checkbox', onchange }); c.checked = on; return [h('label', {}, c, label), c];
+  };
 
   // Back / Next / Reset driving draw(i); count() may change when options change.
-  function stepper(count, draw) {
+  function stepper(count: () => number, draw: (i: number) => void) {
     let i = 0;
     const label = h('span', { class: 'muted' });
     const back = btn('← Back', () => { i--; upd(); }, 'ghost'), next = btn('Next →', () => { i++; upd(); });
@@ -22,7 +24,7 @@ import { VIZ } from './registry.ts';
     mount(el) {
       const rows = ['Screen', 'Padding(16)', 'Row', 'Icon', 'Text', 'IconButton'];
       // Each step: [row index in focus, constraints per row, sizes per row, note]
-      const steps = expanded => [
+      const steps = (expanded: boolean): [number, string[], string[], string][] => [
         [1, ['', 'w = 360', '', '', '', ''], [], 'The screen gives Padding a tight constraint: be exactly 360 wide.'],
         [2, ['', 'w = 360', '0 ≤ w ≤ 328', '', '', ''], [], 'Padding keeps 16 on each side for itself and passes what is left down: Row may be up to 328 wide.'],
         [3, ['', 'w = 360', '0 ≤ w ≤ 328', '0 ≤ w ≤ ∞', '', '0 ≤ w ≤ ∞'], ['', '', '', '40 × 40', '', '48 × 48'], 'Row lays out its non-flexible children first, with unbounded width. Icon answers 40, IconButton answers 48. Sizes go up.'],
@@ -58,25 +60,25 @@ import { VIZ } from './registry.ts';
     ...meta, title: 'Rebuild explorer',
     desc: 'Tap a widget to call setState there. Everything that flashes ran build() again. Then mark the unchanged children const and try once more.',
     mount(el) {
-      const tree = { ProductsPage: ['AppBar', 'ProductList', 'CartBadge'], ProductList: ['Tile A', 'Tile B', 'Tile C'] };
-      const count = {}, nodes = {};
+      const tree: Record<string, string[]> = { ProductsPage: ['AppBar', 'ProductList', 'CartBadge'], ProductList: ['Tile A', 'Tile B', 'Tile C'] };
+      const count: Record<string, number> = {}, nodes: Record<string, HTMLButtonElement> = {};
       const note = h('p', { class: 'viz-note' }, 'Tap any widget.');
       const [constLab, cons] = check(' Children are const (configuration unchanged)', false, () => reset());
-      const label = name => { nodes[name].lastChild.textContent = `${T('builds:')} ${count[name]}`; };
-      const build = (name, isRoot, hit, skipped) => {
+      const label = (name: string) => { if (nodes[name].lastChild) nodes[name].lastChild.textContent = `${T('builds:')} ${count[name]}`; };
+      const build = (name: string, isRoot: boolean, hit: string[], skipped: string[]) => {
         if (!isRoot && cons.checked) { skipped.push(name); nodes[name].classList.add('skip'); return; }
         count[name]++; label(name); hit.push(name);
         const n = nodes[name]; n.classList.remove('flash-r'); void n.offsetWidth; n.classList.add('flash-r');
         (tree[name] || []).forEach(c => build(c, false, hit, skipped));
       };
-      const tap = name => {
+      const tap = (name: string) => {
         Object.values(nodes).forEach(n => n.classList.remove('skip'));
-        const hit = [], skipped = [];
+        const hit: string[] = [], skipped: string[] = [];
         build(name, true, hit, skipped);
         note.textContent = T('setState in {name} → {n} build() call(s)', { name, n: hit.length }) +
           T(skipped.length ? ', skipping {n} unchanged const subtree(s).' : hit.length > 1 ? ': this widget and its subtree. Push state down or use BlocSelector to rebuild less.' : '. Parents and siblings never rebuild.', { n: skipped.length });
       };
-      const mk = name => { count[name] = 1; return nodes[name] = h('button', { type: 'button', class: 'comp', onclick: () => tap(name) }, name, h('small', {}, T('builds:') + ' 1')); };
+      const mk = (name: string): HTMLButtonElement => { count[name] = 1; return nodes[name] = h('button', { type: 'button', class: 'comp', onclick: () => tap(name) }, name, h('small', {}, T('builds:') + ' 1')); };
       const reset = () => { Object.keys(nodes).forEach(n => { count[n] = 1; label(n); nodes[n].classList.remove('skip'); }); note.textContent = T('Tap any widget.'); };
       const treeEl = h('div', { class: 'tree' }, h('div', { class: 'tree-r' }, mk('ProductsPage')), h('div', { class: 'tree-r' }, tree.ProductsPage.map(mk)), h('div', { class: 'tree-r' }, tree.ProductList.map(mk)));
       treeWire(treeEl, [[nodes.ProductsPage, [nodes.AppBar, nodes.ProductList, nodes.CartBadge]], [nodes.ProductList, [nodes['Tile A'], nodes['Tile B'], nodes['Tile C']]]]);
@@ -92,7 +94,10 @@ import { VIZ } from './registry.ts';
     desc: 'Five moments in the life of a small screen. Watch which of the three trees is recreated, which is updated, and where State lives.',
     mount(el) {
       // cell: [text, 'new' | 'upd' | 'gone' | '']
-      const steps = [
+      type TreeTag = 'new' | 'upd' | 'gone' | '';
+      type TreeCol = 'w' | 'e' | 'r';
+      type TreeStep = Record<TreeCol, [string, TreeTag][]> & { note: string };
+      const steps: TreeStep[] = [
         {
           w: [['Column', 'new'], ['Text("0")', 'new'], ['Counter', 'new']], e: [['ColumnElement', 'new'], ['TextElement', 'new'], ['CounterElement + State(count 0)', 'new']], r: [['RenderFlex', 'new'], ['RenderParagraph "0"', 'new'], ['RenderBox', 'new']],
           note: 'First build. Widgets are created, each is inflated into an element, and elements create render objects. The State object is created and held by its element.'
@@ -114,10 +119,10 @@ import { VIZ } from './registry.ts';
           note: 'The same swap WITH keys: elements match by key, so each element moves with its widget alongside its State and render object. Keys tell Flutter which widget is which.'
         }
       ];
-      const cols = [['w', 'Widget tree', 'immutable configuration'], ['e', 'Element tree', 'long-lived, holds State'], ['r', 'Render tree', 'layout and paint']];
-      const boxes = cols.map(([k, title, sub]) => { const b = h('div', {}); return [k, h('div', { class: 'viz-box' }, h('h4', {}, title), h('p', { class: 'muted', style: { margin: '0 0 .5rem', fontSize: '.8rem' } }, sub), b), b]; });
+      const cols: [TreeCol, string, string][] = [['w', 'Widget tree', 'immutable configuration'], ['e', 'Element tree', 'long-lived, holds State'], ['r', 'Render tree', 'layout and paint']];
+      const boxes: [TreeCol, HTMLElement, HTMLElement][] = cols.map(([k, title, sub]) => { const b = h('div', {}); return [k, h('div', { class: 'viz-box' }, h('h4', {}, title), h('p', { class: 'muted', style: { margin: '0 0 .5rem', fontSize: '.8rem' } }, sub), b), b]; });
       const note = h('p', { class: 'viz-note' });
-      const tag = { new: 'created', upd: 'updated', gone: 'wrong State!', '': 'kept' };
+      const tag: Record<TreeTag, string> = { new: 'created', upd: 'updated', gone: 'wrong State!', '': 'kept' };
       const s = stepper(() => steps.length, i => {
         boxes.forEach(([k, , b]) => b.replaceChildren(...steps[i][k].map(([text, st], j) => h('div', { class: 'slot tt-' + (st || 'kept'), style: { marginLeft: j ? '1rem' : 0 } }, h('span', {}, text), h('b', {}, tag[st])))));
         note.textContent = T(steps[i].note);

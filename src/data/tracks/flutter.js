@@ -1,3 +1,4 @@
+// @ts-check
 // Dart + Flutter track. Every code sample is a complete file checked by tools/verify-dart.mjs.
 // Inside these template literals a Dart "${" must be written "\${".
 export const track = {

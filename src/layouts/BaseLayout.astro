@@ -40,7 +40,8 @@ const registerSw = import.meta.env.PROD;
         const t = JSON.parse(localStorage.getItem("stackmastery.v1") || "{}").theme;
         if (t === "light" || t === "dark") {
           document.documentElement.dataset.theme = t;
-          document.querySelector('meta[name="color-scheme"]').content = t;
+          const m = document.querySelector('meta[name="color-scheme"]');
+          if (m instanceof HTMLMetaElement) m.content = t;
         }
       } catch {}
     </script>
@@ -57,23 +58,28 @@ const registerSw = import.meta.env.PROD;
     <SeoHead lang={lang} path={path} title={title} description={description} ogType={ogType} jsonLd={jsonLd} noindex={noindex} />
   </head>
   <body class={bodyClass}>
-    <a class="skip" href="#view" onclick="document.getElementById('view').focus(); return false;">{t('Skip to content', lang)}</a>
+    <a class="skip" href="#view" onclick="document.getElementById('view')?.focus(); return false;">{t('Skip to content', lang)}</a>
     <slot />
     {registerSw && (
-      <script is:inline define:vars={{ swUrl, swScope }}>
-        if ("serviceWorker" in navigator) {
-          addEventListener("load", () => {
-            navigator.serviceWorker
-              .register(swUrl, { scope: swScope })
-              .then(() => navigator.serviceWorker.ready)
-              .then((reg) => {
-                const own = location.origin + swScope;
-                const urls = [location.href.split("#")[0], ...performance.getEntriesByType("resource").map((e) => e.name)];
-                reg.active?.postMessage({ type: "CACHE_URLS", urls: urls.filter((u) => u.startsWith(own)) });
-              })
-              .catch(() => {});
-          });
-        }
+      <script is:inline data-sw-url={swUrl} data-sw-scope={swScope}>
+        (() => {
+          const s = document.querySelector("script[data-sw-url]");
+          const swUrl = s?.getAttribute("data-sw-url") || "";
+          const swScope = s?.getAttribute("data-sw-scope") || "";
+          if ("serviceWorker" in navigator && swUrl && swScope) {
+            addEventListener("load", () => {
+              navigator.serviceWorker
+                .register(swUrl, { scope: swScope })
+                .then(() => navigator.serviceWorker.ready)
+                .then((reg) => {
+                  const own = location.origin + swScope;
+                  const urls = [location.href.split("#")[0], ...performance.getEntriesByType("resource").map((e) => e.name)];
+                  reg.active?.postMessage({ type: "CACHE_URLS", urls: urls.filter((u) => u.startsWith(own)) });
+                })
+                .catch(() => {});
+            });
+          }
+        })();
       </script>
     )}
   </body>

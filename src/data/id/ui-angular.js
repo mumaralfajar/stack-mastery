@@ -1,3 +1,4 @@
+// @ts-check
 // Indonesian strings for Angular visualizations, TS playground sample, and setup step.
 const dict = {
   'price = {n}': 'price = {n}',

@@ -240,12 +240,12 @@ Stack Mastery is a Progressive Web App (`public/manifest.webmanifest`, `public/s
 | `src/lib/` | Strict, erasable TypeScript core (`routes.ts` URL builders and legacy hash bridge, `progress.ts` manifest-only progress, `types.ts`, `storage.ts`, `state.ts`, `theme.ts`, `dom.ts`, `highlight.ts`, `icons.ts`, `i18n.ts`, `seo.ts`, `ssr.ts`), plus modular `landing/` (`audio.ts`, `reactor-engine.ts`, `landing-island.ts`) and `break/` (`audio.ts`, `meadow-engine.ts`, `pomodoro.ts`, `break-island.ts`) engines |
 | `src/scripts/workspace-shell.ts` | Sidebar hydration: progress, due badge, compact Pomodoro study-timer pill & focus-complete toast, drawer, language/theme toggles, backups (imports only the manifest and `src/lib/`) |
 | `src/scripts/legacy-bridge.ts` | Legacy `#/…` bookmark redirect shared by the landing and 404 pages |
-| `src/scripts/lesson-island.js`, `view-island.js` | Lesson islands (predict, quiz, teach-back, progress, last-lesson tracking, one lab) and the loader for client-rendered views |
-| `src/scripts/views/` | Client views (`dashboard.js`, `practice.js` review/exam, `search.js`) |
-| `src/scripts/interview.js` | Interview hub, code judge, estimator, story bank, and mocks |
-| `src/scripts/playground.js` | SQL, TypeScript, CSS, and DartPad playgrounds |
-| `src/scripts/viz/` | 40 interactive labs; `registry.ts` maps each lab to its module so `loadViz(id)` imports only that one (`viz.js`, `vizcss.js`, `vizmore.js`, `vizangular.js`, `vizflutter.js`, `vizplus.js`, `vizgo.js`, `vizsys.js`) |
-| `src/data/` | Typed manifest (`manifest.ts`, including each lesson's `quizIds`), chunked loaders (`index.ts`, `tracks-core.ts`, `tracks-ui.ts`, `interview-data.ts`, `track-loaders.ts`), the build-time aggregators and indexes (`site.ts`, `search-index.ts`, `quiz-index.ts`), English tracks (`tracks/*.js`), `projects.js`, `interview.js`, `interview-cs.js` |
+| `src/scripts/lesson-island.ts`, `view-island.ts` | Lesson islands (predict, quiz, teach-back, progress, last-lesson tracking, one lab) and the loader for client-rendered views |
+| `src/scripts/views/` | Client views (`dashboard.ts`, `practice.ts` review/exam, `notes.ts`, `search.ts`) |
+| `src/scripts/interview.ts` | Interview hub, code judge, estimator, story bank, and mocks |
+| `src/scripts/playground.ts` | SQL, TypeScript, CSS, and DartPad playgrounds |
+| `src/scripts/viz/` | 40 interactive labs; `registry.ts` maps each lab to its module so `loadViz(id)` imports only that one (`viz.ts`, `vizcss.ts`, `vizmore.ts`, `vizangular.ts`, `vizflutter.ts`, `vizplus.ts`, `vizgo.ts`, `vizsys.ts`) |
+| `src/data/` | Typed manifest (`manifest.ts`, including each lesson's `quizIds`), chunked loaders (`index.ts`, `tracks-core.ts`, `tracks-ui.ts`, `interview-data.ts`), the build-time aggregators and indexes (`site.ts`, `search-index.ts`, `quiz-index.ts`), English tracks (`tracks/*.js`), `projects.js`, `interview.js`, `interview-cs.js` |
 | `src/data/id/` | Bahasa Indonesia loaders (`index.ts`, `core.ts`, `web.ts`, `ui.ts`), tracks (`tracks/*.js`), UI dictionaries (`ui-*.js`), `projects.js`, and `interview.js` |
 | `public/` | `manifest.webmanifest`, `sw.js`, `robots.txt`, favicons, and PNG/SVG app icons |
 | `tools/check-i18n.mjs`, `extract-text.mjs` | Translation parity check (lessons, UI strings in `.js`/`.ts`/`.astro`, `h()` labels, table headers, playground chips, manifest `quizIds`, lab registry) and text extractor |

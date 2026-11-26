@@ -1,3 +1,4 @@
+// @ts-check
 // Angular track (Angular 22+). Every code sample is checked with ngc strictTemplates by tools/verify-angular.mjs.
 // Inside these template literals any TypeScript backtick must be written \` and "${" must be written \${.
 export const track = {

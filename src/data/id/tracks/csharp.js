@@ -1,3 +1,4 @@
+// @ts-check
 // Bahasa Indonesia — track C#. Contoh kode tetap memakai versi aslinya.
 export const trackId = {
   id: 'csharp',

@@ -1,3 +1,4 @@
+// @ts-check
 // Bahasa Indonesia — capstone project.
 export const projectsId = [
   {

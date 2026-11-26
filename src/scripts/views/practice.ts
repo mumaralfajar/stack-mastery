@@ -1,31 +1,46 @@
 // Flashcard review and mock exam views (client-rendered from lightweight /quiz-index.json).
+import type { QuizIndexData, QuizIndexLesson, QuizIndexTrack } from '../../data/quiz-index.ts';
 import { h, md, tableWrap } from '../../lib/dom.ts';
 import { getLevels, t as T } from '../../lib/i18n.ts';
-import { href, lessonHref, quizItem, section, shuffle } from '../../lib/icons.ts';
+import { href, lessonHref, quizItem, section, shuffle } from '../../lib/ui.ts';
 import { previewGrades, recordCardMiss, scheduleCard } from '../../lib/srs.ts';
 import { S, cardKey, day, key, notifyStateChange, peek, save, touch } from '../../lib/state.ts';
+import type { QuizItem, SrsGrade } from '../../lib/types.ts';
 
-const GRADE_META = [
+const GRADE_META: readonly [SrsGrade, string, string, string, string][] = [
   ['again', 'Again', 'Again ({d}d)', 'ghost', '1'],
   ['hard', 'Hard', 'Hard ({d}d)', 'ghost', '2'],
   ['good', 'Good', 'Good ({d}d)', '', '3'],
   ['easy', 'Easy', 'Easy ({d}d)', 'ghost', '4'],
 ];
 
-function indexLessons(quizIndex) {
+interface PracticeLessonEntry {
+  t: QuizIndexTrack;
+  l: QuizIndexLesson;
+  k: string;
+}
+
+interface PracticeCard {
+  id: string;
+  q: QuizItem;
+  t: QuizIndexTrack;
+  l: QuizIndexLesson;
+}
+
+function indexLessons(quizIndex: QuizIndexData): PracticeLessonEntry[] {
   return (quizIndex?.tracks || []).flatMap((t) => t.lessons.map((l) => ({ t, l, k: key(t, l) })));
 }
 
-function indexCards(quizIndex) {
+function indexCards(quizIndex: QuizIndexData): PracticeCard[] {
   return indexLessons(quizIndex).flatMap((e) => e.l.quiz.map((q) => ({ id: cardKey(e.k, q.id), q, t: e.t, l: e.l })));
 }
 
-function indexDueCards(quizIndex) {
+function indexDueCards(quizIndex: QuizIndexData): PracticeCard[] {
   const today = day();
   return indexCards(quizIndex).filter((c) => (S.cards[c.id] ? S.cards[c.id].due <= today : !!peek(key(c.t, c.l)).read));
 }
 
-export function review(quizIndex, onCleanup) {
+export function review(quizIndex: QuizIndexData, onCleanup?: (fn: () => void) => void): HTMLDivElement {
   const tracks = quizIndex?.tracks || [];
   const lessons = indexLessons(quizIndex);
   const trackSel = h(
@@ -51,14 +66,14 @@ export function review(quizIndex, onCleanup) {
     h('div', { class: 'actions' }, trackSel),
     stage,
   );
-  let queue = [];
+  let queue: PracticeCard[] = [];
   let n = 0;
   let got = 0;
   let revealed = false;
-  let revealHandler = null;
-  let gradeHandler = null;
+  let revealHandler: (() => void) | null = null;
+  let gradeHandler: ((rating: SrsGrade) => void) | null = null;
 
-  const resetQueue = () => {
+  const resetQueue = (): void => {
     const tid = trackSel.value;
     queue = shuffle(indexDueCards(quizIndex).filter((c) => !tid || c.t.id === tid)).slice(0, 20);
     n = 0;
@@ -67,11 +82,11 @@ export function review(quizIndex, onCleanup) {
   };
   trackSel.onchange = resetQueue;
 
-  const onKey = (e) => {
+  const onKey = (e: KeyboardEvent): void => {
     if (!stage.isConnected) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (document.querySelector('dialog[open]')) return;
-    const target = e.target;
+    const target = e.target as HTMLElement | null;
     if (target && target.closest('input, textarea, select, [contenteditable]')) return;
     if (!queue.length || n >= queue.length) return;
     if (e.key === ' ' || e.code === 'Space') {
@@ -83,7 +98,7 @@ export function review(quizIndex, onCleanup) {
       return;
     }
     if (revealed && gradeHandler) {
-      const map = { 1: 'again', 2: 'hard', 3: 'good', 4: 'easy' };
+      const map: Record<string, SrsGrade> = { 1: 'again', 2: 'hard', 3: 'good', 4: 'easy' };
       const g = map[e.key];
       if (g) {
         e.preventDefault();
@@ -94,13 +109,13 @@ export function review(quizIndex, onCleanup) {
   addEventListener('keydown', onKey);
   onCleanup?.(() => removeEventListener('keydown', onKey));
 
-  const show = () => {
+  const show = (): void => {
     revealed = false;
     revealHandler = null;
     gradeHandler = null;
 
     if (!queue.length) {
-      return stage.replaceChildren(
+      stage.replaceChildren(
         h(
           'div',
           { class: 'empty' },
@@ -114,12 +129,13 @@ export function review(quizIndex, onCleanup) {
           ),
         ),
       );
+      return;
     }
     if (n >= queue.length) {
       notifyStateChange('study');
       const tid = trackSel.value;
       const remaining = indexDueCards(quizIndex).filter((c) => !tid || c.t.id === tid).length;
-      return stage.replaceChildren(
+      stage.replaceChildren(
         h(
           'div',
           { class: 'empty' },
@@ -137,12 +153,13 @@ export function review(quizIndex, onCleanup) {
           ),
         ),
       );
+      return;
     }
     const c = queue[n];
     const today = day();
     const previews = previewGrades(S.cards[c.id], today);
 
-    const grade = (rating) => {
+    const grade = (rating: SrsGrade): void => {
       S.cards[c.id] = scheduleCard(S.cards[c.id], rating, today);
       if (rating !== 'again') got++;
       n++;
@@ -210,7 +227,7 @@ export function review(quizIndex, onCleanup) {
   return page;
 }
 
-export function exam(quizIndex) {
+export function exam(quizIndex: QuizIndexData): HTMLDivElement {
   const tracks = quizIndex?.tracks || [];
   const trackNames = new Map(tracks.map((t) => [t.id, t.name]));
   const levels = getLevels();
@@ -225,13 +242,14 @@ export function exam(quizIndex) {
       h('p', { class: 'lede' }, 'Ten random questions, one attempt each. Use it to find the lessons you cannot yet teach.'),
     ),
   );
-  const sel = (opts, label) => h('select', { 'aria-label': label }, opts.map(([v, n]) => h('option', { value: v }, n)));
-  const ts = sel([['', 'All tracks'], ...tracks.map((t) => [t.id, t.name])], 'Filter by track');
-  const ls = sel([['', 'All levels'], ...levels.map((n, i) => [i, n])], 'Filter by level');
+  const sel = (opts: [string | number, string][], label: string) =>
+    h('select', { 'aria-label': label }, opts.map(([v, n]) => h('option', { value: v }, n)));
+  const ts = sel([['', 'All tracks'], ...tracks.map((t): [string, string] => [t.id, t.name])], 'Filter by track');
+  const ls = sel([['', 'All levels'], ...levels.map((n, i): [number, string] => [i, n])], 'Filter by level');
   const stage = h('div', {});
   const historyBody = h('div', {});
 
-  const drawHistory = () => {
+  const drawHistory = (): void => {
     const list = Array.isArray(S.examHistory) ? S.examHistory : [];
     if (!list.length) {
       historyBody.replaceChildren(h('p', { class: 'muted' }, 'No mock exams completed yet.'));
@@ -264,13 +282,13 @@ export function exam(quizIndex) {
     );
   };
 
-  const start = () => {
+  const start = (): void => {
     const selectedTrack = ts.value || 'all';
     const pool = shuffle(
       indexCards(quizIndex).filter((c) => (!ts.value || c.t.id === ts.value) && (ls.value === '' || c.l.level === +ls.value)),
     ).slice(0, 10);
     if (!pool.length) {
-      return stage.replaceChildren(
+      stage.replaceChildren(
         h(
           'div',
           { class: 'empty', role: 'status' },
@@ -278,10 +296,11 @@ export function exam(quizIndex) {
           h('p', {}, 'Pick another track or level, or choose All levels.'),
         ),
       );
+      return;
     }
     let answered = 0;
     let right = 0;
-    const missed = new Map();
+    const missed = new Map<string, PracticeCard>();
     const result = h('div', { class: 'empty', hidden: true });
     stage.replaceChildren(
       ...pool.map((c, i) =>
@@ -314,7 +333,7 @@ export function exam(quizIndex) {
                 drawHistory();
 
                 result.hidden = false;
-                result.replaceChildren(
+                const resultKids: (string | Node)[] = [
                   h('strong', {}, `${T('Score:')} ${right} / ${pool.length}`),
                   missed.size
                     ? h(
@@ -324,10 +343,11 @@ export function exam(quizIndex) {
                         [...missed.values()].map((m, j) => [j ? ', ' : '', h('a', { href: lessonHref(m.t, m.l) }, m.l.title)]),
                       )
                     : h('p', {}, 'Clean sweep. Raise the level.'),
-                  missed.size
-                    ? h('p', { class: 'muted' }, 'Missed questions were added to Flashcard review (due today).')
-                    : null,
-                );
+                ];
+                if (missed.size) {
+                  resultKids.push(h('p', { class: 'muted' }, 'Missed questions were added to Flashcard review (due today).'));
+                }
+                result.replaceChildren(...resultKids);
                 result.scrollIntoView({
                   behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
                   block: 'center',

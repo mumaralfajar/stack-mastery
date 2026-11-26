@@ -1,3 +1,4 @@
+// @ts-check
 export const track = {
   id: 'sql', name: 'SQL', lang: 'sql',
   tagline: 'Data in SQL Server: querying, schema design, indexing, transactions, and tuning.',

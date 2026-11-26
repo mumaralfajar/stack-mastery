@@ -1,3 +1,4 @@
+// @ts-check
 // System Design track: 16 lessons from back-of-the-envelope math to distributed consensus and tool selection.
 // Inside JS template literals, every backslash (\) and backtick (`) inside Go/SQL/YAML/HTTP code must be escaped (\\, \`).
 export const track = {

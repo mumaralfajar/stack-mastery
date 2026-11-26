@@ -1,3 +1,4 @@
+// @ts-check
 export const track = {
   id: 'css', name: 'CSS + Tailwind', lang: 'css',
   tagline: 'Visual styling: the cascade, layout systems, responsive design, and Tailwind CSS.',

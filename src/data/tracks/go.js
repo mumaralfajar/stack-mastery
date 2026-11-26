@@ -1,3 +1,4 @@
+// @ts-check
 // Go track (Go 1.27.4). Every lesson code sample is vetted, built, and tested by tools/verify-go.mjs.
 // Inside these JS template literals any Go backtick (`) is escaped as \`.
 export const track = {

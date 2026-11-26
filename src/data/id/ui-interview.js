@@ -1,3 +1,4 @@
+// @ts-check
 // Bahasa Indonesia — teks antarmuka untuk bagian interview.
 const dict = {
   'Easy': 'Easy', 'Medium': 'Medium', 'Hard': 'Hard',

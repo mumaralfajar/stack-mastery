@@ -4,6 +4,9 @@ import { getLevels, getTrack, t as T } from '../lib/i18n.ts';
 import { SQL_KEY, readJson, writeJson } from '../lib/storage.ts';
 import { resolvedTheme, watchTheme } from '../lib/theme.ts';
 
+type CleanupFn = () => void;
+type OnCleanup = (fn: CleanupFn) => void;
+
   const CDN = 'https://cdnjs.cloudflare.com/ajax/libs/';
   // Every pinned third-party script is loaded with Subresource Integrity: the browser refuses to run it unless its
   // bytes match these sha384 digests, which were computed from the exact files the CDNs serve for these URLs.
@@ -14,24 +17,25 @@ import { resolvedTheme, watchTheme } from '../lib/theme.ts';
   const SQLJS_LOADER = SQLJS + 'sql-wasm.js';
   const TS_URL = CDN + 'typescript/5.8.3/typescript.min.js';
   const TAILWIND_URL = 'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.4';
-  const SRI = {
+  const SRI: Record<string, string> = {
     [MONACO_LOADER]: 'sha384-pHG02SG8pId94Np3AbPmBEJ1yPqaH0IkJGLSNGXYmuGhkazT8Lr/57WYpbkGjJtu',
     [SQLJS_LOADER]: 'sha384-KsfptB549CXfbfsdxZmPo2PlmgCyJ+RNqHTQE1Gj45t3p4DaA1QbZYVyqlni4pOO',
     [TS_URL]: 'sha384-rzD+Kg5xW4cKW7h4a2bUXWbDteIVdFMLwdoSxDFy9ItGR4++5eDnPB9mDLJRIkhv',
     [TAILWIND_URL]: 'sha384-Wvy1ssCJ6jK31FMWKSXxg4hwsnsgtYT2qpIUCYdQNmYfD6CBpVxUdyuvpr9LhZWb'
   };
 
-  const loaded = {};
+  const loaded: Record<string, Promise<void> | undefined> = {};
   // Scripts load one at a time. Monaco's AMD loader defines a global `define` with an `amd` flag that makes UMD
   // libraries such as sql.js register as AMD modules instead of setting their window global. So while any other
   // script runs, that flag is hidden, and it is put back right after (also on failure). Nothing is deleted for good.
-  let queue = Promise.resolve();
-  const loadScript = (src, integrity = SRI[src]) => {
-    if (loaded[src]) return loaded[src];
-    const p = queue.then(() => new Promise((ok, fail) => {
+  let queue: Promise<void> = Promise.resolve();
+  const loadScript = (src: string, integrity = SRI[src]): Promise<void> => {
+    const existing = loaded[src];
+    if (existing) return existing;
+    const p = queue.then(() => new Promise<void>((ok, fail) => {
       const def = window.define, amd = def && def.amd;
-      if (amd) def.amd = undefined;
-      const restore = () => { if (amd) def.amd = amd; };
+      if (amd && def) def.amd = undefined;
+      const restore = () => { if (amd && def) def.amd = amd; };
       const s = document.createElement('script');
       s.src = src;
       if (integrity) { s.integrity = integrity; s.crossOrigin = 'anonymous'; }
@@ -40,13 +44,16 @@ import { resolvedTheme, watchTheme } from '../lib/theme.ts';
       document.head.append(s);
     }));
     queue = p.catch(() => {});
-    loaded[src] = p.catch(e => { delete loaded[src]; throw e; });
+    loaded[src] = p.catch((e: unknown) => { delete loaded[src]; throw e; });
     return loaded[src];
   };
-  const store = { get: k => readJson(k, () => []), set: (k, v) => writeJson(k, v) };
+  const store = {
+    get: (k: string): number[] => readJson<number[]>(k, () => []),
+    set: (k: string, v: number[]): void => writeJson(k, v),
+  };
 
   // Shown when a CDN script or embed cannot load (offline, blocked): the editor stays usable and Retry tries again.
-  const loadFailure = (message, retry) => h('div', { class: 'load-fail', role: 'alert' },
+  const loadFailure = (message: string, retry: () => void): HTMLDivElement => h('div', { class: 'load-fail', role: 'alert' },
     h('p', { class: 'err' }, message),
     h('p', { class: 'muted' }, 'You can keep editing. Check your connection, then try again.'),
     h('button', { type: 'button', class: 'btn ghost', onclick: retry }, 'Retry'));
@@ -57,37 +64,44 @@ import { resolvedTheme, watchTheme } from '../lib/theme.ts';
     csharp: { href: 'https://sharplab.io/', label: 'SharpLab' },
     stackblitz: { href: 'https://stackblitz.com/', label: 'StackBlitz' },
     dartpad: { href: 'https://dartpad.dev/', label: 'DartPad' }
-  };
-  const sandboxLink = key => h('a', { href: SANDBOXES[key].href, target: '_blank', rel: 'noopener noreferrer', 'data-sandbox': key }, SANDBOXES[key].label);
+  } as const;
+  const sandboxLink = (key: keyof typeof SANDBOXES): HTMLAnchorElement =>
+    h('a', { href: SANDBOXES[key].href, target: '_blank', rel: 'noopener noreferrer', 'data-sandbox': key }, SANDBOXES[key].label);
 
   // Monaco (the open-source editor inside VS Code, MIT licence) gives syntax highlighting, autocomplete and
   // real TypeScript type checking. It loads lazily; if it cannot load, the plain textarea keeps working.
-  const monacoTheme = () => resolvedTheme() === 'dark' ? 'vs-dark' : 'vs';
+  const monacoTheme = (): string => resolvedTheme() === 'dark' ? 'vs-dark' : 'vs';
   // The worker script is one Blob URL, created on first use and revoked when the page is hidden. Returning from
   // the back/forward cache creates it again on demand.
-  let workerUrl = null;
-  const getWorkerUrl = () => workerUrl || (workerUrl = URL.createObjectURL(new Blob(
+  let workerUrl: string | null = null;
+  const getWorkerUrl = (): string => workerUrl || (workerUrl = URL.createObjectURL(new Blob(
     [`self.MonacoEnvironment = { baseUrl: '${MONACO}/' }; importScripts('${MONACO}/vs/base/worker/workerMain.js');`], { type: 'text/javascript' })));
   addEventListener('pagehide', () => { if (workerUrl) { URL.revokeObjectURL(workerUrl); workerUrl = null; } });
-  let monacoP, seq = 0;
-  const getMonaco = () => monacoP || (monacoP = loadScript(MONACO_LOADER).then(() => new Promise((ok, fail) => {
+  type MonacoInstance = NonNullable<Window['monaco']>;
+  let monacoP: Promise<MonacoInstance> | null = null;
+  let seq = 0;
+  const getMonaco = (): Promise<MonacoInstance> => monacoP || (monacoP = loadScript(MONACO_LOADER).then(() => new Promise<MonacoInstance>((ok, fail) => {
     window.MonacoEnvironment = { getWorkerUrl };
-    window.require.config({ paths: { vs: MONACO + '/vs' } });
-    window.require(['vs/editor/editor.main'], () => {
-      const t = window.monaco.languages.typescript;
+    const req = window.require;
+    if (!req) { fail(new Error('Monaco loader missing')); return; }
+    req.config({ paths: { vs: MONACO + '/vs' } });
+    req(['vs/editor/editor.main'], () => {
+      const monaco = window.monaco;
+      if (!monaco) { fail(new Error('Monaco failed to initialize')); return; }
+      const t = monaco.languages.typescript;
       // moduleDetection 3 = "force": every snippet is its own module, so top-level await works and
       // declarations such as `const name` do not collide with browser globals or with other editors.
       t.typescriptDefaults.setCompilerOptions({ target: t.ScriptTarget.ESNext, module: t.ModuleKind.ESNext, moduleDetection: 3, strict: true, allowNonTsExtensions: true, jsx: t.JsxEmit.ReactJSX });
       t.typescriptDefaults.addExtraLib(REACT_TYPES, 'file:///react-shim.d.ts');
       // Stock 'vs' paints HTML attribute names pure red, which is only 3.99:1 on white. Redefining 'vs' with a
       // darker red keeps the theme id (and Monaco's `vs` class) while meeting WCAG AA.
-      window.monaco.editor.defineTheme('vs', { base: 'vs', inherit: true, rules: [{ token: 'attribute.name', foreground: 'cd3131' }], colors: {} });
+      monaco.editor.defineTheme('vs', { base: 'vs', inherit: true, rules: [{ token: 'attribute.name', foreground: 'cd3131' }], colors: {} });
       // Monaco's theme is global, so one subscription keeps every editor in step with the site theme.
-      window.monaco.editor.setTheme(monacoTheme());
-      watchTheme(() => window.monaco.editor.setTheme(monacoTheme()));
-      ok(window.monaco);
+      monaco.editor.setTheme(monacoTheme());
+      watchTheme(() => monaco.editor.setTheme(monacoTheme()));
+      ok(monaco);
     }, fail);
-  })).catch(e => { monacoP = null; throw e; }));
+  })).catch((e: unknown) => { monacoP = null; throw e; }));
 
   // A simplified version of React's types: enough for the editor to check hooks and component props.
   // The preview runs the real React.
@@ -136,25 +150,30 @@ interface ShimAttrs {
 declare namespace JSX { interface IntrinsicElements { [tag: string]: ShimAttrs } }
 `;
 
-  const live = [];
-  function enhance(ta, lang, run, fileExt) {
-    getMonaco().then(monaco => {
+  interface LiveEditor {
+    host: HTMLElement;
+    ed: { dispose(): void };
+    model: { dispose(): void };
+  }
+  const live: LiveEditor[] = [];
+  function enhance(ta: HTMLTextAreaElement, lang: string, run: () => void, fileExt?: string): void {
+    getMonaco().then((monaco) => {
       // Dispose editors left behind by the previous page before creating new ones.
       for (let i = live.length - 1; i >= 0; i--) if (!live[i].host.isConnected) { live[i].ed.dispose(); live[i].model.dispose(); live.splice(i, 1); }
       if (!ta.isConnected) return;
       const host = h('div', { class: 'monaco-host' + (ta.classList.contains('tall') ? ' tall' : '') });
       ta.after(host); ta.hidden = true;
-      const ext = fileExt || { typescript: 'ts', sql: 'sql', css: 'css', html: 'html' }[lang];
+      const ext = fileExt || ({ typescript: 'ts', sql: 'sql', css: 'css', html: 'html' } as Record<string, string>)[lang] || 'txt';
       const model = monaco.editor.createModel(ta.value, lang, monaco.Uri.parse(`file:///snippet${++seq}.${ext}`));
       const ed = monaco.editor.create(host, { model, theme: monacoTheme(), minimap: { enabled: false }, automaticLayout: true, fontSize: 13.5,
         scrollBeyondLastLine: false, tabSize: 2, lineNumbersMinChars: 3, padding: { top: 10 }, fixedOverflowWidgets: true, ariaLabel: T('Code editor') });
       // The textarea stays the single interface for the rest of the app: reads and writes go to the model.
-      Object.defineProperty(ta, 'value', { configurable: true, get: () => model.getValue(), set: v => { if (v !== model.getValue()) model.setValue(v); } });
+      Object.defineProperty(ta, 'value', { configurable: true, get: () => model.getValue(), set: (v: string) => { if (v !== model.getValue()) model.setValue(v); } });
       ta.focus = () => ed.focus();
       // Ask the TypeScript worker directly: the editor's markers lag a moment behind the latest edit.
-      const markers = () => monaco.editor.getModelMarkers({ resource: model.uri }).filter(m => m.severity === monaco.MarkerSeverity.Error)
+      const markers = (): string[] => monaco.editor.getModelMarkers({ resource: model.uri }).filter(m => m.severity === monaco.MarkerSeverity.Error)
         .map(m => `${T('line')} ${m.startLineNumber}: ${m.message}`);
-      ta.typeErrors = async () => {
+      ta.typeErrors = async (): Promise<string[]> => {
         if (lang !== 'typescript') return markers();
         try {
           const worker = await (await monaco.languages.typescript.getTypeScriptWorker())(model.uri), file = model.uri.toString();
@@ -162,15 +181,15 @@ declare namespace JSX { interface IntrinsicElements { [tag: string]: ShimAttrs }
           return diags.map(d => `${T('line')} ${model.getPositionAt(d.start || 0).lineNumber}: ${typeof d.messageText === 'string' ? d.messageText : d.messageText.messageText}`);
         } catch { return markers(); }
       };
-      model.onDidChangeContent(() => ta.oninput && ta.oninput());
+      model.onDidChangeContent(() => ta.oninput && ta.oninput.call(ta, new InputEvent('input')));
       ed.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, run);
       live.push({ host, ed, model });
     }).catch(() => { /* offline: the textarea remains */ });
   }
 
-  const editor = (value, run, lang, fileExt) => {
+  const editor = (value: string, run: () => void, lang?: string, fileExt?: string): HTMLTextAreaElement => {
     let tabEscape = false;
-    const ta = h('textarea', { class: 'editor', spellcheck: 'false', 'aria-label': T('Code editor (press Escape then Tab to leave)'), onkeydown: e => {
+    const ta = h('textarea', { class: 'editor', spellcheck: 'false', 'aria-label': T('Code editor (press Escape then Tab to leave)'), onkeydown: (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         tabEscape = true;
         return;
@@ -193,25 +212,30 @@ declare namespace JSX { interface IntrinsicElements { [tag: string]: ShimAttrs }
   };
 
   // Lists TypeScript type errors found by the editor, or nothing when the editor is unavailable.
-  const typeNote = async ta => {
+  const typeNote = async (ta: HTMLTextAreaElement): Promise<HTMLDivElement | null> => {
     const errs = ta.typeErrors ? await ta.typeErrors() : [];
     return errs.length ? h('div', { class: 'type-errs' },
       h('p', { class: 'err' }, T(errs.length > 1 ? '{n} type errors, though the code still ran because types are erased at build time:' : '{n} type error, though the code still ran because types are erased at build time:', { n: errs.length })),
       h('ul', {}, errs.slice(0, 6).map(e => h('li', {}, e)))) : null;
   };
 
+  interface IsolatedRunResult {
+    logs: string[];
+    err?: string;
+  }
+
   // Runs JavaScript in a Web Worker so an infinite loop cannot freeze the page.
-  function runIsolated(js, ms = 5000) {
+  function runIsolated(js: string, ms = 5000): Promise<IsolatedRunResult> {
     const src = `const __logs = [];
 const __fmt = v => v === undefined ? 'undefined' : typeof v === 'string' ? v : JSON.stringify(v, (k, x) => x instanceof Map ? Object.fromEntries(x) : x instanceof Set ? [...x] : typeof x === 'bigint' ? x + 'n' : x, 1);
 console.log = console.info = console.warn = console.error = (...a) => { if (__logs.length < 300) __logs.push(a.map(__fmt).join(' ')); };
 (async () => {\n${js}\n})().then(() => self.postMessage({ logs: __logs }), e => self.postMessage({ logs: __logs, err: String(e && e.message || e) }));`;
     const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' })), w = new Worker(url);
-    return new Promise(resolve => {
-      const done = r => { clearTimeout(t); w.terminate(); URL.revokeObjectURL(url); resolve(r); };
+    return new Promise<IsolatedRunResult>(resolve => {
+      const done = (r: IsolatedRunResult) => { clearTimeout(t); w.terminate(); URL.revokeObjectURL(url); resolve(r); };
       const t = setTimeout(() => done({ logs: [], err: T('Stopped after {s} s, likely due to an infinite loop.', { s: ms / 1000 }) }), ms);
-      w.onmessage = e => done(e.data);
-      w.onerror = e => { e.preventDefault(); done({ logs: [], err: (e.message || T('Runtime error')).replace(/^Uncaught /, '') }); };
+      w.onmessage = (e: MessageEvent<IsolatedRunResult>) => done(e.data);
+      w.onerror = (e: ErrorEvent) => { e.preventDefault(); done({ logs: [], err: (e.message || T('Runtime error')).replace(/^Uncaught /, '') }); };
     });
   }
 
@@ -230,7 +254,15 @@ CREATE TABLE accounts (id INTEGER PRIMARY KEY, owner TEXT NOT NULL, balance REAL
 INSERT INTO accounts VALUES (1,'Ana',500),(2,'Budi',200);
 PRAGMA foreign_keys = ON;`;
 
-  const CHALLENGES = [
+  interface SqlChallenge {
+    lvl: 0 | 1 | 2 | 3;
+    t: string;
+    task: string;
+    ordered?: boolean;
+    sol: string;
+  }
+
+  const CHALLENGES: readonly SqlChallenge[] = [
     { lvl: 0, t: 'All customers', task: 'Return the name and city of every customer.', sol: 'SELECT name, city FROM customers;' },
     { lvl: 0, t: 'Cheap tech', task: 'Return name and price of Tech products under 500, cheapest first.', ordered: true, sol: "SELECT name, price FROM products WHERE category = 'Tech' AND price < 500 ORDER BY price;" },
     { lvl: 0, t: 'Unknown city', task: 'Return the names of customers whose city is unknown.', sol: 'SELECT name FROM customers WHERE city IS NULL;' },
@@ -247,12 +279,21 @@ PRAGMA foreign_keys = ON;`;
     { lvl: 3, t: 'Streaks of active months', task: "For each customer, find stretches of consecutive months with at least one paid order. Return customer name, first month, last month as 'YYYY-MM', and month count.", sol: "WITH m AS (SELECT DISTINCT c.name, CAST(strftime('%Y', o.order_date) AS INTEGER) * 12 + CAST(strftime('%m', o.order_date) AS INTEGER) - 1 AS mi FROM orders o JOIN customers c ON c.id = o.customer_id WHERE o.status = 'paid'), g AS (SELECT name, mi, mi - ROW_NUMBER() OVER (PARTITION BY name ORDER BY mi) AS grp FROM m) SELECT name, printf('%04d-%02d', MIN(mi) / 12, MIN(mi) % 12 + 1), printf('%04d-%02d', MAX(mi) / 12, MAX(mi) % 12 + 1), COUNT(*) FROM g GROUP BY name, grp;" }
   ];
 
-  let SQLp;
-  const getSQL = () => SQLp || (SQLp = loadScript(SQLJS_LOADER)
-    .then(() => window.initSqlJs({ locateFile: f => SQLJS + f })).catch(e => { SQLp = null; throw e; }));
+  type SqlJsLib = Awaited<ReturnType<NonNullable<Window['initSqlJs']>>>;
+  type SqlDb = InstanceType<SqlJsLib['Database']>;
+  interface SqlExecResult {
+    columns: string[];
+    values: unknown[][];
+  }
+  let SQLp: Promise<SqlJsLib> | null = null;
+  const getSQL = (): Promise<SqlJsLib> => SQLp || (SQLp = loadScript(SQLJS_LOADER)
+    .then(() => {
+      if (!window.initSqlJs) throw new Error('sql.js failed to initialize');
+      return window.initSqlJs({ locateFile: f => SQLJS + f });
+    }).catch((e: unknown) => { SQLp = null; throw e; }));
 
-  const SQL_PRESETS = { select: 0, dml: 2, aggregate: 3, joins: 4, design: 5, indexes: 1, transactions: 6, subqueries: 8, window: 9, locking: 11, plans: 12, scale: 13 };
-  const SQL_DIALECT_HINTS = [
+  const SQL_PRESETS: Record<string, number> = { select: 0, dml: 2, aggregate: 3, joins: 4, design: 5, indexes: 1, transactions: 6, subqueries: 8, window: 9, locking: 11, plans: 12, scale: 13 };
+  const SQL_DIALECT_HINTS: readonly [RegExp, string][] = [
     [/\bTOP\s*\(?\s*\d+/i, 'SQL Server TOP(n) → SQLite uses LIMIT n at the end of ORDER BY.'],
     [/\b(?:YEAR|MONTH|DAY)\s*\(/i, "SQL Server YEAR()/MONTH() → SQLite uses strftime('%Y', col) or strftime('%m', col)."],
     [/\bGETDATE\s*\(/i, "SQL Server GETDATE() → SQLite uses datetime('now') or CURRENT_TIMESTAMP."],
@@ -260,55 +301,55 @@ PRAGMA foreign_keys = ON;`;
     [/\bOFFSET\s+\d+\s+ROWS?\s+FETCH\b/i, 'SQL Server OFFSET/FETCH → SQLite uses LIMIT n OFFSET m.']
   ];
 
-  function sql(el, sample, onCleanup) {
+  function sql(el: HTMLElement, sample?: string, onCleanup?: OnCleanup): void {
     const LEVELS = getLevels();
-    let db = null, cur = -1, disposed = false;
-    const solved = new Set(store.get(SQL_KEY));
+    let db: SqlDb | null = null, cur = -1, disposed = false;
+    const solved = new Set<number>(store.get(SQL_KEY));
     const out = h('div', { class: 'out', 'aria-live': 'polite' }, h('p', { class: 'muted' }, 'Loading SQLite…'));
     const task = h('p', { class: 'prompt' }, 'Free play, or pick a challenge above.');
     const dialectTip = h('p', { class: 'fb', hidden: true });
     const chips = h('div', { class: 'chips' });
-    const norm = (res, ordered) => {
+    const norm = (res: SqlExecResult[], ordered?: boolean): string => {
       const rows = (res.length ? res[res.length - 1].values : []).map(r => r.map(v => typeof v === 'number' ? Math.round(v * 100) / 100 : v));
       return JSON.stringify(ordered ? rows : rows.map(r => JSON.stringify(r)).sort());
     };
-    const show = (res, modified = db ? db.getRowsModified() : 0) => {
-      if (!res.length) return out.replaceChildren(h('p', { class: 'ok' }, T('OK: {n} row(s) changed.', { n: modified })));
+    const show = (res: SqlExecResult[], modified = db ? db.getRowsModified() : 0): void => {
+      if (!res.length) { out.replaceChildren(h('p', { class: 'ok' }, T('OK: {n} row(s) changed.', { n: modified }))); return; }
       out.replaceChildren(...res.map(r => h('div', {}, h('p', { class: 'muted' }, r.values.length + ' ' + T('row(s)')),
         tableWrap('Query results', h('table', { class: 't' }, h('thead', {}, h('tr', {}, r.columns.map(c => h('th', { scope: 'col' }, c)))),
-          h('tbody', {}, r.values.map(row => h('tr', {}, row.map(v => v === null ? h('td', { class: 'null' }, 'NULL') : h('td', {}, v))))))))));
+          h('tbody', {}, r.values.map(row => h('tr', {}, row.map(v => v === null ? h('td', { class: 'null' }, 'NULL') : h('td', {}, String(v)))))))))));
     };
-    const updateDialectTip = () => {
+    const updateDialectTip = (): void => {
       const hit = SQL_DIALECT_HINTS.find(([rx]) => rx.test(ta.value));
       dialectTip.hidden = !hit;
       if (hit) dialectTip.textContent = T('SQLite dialect tip: ') + T(hit[1]);
     };
-    const run = () => {
-      if (!db) return;
+    const run = (): SqlExecResult[] | null => {
+      if (!db) return null;
       updateDialectTip();
       try { const res = db.exec(ta.value); show(res); return res; }
-      catch (e) { out.replaceChildren(h('p', { class: 'err' }, e.message)); return null; }
+      catch (e: unknown) { out.replaceChildren(h('p', { class: 'err' }, e instanceof Error ? e.message : String(e))); return null; }
     };
     const ta = editor("SELECT name, category, price\nFROM products\nWHERE price > 100\nORDER BY price DESC;", run, 'sql');
     const prevInput = ta.oninput;
-    ta.oninput = () => { prevInput && prevInput(); updateDialectTip(); };
-    const checkAns = () => {
+    ta.oninput = (ev: InputEvent) => { prevInput?.call(ta, ev); updateDialectTip(); };
+    const checkAns = (): void => {
       if (!SQL) return;
-      if (cur < 0) return out.replaceChildren(h('p', { class: 'muted' }, 'Pick a challenge first.'));
+      if (cur < 0) { out.replaceChildren(h('p', { class: 'muted' }, 'Pick a challenge first.')); return; }
       // Show the user's run in the live database, but always grade against a fresh copy of the seed,
       // so an earlier DELETE, UPDATE, or DROP TABLE in free play cannot break grading.
       const liveRes = run();
       const c = CHALLENGES[cur];
       let good = false;
-      let snapRes = null;
-      let snapErr = null;
+      let snapRes: SqlExecResult[] | null = null;
+      let snapErr: unknown = null;
       const snap = new SQL.Database();
       try {
         snap.run(SEED);
         const expected = norm(snap.exec(c.sol), c.ordered);
         snapRes = snap.exec(ta.value);
         good = norm(snapRes, c.ordered) === expected;
-      } catch (e) {
+      } catch (e: unknown) {
         good = false;
         snapErr = e;
       } finally {
@@ -321,14 +362,14 @@ PRAGMA foreign_keys = ON;`;
       if (good) { solved.add(cur); store.set(SQL_KEY, [...solved]); drawChips(); }
       out.prepend(h('p', { class: good ? 'ok' : 'err' }, T(good ? '✓ Correct. Now explain out loud why it works.' : c.ordered ? '✗ Not the expected rows yet. Compare your output with the task (row order matters here).' : '✗ Not the expected rows yet. Compare your output with the task.')));
     };
-    const reset = () => {
+    const reset = (): void => {
       if (!SQL) return;
       if (db) { try { db.close(); } catch { /* ignore */ } }
       db = new SQL.Database();
       db.run(SEED);
       out.replaceChildren(h('p', { class: 'ok' }, 'Database reset to its original contents.'));
     };
-    const selectChallenge = (i, focusEd = true) => {
+    const selectChallenge = (i: number, focusEd = true): void => {
       const c = CHALLENGES[i];
       if (!c) return;
       cur = i;
@@ -338,8 +379,8 @@ PRAGMA foreign_keys = ON;`;
       if (focusEd) ta.focus();
       drawChips();
     };
-    const drawChips = () => chips.replaceChildren(...CHALLENGES.map((c, i) => h('button', { type: 'button', class: (i === cur ? 'on ' : '') + (solved.has(i) ? 'solved' : ''), title: LEVELS[c.lvl], onclick: () => selectChallenge(i, true) }, c.t)));
-    let SQL = null;
+    const drawChips = (): void => chips.replaceChildren(...CHALLENGES.map((c, i) => h('button', { type: 'button', class: (i === cur ? 'on ' : '') + (solved.has(i) ? 'solved' : ''), title: LEVELS[c.lvl], onclick: () => selectChallenge(i, true) }, c.t)));
+    let SQL: SqlJsLib | null = null;
     drawChips();
     if (sample && Object.hasOwn(SQL_PRESETS, sample)) selectChallenge(SQL_PRESETS[sample], false);
     const schemaDrawer = h('details', { class: 'schema-drawer' },
@@ -375,16 +416,16 @@ PRAGMA foreign_keys = ON;`;
           h('button', { type: 'button', class: 'btn ghost', onclick: reset }, 'Reset database'))),
         out));
     // If SQLite cannot load (offline, blocked), the editor stays and Retry loads it again.
-    const loadSql = () => {
+    const loadSql = (): void => {
       out.replaceChildren(h('p', { class: 'muted' }, 'Loading SQLite…'));
       getSQL().then(S => {
         if (disposed) return;
         SQL = S;
         reset();
         out.replaceChildren(h('p', { class: 'muted' }, 'Ready. Run a query to see results here.'));
-      }).catch(e => {
+      }).catch((e: unknown) => {
         if (disposed) return;
-        out.replaceChildren(loadFailure(e.message, loadSql));
+        out.replaceChildren(loadFailure(e instanceof Error ? e.message : String(e), loadSql));
       });
     };
     loadSql();
@@ -392,7 +433,7 @@ PRAGMA foreign_keys = ON;`;
   }
 
   // ---------------- TypeScript ----------------
-  const TS_EXAMPLES = {
+  const TS_EXAMPLES: Record<string, string> = {
     'Array methods': `interface Product { name: string; price: number; inStock: boolean }
 
 const products: Product[] = [
@@ -698,9 +739,9 @@ console.log("price error:", apiErr.fieldErrors["Price"]?.[0]);`
   // React 19 from esm.sh, pinned; react-dom is told to share the same React.
   const REACT_IMPORTS = { react: 'https://esm.sh/react@19.1.0', 'react/jsx-runtime': 'https://esm.sh/react@19.1.0/jsx-runtime',
     'react-dom/client': 'https://esm.sh/react-dom@19.1.0/client?deps=react@19.1.0' };
-  const usesReact = code => /from\s+["']react(-dom\/client)?["']/.test(code);
+  const usesReact = (code: string): boolean => /from\s+["']react(-dom\/client)?["']/.test(code);
   // The preview page: an import map for React, console and errors forwarded to the playground, then the code.
-  const reactPage = js => `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  const reactPage = (js: string): string => `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <style>body{margin:12px;font:15px/1.5 system-ui,sans-serif;color:#111;background:#fff}input,button{font:inherit;padding:.3rem .5rem}</style>
 <script type="importmap">${JSON.stringify({ imports: REACT_IMPORTS })}<\/script>
 <script>
@@ -714,7 +755,7 @@ addEventListener('unhandledrejection', e => send('err', String(e.reason && e.rea
 ${js.replace(/<\/script/gi, '<\\/script')}
 <\/script></body></html>`;
 
-  const TS_PRESETS = {
+  const TS_PRESETS: Record<string, string> = {
     'react-js': 'Array methods', 'react-ts': 'Unions & narrowing', 'react-components': 'React component', 'react-jsdeep': 'Array methods',
     'react-state': 'Immutable state', 'react-effects': 'React effects', 'react-forms': 'React component', 'react-generics': 'Generics',
     'react-hooks': 'Immutable state', 'react-perf': 'React component', 'react-server': 'React effects', 'react-tsadv': 'Generics',
@@ -728,46 +769,59 @@ ${js.replace(/<\/script/gi, '<\\/script')}
     signals: 'Angular signals', rxjs: 'RxJS switchMap vs exhaustMap', http: 'ASP.NET ProblemDetails mapper'
   };
 
-  function ts(el, sample, onCleanup) {
+  function ts(el: HTMLElement, sample?: string, onCleanup?: OnCleanup): void {
     const out = h('div', { class: 'out', 'aria-live': 'polite' }, h('p', { class: 'muted' }, 'Output appears here.'));
     const ngNote = h('p', { class: 'muted', hidden: true }, 'Note: Signal, linkedSignal, and RxJS models run directly here in TypeScript. Full Angular HTML @Component templates require Angular CLI or StackBlitz.');
-    let frame = null;
-    const onMessage = e => {
-      if (!out.isConnected) return removeEventListener('message', onMessage);   // the page was left
+    let frame: HTMLIFrameElement | null = null;
+    const onMessage = (e: MessageEvent<{ stackmasteryPreview?: boolean; kind?: string; text?: string }>): void => {
+      if (!out.isConnected) { removeEventListener('message', onMessage); return; }   // the page was left
       if (!frame || e.source !== frame.contentWindow || !e.data || !e.data.stackmasteryPreview) return;
       const logs = out.querySelector('pre.preview-log') || out.appendChild(h('pre', { class: 'preview-log' }));
-      if (e.data.kind === 'err') out.append(h('p', { class: 'err' }, e.data.text));
-      else logs.textContent += (logs.textContent ? '\n' : '') + e.data.text;
+      if (e.data.kind === 'err') out.append(h('p', { class: 'err' }, e.data.text || ''));
+      else logs.textContent += (logs.textContent ? '\n' : '') + (e.data.text || '');
     };
     addEventListener('message', onMessage);
     onCleanup?.(() => { removeEventListener('message', onMessage); frame = null; });
-    const showReact = async js => {
+    const showReact = async (js: string): Promise<void> => {
       frame = h('iframe', { class: 'preview', sandbox: 'allow-scripts', title: 'React preview' });
       frame.srcdoc = reactPage(js);
-      out.replaceChildren(...[await typeNote(ta), frame, h('p', { class: 'muted' }, 'Console output from the preview appears below it.')].filter(Boolean));
+      const nodes: Node[] = [];
+      const tn = await typeNote(ta);
+      if (tn) nodes.push(tn);
+      nodes.push(frame, h('p', { class: 'muted' }, 'Console output from the preview appears below it.'));
+      out.replaceChildren(...nodes);
     };
-    const run = async () => {
+    const run = async (): Promise<void> => {
       out.replaceChildren(h('p', { class: 'muted' }, 'Running…'));
       // The compiler is a large CDN script: if it cannot load, say so and offer Retry instead of a bare error.
-      try { await loadTS(); } catch (e) { return out.replaceChildren(loadFailure(String(e.message || e), run)); }
+      try { await loadTS(); } catch (e: unknown) { return out.replaceChildren(loadFailure(e instanceof Error ? e.message : String(e), run)); }
       try {
-        const res = window.ts.transpileModule(ta.value, { fileName: 'snippet.tsx', reportDiagnostics: true, compilerOptions: { target: 'ES2022', module: 'ESNext', jsx: window.ts.JsxEmit.ReactJSX } });
-        const diag = (res.diagnostics || []).map(d => window.ts.flattenDiagnosticMessageText(d.messageText, '\n'));
+        const tsCompiler = window.ts;
+        if (!tsCompiler) throw new Error('TypeScript compiler unavailable');
+        const res = tsCompiler.transpileModule(ta.value, { fileName: 'snippet.tsx', reportDiagnostics: true, compilerOptions: { target: 'ES2022', module: 'ESNext', jsx: tsCompiler.JsxEmit.ReactJSX } });
+        const diag = (res.diagnostics || []).map(d => tsCompiler.flattenDiagnosticMessageText(d.messageText, '\n'));
         if (diag.length) throw new Error(T('Syntax error: ') + diag.join('\n'));
         if (usesReact(ta.value)) return showReact(res.outputText);
         frame = null;
         const r = await runIsolated(res.outputText);
-        out.replaceChildren(...[await typeNote(ta), h('pre', {}, r.logs.join('\n') || (r.err ? '' : T('(no output yet, try console.log)'))), r.err ? h('p', { class: 'err' }, r.err) : null].filter(Boolean));
-      } catch (e) {
-        out.replaceChildren(h('p', { class: 'err' }, String(e.message || e)));
+        const nodes: Node[] = [];
+        const tn = await typeNote(ta);
+        if (tn) nodes.push(tn);
+        nodes.push(h('pre', {}, r.logs.join('\n') || (r.err ? '' : T('(no output yet, try console.log)'))));
+        if (r.err) nodes.push(h('p', { class: 'err' }, r.err));
+        out.replaceChildren(...nodes);
+      } catch (e: unknown) {
+        out.replaceChildren(h('p', { class: 'err' }, e instanceof Error ? e.message : String(e)));
       }
     };
     const initialName = (sample && TS_PRESETS[sample]) || (sample && TS_EXAMPLES[sample] && sample) || Object.keys(TS_EXAMPLES)[0];
     const ta = editor(TS_EXAMPLES[initialName], run, 'typescript', 'tsx');
-    const select = name => {
+    const select = (name: string): void => {
       ta.value = TS_EXAMPLES[name];
       ngNote.hidden = !/Angular|RxJS|ProblemDetails/.test(name);
-      [...chips.children].forEach(c => c.classList.toggle('on', c.dataset.k === name));
+      for (const c of chips.children) {
+        if (c instanceof HTMLElement) c.classList.toggle('on', c.dataset.k === name);
+      }
     };
     const chips = h('div', { class: 'chips' }, Object.keys(TS_EXAMPLES).map(name => h('button', { type: 'button', 'data-k': name, onclick: () => select(name) }, name)));
     select(initialName);
@@ -783,7 +837,12 @@ ${js.replace(/<\/script/gi, '<\\/script')}
   }
 
   // ---------------- HTML + CSS (+ Tailwind) ----------------
-  const CSS_EXAMPLES = {
+  interface CssExample {
+    html: string;
+    css: string;
+    tw?: boolean;
+  }
+  const CSS_EXAMPLES: Record<string, CssExample> = {
     'Flexbox navbar': { html: `<nav class="nav">
   <strong>Shop</strong>
   <a href="#">Products</a>
@@ -844,7 +903,7 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
 </div>`, css: '' }
   };
 
-  const CSS_PRESETS = {
+  const CSS_PRESETS: Record<string, string> = {
     html: 'Flexbox navbar',
     flexbox: 'Flexbox navbar',
     grid: 'Responsive grid',
@@ -860,11 +919,12 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
     responsive: 'Tailwind responsive'
   };
 
-  function css(el, sample, onCleanup) {
-    let t = 0, ro = null;
+  function css(el: HTMLElement, sample?: string, onCleanup?: OnCleanup): void {
+    let t = 0;
+    let ro: ResizeObserver | null = null;
     const frame = h('iframe', { class: 'preview', sandbox: 'allow-scripts', title: 'Preview' });
     const size = h('span', { class: 'muted' });
-    const render = () => {
+    const render = (): void => {
       const tw = twBox.checked;
       // Inside <style> the HTML parser ends the element at "</style", so a stray one in the CSS box would let the rest
       // of the text become markup in the preview. Escaping the slash keeps it as plain (ignored) CSS text.
@@ -873,11 +933,20 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
         (tw ? `<script src="${TAILWIND_URL}" integrity="${SRI[TAILWIND_URL]}" crossorigin="anonymous"><\/script>` : '') +
         `<style${tw ? ' type="text/tailwindcss"' : ''}>${safeCss}</style></head><body>${htmlTa.value}</body></html>`;
     };
-    const later = () => { clearTimeout(t); t = setTimeout(render, 350); };
+    const later = (): void => { clearTimeout(t); t = window.setTimeout(render, 350); };
     const htmlTa = editor('', render, 'html'), cssTa = editor('', render, 'css');
     htmlTa.oninput = cssTa.oninput = later;
     const twBox = h('input', { type: 'checkbox', onchange: render });
-    const load = name => { const x = CSS_EXAMPLES[name]; htmlTa.value = x.html; cssTa.value = x.css; twBox.checked = !!x.tw; [...chips.children].forEach(c => c.classList.toggle('on', c.dataset.k === name)); render(); };
+    const load = (name: string): void => {
+      const x = CSS_EXAMPLES[name];
+      htmlTa.value = x.html;
+      cssTa.value = x.css;
+      twBox.checked = !!x.tw;
+      for (const c of chips.children) {
+        if (c instanceof HTMLElement) c.classList.toggle('on', c.dataset.k === name);
+      }
+      render();
+    };
     const chips = h('div', { class: 'chips' }, Object.keys(CSS_EXAMPLES).map(n => h('button', { type: 'button', 'data-k': n, onclick: () => load(n) }, n)));
     const wrap = h('div', { class: 'preview-wrap' }, frame);
     const unwatch = () => { clearTimeout(t); if (ro) { ro.disconnect(); ro = null; } };
@@ -907,33 +976,37 @@ button { background: var(--accent); color: var(--bg); border: 0; border-radius: 
   // When the embedded editor reports that it is ready, the selected lesson sample is posted into it.
   const DARTPAD = 'https://dartpad.dev';
   const DART_READY_MS = 10000;   // DartPad answers with 'ready' within this long, or the embed counts as unreachable
-  const dartSrc = theme => `${DARTPAD}/?embed=true&theme=${theme}`;
-  function dart(el, sample, onCleanup) {
+  const dartSrc = (theme: string): string => `${DARTPAD}/?embed=true&theme=${theme}`;
+  function dart(el: HTMLElement, sample?: string, onCleanup?: OnCleanup): void {
     const track = getTrack('flutter');
+    if (!track) return;
     // Samples DartPad can run as they are: a main() and no third-party packages.
-    const samples = track.lessons.filter(l => /\bmain\(\)/.test(l.code) && !/package:(?!flutter\/)/.test(l.code));
-    let cur = samples.find(l => l.id === sample) || samples[0], ready = false, theme = resolvedTheme(), timer = 0;
-    const code = l => l.code.replace(/^\n+|\s+$/g, '');
+    const samples = track.lessons.filter(l => l.code && /\bmain\(\)/.test(l.code) && !/package:(?!flutter\/)/.test(l.code));
+    let cur = samples.find(l => l.id === sample) || samples[0];
+    let ready = false;
+    let theme = resolvedTheme();
+    let timer = 0;
+    const code = (l: typeof samples[number]): string => (l.code || '').replace(/^\n+|\s+$/g, '');
     const frame = h('iframe', { class: 'dartpad', title: 'DartPad', src: dartSrc(theme), allow: 'clipboard-write' });
     const notice = h('div', {});
     const codeBox = h('div', {});
-    const send = () => { if (ready && frame.contentWindow) frame.contentWindow.postMessage({ sourceCode: code(cur), type: 'sourceCode' }, DARTPAD); };
+    const send = (): void => { if (ready && frame.contentWindow) frame.contentWindow.postMessage({ sourceCode: code(cur), type: 'sourceCode' }, DARTPAD); };
     // A cross-origin iframe cannot report a blocked load, so no 'ready' message in time (or being offline) is the signal.
-    const fail = () => { if (!ready) notice.replaceChildren(loadFailure(T('DartPad could not be loaded. It needs an internet connection and may be blocked on this network.'), reload)); };
-    const arm = () => { clearTimeout(timer); if (navigator.onLine === false) fail(); else timer = setTimeout(fail, DART_READY_MS); };
-    const reload = () => { ready = false; notice.replaceChildren(); frame.src = dartSrc(theme); arm(); };
-    const onMsg = e => {
-      if (!frame.isConnected) return stop();
+    const fail = (): void => { if (!ready) notice.replaceChildren(loadFailure(T('DartPad could not be loaded. It needs an internet connection and may be blocked on this network.'), reload)); };
+    const arm = (): void => { clearTimeout(timer); if (navigator.onLine === false) fail(); else timer = window.setTimeout(fail, DART_READY_MS); };
+    const reload = (): void => { ready = false; notice.replaceChildren(); frame.src = dartSrc(theme); arm(); };
+    const onMsg = (e: MessageEvent<{ type?: string }>): void => {
+      if (!frame.isConnected) { stop(); return; }
       if (e.origin === DARTPAD && e.source === frame.contentWindow && e.data && e.data.type === 'ready') { ready = true; clearTimeout(timer); notice.replaceChildren(); send(); }
     };
     // Switching the site theme (or the OS theme) reloads DartPad with the matching theme, then posts the sample again.
     const unwatchTheme = watchTheme(next => { theme = next; reload(); });
-    const stop = () => { removeEventListener('message', onMsg); unwatchTheme(); clearTimeout(timer); };
+    const stop = (): void => { removeEventListener('message', onMsg); unwatchTheme(); clearTimeout(timer); };
     addEventListener('message', onMsg);
     onCleanup?.(stop);
     arm();
     const chips = h('div', { class: 'chips' });
-    const draw = () => {
+    const draw = (): void => {
       chips.replaceChildren(...samples.map(l => h('button', { type: 'button', class: l === cur ? 'on' : '', onclick: () => { cur = l; draw(); send(); } }, l.title)));
       codeBox.replaceChildren(codeBlock(code(cur), 'dart'));
     };

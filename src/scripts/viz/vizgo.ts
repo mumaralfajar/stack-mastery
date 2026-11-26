@@ -3,15 +3,15 @@ import { codeBlock, h, tableWrap } from '../../lib/dom.ts';
 import { t as T } from '../../lib/i18n.ts';
 import { VIZ } from './registry.ts';
   const meta = { track: 'go', trackName: 'Go' };
-  const btn = (label, onclick, cls) => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
-  const pills = (opts, cur, onPick) => {
+  const btn = (label: string, onclick: () => void, cls?: string): HTMLButtonElement => h('button', { type: 'button', class: 'btn sm ' + (cls || ''), onclick }, label);
+  const pills = <T extends string>(opts: [T, string][], cur: T, onPick: (k: T) => void): HTMLElement => {
     const row = h('div', { class: 'chips' });
-    const btns = {};
+    const btns = {} as Record<T, HTMLButtonElement>;
     for (const [k, lbl] of opts) {
       btns[k] = h('button', {
         type: 'button', class: k === cur ? 'on' : '', 'aria-pressed': String(k === cur),
         onclick: () => {
-          Object.entries(btns).forEach(([x, b]) => { b.classList.toggle('on', x === k); b.setAttribute('aria-pressed', String(x === k)); });
+          (Object.entries(btns) as [T, HTMLButtonElement][]).forEach(([x, b]) => { b.classList.toggle('on', x === k); b.setAttribute('aria-pressed', String(x === k)); });
           onPick(k);
         }
       }, lbl);
@@ -19,7 +19,7 @@ import { VIZ } from './registry.ts';
     }
     return row;
   };
-  function stepper(countFn, draw) {
+  function stepper(countFn: () => number, draw: (i: number) => void) {
     let i = 0;
     const lbl = h('span', { class: 'muted' });
     const back = btn('← Back', () => { i--; upd(); }, 'ghost');
@@ -42,9 +42,11 @@ import { VIZ } from './registry.ts';
     title: 'Slice header, capacity, and aliasing',
     desc: 'Compare a[0:2] (keeps cap = 4 and overwrites a[2]) with a full-slice expression a[0:2:2] so append allocates a new array.',
     mount(el) {
-      let mode = 'alias';
+      type SliceMode = 'alias' | 'safe';
+      interface SliceStep { line: string; aHdr: string; subHdr: string; arrA: string[]; arrB: string[] | null; hotIdx: number; badIdx: number; note: string; }
+      let mode: SliceMode = 'alias';
       const box = h('div', {}), note = h('p', { class: 'viz-note', 'aria-live': 'polite' });
-      const steps = {
+      const steps: Record<SliceMode, SliceStep[]> = {
         alias: [
           { line: 'a := []int{10, 20, 30, 40}', aHdr: 'ptr=#A, len=4, cap=4', subHdr: '—', arrA: ['10', '20', '30', '40'], arrB: null, hotIdx: -1, badIdx: -1, note: 'a points to backing array #A of 4 ints. A slice header holds 3 words: pointer, len, cap.' },
           { line: 'sub := a[0:2]', aHdr: 'ptr=#A, len=4, cap=4', subHdr: 'ptr=#A, len=2, cap=4', arrA: ['10', '20', '30', '40'], arrB: null, hotIdx: 1, badIdx: -1, note: 'sub shares array #A. Its len is 2, while cap is still 4, so two spare slots remain inside a.' },
@@ -75,7 +77,7 @@ import { VIZ } from './registry.ts';
               ] : null)));
         note.textContent = T(st.note);
       });
-      const ctl = pills([['alias', 'Normal slice a[0:2] (aliasing bug)'], ['safe', 'Full slice a[0:2:2] (safe copy)']], mode, m => { mode = m; s.reset(); });
+      const ctl = pills<SliceMode>([['alias', 'Normal slice a[0:2] (aliasing bug)'], ['safe', 'Full slice a[0:2:2] (safe copy)']], mode, m => { mode = m; s.reset(); });
       el.append(ctl, s.el, box, note);
       s.start();
     }
@@ -87,9 +89,11 @@ import { VIZ } from './registry.ts';
     title: 'Interfaces and the typed-nil trap',
     desc: 'Each interface value holds two words (dynamic type, data pointer). Compare returning a typed nil *ValidationError pointer against returning nil.',
     mount(el) {
-      let mode = 'typednil';
+      type NilMode = 'typednil' | 'truenil';
+      interface NilStep { code: string; typeWord: string; valWord: string; eqNil: string; cls: string; note: string; }
+      let mode: NilMode = 'typednil';
       const box = h('div', {}), note = h('p', { class: 'viz-note', 'aria-live': 'polite' });
-      const steps = {
+      const steps: Record<NilMode, NilStep[]> = {
         typednil: [
           { code: 'var err *ValidationError = nil\nreturn err   // signature returns `error` interface', typeWord: '*ValidationError', valWord: 'nil (0x0)', eqNil: 'false', cls: 'tt-gone', note: 'Go wraps err into an `error` interface box: the type word becomes *ValidationError and the data word is nil.' },
           { code: 'if err := validate(input); err != nil {\n    return err   // BUG: enters even when valid!\n}', typeWord: '*ValidationError', valWord: 'nil (0x0)', eqNil: 'false (!= nil)', cls: 'tt-gone', note: 'An interface equals nil only when both words are nil. Here type != nil, so err != nil is true and err.Error() panics on the nil pointer.' }
@@ -113,7 +117,7 @@ import { VIZ } from './registry.ts';
               h('div', { class: 'slot ' + st.cls }, h('span', {}, 'err == nil'), h('b', {}, st.eqNil)))));
         note.textContent = T(st.note);
       });
-      const ctl = pills([['typednil', 'Typed nil pointer (trap)'], ['truenil', 'Untyped nil (correct)']], mode, m => { mode = m; s.reset(); });
+      const ctl = pills<NilMode>([['typednil', 'Typed nil pointer (trap)'], ['truenil', 'Untyped nil (correct)']], mode, m => { mode = m; s.reset(); });
       el.append(ctl, s.el, box, note);
       s.start();
     }
@@ -125,9 +129,11 @@ import { VIZ } from './registry.ts';
     title: 'Goroutines, channels, and select',
     desc: 'Step through unbuffered handoffs, buffered queues, and select waiting on ctx.Done() timeouts.',
     mount(el) {
-      let mode = 'unbuf';
+      type ChanMode = 'unbuf' | 'buf' | 'select';
+      interface ChanStep { prod: string; ch: string; cons: string; pCls: string; cCls: string; note: string; }
+      let mode: ChanMode = 'unbuf';
       const box = h('div', {}), note = h('p', { class: 'viz-note', 'aria-live': 'polite' });
-      const steps = {
+      const steps: Record<ChanMode, ChanStep[]> = {
         unbuf: [
           { prod: 'Running: prepares "order-1"', ch: 'Empty (cap 0)', cons: 'Idle', pCls: 'tt-upd', cCls: '', note: 'Unbuffered make(chan string) holds zero items, so sender and receiver must meet at the same time.' },
           { prod: 'BLOCKED on ch <- "order-1"', ch: 'Waiting for receiver', cons: 'Preparing…', pCls: 'tt-gone', cCls: '', note: 'The sender pauses at ch <- because no goroutine is reading yet.' },
@@ -151,7 +157,7 @@ import { VIZ } from './registry.ts';
           h('div', { class: 'slot ' + st.cCls }, h('span', {}, 'Receiver / select'), h('b', {}, T(st.cons)))));
         note.textContent = T(st.note);
       });
-      const ctl = pills([['unbuf', 'Unbuffered (sync handoff)'], ['buf', 'Buffered (cap = 2)'], ['select', 'select + ctx.Done()']], mode, m => { mode = m; s.reset(); });
+      const ctl = pills<ChanMode>([['unbuf', 'Unbuffered (sync handoff)'], ['buf', 'Buffered (cap = 2)'], ['select', 'select + ctx.Done()']], mode, m => { mode = m; s.reset(); });
       el.append(ctl, s.el, box, note);
       s.start();
     }
@@ -163,9 +169,11 @@ import { VIZ } from './registry.ts';
     title: 'context.Context cancellation tree',
     desc: 'Compare passing r.Context() into child goroutines and db.QueryContext with breaking the chain using context.Background().',
     mount(el) {
-      let mode = 'prop';
+      type CtxMode = 'prop' | 'leak';
+      interface CtxStep { req: string; work: string; db: string; rC: string; wC: string; dC: string; note: string; }
+      let mode: CtxMode = 'prop';
       const box = h('div', {}), note = h('p', { class: 'viz-note', 'aria-live': 'polite' });
-      const steps = {
+      const steps: Record<CtxMode, CtxStep[]> = {
         prop: [
           { req: 'Active (GET /orders)', work: 'Running with timeout ctx (200 ms)', db: 'db.QueryContext(ctx, ...)', rC: 'tt-upd', wC: 'tt-upd', dC: 'tt-upd', note: 'The handler wraps r.Context() with WithTimeout and passes it as the first argument to every layer.' },
           { req: 'Client closes connection', work: '<-ctx.Done() signal received', db: 'QueryContext aborts SQL query', rC: 'tt-gone', wC: 'tt-new', dC: 'tt-new', note: 'When the client disconnects, Go closes ctx.Done(). Both the worker and database driver stop their work.' },
@@ -189,7 +197,7 @@ import { VIZ } from './registry.ts';
             h('td', {}, h('code', {}, layer)), h('td', {}, T(val))))))));
         note.textContent = T(st.note);
       });
-      const ctl = pills([['prop', 'Propagates r.Context() (safe)'], ['leak', 'Uses context.Background() (leaks)']], mode, m => { mode = m; s.reset(); });
+      const ctl = pills<CtxMode>([['prop', 'Propagates r.Context() (safe)'], ['leak', 'Uses context.Background() (leaks)']], mode, m => { mode = m; s.reset(); });
       el.append(ctl, s.el, box, note);
       s.start();
     }

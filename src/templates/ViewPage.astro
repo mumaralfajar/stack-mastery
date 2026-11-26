@@ -1,6 +1,6 @@
 ---
 // Static page shell for a client-rendered view: pre-rendered heading (for SEO and first paint) that the
-// view island (src/scripts/view-island.js) replaces with the live view named by `view`.
+// view island (src/scripts/view-island.ts) replaces with the live view named by `view`.
 import BaseLayout from '../layouts/BaseLayout.astro';
 import WorkspaceLayout from '../layouts/WorkspaceLayout.astro';
 import { jsonForScript, pageStrings } from '../lib/ssr.ts';
@@ -60,4 +60,4 @@ const payload = data === undefined ? '' : jsonForScript(data);
     {payload && <script type="application/json" id="view-data" set:html={payload} />}
   </WorkspaceLayout>
 )}
-<script src="../scripts/view-island.js"></script>
+<script src="../scripts/view-island.ts"></script>

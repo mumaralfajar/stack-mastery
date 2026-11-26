@@ -2,16 +2,18 @@ import { LESSON_INDEX } from '../../data/manifest.ts';
 import { h } from '../../lib/dom.ts';
 import { GOALS, getGoalConfig, prioritizeTracks } from '../../lib/goals.ts';
 import { getLevels, t as T } from '../../lib/i18n.ts';
-import { bar, dots, href, ico, lessonHref, ring, section } from '../../lib/icons.ts';
+import { ico } from '../../lib/icons.ts';
+import { bar, dots, href, lessonHref, ring, section } from '../../lib/ui.ts';
 import { dueCountIndex, masteredCountIndex, overallPctIndex, trackPctIndex } from '../../lib/progress.ts';
 import { S, interviewReadiness, key, notifyStateChange, peek, save, score, streak } from '../../lib/state.ts';
+import type { CatalogLesson, CatalogTrack, LearnerGoal, LevelIndex, TrackCatalog } from '../../lib/types.ts';
 
 // `catalog` is the page's pre-rendered track list ({ tracks: [{ id, name, tagline, lessons: [{ id, title, level }] }] }),
 // so the dashboard never loads lesson prose; progress comes from the manifest.
-export function dashboard(catalog) {
+export function dashboard(catalog: TrackCatalog): HTMLDivElement {
   const wrap = h('div', { class: 'page' });
 
-  const render = (focusGoalId = null) => {
+  const render = (focusGoalId: string | null = null): void => {
     const tracks = catalog.tracks;
     const levels = getLevels();
     const goal = S.onboarding?.goal || null;
@@ -22,13 +24,13 @@ export function dashboard(catalog) {
 
     const mastered = masteredCountIndex();
     const overall = overallPctIndex();
-    const pct = (t, lvl) => trackPctIndex(t.id, lvl);
+    const pct = (t: CatalogTrack, lvl?: LevelIndex): number => trackPctIndex(t.id, lvl);
     const started = orderedTracks.filter((t) =>
       t.lessons.some((l) => score(key(t, l)) > 0 || peek(key(t, l)).read || peek(key(t, l)).quiz || peek(key(t, l)).teach),
     );
     const next = (started.length ? started : orderedTracks.slice(0, 1))
       .map((t) => ({ t, l: t.lessons.find((l) => score(key(t, l)) < 3) }))
-      .filter((x) => x.l)
+      .filter((x): x is { t: CatalogTrack; l: CatalogLesson } => Boolean(x.l))
       .sort(
         (x, y) =>
           x.l.level - y.l.level ||
@@ -36,9 +38,9 @@ export function dashboard(catalog) {
           pct(x.t) - pct(y.t),
       );
     const readyPct = interviewReadiness();
-    const stat = (n, label) => h('div', { class: 'stat' }, h('b', {}, n), h('span', {}, label));
+    const stat = (n: number, label: string) => h('div', { class: 'stat' }, h('b', {}, n), h('span', {}, label));
 
-    const setGoal = (nextGoal) => {
+    const setGoal = (nextGoal: LearnerGoal | null): void => {
       S.onboarding = nextGoal ? { ...S.onboarding, goal: nextGoal } : {};
       save();
       notifyStateChange('study');
@@ -129,13 +131,13 @@ export function dashboard(catalog) {
             recommended ? h('span', { class: 'chip goal-badge' }, 'Recommended for your goal') : null,
             h('strong', {}, t.name),
             h('p', {}, t.tagline),
-            h('div', { class: 'lvls' }, levels.map((n, i) => h('div', {}, h('span', {}, n), bar(pct(t, i), n)))),
+            h('div', { class: 'lvls' }, levels.map((n, i) => h('div', {}, h('span', {}, n), bar(pct(t, i as LevelIndex), n)))),
           ),
         ),
       ),
     );
 
-    wrap.replaceChildren(
+    const dashBlocks: Node[] = [
       h(
         'header',
         { class: 'hero' },
@@ -169,28 +171,30 @@ export function dashboard(catalog) {
         stat(LESSON_INDEX.length, 'lessons total'),
       ),
       goalSection,
-      next.length
-        ? section(
-            started.length ? 'Continue where you left off' : 'Recommended first lesson',
-            h(
-              'div',
-              { class: 'grid', 'data-next-grid': '' },
-              next.map(({ t, l }) =>
-                h(
-                  'a',
-                  { class: 'card go', href: lessonHref(t, l), style: { '--tc': `var(--${t.id})` } },
-                  ico(t.id, 'card-ico'),
-                  h('span', { class: 'card-k' }, t.name + ' · ' + levels[l.level]),
-                  h('strong', {}, l.title),
-                  dots(key(t, l)),
+      ...(next.length
+        ? [
+            section(
+              started.length ? 'Continue where you left off' : 'Recommended first lesson',
+              h(
+                'div',
+                { class: 'grid', 'data-next-grid': '' },
+                next.map(({ t, l }) =>
+                  h(
+                    'a',
+                    { class: 'card go', href: lessonHref(t, l), style: { '--tc': `var(--${t.id})` } },
+                    ico(t.id, 'card-ico'),
+                    h('span', { class: 'card-k' }, t.name + ' · ' + levels[l.level]),
+                    h('strong', {}, l.title),
+                    dots(key(t, l)),
+                  ),
                 ),
               ),
             ),
-          )
-        : null,
-      goalCfg?.elevateInterview ? interviewSection : null,
+          ]
+        : []),
+      ...(goalCfg?.elevateInterview ? [interviewSection] : []),
       tracksSection,
-      goalCfg?.elevateInterview ? null : interviewSection,
+      ...(!goalCfg?.elevateInterview ? [interviewSection] : []),
       section(
         'How a lesson works',
         h(
@@ -261,13 +265,14 @@ export function dashboard(catalog) {
           ),
         ),
       ),
-    );
+    ];
+    wrap.replaceChildren(...dashBlocks);
 
     if (focusGoalId) {
       const target =
         focusGoalId === 'clear'
-          ? wrap.querySelector('[data-goal]')
-          : wrap.querySelector(`[data-goal="${focusGoalId}"]`);
+          ? wrap.querySelector<HTMLButtonElement>('[data-goal]')
+          : wrap.querySelector<HTMLButtonElement>(`[data-goal="${focusGoalId}"]`);
       target?.focus();
     }
   };
