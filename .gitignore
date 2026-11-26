@@ -8,6 +8,7 @@ stack-mastery-backup-*.json
 .idea/
 .agents/
 .impeccable/
+# Local authoring specs (intentionally excluded from git; workspace-only reference)
 DESIGN.md
 PRODUCT.md
 skills-lock.json

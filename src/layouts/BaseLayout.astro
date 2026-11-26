@@ -5,8 +5,9 @@ import '../styles/style.css';
 import '../styles/landing.css';
 import '../styles/break.css';
 import SeoHead from '../components/SeoHead.astro';
-import { BASE } from '../lib/routes.ts';
 import { t } from '../lib/i18n.ts';
+import { STORAGE_KEY } from '../lib/keys.ts';
+import { BASE } from '../lib/routes.ts';
 import type { Lang } from '../lib/types.ts';
 
 interface Props {
@@ -35,9 +36,11 @@ const registerSw = import.meta.env.PROD;
     <meta name="text-scale" content="scale" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#06090f" />
-    <script is:inline>
+    <script is:inline data-storage-key={STORAGE_KEY}>
       try {
-        const t = JSON.parse(localStorage.getItem("stackmastery.v1") || "{}").theme;
+        const s = document.querySelector("script[data-storage-key]");
+        const k = s?.getAttribute("data-storage-key") || "";
+        const t = k ? JSON.parse(localStorage.getItem(k) || "{}").theme : null;
         if (t === "light" || t === "dark") {
           document.documentElement.dataset.theme = t;
           const m = document.querySelector('meta[name="color-scheme"]');
@@ -58,7 +61,7 @@ const registerSw = import.meta.env.PROD;
     <SeoHead lang={lang} path={path} title={title} description={description} ogType={ogType} jsonLd={jsonLd} noindex={noindex} />
   </head>
   <body class={bodyClass}>
-    <a class="skip" href="#view" onclick="document.getElementById('view')?.focus(); return false;">{t('Skip to content', lang)}</a>
+    <a class="skip" href="#view">{t('Skip to content', lang)}</a>
     <slot />
     {registerSw && (
       <script is:inline data-sw-url={swUrl} data-sw-scope={swScope}>

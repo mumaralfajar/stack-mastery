@@ -14,6 +14,7 @@
     "lint": "biome check src tools tests",
     "test": "bun test",
     "typecheck": "astro check && tsc --noEmit",
+    "sync:manifest": "node tools/sync-manifest.mjs",
     "check:i18n": "node tools/check-i18n.mjs",
     "verify:cs": "node tools/verify.mjs",
     "verify:aspnet": "node tools/verify-aspnet.mjs",

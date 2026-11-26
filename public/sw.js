@@ -5,7 +5,9 @@
 // - Pages: network-first, falling back to the cached page, then the offline 404 page.
 // - Hashed build assets (/stack-mastery/_astro/*): cache-first (file names change whenever content changes).
 // - Other same-origin files (search index, icons, manifest): stale-while-revalidate.
+// astro.config.mjs stamps VERSION with a build hash and populates ASTRO_ASSETS on build.
 const VERSION = 'stack-mastery-v2';
+const ASTRO_ASSETS = null;
 const SCOPE = '/stack-mastery/';
 const SHELL = [
   '/stack-mastery/',
@@ -33,10 +35,25 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k.startsWith('stack-mastery-') && k !== VERSION).map((k) => caches.delete(k))))
-      .then(() => self.clients.claim()),
+    Promise.all([
+      caches
+        .keys()
+        .then((keys) => Promise.all(keys.filter((k) => k.startsWith('stack-mastery-') && k !== VERSION).map((k) => caches.delete(k)))),
+      ASTRO_ASSETS instanceof Set
+        ? caches.open(VERSION).then((cache) =>
+            cache.keys().then((reqs) =>
+              Promise.all(
+                reqs
+                  .filter((req) => {
+                    const p = new URL(req.url).pathname;
+                    return p.startsWith(`${SCOPE}_astro/`) && !ASTRO_ASSETS.has(p);
+                  })
+                  .map((req) => cache.delete(req)),
+              ),
+            ),
+          )
+        : Promise.resolve(),
+    ]).then(() => self.clients.claim()),
   );
 });
 

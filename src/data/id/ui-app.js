@@ -286,8 +286,6 @@ const dict = {
   'Lessons': 'Materi',
   'Interview': 'Interview',
   'Visualizations': 'Visualisasi',
-  'Missed ({d}d)': 'Lupa ({d} h)',
-  'Got it ({d}d)': 'Ingat ({d} h)',
 
   // static site shell, SEO and page fallbacks
   'Skip to content': 'Langsung ke konten',

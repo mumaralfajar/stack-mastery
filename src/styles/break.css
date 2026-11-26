@@ -1,5 +1,5 @@
 /* Frieren Flower Magic Break Room (#/break) — Full-Bleed Sanctuary & Grimoire */
-
+@layer components {
 .br-root {
   --br-glass: color-mix(in srgb, var(--surface) 88%, transparent);
   --br-glass-strong: color-mix(in srgb, var(--surface) 94%, transparent);
@@ -663,7 +663,9 @@
     display: none;
   }
 }
+}
 
+@layer utilities {
 @media (prefers-reduced-motion: reduce) {
   .br-hud,
   .br-hint-pill {
@@ -690,4 +692,5 @@
   .br-track-seed {
     transition: border-color .15s, background-color .15s;
   }
+}
 }

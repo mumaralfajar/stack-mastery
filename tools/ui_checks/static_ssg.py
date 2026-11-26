@@ -154,7 +154,10 @@ def static_checks(check):
     check(any(i.get("type") == "image/svg+xml" for i in icons.values()), "manifest must declare an SVG icon")
 
     sw = (DIST / "sw.js").read_text(encoding="utf-8")
-    check(re.search(r"const VERSION = 'stack-mastery-v\d+'", sw) is not None, "sw.js must use a versioned cache name")
+    check(
+        re.search(r"const VERSION = 'stack-mastery-v\d+-[0-9a-f]{8}'", sw) is not None and "const ASTRO_ASSETS = new Set([" in sw,
+        "dist/sw.js must use a build-hashed cache name and an ASTRO_ASSETS Set",
+    )
     css_assets = [p.name for p in (DIST / "_astro").glob("*.css")]
     check(any(n.startswith("styles.") for n in css_assets) and not any(n.startswith("icons.") for n in css_assets),
           f"Shared CSS bundle must be named styles.*.css instead of icons.*.css, got {css_assets}")

@@ -2,7 +2,7 @@
 [data-legacy-redirect] body { visibility: hidden; }
 
 /* Full-bleed Landing Shell, Distributed Packet Reactor & Kinetic Scroll Sections */
-
+@layer components {
 body.is-landing {
   overflow-x: clip;
 }
@@ -562,7 +562,7 @@ body:not(.is-landing) #nav .nav-top .brand {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 600px) {
   .lp-stage {
     padding: .85rem .9rem 1rem;
   }
@@ -619,13 +619,10 @@ body:not(.is-landing) #nav .nav-top .brand {
   }
 }
 
-@media (max-width: 440px) {
+@media (max-width: 420px) {
   .lp-search-opt {
     display: none;
   }
-}
-
-@media (max-width: 380px) {
   .lp-bar {
     padding: .5rem .6rem;
     gap: .25rem;
@@ -649,7 +646,9 @@ body:not(.is-landing) #nav .nav-top .brand {
     padding: .3rem .46rem;
   }
 }
+}
 
+@layer utilities {
 @media (prefers-reduced-motion: reduce) {
   .lp-dock {
     transition: border-radius .22s, background-color .22s, box-shadow .22s;
@@ -666,4 +665,5 @@ body:not(.is-landing) #nav .nav-top .brand {
   .lp-trow:hover {
     transform: none;
   }
+}
 }

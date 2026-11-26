@@ -14,6 +14,7 @@ import { ID_WEB_TRACKS } from '../src/data/id/web.ts';
 import { INTERVIEW_TOTALS, LESSON_INDEX, LEVELS_EN, LEVELS_ID, TRACK_META } from '../src/data/manifest.ts';
 import { getAllTracks, getInterview, getProjects, getTrack } from '../src/lib/i18n.ts';
 import { VIZ, VIZ_IDS, VIZ_MODULE, loadAllViz } from '../src/scripts/viz/registry.ts';
+import { checkManifestSync } from './sync-manifest.mjs';
 
 await loadCurriculum();
 const IV = await loadInterviewData();
@@ -405,6 +406,16 @@ const scanUi = (dir) => {
         if (k) needsUi(k[2], `${e.name} ${name} chip`);
       }
     }
+    for (const m of s.matchAll(/\b(?:confirmDialog|alertDialog)\(/g)) {
+      if (s.slice(Math.max(0, m.index - 10), m.index).includes('function ')) continue;
+      const { args } = splitArgs(s, m.index + m[0].length);
+      const opts = args[1] && s.slice(...args[1]);
+      if (opts) {
+        for (const om of opts.matchAll(/\b(?:title|confirmText|cancelText|okText)\s*:\s*(['"])((?:\\.|(?!\1).)+)\1/g)) {
+          needsUi(unq(om[1] + om[2] + om[1]), e.name + ' dialog option');
+        }
+      }
+    }
   }
 };
 scanUi(fileURLToPath(new URL('../src/scripts', import.meta.url)));
@@ -457,6 +468,41 @@ const scanAstro = (dir) => {
   }
 };
 scanAstro(fileURLToPath(new URL('../src', import.meta.url)));
+
+// ---------- Unused UI translation key check ----------
+// Collect every non-data/id .ts/.js/.astro source string (excluding generated manifest.ts) so
+// both direct T('...') calls and indirect string tables / .astro templates are accounted for.
+const idDirNorm = fileURLToPath(new URL('../src/data/id', import.meta.url)).replaceAll('\\', '/');
+const manifestPathNorm = fileURLToPath(new URL('../src/data/manifest.ts', import.meta.url)).replaceAll('\\', '/');
+const sourceChunks = [];
+const collectCorpus = (dir) => {
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, e.name);
+    const norm = p.replaceAll('\\', '/');
+    if (e.isDirectory()) {
+      if (norm === idDirNorm) continue;
+      collectCorpus(p);
+      continue;
+    }
+    if (!/\.(ts|js|astro)$/.test(e.name) || norm === manifestPathNorm) continue;
+    sourceChunks.push(readFileSync(p, 'utf8'));
+  }
+};
+collectCorpus(fileURLToPath(new URL('../src', import.meta.url)));
+const uiCorpus = sourceChunks.join('\n');
+for (const [k] of uiMap) {
+  const esc1 = k.replaceAll("'", "\\'").replaceAll('\n', '\\n');
+  const esc2 = k.replaceAll('"', '\\"').replaceAll('\n', '\\n');
+  if (!uiCorpus.includes(k) && !uiCorpus.includes(esc1) && !uiCorpus.includes(esc2)) {
+    errors.push(`unused I18N.ui key (${uiOwners.get(k)}): ${k}`);
+  }
+}
+
+// ---------- Generated manifest & README summary count sync ----------
+const syncRes = await checkManifestSync({ write: false });
+if (!syncRes.ok) {
+  errors.push(`manifest/README out of sync (${syncRes.stale.join(', ')}) — run \`bun run sync:manifest\``);
+}
 
 console.log(`${astroFiles} .astro templates scanned.`);
 console.log(`${lessons} lessons, ${uiMap.size} interface strings, and manifest (${TRACK_META.length} tracks, ${LESSON_INDEX.length} lessons, ${INTERVIEW_TOTALS.problems}/${INTERVIEW_TOTALS.cases}/${INTERVIEW_TOTALS.behavioralThemes}/${INTERVIEW_TOTALS.rapidTotal}/${INTERVIEW_TOTALS.maxMocks} IV) checked.`);
