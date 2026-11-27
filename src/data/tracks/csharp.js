@@ -2,6 +2,8 @@
 export const track = {
   id: 'csharp', name: 'C#', lang: 'cs',
   tagline: 'The language: from types and classes to async, memory, and performance.',
+  verifiedAgainst: '.NET 10 / C# 14',
+  verifiedDate: '2026-11-26',
   lessons: [
     // ---------------- Beginner ----------------
     {

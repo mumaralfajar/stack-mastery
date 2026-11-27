@@ -23,6 +23,8 @@ export const TRACK_META: readonly TrackMeta[] = [
     "lang": "cs",
     "tagline": "The language: from types and classes to async, memory, and performance.",
     "taglineId": "Bahasanya: mulai dari tipe data dan class sampai async, memori, dan performa.",
+    "verifiedAgainst": ".NET 10 / C# 14",
+    "verifiedDate": "2026-11-26",
     "lessonCount": 14
   },
   {
@@ -31,6 +33,8 @@ export const TRACK_META: readonly TrackMeta[] = [
     "lang": "cs",
     "tagline": "The foundations: Git, complexity, data structures, and algorithms behind coding interviews and everyday performance.",
     "taglineId": "Fondasinya: Git, complexity, data structure, dan algoritma di balik coding interview serta keputusan performa sehari-hari.",
+    "verifiedAgainst": ".NET 10 / Node 26",
+    "verifiedDate": "2026-11-26",
     "lessonCount": 10
   },
   {
@@ -39,6 +43,8 @@ export const TRACK_META: readonly TrackMeta[] = [
     "lang": "sql",
     "tagline": "Data in SQL Server: querying, schema design, indexing, transactions, and tuning.",
     "taglineId": "Data di SQL Server: query, desain skema, indexing, transaksi, dan tuning.",
+    "verifiedAgainst": "SQL Server 2022 / SQLite 3",
+    "verifiedDate": "2026-11-26",
     "lessonCount": 12
   },
   {
@@ -47,6 +53,8 @@ export const TRACK_META: readonly TrackMeta[] = [
     "lang": "cs",
     "tagline": "The backend: HTTP, APIs, dependency injection, EF Core, security, and production.",
     "taglineId": "Backend-nya: HTTP, API, dependency injection, EF Core, security, dan production.",
+    "verifiedAgainst": "ASP.NET Core 10",
+    "verifiedDate": "2026-11-26",
     "lessonCount": 14
   },
   {
@@ -55,6 +63,8 @@ export const TRACK_META: readonly TrackMeta[] = [
     "lang": "css",
     "tagline": "Visual styling: the cascade, layout systems, responsive design, and Tailwind CSS.",
     "taglineId": "Tampilannya: cascade, layout, desain responsif, dan Tailwind CSS.",
+    "verifiedAgainst": "CSS Baseline 2026 / Tailwind CSS 4.3",
+    "verifiedDate": "2026-11-26",
     "lessonCount": 13
   },
   {
@@ -63,6 +73,8 @@ export const TRACK_META: readonly TrackMeta[] = [
     "lang": "tsx",
     "tagline": "The frontend: modern JavaScript, the type system, components, state and architecture.",
     "taglineId": "Bagian frontend: JavaScript modern, type system, komponen, state, dan arsitektur.",
+    "verifiedAgainst": "TypeScript 6 / React 19.1",
+    "verifiedDate": "2026-11-26",
     "lessonCount": 14
   },
   {
@@ -71,6 +83,8 @@ export const TRACK_META: readonly TrackMeta[] = [
     "lang": "ts",
     "tagline": "Typed frontend apps with components, Signals, dependency injection, Signal Forms, HTTP, and SSR.",
     "taglineId": "Framework frontend lengkap: component, Signal, dependency injection, Signal Forms, HTTP, hingga SSR.",
+    "verifiedAgainst": "Angular 22",
+    "verifiedDate": "2026-11-26",
     "lessonCount": 14
   },
   {
@@ -79,6 +93,8 @@ export const TRACK_META: readonly TrackMeta[] = [
     "lang": "dart",
     "tagline": "Mobile apps from scratch: Dart, widgets, Bloc state management, testing, and shipping to real devices.",
     "taglineId": "Aplikasi mobile-nya: bahasa Dart, widget, state dengan Bloc, testing, sampai rilis ke HP sungguhan.",
+    "verifiedAgainst": "Dart 3.13 / Flutter 3.47",
+    "verifiedDate": "2026-11-26",
     "lessonCount": 14
   },
   {
@@ -87,6 +103,8 @@ export const TRACK_META: readonly TrackMeta[] = [
     "lang": "go",
     "tagline": "Typed, concurrent backend services in Go: slices, interfaces, errors, net/http, json/v2, goroutines, context, SQL, and pprof.",
     "taglineId": "Layanan backend Go yang bertipe jelas dan konkuren: slice, interface, error, net/http, json/v2, goroutine, context, SQL, dan pprof.",
+    "verifiedAgainst": "Go 1.27",
+    "verifiedDate": "2026-11-26",
     "lessonCount": 14
   },
   {
@@ -95,6 +113,8 @@ export const TRACK_META: readonly TrackMeta[] = [
     "lang": "go",
     "tagline": "Architecture, caching, rate limiting, storage engines, sharding, queues, resilience, observability, and tool selection for scale.",
     "taglineId": "Arsitektur, caching, rate limiting, mesin penyimpanan, sharding, antrean pesan, ketahanan sistem, observabilitas, dan pemilihan tools berskala besar.",
+    "verifiedAgainst": "Go 1.27 / Node 26",
+    "verifiedDate": "2026-11-26",
     "lessonCount": 16
   }
 ];

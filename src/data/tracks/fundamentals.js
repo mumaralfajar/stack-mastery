@@ -2,6 +2,8 @@
 export const track = {
   id: 'cs', name: 'CS Fundamentals', lang: 'cs',
   tagline: 'The foundations: Git, complexity, data structures, and algorithms behind coding interviews and everyday performance.',
+  verifiedAgainst: '.NET 10 / Node 26',
+  verifiedDate: '2026-11-26',
   lessons: [
     // ---------------- Beginner ----------------
     {

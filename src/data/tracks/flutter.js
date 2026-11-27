@@ -4,6 +4,8 @@
 export const track = {
   id: 'flutter', name: 'Dart + Flutter', lang: 'dart',
   tagline: 'Mobile apps from scratch: Dart, widgets, Bloc state management, testing, and shipping to real devices.',
+  verifiedAgainst: 'Dart 3.13 / Flutter 3.47',
+  verifiedDate: '2026-11-26',
   lessons: [
     // ---------------- Beginner ----------------
     {

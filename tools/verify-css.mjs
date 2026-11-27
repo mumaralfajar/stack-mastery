@@ -6,8 +6,8 @@
 // Usage: node tools/verify-css.mjs [--show]
 //   Requires Google Chrome (or Edge) and internet access the first time, for npm packages.
 import { execFileSync, execSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import cssTrack from '../src/data/tracks/css.js';
@@ -26,7 +26,7 @@ const fail = msg => { failures++; console.log(msg); };
 
 // ---------- npm packages (installed once into the scratch folder) ----------
 writeFileSync(join(work, 'package.json'), JSON.stringify({ name: 'stackmastery-css-verify', private: true, type: 'module' }));
-if (!existsSync(join(work, 'node_modules', '@tailwindcss', 'cli'))) {
+if (!existsSync(join(work, 'node_modules', '@tailwindcss', 'cli', 'dist', 'index.mjs'))) {
   console.log('Installing Tailwind, TypeScript and React types (first run only)…');
   execSync(`npm install --no-audit --no-fund tailwindcss@${TAILWIND} @tailwindcss/cli@${TAILWIND} typescript@5 react@19 @types/react@19 clsx@2 tailwind-merge@3`, { cwd: work, stdio: 'pipe' });
 }
@@ -79,9 +79,36 @@ export const bad = <Button intent="purple" />;
 }
 
 // ---------- 1 + 2. Chrome: CSS validity and 360px rendering ----------
-const chrome = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
-  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '/usr/bin/google-chrome', '/usr/bin/chromium'].find(existsSync);
-if (!chrome) { console.log('Chrome or Edge not found: skipping the browser checks.'); process.exit(failures ? 1 : 0); }
+function findChrome() {
+  const explicit = [
+    process.env.CHROME_PATH,
+    'C:/Program Files/Google/Chrome/Application/chrome.exe',
+    'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    '/usr/bin/google-chrome',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+  ].filter(Boolean);
+  const direct = explicit.find((p) => existsSync(p));
+  if (direct) return direct;
+  const pwRoot = join(homedir(), '.cache', 'ms-playwright');
+  if (existsSync(pwRoot)) {
+    for (const dir of readdirSync(pwRoot).sort().reverse()) {
+      for (const rel of ['chrome-linux/chrome', 'chrome-linux64/chrome', 'chrome-win64/chrome.exe', 'chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing']) {
+        const candidate = join(pwRoot, dir, rel);
+        if (existsSync(candidate)) return candidate;
+      }
+    }
+  }
+  return null;
+}
+const chrome = findChrome();
+if (!chrome) {
+  const msg = 'Chrome or Edge not found: cannot run browser CSS checks.';
+  if (process.env.CI) { console.error(msg); process.exit(1); }
+  console.log(msg + ' Skipping browser checks locally.');
+  process.exit(failures ? 1 : 0);
+}
 
 const samples = lessons.map(l => ({ id: l.id, lang: langOf(l), code: l.code,
   css: l.id === 'tailwind' ? twCss : '' }));
@@ -136,8 +163,10 @@ async function render(id, html, css) {
 })();
 <\/script>`;
 writeFileSync(join(work, 'out', 'check.html'), page);
-const dom = execFileSync(chrome, ['--headless=new', '--disable-gpu', '--no-first-run', '--virtual-time-budget=15000',
-  '--dump-dom', pathToFileURL(join(work, 'out', 'check.html')).href], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 120000 });
+const chromeArgs = ['--headless=new', '--disable-gpu', '--no-first-run', '--virtual-time-budget=15000'];
+if (process.platform === 'linux') chromeArgs.push('--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage');
+chromeArgs.push('--dump-dom', pathToFileURL(join(work, 'out', 'check.html')).href);
+const dom = execFileSync(chrome, chromeArgs, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 120000 });
 const json = (dom.match(/RESULTS(\[.*?\])<\/pre>/s) || [])[1];
 if (!json) fail('Chrome did not report results:\n' + dom.slice(0, 500));
 else {

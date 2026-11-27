@@ -1,16 +1,19 @@
 // Runs every SQL lesson sample against a real SQL Server.
 // Each lesson gets a fresh scratch database seeded with the same data as the SQL playground,
 // and any error fails the check. The scratch database is dropped at the end.
-// Usage: node tools/verify-sql.mjs [--server .\SQLEXPRESS] [--show]
-//   Requires sqlcmd and a SQL Server you can reach with Windows authentication.
+// Usage: node tools/verify-sql.mjs [--server .\SQLEXPRESS] [--user sa] [--password <pw>] [--docker <container>] [--show]
+//   Uses Windows Integrated Auth (-E) by default, or SQL auth (-U/-P) / docker exec when specified.
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import track from '../src/data/tracks/sql.js';
 
 const arg = name => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : null; };
-const server = arg('--server') || '.\\SQLEXPRESS';
+const server = arg('--server') || process.env.SQLCMDSERVER || '.\\SQLEXPRESS';
+const user = arg('--user') || process.env.SQLCMDUSER || '';
+const password = arg('--password') || process.env.MSSQL_SA_PASSWORD || '';
+const dockerContainer = arg('--docker') || process.env.SQL_DOCKER_CONTAINER || '';
 const show = process.argv.includes('--show');
 const DB = 'StackMasteryVerify';
 
@@ -40,9 +43,29 @@ INSERT INTO accounts VALUES (1,'Ana',500),(2,'Budi',200);
 
 const dir = join(tmpdir(), 'stackmastery-sql');
 mkdirSync(dir, { recursive: true });
-const sqlcmd = (file, db = 'master') =>
+const authArgs = user ? ['-U', user, '-P', password] : ['-E'];
+const sqlcmd = (file, db = 'master') => {
   // -I turns QUOTED_IDENTIFIER on, as SSMS and .NET connections do.
-  execFileSync('sqlcmd', ['-S', server, '-E', '-C', '-b', '-I', '-d', db, '-W', '-i', file], { encoding: 'utf8', stdio: 'pipe' });
+  const common = ['-S', dockerContainer ? 'localhost' : server, ...authArgs, '-C', '-b', '-I', '-d', db, '-W'];
+  if (dockerContainer) {
+    const sqlText = readFileSync(file, 'utf8');
+    return execFileSync(
+      'docker',
+      [
+        'exec',
+        '-i',
+        dockerContainer,
+        'sh',
+        '-c',
+        'BIN=$(command -v sqlcmd || echo /opt/mssql-tools18/bin/sqlcmd); [ -x "$BIN" ] || BIN=/opt/mssql-tools/bin/sqlcmd; cat > /tmp/verify.sql && "$BIN" "$@" -i /tmp/verify.sql',
+        '--',
+        ...common,
+      ],
+      { input: sqlText, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] },
+    );
+  }
+  return execFileSync('sqlcmd', [...common, '-i', file], { encoding: 'utf8', stdio: 'pipe' });
+};
 const runText = (name, text, db) => { const f = join(dir, name); writeFileSync(f, text); return sqlcmd(f, db); };
 const reset = () => runText('reset.sql', `IF DB_ID('${DB}') IS NOT NULL BEGIN ALTER DATABASE [${DB}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [${DB}]; END;\nCREATE DATABASE [${DB}];`);
 

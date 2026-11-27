@@ -4,6 +4,8 @@
 export const track = {
   id: 'sysdesign', name: 'System Design', lang: 'go',
   tagline: 'Architecture, caching, rate limiting, storage engines, sharding, queues, resilience, observability, and tool selection for scale.',
+  verifiedAgainst: 'Go 1.27 / Node 26',
+  verifiedDate: '2026-11-26',
   lessons: [
     // ---------------- Beginner ----------------
     {

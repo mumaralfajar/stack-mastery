@@ -4,6 +4,8 @@
 export const track = {
   id: 'go', name: 'Go', lang: 'go',
   tagline: 'Typed, concurrent backend services in Go: slices, interfaces, errors, net/http, json/v2, goroutines, context, SQL, and pprof.',
+  verifiedAgainst: 'Go 1.27',
+  verifiedDate: '2026-11-26',
   lessons: [
     // ---------------- Beginner ----------------
     {

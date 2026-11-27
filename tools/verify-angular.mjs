@@ -22,7 +22,10 @@ let failures = 0;
 const fail = msg => { failures++; console.log(msg); };
 
 writeFileSync(join(work, 'package.json'), JSON.stringify({ name: 'stackmastery-angular-verify', private: true, type: 'module' }));
-if (!existsSync(join(work, 'node_modules', '@angular', 'compiler-cli')) || !existsSync(join(work, 'node_modules', 'vitest'))) {
+if (
+  !existsSync(join(work, 'node_modules/@angular/compiler-cli/bundles/src/bin/ngc.js')) ||
+  !existsSync(join(work, 'node_modules/vitest/vitest.mjs'))
+) {
   console.log('Installing Angular 22, RxJS, TypeScript 6 and Vitest (first run only)…');
   execSync('npm install --no-audit --no-fund @angular/core@22 @angular/common@22 @angular/forms@22 @angular/router@22 ' +
     '@angular/platform-browser@22 @angular/compiler@22 @angular/compiler-cli@22 @angular/ssr@22 @angular/aria@22 ' +

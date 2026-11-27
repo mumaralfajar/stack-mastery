@@ -233,6 +233,7 @@ Stack Mastery is a Progressive Web App (`public/manifest.webmanifest`, `public/s
 | `astro.config.mjs`, `package.json`, `bun.lock` | Astro 7.4 configuration, npm/bun scripts, and the locked dependency tree |
 | `biome.json` | Biome lint rules for `src/` and `tools/` (`bun run lint`) |
 | `.github/workflows/ci.yml` | Pull request quality gates: lint, type check, i18n, build, Playwright UI + axe-core, and Conventional Commits |
+| `.github/workflows/verify-curriculum.yml` | Weekly (and curriculum-PR) verification running all language compilers/runtimes (`verify:cs`, `verify:aspnet`, `verify:go`, `verify:sysdesign`, `verify:css`, `verify:react`, `verify:angular`, `verify:dart`, `verify:sql`) |
 | `.github/workflows/deploy.yml` | GitHub Pages deployment on every push to `main` |
 | `src/pages/` | English routes; `src/pages/id/` holds the same routes in Bahasa Indonesia. Each file is a thin wrapper around a template, plus `404.astro` and the `search-index.json` endpoints |
 | `src/templates/` | Shared page templates (`LandingPage`, `LessonPage`, `PlanPage`, `TrackPage`, `LabPage`, `ViewPage` for client-rendered views, and others) |
@@ -258,7 +259,7 @@ Stack Mastery is a Progressive Web App (`public/manifest.webmanifest`, `public/s
 
 All curriculum content is plain ES module data inside `src/data/` so no application logic needs edits.
 
-Add a lesson to `lessons` in a track file inside `src/data/tracks/`, then regenerate `src/data/manifest.ts` (and the summary totals above) with `bun run sync:manifest`. The build creates its `/lesson/…/` and `/plan/…/` pages in both languages automatically:
+Add a lesson to `lessons` in a track file inside `src/data/tracks/`, keep each track's `verifiedAgainst` and `verifiedDate` metadata current (within 180 days, enforced by `bun run check:i18n`), then regenerate `src/data/manifest.ts` (and the summary totals above) with `bun run sync:manifest`. The build creates its `/lesson/…/` and `/plan/…/` pages in both languages automatically:
 
 ```js
 {

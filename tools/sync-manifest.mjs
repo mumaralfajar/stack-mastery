@@ -35,6 +35,8 @@ export async function computeCurriculumStats() {
     lang: t.lang,
     tagline: t.tagline,
     taglineId: idById[t.id]?.tagline ?? t.tagline,
+    verifiedAgainst: t.verifiedAgainst,
+    verifiedDate: t.verifiedDate,
     lessonCount: t.lessons.length,
   }));
   const interviewTotals = {

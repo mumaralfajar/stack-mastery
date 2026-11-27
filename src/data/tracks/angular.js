@@ -4,6 +4,8 @@
 export const track = {
   id: 'angular', name: 'Angular', lang: 'ts',
   tagline: 'Typed frontend apps with components, Signals, dependency injection, Signal Forms, HTTP, and SSR.',
+  verifiedAgainst: 'Angular 22',
+  verifiedDate: '2026-11-26',
   lessons: [
     // ---------------- Beginner ----------------
     {

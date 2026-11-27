@@ -2,6 +2,8 @@
 export const track = {
   id: 'sql', name: 'SQL', lang: 'sql',
   tagline: 'Data in SQL Server: querying, schema design, indexing, transactions, and tuning.',
+  verifiedAgainst: 'SQL Server 2022 / SQLite 3',
+  verifiedDate: '2026-11-26',
   lessons: [
     // ---------------- Beginner ----------------
     {

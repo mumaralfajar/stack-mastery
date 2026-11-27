@@ -20,6 +20,8 @@ describe('i18n & ssr helpers', () => {
       name: 'Test Track',
       lang: 'ts',
       tagline: 'English tagline',
+      verifiedAgainst: 'TypeScript 6',
+      verifiedDate: '2026-11-26',
       lessons: [
         {
           id: 'intro',
