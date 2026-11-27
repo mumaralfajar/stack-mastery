@@ -19,6 +19,8 @@ if (!existsSync(join(proj, 'pubspec.yaml'))) {
   console.log('Creating scratch Flutter project (first run only)…');
   sh(`flutter create --project-name sm_verify --platforms web "${proj}"`, tmpdir());
   sh('flutter pub add flutter_bloc http go_router shared_preferences');
+} else if (!existsSync(join(proj, '.dart_tool', 'package_config.json'))) {
+  sh('flutter pub get');
 }
 // Flutter's recommended lints, as in a new project. print() is how the plain-Dart samples show output.
 writeFileSync(join(proj, 'analysis_options.yaml'),

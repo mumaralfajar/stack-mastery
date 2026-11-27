@@ -37,7 +37,7 @@ let failures = 0, built = 0, executed = 0;
 for (const l of track.lessons) {
   const pkgDir = join(work, l.id);
   mkdirSync(pkgDir, { recursive: true });
-  writeFileSync(join(pkgDir, 'go.mod'), `module sm_${l.id}\n\ngo 1.27.4\n`);
+  writeFileSync(join(pkgDir, 'go.mod'), `module sm_${l.id}\n\ngo 1.27\n`);
 
   const code = l.code.replace(/^\n+|\s+$/g, '') + '\n';
   const isSplitTest = l.id === 'testing' || l.id === 'profiling';

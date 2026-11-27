@@ -44,6 +44,8 @@ export interface Track {
   name: string;
   lang: string;
   tagline: string;
+  verifiedAgainst: string;
+  verifiedDate: string;
   lessons: Lesson[];
 }
 
@@ -54,6 +56,8 @@ export interface TrackMeta {
   lang: string;
   tagline: string;
   taglineId?: string;
+  verifiedAgainst: string;
+  verifiedDate: string;
   lessonCount: number;
 }
 

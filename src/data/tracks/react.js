@@ -2,6 +2,8 @@
 export const track = {
   id: 'react', name: 'TypeScript + React', lang: 'tsx',
   tagline: 'The frontend: modern JavaScript, the type system, components, state and architecture.',
+  verifiedAgainst: 'TypeScript 6 / React 19.1',
+  verifiedDate: '2026-11-26',
   lessons: [
     // ---------------- Beginner ----------------
     {

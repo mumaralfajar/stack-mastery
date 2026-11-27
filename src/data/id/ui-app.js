@@ -282,6 +282,7 @@ const dict = {
   'Commit to a prediction before inspecting the output or explanation below.': 'Pilih tebakanmu dulu sebelum membaca output atau penjelasan di bawah.',
   'Predicted.': 'Sudah ditebak.',
   'Recommended first lesson': 'Materi pertama yang disarankan',
+  'Last verified against {env} ({date})': 'Terakhir diverifikasi pada {env} ({date})',
   'All': 'Semua',
   'Lessons': 'Materi',
   'Interview': 'Interview',

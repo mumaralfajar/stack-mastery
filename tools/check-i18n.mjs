@@ -182,10 +182,29 @@ for (const [k, exp] of Object.entries(expectedTotals)) {
   }
 }
 same('manifest.TRACK_META', TRACKS, TRACK_META);
+const MAX_VERIFIED_AGE_DAYS = 180;
+const nowMs = Date.now();
 TRACKS.forEach((t, i) => {
   const m = TRACK_META[i];
-  if (!m || m.id !== t.id || m.lessonCount !== t.lessons.length) {
+  if (
+    !m ||
+    m.id !== t.id ||
+    m.lessonCount !== t.lessons.length ||
+    m.verifiedAgainst !== t.verifiedAgainst ||
+    m.verifiedDate !== t.verifiedDate
+  ) {
     errors.push(`manifest.TRACK_META[${i}]: mismatch for track ${t.id}`);
+  }
+  if (!t.verifiedAgainst || !t.verifiedAgainst.trim()) {
+    errors.push(`track ${t.id}: missing verifiedAgainst metadata`);
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(t.verifiedDate || '') || Number.isNaN(Date.parse(t.verifiedDate))) {
+    errors.push(`track ${t.id}: invalid verifiedDate "${t.verifiedDate}" (expected YYYY-MM-DD)`);
+  } else {
+    const ageDays = (nowMs - Date.parse(t.verifiedDate)) / 86400000;
+    if (ageDays > MAX_VERIFIED_AGE_DAYS) {
+      errors.push(`track ${t.id}: verifiedDate "${t.verifiedDate}" is ${Math.round(ageDays)} days old (max ${MAX_VERIFIED_AGE_DAYS})`);
+    }
   }
 });
 const flatLessons = TRACKS.flatMap((t) =>

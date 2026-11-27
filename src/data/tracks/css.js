@@ -2,6 +2,8 @@
 export const track = {
   id: 'css', name: 'CSS + Tailwind', lang: 'css',
   tagline: 'Visual styling: the cascade, layout systems, responsive design, and Tailwind CSS.',
+  verifiedAgainst: 'CSS Baseline 2026 / Tailwind CSS 4.3',
+  verifiedDate: '2026-11-26',
   lessons: [
     // ---------------- Beginner ----------------
     {

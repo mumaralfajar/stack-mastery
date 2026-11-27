@@ -22,7 +22,7 @@ const fail = msg => { failures++; console.log(msg); };
 const bin = (pkg, file) => join(work, 'node_modules', pkg, file);
 
 writeFileSync(join(work, 'package.json'), JSON.stringify({ name: 'stackmastery-react-verify', private: true, type: 'module' }));
-if (!existsSync(join(work, 'node_modules', 'vitest'))) {
+if (!existsSync(bin('vitest', 'vitest.mjs')) || !existsSync(bin('typescript', 'lib/typescript.js'))) {
   console.log('Installing TypeScript, React 19 and test libraries (first run only)…');
   execSync('npm install --no-audit --no-fund typescript@5 react@19 react-dom@19 @types/react@19 @types/react-dom@19 ' +
     '@tanstack/react-query@5 @testing-library/react@16 @testing-library/dom@10 @testing-library/user-event@14 ' +

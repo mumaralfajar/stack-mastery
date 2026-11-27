@@ -62,6 +62,9 @@ const placementData = jsonForScript({
       <p class="eyebrow">{T('Track')}</p>
       <h1>{t.name}</h1>
       <p class="lede">{t.tagline}</p>
+      <p class="muted" style="margin: .35rem 0 0; font-size: .84rem;">
+        {T('Last verified against {env} ({date})', { env: t.verifiedAgainst, date: t.verifiedDate })}
+      </p>
       <div class="bar" role="img" aria-label={`${t.name} 0%`} data-track-bar data-label={t.name}><i style="width: 0%"></i></div>
       {beginnerLessons.length > 0 && (
         <div class="actions placement-bar">

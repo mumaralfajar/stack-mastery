@@ -2,6 +2,8 @@
 export const track = {
   id: 'aspnet', name: 'ASP.NET Core', lang: 'cs',
   tagline: 'The backend: HTTP, APIs, dependency injection, EF Core, security, and production.',
+  verifiedAgainst: 'ASP.NET Core 10',
+  verifiedDate: '2026-11-26',
   lessons: [
     // ---------------- Beginner ----------------
     {
